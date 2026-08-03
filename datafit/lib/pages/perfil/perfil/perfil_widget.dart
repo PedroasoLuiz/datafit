@@ -1,4 +1,5 @@
 import '/auth/supabase_auth/auth_util.dart';
+import '/components/excluir_conta.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/components/navbar/navbar_widget.dart';
@@ -782,7 +783,12 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                 ),
                               ),
                             ),
-                            if (FFAppState().perfil.tipoPerfilId == 1)
+                            // No iOS a tabela de precos dos planos fica oculta:
+                            // a Apple (Guideline 3.1.1) trata exibicao de preco
+                            // de assinatura digital vendida fora da App Store
+                            // como motivo de rejeicao. Os planos sao geridos
+                            // exclusivamente pelo site.
+                            if (FFAppState().perfil.tipoPerfilId == 1 && !isiOS)
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     valueOrDefault<double>(
@@ -1904,6 +1910,77 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                                         ),
                                                   ),
                                                 ].divide(SizedBox(height: 3.0)),
+                                              ),
+                                            ),
+                                            Icon(
+                                              FFIcons
+                                                  .kproperty1FiRrAngleSmallRight,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 20.0,
+                                            ),
+                                          ].divide(SizedBox(width: 16.0)),
+                                        ),
+                                      ),
+                                      Divider(
+                                        height: 1.0,
+                                        thickness: 1.0,
+                                        indent: 48.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                      ),
+                                      // Exclusao de conta — exigida pela Apple
+                                      // (App Store Guideline 5.1.1(v)).
+                                      InkWell(
+                                        splashColor: Colors.transparent,
+                                        focusColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () async {
+                                          await confirmarExclusaoConta(context);
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Container(
+                                              width: 32.0,
+                                              height: 32.0,
+                                              decoration: BoxDecoration(
+                                                color: Color(0xFFFDD0D2),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        100.0),
+                                              ),
+                                              child: Icon(
+                                                Icons.delete_outline,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .error,
+                                                size: 16.0,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                'Excluir minha conta',
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                          color:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .error,
+                                                          fontSize: 13.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                               ),
                                             ),
                                             Icon(
