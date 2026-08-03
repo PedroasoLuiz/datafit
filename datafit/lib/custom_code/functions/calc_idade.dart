@@ -1,0 +1,35 @@
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import '/flutter_flow/custom_functions.dart';
+import 'package:ff_commons/flutter_flow/lat_lng.dart';
+import 'package:ff_commons/flutter_flow/place.dart';
+import 'package:ff_commons/flutter_flow/uploaded_file.dart';
+import '/backend/schema/structs/index.dart';
+import '/backend/supabase/supabase.dart';
+import '/auth/supabase_auth/auth_util.dart';
+
+String calcIdade(String datas) {
+  if (datas.isEmpty) {
+    return '-';
+  }
+
+  DateTime data;
+  try {
+    data = DateTime.parse(datas);
+  } catch (e) {
+    return '-';
+  }
+
+  final today = DateTime.now();
+  int age = today.year - data.year;
+  if (today.month < data.month ||
+      (today.month == data.month && today.day < data.day)) {
+    age--;
+  }
+  return age.toString();
+}

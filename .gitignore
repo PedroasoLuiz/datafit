@@ -1,0 +1,59 @@
+# ---- Segredos: NUNCA commitar ----
+*.keystore
+*.jks
+*.p12
+*.p8
+*.mobileprovision
+*.cer
+*.certSigningRequest
+key.properties
+**/key.properties
+*service-account*.json
+*encoded-keyword*.json
+GoogleService-Info.plist
+google-services.json
+
+# ---- Flutter / Dart ----
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/generated_plugin_registrant.dart
+app.*.symbols
+app.*.map.json
+
+# ---- iOS ----
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/.last_build_id
+**/*.ipa
+**/*.dSYM.zip
+
+# ---- Android ----
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/*.aab
+**/*.apk
+
+# ---- Editores / SO ----
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+__pycache__/
+*.pyc

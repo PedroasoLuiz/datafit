@@ -1,0 +1,1683 @@
+import '/auth/supabase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
+import '/backend/schema/structs/index.dart';
+import '/components/empty_aluno_widget.dart';
+import '/components/mensagem_widget.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/pages/alunos/novo_aluno/novo_aluno_widget.dart';
+import '/pages/components/navbar/navbar_widget.dart';
+import 'dart:ui';
+import '/actions/actions.dart' as action_blocks;
+import '/flutter_flow/custom_functions.dart' as functions;
+import '/index.dart';
+import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
+    as cupertino_time_picker_hiuzb7_app_state;
+import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:provider/provider.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
+import 'aluno_model.dart';
+export 'aluno_model.dart';
+
+class AlunoWidget extends StatefulWidget {
+  const AlunoWidget({super.key});
+
+  static String routeName = 'aluno';
+  static String routePath = '/aluno';
+
+  @override
+  State<AlunoWidget> createState() => _AlunoWidgetState();
+}
+
+class _AlunoWidgetState extends State<AlunoWidget> {
+  late AlunoModel _model;
+
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _model = createModel(context, () => AlunoModel());
+
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      _model.menu = 0;
+      safeSetState(() {});
+      _model.alunospersonal =
+          FFAppState().alunosdopersonal.toList().cast<PersonalalunosStruct>();
+      safeSetState(() {});
+      await action_blocks.loadingNotifica(context);
+      safeSetState(() {});
+    });
+
+    _model.textController ??= TextEditingController();
+    _model.textFieldFocusNode ??= FocusNode();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _model.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+    context.watch<cupertino_time_picker_hiuzb7_app_state.FFAppState>();
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        drawer: Drawer(
+          elevation: 16.0,
+          width: MediaQuery.of(context).size.width * 0.88,
+          child: WebViewAware(
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            16.0, 60.0, 16.0, 0.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Text(
+                                    'Notificações',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium
+                                                    .fontStyle,
+                                          ),
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              FFIcons.kproperty1FiRrBell,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 16.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 12.0),
+                      Expanded(
+                        child: Builder(
+                          builder: (context) {
+                            final notis = FFAppState()
+                                .notificacoes
+                                .map((e) => e)
+                                .toList();
+                            if (notis.isEmpty) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 40.0),
+                                child: Center(
+                                  child: Text(
+                                    'Sem notificações',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          font: GoogleFonts.inter(),
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                          letterSpacing: 0.0,
+                                        ),
+                                  ),
+                                ),
+                              );
+                            }
+                            return SingleChildScrollView(
+                              controller: _model.columnController2,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: List.generate(notis.length,
+                                    (notisIndex) {
+                                  final notisItem = notis[notisIndex];
+                                  return Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(16.0, 2.0, 16.0, 2.0),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        if (!notisItem.lida && notisItem.tag != 'pagamento') {
+                                          final res = await PerfilGroup.marcarNotiComoLidaCall.call(
+                                            notificacaoId: notisItem.id,
+                                            user: currentUserUid,
+                                          );
+                                          if (res?.succeeded ?? false) {
+                                            FFAppState().updateNotificacoesAtIndex(
+                                              notisIndex,
+                                              (e) => e..lida = getJsonField((res?.jsonBody ?? ''), r'''$.lida'''),
+                                            );
+                                            safeSetState(() {});
+                                          }
+                                        }
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                          padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: 42.0,
+                                                height: 42.0,
+                                                decoration: BoxDecoration(
+                                                  color: notisItem.tag == 'pagamento'
+                                                      ? FlutterFlowTheme.of(context).accent1
+                                                      : notisItem.tag == 'convite'
+                                                          ? FlutterFlowTheme.of(context).accent1
+                                                          : notisItem.tag == 'treino'
+                                                              ? Color(0xFFE8F5E9)
+                                                              : notisItem.tag == 'meta'
+                                                                  ? FlutterFlowTheme.of(context).accent2
+                                                                  : Color(0xFFF3E5F5),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  notisItem.tag == 'pagamento'
+                                                      ? Icons.payments_rounded
+                                                      : notisItem.tag == 'convite'
+                                                          ? Icons.person_add_rounded
+                                                          : notisItem.tag == 'treino'
+                                                              ? Icons.fitness_center_rounded
+                                                              : notisItem.tag == 'meta'
+                                                                  ? Icons.flag_rounded
+                                                                  : FFIcons.kproperty1FiRrBell,
+                                                  color: notisItem.tag == 'pagamento'
+                                                      ? FlutterFlowTheme.of(context).primary
+                                                      : notisItem.tag == 'convite'
+                                                          ? FlutterFlowTheme.of(context).primary
+                                                          : notisItem.tag == 'treino'
+                                                              ? FlutterFlowTheme.of(context).success
+                                                              : notisItem.tag == 'meta'
+                                                                  ? FlutterFlowTheme.of(context).secondary
+                                                                  : Color(0xFF7C3AED),
+                                                  size: 18.0,
+                                                ),
+                                              ),
+                                              SizedBox(width: 10.0),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            notisItem.titulo,
+                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                              font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                                              color: notisItem.lida
+                                                                  ? FlutterFlowTheme.of(context).primaryText
+                                                                  : FlutterFlowTheme.of(context).primary,
+                                                              fontSize: 13.0,
+                                                              letterSpacing: 0.0,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 6.0),
+                                                        Text(
+                                                          valueOrDefault<String>(
+                                                            dateTimeFormat(
+                                                              "relative",
+                                                              functions.formataData(notisItem.criadoEm),
+                                                              locale: FFLocalizations.of(context).languageShortCode ?? FFLocalizations.of(context).languageCode,
+                                                            ),
+                                                            '',
+                                                          ),
+                                                          style: FlutterFlowTheme.of(context).bodySmall.override(
+                                                            font: GoogleFonts.inter(),
+                                                            color: FlutterFlowTheme.of(context).secondaryText,
+                                                            fontSize: 11.0,
+                                                            letterSpacing: 0.0,
+                                                          ),
+                                                        ),
+                                                        if (!notisItem.lida) ...[
+                                                          SizedBox(width: 6.0),
+                                                          Container(
+                                                            width: 8.0,
+                                                            height: 8.0,
+                                                            margin: EdgeInsets.only(top: 3.0),
+                                                            decoration: BoxDecoration(
+                                                              color: FlutterFlowTheme.of(context).primary,
+                                                              shape: BoxShape.circle,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
+                                                    ),
+                                                    if (notisItem.descricao.isNotEmpty) ...[
+                                                      SizedBox(height: 4.0),
+                                                      Text(
+                                                        notisItem.descricao,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: FlutterFlowTheme.of(context).bodySmall.override(
+                                                          font: GoogleFonts.inter(),
+                                                          color: FlutterFlowTheme.of(context).secondaryText,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.0,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                    if (notisItem.tag == 'pagamento' && !notisItem.lida && notisItem.referenciaId > 0) ...[
+                                                      SizedBox(height: 10.0),
+                                                      Builder(
+                                                        builder: (context) {
+                                                          bool _confirming = false;
+                                                          return StatefulBuilder(
+                                                            builder: (context, setLocalState) {
+                                                              return SizedBox(
+                                                                width: double.infinity,
+                                                                child: ElevatedButton(
+                                                                  onPressed: _confirming ? null : () async {
+                                                                    setLocalState(() => _confirming = true);
+                                                                    final res = await PersonalGroup.confirmarPagamentoCall.call(
+                                                                      pPagamentoId: notisItem.referenciaId,
+                                                                      pPersonalUuid: currentUserUid,
+                                                                    );
+                                                                    if (!mounted) return;
+                                                                    setLocalState(() => _confirming = false);
+                                                                    if (res.succeeded) {
+                                                                      FFAppState().updateNotificacoesAtIndex(notisIndex, (e) => e..lida = true);
+                                                                      await action_blocks.pagamentos(context, uuidpersonal: currentUserUid);
+                                                                      safeSetState(() {});
+                                                                      await showModalBottomSheet(
+                                                                        isScrollControlled: true,
+                                                                        backgroundColor: Colors.transparent,
+                                                                        context: context,
+                                                                        builder: (context) => MensagemWidget(texto: 'Pagamento confirmado como recebido!', tipo: '1', action: () async {}, fechasozinho: true, mostrabotoes: false),
+                                                                      );
+                                                                    } else {
+                                                                      await showModalBottomSheet(
+                                                                        isScrollControlled: true,
+                                                                        backgroundColor: Colors.transparent,
+                                                                        context: context,
+                                                                        builder: (context) => MensagemWidget(texto: 'Não foi possível confirmar. Tente novamente.', tipo: '2', action: () async {}, fechasozinho: true, mostrabotoes: false),
+                                                                      );
+                                                                    }
+                                                                  },
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: FlutterFlowTheme.of(context).primary,
+                                                                    foregroundColor: Colors.white,
+                                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                                                  ),
+                                                                  child: _confirming
+                                                                      ? SizedBox(width: 16.0, height: 16.0, child: CircularProgressIndicator(strokeWidth: 2.0, color: Colors.white))
+                                                                      : Text('Confirmar recebimento', style: FlutterFlowTheme.of(context).bodySmall.override(font: GoogleFonts.inter(fontWeight: FontWeight.w600), color: Colors.white, letterSpacing: 0.0)),
+                                                                ),
+                                                              );
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
+                                                    ],
+                                                    if (notisItem.tag == 'convite' && !notisItem.lida) ...[
+                                                      SizedBox(height: 10.0),
+                                                      Row(
+                                                        children: [
+                                                          Expanded(
+                                                            child: OutlinedButton(
+                                                              onPressed: () async {
+                                                                final convite = FFAppState().convitesPendentes.where((c) => c.personalNome == notisItem.remetente).firstOrNull;
+                                                                if (convite != null) {
+                                                                  await action_blocks.responderConvite(context, personalUuid: convite.personalUuid, aceitar: false);
+                                                                  safeSetState(() {});
+                                                                }
+                                                              },
+                                                              style: OutlinedButton.styleFrom(
+                                                                foregroundColor: FlutterFlowTheme.of(context).error,
+                                                                side: BorderSide(color: FlutterFlowTheme.of(context).error),
+                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                                              ),
+                                                              child: Text('Recusar', style: FlutterFlowTheme.of(context).bodySmall.override(font: GoogleFonts.inter(fontWeight: FontWeight.w600), color: FlutterFlowTheme.of(context).error, letterSpacing: 0.0)),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 8.0),
+                                                          Expanded(
+                                                            child: ElevatedButton(
+                                                              onPressed: () async {
+                                                                final convite = FFAppState().convitesPendentes.where((c) => c.personalNome == notisItem.remetente).firstOrNull;
+                                                                if (convite != null) {
+                                                                  await action_blocks.responderConvite(context, personalUuid: convite.personalUuid, aceitar: true);
+                                                                  safeSetState(() {});
+                                                                }
+                                                              },
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor: FlutterFlowTheme.of(context).primary,
+                                                                foregroundColor: Colors.white,
+                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                                              ),
+                                                              child: Text('Aceitar', style: FlutterFlowTheme.of(context).bodySmall.override(font: GoogleFonts.inter(fontWeight: FontWeight.w600), color: Colors.white, letterSpacing: 0.0)),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Divider(height: 1.0, thickness: 1.0, indent: 52.0, color: FlutterFlowTheme.of(context).alternate),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: SafeArea(
+          top: true,
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: AlignmentDirectional(0.0, -1.0),
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                valueOrDefault<double>(
+                                  () {
+                                    if (MediaQuery.sizeOf(context).width <
+                                        kBreakpointSmall) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointMedium) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointLarge) {
+                                      return 32.0;
+                                    } else {
+                                      return 32.0;
+                                    }
+                                  }(),
+                                  0.0,
+                                ),
+                                16.0,
+                                valueOrDefault<double>(
+                                  () {
+                                    if (MediaQuery.sizeOf(context).width <
+                                        kBreakpointSmall) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointMedium) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointLarge) {
+                                      return 32.0;
+                                    } else {
+                                      return 32.0;
+                                    }
+                                  }(),
+                                  0.0,
+                                ),
+                                8.0),
+                            child: Container(
+                              decoration: BoxDecoration(),
+                              child: Stack(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      badges.Badge(
+                                        badgeContent: Text(
+                                          FFAppState().notificacoes.where((e) => !e.lida).length.toString(),
+                                          style: FlutterFlowTheme.of(context).titleSmall.override(
+                                            font: GoogleFonts.inter(),
+                                            color: Colors.white,
+                                            fontSize: 12.0,
+                                            letterSpacing: 0.0,
+                                          ),
+                                        ),
+                                        showBadge: FFAppState().notificacoes.any((e) => !e.lida),
+                                        shape: badges.BadgeShape.circle,
+                                        badgeColor: FlutterFlowTheme.of(context).primary,
+                                        elevation: 4.0,
+                                        padding: EdgeInsets.all(6.0),
+                                        position: badges.BadgePosition.topEnd(),
+                                        animationType: badges.BadgeAnimationType.scale,
+                                        toAnimate: true,
+                                        child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () async {
+                                            scaffoldKey.currentState!
+                                                .openDrawer();
+                                          },
+                                          child: Container(
+                                            width: 36.0,
+                                            height: 36.0,
+                                            decoration: BoxDecoration(
+                                              color: FlutterFlowTheme.of(context).accent1,
+                                              borderRadius: BorderRadius.circular(12.0),
+                                              shape: BoxShape.rectangle,
+                                            ),
+                                            child: Align(
+                                              alignment: AlignmentDirectional(0.0, 0.0),
+                                              child: Icon(
+                                                FFIcons.kproperty1FiRrBell,
+                                                color: FlutterFlowTheme.of(context).primary,
+                                                size: 18.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Align(
+                                                alignment: AlignmentDirectional(
+                                                    0.0, 0.0),
+                                                child: Text(
+                                                  'Seus alunos',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        fontSize: 14.0,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontStyle,
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              await showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                enableDrag: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return WebViewAware(
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            NovoAlunoWidget(),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ).then((value) => safeSetState(
+                                                  () => _model.adicionou =
+                                                      value));
+
+                                              if (_model.adicionou!) {
+                                                await action_blocks
+                                                    .alunosdopersonal(
+                                                  context,
+                                                  uuidpersonal: currentUserUid,
+                                                );
+                                                safeSetState(() {});
+                                                _model.alunospersonal = FFAppState()
+                                                    .alunosdopersonal
+                                                    .toList()
+                                                    .cast<
+                                                        PersonalalunosStruct>();
+                                                safeSetState(() {});
+                                              }
+
+                                              safeSetState(() {});
+                                            },
+                                            child: Container(
+                                              width: 36.0,
+                                              height: 36.0,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .accent1,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                                shape: BoxShape.rectangle,
+                                              ),
+                                              child: Align(
+                                                alignment: AlignmentDirectional(
+                                                    0.0, 0.0),
+                                                child: Icon(
+                                                  Icons.add_sharp,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 18.0,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ].divide(SizedBox(width: 12.0)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _model.columnController1,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                valueOrDefault<double>(
+                                  () {
+                                    if (MediaQuery.sizeOf(context).width <
+                                        kBreakpointSmall) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointMedium) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointLarge) {
+                                      return 32.0;
+                                    } else {
+                                      return 32.0;
+                                    }
+                                  }(),
+                                  0.0,
+                                ),
+                                16.0,
+                                valueOrDefault<double>(
+                                  () {
+                                    if (MediaQuery.sizeOf(context).width <
+                                        kBreakpointSmall) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointMedium) {
+                                      return 16.0;
+                                    } else if (MediaQuery.sizeOf(context)
+                                            .width <
+                                        kBreakpointLarge) {
+                                      return 32.0;
+                                    } else {
+                                      return 32.0;
+                                    }
+                                  }(),
+                                  0.0,
+                                ),
+                                0.0),
+                            child: Container(
+                              width: MediaQuery.sizeOf(context).width * 1.0,
+                              child: TextFormField(
+                                controller: _model.textController,
+                                focusNode: _model.textFieldFocusNode,
+                                onChanged: (value) {
+                                  final busca = value.trim().toLowerCase();
+                                  final todos = FFAppState()
+                                      .alunosdopersonal
+                                      .toList()
+                                      .cast<PersonalalunosStruct>();
+                                  _model.alunospersonal = busca.isEmpty
+                                      ? todos
+                                      : todos
+                                          .where((e) => e.nome
+                                              .toLowerCase()
+                                              .contains(busca))
+                                          .toList();
+                                  safeSetState(() {});
+                                },
+                                autofocus: false,
+                                enabled: true,
+                                obscureText: false,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  labelStyle: FlutterFlowTheme.of(context)
+                                      .labelMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontStyle,
+                                        ),
+                                        letterSpacing: 0.0,
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontStyle,
+                                      ),
+                                  hintText: 'Pesquisar...',
+                                  hintStyle: FlutterFlowTheme.of(context)
+                                      .labelMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontStyle,
+                                        ),
+                                        letterSpacing: 0.0,
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontStyle,
+                                      ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0x00000000),
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0x00000000),
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: FlutterFlowTheme.of(context).error,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: FlutterFlowTheme.of(context).error,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  filled: true,
+                                  fillColor: FlutterFlowTheme.of(context)
+                                      .primaryBackground,
+                                  prefixIcon: Icon(
+                                    FFIcons.kproperty1FiRrSearch,
+                                  ),
+                                ),
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                      letterSpacing: 0.0,
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                cursorColor:
+                                    FlutterFlowTheme.of(context).primaryText,
+                                enableInteractiveSelection: true,
+                                validator: _model.textControllerValidator
+                                    .asValidator(context),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 8.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (_model.menu == 0)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.alunospersonal = FFAppState()
+                                            .alunosdopersonal
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Todos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                  ),
+                                if (_model.menu != 0)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.menu = 0;
+                                        safeSetState(() {});
+                                        _model.alunospersonal = FFAppState()
+                                            .alunosdopersonal
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Todos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
+                                    ),
+                                  ),
+                                if (_model.menu == 1)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.menu = 0;
+                                        safeSetState(() {});
+                                        _model.alunospersonal = FFAppState()
+                                            .alunosdopersonal
+                                            .where((e) => e.atrasado == true)
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Ativos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                  ),
+                                if (_model.menu != 1)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.menu = 1;
+                                        safeSetState(() {});
+                                        _model.alunospersonal = FFAppState()
+                                            .alunosdopersonal
+                                            .where((e) => e.atrasado == true)
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Ativos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
+                                    ),
+                                  ),
+                                if (_model.menu == 2)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.menu = 2;
+                                        safeSetState(() {});
+                                        _model.alunospersonal = _model
+                                            .alunospersonal
+                                            .where((e) => e.ativo == false)
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Inativos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                    ),
+                                  ),
+                                if (_model.menu != 2)
+                                  Expanded(
+                                    child: FFButtonWidget(
+                                      onPressed: () async {
+                                        _model.menu = 2;
+                                        safeSetState(() {});
+                                        _model.alunospersonal = _model
+                                            .alunospersonal
+                                            .where((e) => e.ativo == false)
+                                            .toList()
+                                            .cast<PersonalalunosStruct>();
+                                        safeSetState(() {});
+                                      },
+                                      text: 'Inativos',
+                                      options: FFButtonOptions(
+                                        width: 114.0,
+                                        height: 31.0,
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 0.0),
+                                        iconPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        textStyle: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                            ),
+                                        elevation: 0.0,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
+                                    ),
+                                  ),
+                              ]
+                                  .divide(SizedBox(width: 4.0))
+                                  .addToStart(SizedBox(width: () {
+                                if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointSmall) {
+                                  return 16.0;
+                                } else if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointMedium) {
+                                  return 16.0;
+                                } else if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointLarge) {
+                                  return 32.0;
+                                } else {
+                                  return 32.0;
+                                }
+                              }())).addToEnd(SizedBox(width: () {
+                                if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointSmall) {
+                                  return 16.0;
+                                } else if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointMedium) {
+                                  return 16.0;
+                                } else if (MediaQuery.sizeOf(context).width <
+                                    kBreakpointLarge) {
+                                  return 32.0;
+                                } else {
+                                  return 32.0;
+                                }
+                              }())),
+                            ),
+                          ),
+                          SingleChildScrollView(
+                            primary: false,
+                            controller: _model.columnController2,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Builder(
+                                  builder: (context) {
+                                    final alunos = _model.alunospersonal
+                                        .where((e) => () {
+                                              if (_model.menu == 2) {
+                                                return !e.ativo;
+                                              } else if (_model.menu == 1) {
+                                                return e.ativo;
+                                              } else if (_model.menu == 0) {
+                                                return true;
+                                              } else {
+                                                return true;
+                                              }
+                                            }())
+                                        .toList()
+                                        .map((e) => e)
+                                        .toList();
+                                    if (alunos.isEmpty) {
+                                      return Center(
+                                        child: EmptyAlunoWidget(),
+                                      );
+                                    }
+
+                                    return ListView.separated(
+                                      padding: EdgeInsets.zero,
+                                      primary: false,
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: alunos.length,
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(height: 16.0),
+                                      itemBuilder: (context, alunosIndex) {
+                                        final alunosItem = alunos[alunosIndex];
+                                        return Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  0.0,
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  0.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 0.0, 0.0, 8.0),
+                                                child: InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    if (alunosItem.status ==
+                                                            'pendente' ||
+                                                        alunosItem.status ==
+                                                            'recusado') {
+                                                      await showModalBottomSheet(
+                                                        isScrollControlled:
+                                                            true,
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return MensagemWidget(
+                                                            texto: alunosItem
+                                                                        .status ==
+                                                                    'pendente'
+                                                                ? 'Aguardando o aluno aceitar o convite.'
+                                                                : 'O aluno recusou o convite.',
+                                                            tipo: '3',
+                                                            mostrabotoes: false,
+                                                            action: () async {},
+                                                          );
+                                                        },
+                                                      );
+                                                      return;
+                                                    }
+                                                    context.pushNamed(
+                                                      PerfilalunoWidget
+                                                          .routeName,
+                                                      queryParameters: {
+                                                        'alunoId':
+                                                            serializeParam(
+                                                          alunosItem.alunoUuid,
+                                                          ParamType.String,
+                                                        ),
+                                                      }.withoutNulls,
+                                                      extra: <String, dynamic>{
+                                                        '__transition_info__':
+                                                            TransitionInfo(
+                                                          hasTransition: true,
+                                                          transitionType:
+                                                              PageTransitionType
+                                                                  .fade,
+                                                          duration: Duration(
+                                                              milliseconds: 0),
+                                                        ),
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    100.0),
+                                                        child: Image.network(
+                                                          valueOrDefault<
+                                                              String>(
+                                                            alunosItem.fotoUrl,
+                                                            'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
+                                                          ),
+                                                          width: 46.0,
+                                                          height: 46.0,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                      Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            alunosItem.nome,
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  font:
+                                                                      GoogleFonts
+                                                                          .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    fontStyle: alunosItem
+                                                                                .status ==
+                                                                            'pendente' ||
+                                                                        alunosItem
+                                                                                .status ==
+                                                                            'recusado'
+                                                                        ? FontStyle
+                                                                            .italic
+                                                                        : FlutterFlowTheme.of(
+                                                                                context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                  ),
+                                                                  color: alunosItem
+                                                                              .status ==
+                                                                          'pendente' ||
+                                                                      alunosItem
+                                                                              .status ==
+                                                                          'recusado'
+                                                                      ? FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryText
+                                                                      : null,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontStyle: alunosItem
+                                                                              .status ==
+                                                                          'pendente' ||
+                                                                      alunosItem
+                                                                              .status ==
+                                                                          'recusado'
+                                                                      ? FontStyle
+                                                                          .italic
+                                                                      : FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                ),
+                                                          ),
+                                                          if (alunosItem
+                                                                      .status ==
+                                                                  'pendente' ||
+                                                              alunosItem
+                                                                      .status ==
+                                                                  'recusado')
+                                                            Text(
+                                                              alunosItem.status ==
+                                                                      'pendente'
+                                                                  ? 'Aguardando aceite'
+                                                                  : 'Convite recusado',
+                                                              style: FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    font: GoogleFonts
+                                                                        .inter(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                    ),
+                                                                    color: alunosItem
+                                                                                .status ==
+                                                                            'pendente'
+                                                                        ? FlutterFlowTheme.of(
+                                                                                context)
+                                                                            .warning
+                                                                        : FlutterFlowTheme.of(
+                                                                                context)
+                                                                            .error,
+                                                                    fontSize:
+                                                                        11.0,
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                            ),
+                                                          if (alunosItem
+                                                                  .status ==
+                                                              'aceito')
+                                                          Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
+                                                            children: [
+                                                              Icon(
+                                                                FFIcons
+                                                                    .kproperty1FiRrClock,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primary,
+                                                                size: 12.0,
+                                                              ),
+                                                              SelectionArea(
+                                                                  child: Text(
+                                                                '${functions.calcIdade(alunosItem.nascimento)} anos',
+                                                                style: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .override(
+                                                                      font: GoogleFonts
+                                                                          .inter(
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                      ),
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryText,
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      letterSpacing:
+                                                                          0.0,
+                                                                      fontWeight: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontWeight,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                    ),
+                                                              )),
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            8.0,
+                                                                            0.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                child: Icon(
+                                                                  FFIcons
+                                                                      .kproperty1FiRrLock,
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primary,
+                                                                  size: 12.0,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                '${alunosItem.pesoAtual.toString()} kg',
+                                                                style: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .override(
+                                                                      font: GoogleFonts
+                                                                          .inter(
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                      ),
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryText,
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      letterSpacing:
+                                                                          0.0,
+                                                                      fontWeight: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontWeight,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                    ),
+                                                              ),
+                                                            ].divide(SizedBox(
+                                                                width: 4.0)),
+                                                          ),
+                                                        ].divide(SizedBox(
+                                                            height: 6.0)),
+                                                      ),
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  1.0, -1.0),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              if (alunosItem.status == 'aceito')
+                                                                Align(
+                                                                  alignment:
+                                                                      AlignmentDirectional(
+                                                                          1.0,
+                                                                          -1.0),
+                                                                  child: Text(
+                                                                    functions.formatames(
+                                                                        alunosItem
+                                                                            .dataVinculo),
+                                                                    style: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .override(
+                                                                          font:
+                                                                              GoogleFonts.inter(
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                            fontStyle:
+                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                          ),
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).secondaryText,
+                                                                          fontSize:
+                                                                              12.0,
+                                                                          letterSpacing:
+                                                                              0.0,
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                  ),
+                                                                ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ].divide(
+                                                        SizedBox(width: 16.0)),
+                                                  ),
+                                                ),
+                                              ),
+                                              Divider(
+                                                height: 1.0,
+                                                thickness: 1.0,
+                                                indent: 62.0,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ]
+                            .divide(SizedBox(height: 16.0))
+                            .addToEnd(SizedBox(height: 120.0)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Align(
+                alignment: AlignmentDirectional(0.0, 1.0),
+                child: wrapWithModel(
+                  model: _model.navbarModel,
+                  updateCallback: () => safeSetState(() {}),
+                  child: NavbarWidget(
+                    index: 2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,721 @@
+import '/auth/supabase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
+import '/backend/schema/structs/index.dart';
+import '/backend/supabase/supabase.dart';
+import '/components/mensagem_widget.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/pages/components/navbar/navbar_widget.dart';
+import '/pages/components/treinos_novo_treino/treinos_novo_treino_widget.dart';
+import '/pages/treinos/treinos_personal_grupo/treinos_personal_grupo_widget.dart';
+import '/pages/treinos/gestao_exercicios/gestao_exercicios_widget.dart';
+import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
+    as cupertino_time_picker_hiuzb7_app_state;
+import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
+import 'treinos_personal_model.dart';
+export 'treinos_personal_model.dart';
+
+class TreinosPersonalWidget extends StatefulWidget {
+  const TreinosPersonalWidget({super.key});
+
+  static String routeName = 'treinosPersonal';
+  static String routePath = '/treinosPersonal';
+
+  @override
+  State<TreinosPersonalWidget> createState() => _TreinosPersonalWidgetState();
+}
+
+class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
+  late TreinosPersonalModel _model;
+
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _model = createModel(context, () => TreinosPersonalModel());
+    _model.txtBuscaController ??= TextEditingController();
+    _model.txtBuscaFocusNode ??= FocusNode();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await _carregarTreinos();
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
+  }
+
+  Future<void> _carregarTreinos() async {
+    safeSetState(() => _model.isLoading = true);
+
+    final result = await PersonalGroup.getTreinosPersonalCall.call(
+      pPersonalUuid: currentUserUid,
+    );
+
+    if (result.succeeded) {
+      try {
+        final raw = result.jsonBody;
+        final list = raw is List ? raw : [raw];
+        _model.treinos = (list
+            .map((e) => GrupostreinosStruct.maybeFromMap(e))
+            .whereType<GrupostreinosStruct>()
+            .toList())
+          ..sort((a, b) => a.nome.compareTo(b.nome));
+      } catch (_) {
+        _model.treinos = [];
+      }
+    }
+
+    safeSetState(() => _model.isLoading = false);
+  }
+
+  Future<void> _abrirEditarGrupo(int id, String nome) async {
+    final editou = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      builder: (context) => WebViewAware(
+        child: Padding(
+          padding: MediaQuery.viewInsetsOf(context),
+          child: TreinosNovoTreinoWidget(
+            grupoTreinoId: id,
+            nomeInicial: nome,
+          ),
+        ),
+      ),
+    );
+    if (editou == true && mounted) await _carregarTreinos();
+  }
+
+  Future<void> _confirmarExcluirGrupo(int id, String nome) async {
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      builder: (context) => WebViewAware(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Padding(
+            padding: MediaQuery.viewInsetsOf(context),
+            child: MensagemWidget(
+              texto: 'Excluir treino?',
+              textoauxiliar: '"$nome"',
+              tipo: '2',
+              fechasozinho: false,
+              mostrabotoes: true,
+              action: () async {
+                await SupaFlow.client
+                    .from('GruposTreino')
+                    .update({'Ativo': false}).eq('Id', id);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    if (ok == true && mounted) await _carregarTreinos();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+    context.watch<cupertino_time_picker_hiuzb7_app_state.FFAppState>();
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        body: SafeArea(
+          top: true,
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  // ── HEADER ───────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        16.0, 16.0, 16.0, 8.0),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        Center(
+                          child: Text(
+                            'Meus Treinos',
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () => context.pushNamed(
+                                GestaoExerciciosWidget.routeName,
+                                extra: <String, dynamic>{
+                                  '__transition_info__': TransitionInfo(
+                                    hasTransition: true,
+                                    transitionType:
+                                        PageTransitionType.fade,
+                                    duration:
+                                        const Duration(milliseconds: 0),
+                                  ),
+                                },
+                              ),
+                              child: Container(
+                                width: 36.0,
+                                height: 36.0,
+                                decoration: BoxDecoration(
+                                  color: FlutterFlowTheme.of(context).accent1,
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: Align(
+                                  alignment:
+                                      const AlignmentDirectional(0.0, 0.0),
+                                  child: Icon(
+                                    Icons.fitness_center_rounded,
+                                    color:
+                                        FlutterFlowTheme.of(context).primary,
+                                    size: 18.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8.0),
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                final criou =
+                                    await showModalBottomSheet<bool>(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return WebViewAware(
+                                      child: Padding(
+                                        padding:
+                                            MediaQuery.viewInsetsOf(context),
+                                        child:
+                                            const TreinosNovoTreinoWidget(),
+                                      ),
+                                    );
+                                  },
+                                );
+                                if (criou == true) {
+                                  await _carregarTreinos();
+                                }
+                              },
+                              child: Container(
+                                width: 36.0,
+                                height: 36.0,
+                                decoration: BoxDecoration(
+                                  color:
+                                      FlutterFlowTheme.of(context).accent1,
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: Align(
+                                  alignment:
+                                      const AlignmentDirectional(0.0, 0.0),
+                                  child: Icon(
+                                    Icons.add_sharp,
+                                    color:
+                                        FlutterFlowTheme.of(context).primary,
+                                    size: 18.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  ),
+
+                  // ── BUSCA ────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        16.0, 0.0, 16.0, 8.0),
+                    child: TextFormField(
+                      controller: _model.txtBuscaController,
+                      focusNode: _model.txtBuscaFocusNode,
+                      onChanged: (_) => safeSetState(() {}),
+                      autofocus: false,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Pesquisar...',
+                        hintStyle:
+                            FlutterFlowTheme.of(context).labelMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
+                                  letterSpacing: 0.0,
+                                ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Color(0x00000000),
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Color(0x00000000),
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).error,
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).error,
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        filled: true,
+                        fillColor:
+                            FlutterFlowTheme.of(context).primaryBackground,
+                        prefixIcon: Icon(
+                          FFIcons.kproperty1FiRrSearch,
+                          color: FlutterFlowTheme.of(context).secondaryText,
+                          size: 16.0,
+                        ),
+                      ),
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                            letterSpacing: 0.0,
+                          ),
+                    ),
+                  ),
+
+                  // ── BODY ─────────────────────────────────────────────
+                  Expanded(
+                    child: _model.isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: FlutterFlowTheme.of(context).primary,
+                            ),
+                          )
+                        : _model.treinos.isEmpty
+                            ? _buildEstadoVazio(context)
+                            : _model.treinosFiltrados.isEmpty
+                                ? _buildSemResultados(context)
+                                : ListView.separated(
+                                    padding: const EdgeInsets.only(
+                                        top: 8.0, bottom: 120.0),
+                                    itemCount:
+                                        _model.treinosFiltrados.length,
+                                    separatorBuilder: (_, __) => Divider(
+                                      height: 1.0,
+                                      thickness: 1.0,
+                                      indent: 68.0,
+                                      endIndent: 16.0,
+                                      color: FlutterFlowTheme.of(context)
+                                          .alternate,
+                                    ),
+                                    itemBuilder: (_, index) {
+                                      final grupo =
+                                          _model.treinosFiltrados[index];
+                                      return _SwipeableGrupoRow(
+                                        key: ValueKey(grupo.grupoTreinoId),
+                                        grupo: grupo,
+                                        onTap: () => context.pushNamed(
+                                          TreinosPersonalGrupoWidget.routeName,
+                                          queryParameters: {
+                                            'grupo': serializeParam(
+                                                grupo, ParamType.DataStruct),
+                                          }.withoutNulls,
+                                          extra: <String, dynamic>{
+                                            '__transition_info__':
+                                                TransitionInfo(
+                                              hasTransition: true,
+                                              transitionType:
+                                                  PageTransitionType.fade,
+                                              duration: const Duration(
+                                                  milliseconds: 0),
+                                            ),
+                                          },
+                                        ),
+                                        onEdit: () => _abrirEditarGrupo(
+                                            grupo.grupoTreinoId, grupo.nome),
+                                        onDelete: () =>
+                                            _confirmarExcluirGrupo(
+                                                grupo.grupoTreinoId,
+                                                grupo.nome.isNotEmpty
+                                                    ? grupo.nome
+                                                    : 'Treino sem nome'),
+                                      );
+                                    },
+                                  ),
+                  ),
+                ],
+              ),
+
+              // ── NAVBAR ───────────────────────────────────────────────
+              Align(
+                alignment: const AlignmentDirectional(0.0, 1.0),
+                child: wrapWithModel(
+                  model: _model.navbarModel,
+                  updateCallback: () => safeSetState(() {}),
+                  child: const NavbarWidget(index: 5),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── ESTADO VAZIO ─────────────────────────────────────────────────────
+  Widget _buildEstadoVazio(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 64.0,
+            height: 64.0,
+            decoration: BoxDecoration(
+              color: FlutterFlowTheme.of(context).alternate,
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Icon(
+              FFIcons.kproperty1FiRrGym,
+              color: FlutterFlowTheme.of(context).secondaryText,
+              size: 28.0,
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Text(
+            'Nenhum treino criado',
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  font: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontStyle:
+                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                  ),
+                  fontSize: 15.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 6.0),
+          Text(
+            'Toque em + para criar seu primeiro treino',
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  font: GoogleFonts.inter(
+                    fontWeight:
+                        FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                    fontStyle:
+                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                  ),
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                  fontSize: 13.0,
+                  letterSpacing: 0.0,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── SEM RESULTADOS DE BUSCA ───────────────────────────────────────────
+  Widget _buildSemResultados(BuildContext context) {
+    return Center(
+      child: Text(
+        'Nenhum resultado para "${_model.txtBuscaController?.text ?? ''}"',
+        textAlign: TextAlign.center,
+        style: FlutterFlowTheme.of(context).bodyMedium.override(
+              font: GoogleFonts.inter(
+                fontWeight:
+                    FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                fontStyle:
+                    FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+              ),
+              color: FlutterFlowTheme.of(context).secondaryText,
+              fontSize: 13.0,
+              letterSpacing: 0.0,
+            ),
+      ),
+    );
+  }
+}
+
+// ── SWIPEABLE GRUPO ROW ───────────────────────────────────────────────────
+
+class _SwipeableGrupoRow extends StatefulWidget {
+  const _SwipeableGrupoRow({
+    super.key,
+    required this.grupo,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final GrupostreinosStruct grupo;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  State<_SwipeableGrupoRow> createState() => _SwipeableGrupoRowState();
+}
+
+class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
+  static const double _actionWidth = 130.0;
+  double _offset = 0.0;
+
+  void _onDragUpdate(DragUpdateDetails d) {
+    setState(() {
+      _offset = (_offset + d.delta.dx).clamp(-_actionWidth, 0.0);
+    });
+  }
+
+  void _onDragEnd(DragEndDetails d) {
+    setState(() {
+      _offset = _offset < -_actionWidth / 2 ? -_actionWidth : 0.0;
+    });
+  }
+
+  void _close() => setState(() => _offset = 0.0);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    final grupo = widget.grupo;
+    final count = grupo.subagrupamentos.length;
+    final displayName =
+        grupo.nome.isNotEmpty ? grupo.nome : 'Treino sem nome';
+
+    return GestureDetector(
+      onHorizontalDragUpdate: _onDragUpdate,
+      onHorizontalDragEnd: _onDragEnd,
+      child: ClipRect(
+        child: Stack(
+          children: [
+            // ── ACTION BUTTONS (behind) ──────────────────────────────
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: SizedBox(
+                width: _actionWidth,
+                child: Row(
+                  children: [
+                    // Edit
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onEdit();
+                        },
+                        child: Container(
+                          color: theme.accent1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.edit_outlined,
+                                color: theme.primary,
+                                size: 20.0,
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Editar',
+                                style: theme.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: theme.bodyMedium.fontStyle,
+                                  ),
+                                  color: theme.primary,
+                                  fontSize: 11.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Delete
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onDelete();
+                        },
+                        child: Container(
+                          color: theme.error,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                color: Colors.white,
+                                size: 20.0,
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Excluir',
+                                style: theme.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: theme.bodyMedium.fontStyle,
+                                  ),
+                                  color: Colors.white,
+                                  fontSize: 11.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── MAIN CONTENT (foreground) ────────────────────────────
+            Transform.translate(
+              offset: Offset(_offset, 0),
+              child: Material(
+                color: theme.secondaryBackground,
+                child: InkWell(
+                  onTap: _offset == 0.0 ? widget.onTap : _close,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 14.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          width: 40.0,
+                          height: 40.0,
+                          decoration: BoxDecoration(
+                            color: theme.accent1,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Align(
+                            alignment: const AlignmentDirectional(0.0, 0.0),
+                            child: Icon(
+                              FFIcons.kproperty1FiRrGym,
+                              color: theme.primary,
+                              size: 20.0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12.0),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                displayName,
+                                style: theme.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: theme.bodyMedium.fontStyle,
+                                  ),
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (count > 0)
+                                Text(
+                                  '$count treino${count > 1 ? 's' : ''}',
+                                  style: theme.bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: theme.bodyMedium.fontWeight,
+                                      fontStyle: theme.bodyMedium.fontStyle,
+                                    ),
+                                    color: theme.secondaryText,
+                                    fontSize: 12.0,
+                                    letterSpacing: 0.0,
+                                  ),
+                                ),
+                            ].divide(const SizedBox(height: 2.0)),
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: theme.secondaryText,
+                          size: 18.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
