@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Política de Privacidade e Segurança — DATAFIT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  a { color: #1b98e0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #fdfdfd;
+    color: #181818;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  .header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e4e4e4;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    background: #eaf4fc;
+    color: #1b98e0;
+    border: 1px solid #c2e0f5;
+    margin-bottom: 14px;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1b98e0;
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #181818;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+
+  .header-desc {
+    font-size: 13px;
+    color: #828282;
+    line-height: 1.65;
+    max-width: 560px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 28px;
+    margin-top: 18px;
+  }
+
+  .meta-item {
+    font-size: 12px;
+    color: #828282;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .meta-item span { color: #181818; }
+
+  .toc {
+    background: #f2f4f7;
+    border: 1px solid #e4e4e4;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 32px;
+  }
+
+  .toc-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #828282;
+    margin-bottom: 12px;
+  }
+
+  .toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toc-list li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #828282;
+    text-decoration: none;
+    padding: 5px 0;
+  }
+
+  .toc-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #e4e4e4;
+    min-width: 20px;
+  }
+
+  .section {
+    margin-bottom: 24px;
+    scroll-margin-top: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .section-num-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #f2f4f7;
+    border: 1px solid #e4e4e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #828282;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #181818;
+    letter-spacing: -0.2px;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .tag-lgpd {
+    background: #eafaf3;
+    color: #2a9c6b;
+    border: 1px solid #b5e8d0;
+  }
+
+  .tag-imp {
+    background: #fff7ec;
+    color: #c47a10;
+    border: 1px solid #f5d9a0;
+  }
+
+  .tag-seg {
+    background: #eaf4fc;
+    color: #1b98e0;
+    border: 1px solid #c2e0f5;
+  }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #e4e4e4;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 13.5px;
+    color: #828282;
+    line-height: 1.75;
+  }
+
+  .card p { margin-bottom: 12px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  .card ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .card ul li::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e4e4e4;
+    flex-shrink: 0;
+    margin-top: 9px;
+  }
+
+  .card strong { color: #181818; font-weight: 500; }
+
+  .box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+
+  .box-info {
+    background: #eaf4fc;
+    border: 1px solid #c2e0f5;
+    color: #1b98e0;
+  }
+
+  .box-success {
+    background: #eafaf3;
+    border: 1px solid #b5e8d0;
+    color: #2a9c6b;
+  }
+
+  .box-warn {
+    background: #fff7ec;
+    border: 1px solid #f5d9a0;
+    color: #c47a10;
+  }
+
+  /* tabela de dados coletados */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+
+  .data-table th {
+    text-align: left;
+    font-weight: 500;
+    color: #828282;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0 8px 10px 0;
+    border-bottom: 1px solid #e4e4e4;
+  }
+
+  .data-table td {
+    padding: 10px 8px 10px 0;
+    color: #828282;
+    border-bottom: 1px solid #f2f4f7;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child { color: #181818; font-weight: 500; width: 32%; }
+
+  /* grade de medidas de segurança */
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .security-item {
+    background: #f2f4f7;
+    border: 1px solid #e4e4e4;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .security-item-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #181818;
+    margin-bottom: 4px;
+  }
+
+  .security-item-desc {
+    font-size: 12px;
+    color: #828282;
+    line-height: 1.5;
+  }
+
+  .divider {
+    height: 1px;
+    background: #e4e4e4;
+    margin: 32px 0;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #828282;
+    line-height: 1.9;
+  }
+
+  .footer strong { color: #181818; font-weight: 500; }
+
+  @media (max-width: 480px) {
+    .security-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Em vigor
+    </div>
+    <h1>Política de Privacidade e Segurança</h1>
+    <p class="header-desc">
+      Este documento descreve como a <strong>DATAFIT</strong> coleta, usa, armazena, compartilha e protege seus dados pessoais, em plena conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018) e demais legislações aplicáveis no Brasil.
+    </p>
+    <div class="meta-row">
+      <div class="meta-item">Versão <span>1.0</span></div>
+      <div class="meta-item">Vigência <span>29/04/2026</span></div>
+      <div class="meta-item">Atualização <span>29/04/2026</span></div>
+    </div>
+  </div>
+
+  <!-- SUMARIO -->
+  <div class="toc">
+    <div class="toc-label">Sumário</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> Quem Somos e Papel na LGPD</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> Quais Dados Coletamos</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> Como e Por Que Usamos Seus Dados</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> Dados Sensíveis de Saúde</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> Bases Legais para o Tratamento</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> Compartilhamento de Dados</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> Transferência Internacional de Dados</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> Retenção e Exclusão de Dados</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> Medidas de Segurança</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> Cookies e Tecnologias de Rastreamento</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span> Seus Direitos como Titular</a></li>
+      <li><a href="#s12"><span class="toc-num">12</span> Menores de Idade</a></li>
+      <li><a href="#s13"><span class="toc-num">13</span> Incidentes de Segurança</a></li>
+      <li><a href="#s14"><span class="toc-num">14</span> Alterações nesta Política</a></li>
+      <li><a href="#s15"><span class="toc-num">15</span> Encarregado de Dados (DPO) e Contato</a></li>
+    </ul>
+  </div>
+
+  <!-- S1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num-badge">01</div>
+      <h2>Quem Somos e Papel na LGPD <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>A <strong>DATAFIT</strong> é uma plataforma digital de gestão de dados corporativos e fitness, responsável pelo desenvolvimento e operação do aplicativo DATAFIT.</p>
+      <p>Para fins da LGPD (Lei 13.709/2018), a DATAFIT atua como <strong>Controladora</strong> dos dados pessoais dos Usuários (art. 5.º, VI), sendo responsável pelas decisões referentes ao tratamento desses dados.</p>
+      <p>Quando contratamos prestadores de serviço que processam dados em nosso nome (ex.: servidores em nuvem, gateways de pagamento), esses prestadores atuam como <strong>Operadores</strong> (art. 5.º, VII), e são contratualmente obrigados a tratar os dados conforme nossas instruções e em observância à LGPD.</p>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num-badge">02</div>
+      <h2>Quais Dados Coletamos</h2>
+    </div>
+    <div class="card">
+      <p>A DATAFIT coleta dados nas seguintes categorias:</p>
+      <table class="data-table">
+        <tr>
+          <th>Categoria</th>
+          <th>Exemplos</th>
+          <th>Quando</th>
+        </tr>
+        <tr>
+          <td>Cadastro</td>
+          <td>Nome, e-mail, senha (criptografada), data de nascimento, sexo</td>
+          <td>Ao criar conta</td>
+        </tr>
+        <tr>
+          <td>Saúde e Fitness</td>
+          <td>Peso, altura, medidas corporais, frequência cardíaca, metas, histórico de treinos</td>
+          <td>Durante o uso do app</td>
+        </tr>
+        <tr>
+          <td>Pagamento</td>
+          <td>Plano contratado, histórico de transações (dados de cartão processados por terceiros)</td>
+          <td>Ao assinar plano PRO</td>
+        </tr>
+        <tr>
+          <td>Uso da plataforma</td>
+          <td>Páginas acessadas, funcionalidades utilizadas, frequência de acesso, logs de atividade</td>
+          <td>Automaticamente</td>
+        </tr>
+        <tr>
+          <td>Dispositivo</td>
+          <td>Modelo do dispositivo, sistema operacional, identificador do app, idioma</td>
+          <td>Automaticamente</td>
+        </tr>
+      </table>
+      <div class="box box-info">
+        A DATAFIT não coleta dados de localização em tempo real, nem acessa câmera, microfone ou contatos do dispositivo sem solicitação e consentimento explícito do Usuário.
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num-badge">03</div>
+      <h2>Como e Por Que Usamos Seus Dados</h2>
+    </div>
+    <div class="card">
+      <p>Utilizamos os dados coletados para as seguintes finalidades:</p>
+      <ul>
+        <li><strong>Prestação dos serviços</strong> — criar e gerenciar sua conta, personalizar sua experiência e disponibilizar as funcionalidades contratadas</li>
+        <li><strong>Monitoramento de desempenho</strong> — calcular métricas, gráficos e relatórios de saúde e fitness com base nos dados que você insere</li>
+        <li><strong>Gestão de pagamentos</strong> — processar assinaturas, renovações e cancelamentos dos planos PRO</li>
+        <li><strong>Comunicação</strong> — enviar notificações relacionadas ao serviço, atualizações importantes e, com seu consentimento, comunicações de marketing</li>
+        <li><strong>Segurança</strong> — detectar, investigar e prevenir fraudes, acessos não autorizados e ameaças à plataforma</li>
+        <li><strong>Melhoria do produto</strong> — analisar padrões de uso agregados e anonimizados para aprimorar funcionalidades e a experiência do Usuário</li>
+        <li><strong>Cumprimento legal</strong> — atender obrigações previstas na legislação brasileira e responder a requisições de autoridades competentes</li>
+      </ul>
+      <p>Os dados nunca serão utilizados para finalidades incompatíveis com as descritas acima sem novo consentimento do Usuário.</p>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num-badge">04</div>
+      <h2>Dados Sensíveis de Saúde <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>Dados relativos à saúde são classificados como <strong>dados sensíveis</strong> pela LGPD (art. 5.º, II) e recebem proteção reforçada. A DATAFIT trata esses dados somente mediante <strong>consentimento específico, destacado e informado</strong> do Usuário (art. 11, I da LGPD).</p>
+      <div class="box box-warn">
+        Ao inserir dados de saúde na plataforma — como peso, medidas corporais, composição corporal ou frequência cardíaca — você consente expressamente com o tratamento dessas informações para as finalidades descritas nesta Política. Este consentimento pode ser revogado a qualquer momento.
+      </div>
+      <p>Adotamos princípios rigorosos no tratamento de dados de saúde:</p>
+      <ul>
+        <li><strong>Minimização</strong> — coletamos apenas o necessário para a funcionalidade solicitada</li>
+        <li><strong>Finalidade específica</strong> — usados exclusivamente para cálculos, relatórios e metas dentro do app</li>
+        <li><strong>Não comercialização</strong> — jamais vendemos ou cedemos dados de saúde a anunciantes ou terceiros não essenciais</li>
+        <li><strong>Separação lógica</strong> — dados de saúde armazenados em base segregada com controle de acesso diferenciado</li>
+      </ul>
+      <p><strong>Aviso médico:</strong> A DATAFIT é uma ferramenta de monitoramento pessoal. As informações apresentadas não constituem diagnóstico, prescrição médica ou substituem a orientação de profissionais de saúde habilitados.</p>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num-badge">05</div>
+      <h2>Bases Legais para o Tratamento <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>Todo tratamento de dados realizado pela DATAFIT está fundamentado em ao menos uma das seguintes bases legais previstas na LGPD:</p>
+      <ul>
+        <li><strong>Consentimento (art. 7.º, I e art. 11, I)</strong> — para dados de saúde e comunicações de marketing. Pode ser revogado a qualquer momento sem prejudicar tratamentos anteriores</li>
+        <li><strong>Execução de contrato (art. 7.º, V)</strong> — para viabilizar as funcionalidades do plano contratado (Free ou PRO)</li>
+        <li><strong>Legítimo interesse (art. 7.º, IX)</strong> — para segurança da plataforma, prevenção a fraudes e análise agregada de uso, sempre ponderado com os direitos do Usuário</li>
+        <li><strong>Cumprimento de obrigação legal (art. 7.º, II)</strong> — quando exigido por autoridade competente ou por determinação judicial</li>
+        <li><strong>Exercício regular de direitos (art. 7.º, VI)</strong> — para defesa em processos judiciais, administrativos ou arbitrais</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num-badge">06</div>
+      <h2>Compartilhamento de Dados</h2>
+    </div>
+    <div class="card">
+      <p>A DATAFIT <strong>não vende dados pessoais</strong>. O compartilhamento ocorre apenas nas situações abaixo:</p>
+      <ul>
+        <li><strong>Provedores de infraestrutura</strong> — serviços de hospedagem e banco de dados em nuvem que armazenam os dados em nosso nome, sob contrato com cláusulas de proteção de dados</li>
+        <li><strong>Processadores de pagamento</strong> — gateways autorizados (ex.: Google Play Billing, Apple In-App Purchase) para gestão de assinaturas PRO. Os dados de cartão nunca passam pelos servidores da DATAFIT</li>
+        <li><strong>Ferramentas analíticas</strong> — plataformas de análise de uso do app com dados anonimizados ou pseudonimizados</li>
+        <li><strong>Autoridades e órgãos públicos</strong> — quando exigido por lei, decisão judicial ou regulatória</li>
+        <li><strong>Sucessores corporativos</strong> — em caso de fusão, aquisição ou reorganização societária, com notificação prévia ao Usuário e manutenção das mesmas garantias de privacidade</li>
+      </ul>
+      <div class="box box-success">
+        Todos os terceiros que recebem dados dos nossos usuários são contratualmente obrigados a tratar as informações com o mesmo nível de proteção exigido pela LGPD.
+      </div>
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num-badge">07</div>
+      <h2>Transferência Internacional de Dados <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>Alguns de nossos prestadores de serviços de infraestrutura podem estar localizados fora do Brasil. Nestes casos, a transferência internacional de dados observa os requisitos do art. 33 da LGPD, sendo realizada apenas quando:</p>
+      <ul>
+        <li>O país destinatário oferece grau de proteção de dados adequado, reconhecido pela ANPD</li>
+        <li>O prestador oferece garantias suficientes mediante cláusulas contratuais específicas de proteção de dados</li>
+        <li>Há consentimento específico do Usuário para a transferência, quando necessário</li>
+      </ul>
+      <p>Os dados de saúde, por sua sensibilidade, são preferencialmente armazenados em servidores localizados no Brasil ou em países com legislação equivalente à LGPD.</p>
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num-badge">08</div>
+      <h2>Retenção e Exclusão de Dados</h2>
+    </div>
+    <div class="card">
+      <p>Os dados pessoais são mantidos pelo tempo necessário ao cumprimento das finalidades para as quais foram coletados, observando os seguintes critérios:</p>
+      <ul>
+        <li><strong>Conta ativa</strong> — dados mantidos durante toda a vigência do relacionamento com a DATAFIT</li>
+        <li><strong>Após encerramento da conta</strong> — dados excluídos em até 90 (noventa) dias, salvo obrigação legal de retenção</li>
+        <li><strong>Dados fiscais e financeiros</strong> — mantidos por 5 (cinco) anos, conforme exigência do Código Tributário Nacional</li>
+        <li><strong>Logs de segurança</strong> — mantidos por 6 (seis) meses, conforme Marco Civil da Internet (Lei 12.965/2014)</li>
+        <li><strong>Dados de saúde</strong> — excluídos imediatamente após solicitação do titular, salvo quando necessários para cumprimento de obrigação legal</li>
+      </ul>
+      <div class="box box-info">
+        Você pode solicitar a exclusão dos seus dados a qualquer momento pelos canais de privacidade da DATAFIT. Dados anonimizados ou agregados, que não permitem sua identificação, poderão ser mantidos para fins estatísticos.
+      </div>
+    </div>
+  </div>
+
+  <!-- S9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num-badge">09</div>
+      <h2>Medidas de Segurança <span class="section-tag tag-seg">Segurança</span></h2>
+    </div>
+    <div class="card">
+      <p>A DATAFIT adota medidas técnicas e organizacionais apropriadas para proteger seus dados pessoais contra acesso não autorizado, perda, alteração ou divulgação indevida:</p>
+      <div class="security-grid">
+        <div class="security-item">
+          <div class="security-item-title">Criptografia em trânsito</div>
+          <div class="security-item-desc">Toda comunicação entre o app e nossos servidores utiliza protocolo TLS 1.2 ou superior</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Criptografia em repouso</div>
+          <div class="security-item-desc">Dados armazenados nos servidores são criptografados, especialmente dados de saúde e credenciais</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Controle de acesso</div>
+          <div class="security-item-desc">Acesso aos dados restrito a colaboradores autorizados, com autenticação multifator</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Senhas protegidas</div>
+          <div class="security-item-desc">Senhas armazenadas em formato hash com salt, nunca em texto simples</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Monitoramento contínuo</div>
+          <div class="security-item-desc">Sistemas de detecção de intrusão e monitoramento de anomalias ativos 24/7</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Backups seguros</div>
+          <div class="security-item-desc">Backups regulares criptografados, testados periodicamente para garantir recuperação</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Revisões de segurança</div>
+          <div class="security-item-desc">Auditorias e testes de segurança periódicos na infraestrutura e no código</div>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title">Política interna</div>
+          <div class="security-item-desc">Colaboradores treinados em boas práticas de privacidade e proteção de dados</div>
+        </div>
+      </div>
+      <div class="box box-warn">
+        Nenhum sistema é 100% seguro. Recomendamos ao Usuário utilizar senhas fortes, não reutilizadas, e manter o aplicativo sempre atualizado para se beneficiar das últimas correções de segurança.
+      </div>
+    </div>
+  </div>
+
+  <!-- S10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num-badge">10</div>
+      <h2>Cookies e Tecnologias de Rastreamento</h2>
+    </div>
+    <div class="card">
+      <p>O aplicativo DATAFIT pode utilizar tecnologias similares a cookies para melhorar a experiência do Usuário e analisar o uso da plataforma:</p>
+      <ul>
+        <li><strong>Sessão e autenticação</strong> — tokens necessários para manter o Usuário autenticado durante o uso do app (essenciais, não podem ser desativados)</li>
+        <li><strong>Preferências</strong> — armazenam configurações do Usuário, como idioma e tema (funcionais)</li>
+        <li><strong>Analíticos</strong> — dados de uso anonimizados para entender como os Usuários interagem com o app e melhorar funcionalidades (podem ser desativados nas configurações)</li>
+      </ul>
+      <p>A DATAFIT não utiliza tecnologias de rastreamento para fins publicitários de terceiros.</p>
+    </div>
+  </div>
+
+  <!-- S11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num-badge">11</div>
+      <h2>Seus Direitos como Titular <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>A LGPD (arts. 17 a 22) garante ao Usuário os seguintes direitos sobre seus dados pessoais, exercíveis a qualquer momento pelo canal de privacidade da DATAFIT:</p>
+      <ul>
+        <li><strong>Acesso</strong> — obter confirmação da existência e acesso aos seus dados tratados pela DATAFIT</li>
+        <li><strong>Correção</strong> — solicitar atualização de dados incompletos, inexatos ou desatualizados</li>
+        <li><strong>Anonimização ou bloqueio</strong> — de dados desnecessários, excessivos ou tratados em desconformidade com a LGPD</li>
+        <li><strong>Eliminação</strong> — excluir dados tratados com base no consentimento (ressalvadas hipóteses legais de retenção)</li>
+        <li><strong>Portabilidade</strong> — receber seus dados em formato estruturado e interoperável</li>
+        <li><strong>Informação sobre compartilhamento</strong> — saber quais entidades recebem seus dados</li>
+        <li><strong>Revogação do consentimento</strong> — retirar o consentimento dado anteriormente, sem efeito retroativo sobre tratamentos já realizados</li>
+        <li><strong>Oposição</strong> — contestar tratamentos realizados com base em outras hipóteses legais em caso de descumprimento</li>
+        <li><strong>Revisão de decisões automatizadas</strong> — solicitar revisão de decisões tomadas exclusivamente por meios automatizados que afetem seus interesses</li>
+      </ul>
+      <div class="box box-success">
+        Todas as solicitações serão respondidas em até 15 (quinze) dias úteis, conforme previsto na LGPD. Entre em contato com nosso DPO pelos canais indicados na seção 15.
+      </div>
+    </div>
+  </div>
+
+  <!-- S12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num-badge">12</div>
+      <h2>Menores de Idade <span class="section-tag tag-imp">Importante</span></h2>
+    </div>
+    <div class="card">
+      <p>A DATAFIT não coleta intencionalmente dados de crianças menores de 12 (doze) anos. Para adolescentes entre 12 e 17 anos, o tratamento de dados somente será realizado mediante <strong>consentimento específico e destacado</strong> fornecido pelos pais ou responsáveis legais, conforme art. 14 da LGPD.</p>
+      <p>Caso identificarmos que coletamos dados de menor de 12 anos sem o devido consentimento, tais dados serão excluídos imediatamente. Se você acredita que isso ocorreu, entre em contato com nosso DPO.</p>
+      <p>Responsáveis legais de adolescentes usuários da plataforma poderão exercer, em nome dos menores, todos os direitos de titular previstos na LGPD.</p>
+    </div>
+  </div>
+
+  <!-- S13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <div class="section-num-badge">13</div>
+      <h2>Incidentes de Segurança <span class="section-tag tag-seg">Segurança</span></h2>
+    </div>
+    <div class="card">
+      <p>Em caso de incidente de segurança que possa acarretar risco ou dano relevante aos Usuários, a DATAFIT adotará as seguintes medidas:</p>
+      <ul>
+        <li>Contenção imediata do incidente e investigação do ocorrido</li>
+        <li>Notificação à <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong> em prazo razoável, conforme art. 48 da LGPD</li>
+        <li>Comunicação aos Usuários afetados por meio dos canais cadastrados, com informações sobre a natureza dos dados afetados, os riscos envolvidos e as medidas adotadas</li>
+        <li>Registro do incidente e das ações tomadas para fins de accountability</li>
+      </ul>
+      <div class="box box-info">
+        Se você identificar qualquer vulnerabilidade ou suspeita de uso indevido dos seus dados, comunique-nos imediatamente pelos canais de privacidade da DATAFIT.
+      </div>
+    </div>
+  </div>
+
+  <!-- S14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <div class="section-num-badge">14</div>
+      <h2>Alterações nesta Política</h2>
+    </div>
+    <div class="card">
+      <p>Esta Política de Privacidade e Segurança poderá ser atualizada periodicamente para refletir mudanças em nossas práticas, na legislação ou nos serviços oferecidos.</p>
+      <p>Alterações relevantes serão comunicadas ao Usuário com antecedência mínima de <strong>15 (quinze) dias</strong> por meio de notificação no aplicativo ou e-mail cadastrado. O uso continuado da plataforma após a vigência das alterações implica aceitação da nova versão.</p>
+      <p>Recomendamos a revisão periódica desta Política. A data de "Última atualização" no topo do documento indica quando ocorreu a versão mais recente.</p>
+    </div>
+  </div>
+
+  <!-- S15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <div class="section-num-badge">15</div>
+      <h2>Encarregado de Dados (DPO) e Contato <span class="section-tag tag-lgpd">LGPD</span></h2>
+    </div>
+    <div class="card">
+      <p>Nos termos do art. 41 da LGPD, a DATAFIT designou um <strong>Encarregado pelo Tratamento de Dados Pessoais (DPO)</strong>, responsável por:</p>
+      <ul>
+        <li>Receber e atender comunicações dos titulares de dados e da ANPD</li>
+        <li>Orientar colaboradores e operadores sobre as práticas de proteção de dados</li>
+        <li>Executar as demais atribuições previstas na LGPD e nos regulamentos da ANPD</li>
+      </ul>
+      <p>Para exercer seus direitos, tirar dúvidas sobre esta Política ou relatar qualquer incidente relacionado aos seus dados, utilize os <strong>canais oficiais de privacidade</strong> disponíveis na seção "Privacidade" dentro do aplicativo DATAFIT.</p>
+      <div class="box box-success">
+        Garantimos resposta a todas as solicitações de privacidade em até 15 (quinze) dias úteis. Para casos urgentes relacionados a incidentes de segurança, priorizamos o atendimento em até 72 horas.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="footer">
+    <p><strong>DATAFIT</strong> — Plataforma de Gestão Corporativa e Fitness</p>
+    <p>Política de Privacidade e Segurança — Versão 1.0 — Vigente a partir de 29/04/2026</p>
+    <p>Em caso de dúvidas, utilize os canais oficiais de privacidade disponíveis no aplicativo.</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+# Codemagic CI/CD — Datafit
+#
+# PRE-REQUISITOS no painel do Codemagic (fazer uma vez, depois que a Apple
+# aprovar a conta de desenvolvedor):
+#
+#   1. Teams > Integrations > Developer Portal > conectar a App Store Connect
+#      API Key. Anote o nome dado a integracao e ajuste `app_store_connect:`
+#      abaixo se nao for "datafit_asc".
+#      A chave e gerada em: App Store Connect > Users and Access > Integrations
+#      > App Store Connect API > (+). Guardar o .p8 (so baixa uma vez),
+#      o Key ID e o Issuer ID.
+#
+#   2. Criar o app no App Store Connect com o bundle ID com.virtus.datafit
+#      e substituir APP_STORE_APPLE_ID abaixo pelo "Apple ID" numerico do app
+#      (aparece em App Information > General Information).
+#
+#   3. Environment variables > grupo "datafit_ios": nada obrigatorio hoje,
+#      o grupo existe para segredos futuros.
+
+workflows:
+  ios-testflight:
+    name: iOS — build e envio pro TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    working_directory: datafit
+
+    integrations:
+      app_store_connect: datafit_asc
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.virtus.datafit
+      vars:
+        BUNDLE_ID: "com.virtus.datafit"
+        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        # TROCAR pelo Apple ID numerico do app no App Store Connect:
+        APP_STORE_APPLE_ID: 0000000000
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "ios-v*"
+          include: true
+
+    scripts:
+      - name: Dependencias Flutter
+        script: flutter pub get
+
+      - name: Build number a partir do TestFlight
+        script: |
+          set -e
+          LATEST=$(app_store_connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo "0")
+          echo "Ultimo build no TestFlight: $LATEST"
+          echo $(($LATEST + 1)) > /tmp/build_number
+          echo "Novo build number: $(cat /tmp/build_number)"
+
+      - name: CocoaPods
+        script: |
+          set -e
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Perfis de assinatura
+        script: xcode-project use-profiles
+
+      - name: Build do IPA
+        script: |
+          set -e
+          flutter build ipa --release \
+            --build-number=$(cat /tmp/build_number) \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Deixar em false ate a ficha da loja estar completa e o IAP decidido.
+        submit_to_app_store: false
+      email:
+        recipients:
+          - mindagencia4@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # Workflow opcional so para validar que o projeto compila, sem assinar.
+  # Serve pra testar o pipeline ANTES de ter a conta Apple aprovada.
+  ios-build-check:
+    name: iOS — compilacao sem assinatura (smoke test)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    working_directory: datafit
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    scripts:
+      - name: Dependencias Flutter
+        script: flutter pub get
+
+      - name: Analise estatica
+        script: flutter analyze --no-fatal-infos || true
+
+      - name: Build sem assinatura
+        script: flutter build ios --release --no-codesign
+
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - mindagencia4@gmail.com
+        notify:
+          success: false
+          failure: true

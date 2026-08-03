@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>datafit</string>
+	<string>Datafit</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>datafit</string>
+	<string>Datafit</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 
@@ -43,9 +43,9 @@
 	<true/>
 
 	<key>NSCameraUsageDescription</key>
-    <string>In order to take a picture or video, this app requires permission to access the camera.</string>
+    <string>O Datafit usa a câmera para você tirar suas fotos mensais de evolução e definir a foto do seu perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>In order to upload data, this app requires permission to access the photo library.</string>
+    <string>O Datafit acessa suas fotos para você escolher imagens de evolução corporal e a foto do seu perfil.</string>
 
 
 
