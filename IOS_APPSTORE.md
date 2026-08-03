@@ -6,6 +6,60 @@
 
 ---
 
+## 🚦 RETOMAR DAQUI
+
+Estado em 2026-08-03: Apple Developer Program assinado, **aguardando aprovação**.
+Tudo que dava para fazer no código já está commitado (`43c7f1b` → `3e89e6d`).
+São 8 itens abertos, nesta ordem:
+
+### Destrava tudo — fazer primeiro (não depende da Apple)
+
+- [ ] **1. Ícone 1024×1024.** Exportar o original (Canva/Figma) em PNG quadrado.
+      Rodar: `python scripts/gerar_icones_ios.py CAMINHO.png`
+      Conferir com: `python scripts/gerar_icones_ios.py --conferir` (tem que dar < 5%; hoje dá **41,89%**).
+      *Sem isso o app é rejeitado — foi exatamente o que derrubou o Datafit duas vezes no Google Play.*
+
+- [ ] **2. Push do repo.** O repo é local em `Documents/datafit`. Codemagic exige
+      GitHub/GitLab/Bitbucket. O `gh` CLI **não está instalado** nesta máquina.
+      Criar o repo e: `git remote add origin <url> && git push -u origin main`
+
+- [ ] **3. Rodar o workflow `ios-build-check` no Codemagic.** Não precisa de conta
+      Apple nem de assinatura — só confirma que o projeto compila em macOS.
+      **Fazer isso antes da Apple aprovar**, para não descobrir erro de build no dia da submissão.
+
+- [ ] **4. Aplicar `migrations/excluir_conta_usuario.sql`.** Rodar antes o bloco de
+      VERIFICAÇÃO no fim do arquivo — o SQL foi escrito a partir do `DATABASE.md`,
+      sem acesso de leitura ao banco. Depois testar o botão "Excluir minha conta"
+      no perfil. *Enquanto não aplicar, o botão falha em runtime.*
+
+- [ ] **5. Hospedar `privacidade.html`.** Precisa de URL pública (GitHub Pages serve).
+
+### Depois que a Apple aprovar a conta
+
+- [ ] **6. App Store Connect API Key.** Users and Access > Integrations > App Store
+      Connect API > (+). Guardar o `.p8` (só baixa uma vez), Key ID e Issuer ID.
+      Conectar no Codemagic com o nome **`datafit_asc`** (é o nome usado no `codemagic.yaml`).
+
+- [ ] **7. Criar o app** com bundle `com.virtus.datafit` e substituir
+      `APP_STORE_APPLE_ID: 0000000000` no `codemagic.yaml` pelo Apple ID numérico.
+
+- [ ] **8. Ficha da loja:** descrição, palavras-chave, screenshots de iPhone
+      (6.9" e 6.5" — **iPad não precisa**, o app é iPhone-only), categoria,
+      classificação etária, URL da política.
+      **+ conta de demonstração** para o revisor: o app é 100% atrás de login,
+      é obrigatório. Usar um Personal com alunos, treinos e métricas populados.
+
+### Armadilhas para não reaprender
+
+- As calls do FlutterFlow (`api_calls.dart`) mandam a **anon key** no
+  `Authorization`, não o JWT — `auth.uid()` chega NULL. RPC que depende do usuário
+  logado tem que ir por `SupaFlow.client.rpc(...)`.
+- "Arquivo enviado à loja" ≠ "versão que o revisor vê". Foi o que causou a
+  2ª rejeição no Google Play. Sempre confirmar qual build está ativo.
+- O `SupabaseService.rpc()` do `STACK.md` **não existe** neste codebase.
+
+---
+
 ## ✅ Já resolvido no repositório
 
 | Item | O que foi feito |
