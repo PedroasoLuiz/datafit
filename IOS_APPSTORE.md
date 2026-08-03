@@ -1,71 +1,98 @@
-# Datafit — Checklist de Publicação na Apple App Store
+# Datafit — Publicação na Apple App Store
 
-> Levantamento feito em 2026-07-12, logo após resolver a rejeição do Google Play (Misleading Claims — ícone do launcher). Ainda não iniciado.
-
----
-
-## 🔴 Bloqueio de infraestrutura
-
-- A máquina de desenvolvimento é Windows (ver `SETUP.md`). Build de iOS (`flutter build ipa`, assinatura, arquivamento) **exige macOS + Xcode** — não é possível nesta máquina.
-- Não há nenhuma configuração de CI/CD no repo (`.github/workflows`, `codemagic.yaml`, etc.) — precisa ser criada do zero.
-- Opções: Mac físico (próprio ou de terceiros), ou CI na nuvem (Codemagic, GitHub Actions com runner macOS, Bitrise, Ionic Appflow).
-
-**Decisão pendente:** qual caminho seguir pra conseguir buildar.
+> Atualizado em 2026-08-03. Substitui o levantamento de 2026-07-12, que tinha
+> informações incorretas (dizia que o `PrivacyInfo.xcprivacy` já estava
+> preenchido — estava vazio).
 
 ---
 
-## 🔴 Ícone ainda não corrigido (mesmo bug do Google Play)
+## ✅ Já resolvido no repositório
 
-- `ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png` (e todos os outros tamanhos do iconset) ainda são o logo padrão do template Flutter (o "F" azul), não o logo real do Datafit.
-- Mesma correção já aplicada no Android: usar o ícone oficial (já baixado da ficha do Google Play em `edits().images().list(imageType='icon')`, resultado salvo no ícone `mipmap-xxxhdpi` atual) e gerar todos os tamanhos do `AppIcon.appiconset`:
-  - `Icon-App-20x20@1x/2x/3x`
-  - `Icon-App-29x29@1x/2x/3x`
-  - `Icon-App-40x40@1x/2x/3x`
-  - `Icon-App-60x60@2x/3x`
-  - `Icon-App-76x76@1x/2x`
-  - `Icon-App-83.5x83.5@2x`
-  - `Icon-App-1024x1024@1x` (App Store, sem alpha/transparência)
-- `CFBundleDisplayName` / `CFBundleName` no `Info.plist` estão como `datafit` (minúsculo) — vale normalizar pra bater com o nome usado na ficha da loja, já que a Apple também audita mismatch de nome.
-
-**Rápido de resolver** — mesmo processo do Android, só falta rodar.
-
----
-
-## 🟡 Risco de rejeição: modelo de assinatura fora do app (Guideline 3.1.1)
-
-- A ficha do app descreve planos pagos pro Personal Trainer (Free / Standard R$47 / Partner R$97) processados **fora do app**, via gateway de pagamento externo com webhooks (ver `PERSONAS.md`, seção "Distribuição de comissões").
-- Esses planos desbloqueiam funcionalidade dentro do app (alunos ilimitados, comissão de indicação) — isso é exatamente o tipo de "digital good/serviço consumido dentro do app" que a Apple exige passar pela **In-App Purchase** nativa (Guideline 3.1.1), diferente do Google que não flagou isso na primeira rejeição.
-- Pagamentos entre aluno e personal (sessões de treino, mensalidade da academia) são serviço físico/pessoa-a-pessoa e **não** precisam de IAP — isso está OK.
-- O que precisa de decisão: o pagamento da *assinatura do app em si* (o personal pagando pra usar o Datafit) precisa:
-  - (a) migrar pra Apple IAP (StoreKit) só na versão iOS, mantendo o gateway externo no Android/web, ou
-  - (b) tentar enquadrar como exceção (ex.: "multi-platform service" — geralmente não se aplica a apps B2B pequenos como esse), ou
-  - (c) redesenhar o fluxo de cobrança pra não bloquear funcionalidade in-app diretamente (risco de ainda ser flagado).
-
-**Decisão pendente do usuário** — isso pode mudar bastante a arquitetura de pagamento antes de submeter.
+| Item | O que foi feito |
+|---|---|
+| Repositório git | Criado na raiz (`Documents/datafit`), com o projeto Flutter em `datafit/`. `.gitignore` bloqueia keystore, `key.properties`, `.p8`, `.p12`, service accounts |
+| CI | `codemagic.yaml` na raiz: workflow `ios-testflight` (assinado, publica no TestFlight) e `ios-build-check` (compila sem assinatura, roda a cada push na `main`) |
+| Nome do app | `CFBundleDisplayName` / `CFBundleName`: `datafit` → **`Datafit`** |
+| Permissões | Strings de câmera/fotos específicas em PT-BR no lugar do texto genérico do template |
+| Privacy manifest | `PrivacyInfo.xcprivacy` estava `<dict/>` vazio. Agora declara dados coletados (e-mail, nome, telefone, user ID, fitness, fotos) e Required Reason APIs (UserDefaults `CA92.1`, FileTimestamp `C617.1`) |
+| iPad | `TARGETED_DEVICE_FAMILY` `1,2` → `1` e remoção de `UISupportedInterfaceOrientations~ipad`. **Não precisa de screenshots de iPad** |
+| Guideline 3.1.1 | Tabela de preços dos planos (R$ 47 / R$ 97) oculta no iOS via `!isiOS` em `perfil_widget.dart`. Planos são vendidos só pelo site |
+| Guideline 5.1.1(v) | Exclusão de conta implementada: `lib/components/excluir_conta.dart` + item no menu do perfil |
+| Política de privacidade | Extraída do widget para `privacidade.html` (29 mil caracteres, 16 seções, LGPD), com links reativados |
 
 ---
 
-## 🟢 Já resolvido / não crítico
+## 🔴 Pendente — bloqueia a submissão
 
-- `ios/Runner/PrivacyInfo.xcprivacy` já existe (privacy manifest, exigido desde 2024 pra certas APIs) — precisa revisar se os campos preenchidos batem com o que o app realmente coleta, mas a base já está lá.
-- Não há login social (Google/Facebook) no `pubspec.yaml`, só auth por e-mail/senha via Supabase — então a exigência de oferecer "Sign in with Apple" como alternativa provavelmente **não se aplica**. (Nota: `sign_in_with_apple` está como dependência no `pubspec.yaml`, mas não há uso encontrado em `lib/` — parece resquício de template, não uma feature ativa.)
-- `Info.plist` já tem `CFBundleIdentifier` (`com.virtus.datafit`, mesmo package do Android) e deep link scheme (`datafit://`) configurados.
-- App suporta iPad (`UISupportedInterfaceOrientations~ipad` presente) — então vai precisar de screenshots em tamanho de iPad também na App Store Connect, não só iPhone.
+### 1. Ícone do app
+Todo o `AppIcon.appiconset` ainda é o "F" do template Flutter (divergência medida
+de **41,89%** contra o ícone real). É exatamente o que causou as duas rejeições
+no Google Play.
+
+**Bloqueio:** falta uma fonte em alta resolução. O melhor arquivo no repositório
+é o `android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`, com apenas
+192×192 — esticar para 1024 sairia borrado. O `assets/images/datafit.png` é o
+logotipo horizontal, não o ícone quadrado.
+
+O 512×512 da ficha do Play seria uma alternativa, mas o Google Drive não está
+montado de verdade nesta máquina: o service account aparece no `ls` mas retorna
+`error reading` na leitura.
+
+**Ação:** exportar o ícone original (Canva/Figma) em 1024×1024 PNG **sem canal
+alpha** e gerar os 15 tamanhos do iconset.
+
+### 2. Aplicar a migration de exclusão de conta
+`migrations/excluir_conta_usuario.sql` está escrito mas **não foi aplicado**. Foi
+gerado a partir do `DATABASE.md`, sem acesso de leitura ao banco (o MCP do
+Supabase estava sem permissão). Rodar o bloco de verificação no fim do arquivo
+antes de aplicar. Sem isso, o botão de excluir conta falha em runtime.
+
+### 3. Publicar `privacidade.html`
+A App Store Connect exige **URL pública**. GitHub Pages resolve de graça.
+
+### 4. Push do repositório
+O repo é local. Codemagic precisa dele no GitHub/GitLab/Bitbucket. O `gh` CLI
+não está instalado nesta máquina.
+
+### 5. Conta Apple + App Store Connect
+- Aguardando aprovação do Apple Developer Program (assinado em 2026-08-03)
+- Criar App ID `com.virtus.datafit` e o app no App Store Connect
+- Gerar App Store Connect API Key (.p8, Key ID, Issuer ID) e conectar no
+  Codemagic como integração de nome `datafit_asc`
+- Substituir `APP_STORE_APPLE_ID: 0000000000` no `codemagic.yaml`
+
+### 6. Ficha da loja
+Descrição, palavras-chave, screenshots de iPhone (6.9" e 6.5"), categoria,
+classificação etária, URL da política de privacidade.
+
+### 7. Conta de demonstração para o revisor
+O app é 100% atrás de login — é **obrigatório** informar credenciais de teste no
+App Store Connect. Usar um Personal com alunos, treinos e métricas populados.
 
 ---
 
-## Perguntas em aberto pro usuário
+## 📌 Observações levantadas mas fora do escopo
 
-1. Já existe conta no **Apple Developer Program** (US$99/ano)? Sem isso não dá nem pra gerar certificado de assinatura nem criar o app no App Store Connect.
-2. Tem acesso a um Mac, ou vai usar CI na nuvem?
-3. Como resolver o ponto do IAP pro plano do Personal Trainer antes de submeter pra review?
+- **`tipoPerfilId == 1` no card "Meu plano"** (`perfil_widget.dart:785`): o `1` é
+  Aluno (confirmado pelo `navbar_widget.dart`, onde `== 2` gateia o que é do
+  Personal). A tabela de preços de planos de *Personal* está sendo exibida para
+  *alunos*. Parece bug pré-existente — não foi alterado, só ocultado no iOS.
+- **`sign_in_with_apple` 7.0.1** está no `pubspec.yaml` e há um mixin
+  `AppleSignInManager` em `auth_manager.dart`, mas não há uso real. Como não há
+  login social, a Guideline 4.8 não se aplica. Remover é opcional.
+- **`ios/ImageNotification/`** existe no disco mas não é target no `project.pbxproj`
+  (zero referências). Código morto, não afeta o build.
+- **`STACK.md` descreve um `SupabaseService.rpc()` que não existe** neste
+  codebase. O padrão real é `SupaFlow.client.rpc(...)`.
 
 ---
 
-## Quando voltar a isso, começar por:
+## Ordem sugerida
 
-1. Resolver as 3 perguntas em aberto acima
-2. Gerar o ícone correto (rápido, mesmo script usado no Android)
-3. Registrar o Bundle ID e criar o app no App Store Connect
-4. Configurar build/assinatura (Mac ou CI)
-5. Decidir e implementar a estratégia de IAP antes de submeter — resolver isso *depois* da rejeição da Apple custa muito mais tempo (review manual, ciclo de rejeição mais lento que o Google)
+1. Push do repo pro GitHub → conectar no Codemagic
+2. Rodar o workflow `ios-build-check` (não precisa de conta Apple) para validar
+   que o projeto compila em macOS
+3. Ícone em alta → gerar o iconset
+4. Verificar e aplicar a migration → testar o botão de excluir conta
+5. Publicar a política de privacidade
+6. Quando a Apple aprovar: API Key → app no App Store Connect → ficha → TestFlight
