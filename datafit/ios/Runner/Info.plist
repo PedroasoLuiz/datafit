@@ -42,6 +42,12 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
+	<!-- O app so usa HTTPS/TLS padrao do sistema: isento de export compliance.
+	     Sem esta chave, cada build fica travado no App Store Connect esperando
+	     a resposta manual do questionario de criptografia. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 	<key>NSCameraUsageDescription</key>
     <string>O Datafit usa a câmera para você tirar suas fotos mensais de evolução e definir a foto do seu perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
