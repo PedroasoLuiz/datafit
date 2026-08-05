@@ -43,6 +43,14 @@ workflows:
         # Apple ID numerico do app no App Store Connect
         # (App Information > General Information > Apple ID)
         APP_STORE_APPLE_ID: 6798420221
+      groups:
+        # Precisa conter a variavel SEGURA CERTIFICATE_PRIVATE_KEY: a chave
+        # privada RSA (PEM completo) do certificado de distribuicao.
+        # A Apple so devolve a parte publica do certificado; sem a chave privada
+        # o fetch-signing-files aborta com "Cannot save Signing Certificates
+        # without certificate private key".
+        # NUNCA commitar essa chave -- este repositorio e publico.
+        - datafit_ios
 
     triggering:
       events:
@@ -81,6 +89,7 @@ workflows:
           set -e
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
+            --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
             --create
           echo "--- Profiles baixados ---"
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
