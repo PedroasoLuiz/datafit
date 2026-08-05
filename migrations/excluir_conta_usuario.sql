@@ -1,38 +1,24 @@
--- =====================================================================
--- Datafit — Exclusao de conta iniciada pelo usuario
--- Apple App Store Guideline 5.1.1(v): apps que permitem criar conta
--- precisam permitir excluir a conta de dentro do proprio app.
+-- ====================================================================
+-- PASSO 2 de 2 — APLICAR (este MUDA o banco)
 --
--- Estrategia escolhida: ANONIMIZAR + SOFT DELETE
---   - o registro em Perfis permanece (nao quebra FKs nem historico do
---     personal), mas os dados pessoais sao substituidos
---   - vinculos em PersonalAlunos sao encerrados
---   - o login e revogado (auth.users recebe email/senha inutilizaveis)
+-- Cole no SQL Editor do Supabase e clique em RUN.
+-- Depois me mande o que apareceu.
 --
--- !!! ATENCAO !!!
--- Este arquivo foi escrito a partir do DATABASE.md, SEM acesso de leitura
--- ao banco (o MCP do Supabase estava sem permissao na sessao em que foi
--- gerado). ANTES DE APLICAR, confira:
---   1. Perfis realmente NAO tem coluna "IsDeleted" (o doc indica que nao;
---      se tiver, use-a em vez de depender so de "Ativo")
---   2. os nomes das colunas de PersonalAlunos e Telefones
---   3. rode primeiro o bloco de VERIFICACAO no fim do arquivo
--- =====================================================================
+-- Corrigido em 04/08/2026 com base no resultado da verificação:
+--   * Telefones é ligado por Telefones.PerfisId (a versão antiga usava
+--     um Perfis.TelefonesId que NÃO existe — quebraria em produção)
+--   * Perfis TEM coluna IsDeleted — agora é marcada
+--   * Cpf / ChavePix / TipoPix / Bio / DataNascimento também são apagados
+-- ====================================================================
 
--- ---------------------------------------------------------------------
--- 1. Coluna de marcacao (idempotente)
--- ---------------------------------------------------------------------
+-- 1. Coluna de marcação (pode rodar quantas vezes quiser)
 ALTER TABLE public."Perfis"
   ADD COLUMN IF NOT EXISTS "ExcluidoEm" timestamptz;
 
 COMMENT ON COLUMN public."Perfis"."ExcluidoEm" IS
   'Preenchido quando o usuario exclui a propria conta pelo app. NULL = conta ativa.';
 
--- ---------------------------------------------------------------------
--- 2. RPC de exclusao
--- ---------------------------------------------------------------------
--- SECURITY DEFINER porque precisa escrever em auth.users.
--- VOLATILE (default) — funcao STABLE nao consegue gravar (ver RULES.md).
+-- 2. A função de exclusão
 CREATE OR REPLACE FUNCTION public.excluir_minha_conta()
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -40,10 +26,10 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 DECLARE
-  v_uid          uuid := auth.uid();
-  v_tipo_perfil  bigint;
+  v_uid           uuid := auth.uid();
+  v_tipo_perfil   bigint;
   v_alunos_ativos int := 0;
-  v_sufixo       text;
+  v_sufixo        text;
 BEGIN
   IF v_uid IS NULL THEN
     RETURN jsonb_build_object('sucesso', false, 'erro', 'NAO_AUTENTICADO');
@@ -57,7 +43,7 @@ BEGIN
     RETURN jsonb_build_object('sucesso', false, 'erro', 'PERFIL_NAO_ENCONTRADO');
   END IF;
 
-  -- Personal com alunos ativos: bloqueia e explica, para nao deixar alunos orfaos.
+  -- Personal com alunos ativos: bloqueia, para nao deixar alunos orfaos.
   IF v_tipo_perfil = 2 THEN
     SELECT count(*) INTO v_alunos_ativos
     FROM public."PersonalAlunos"
@@ -76,44 +62,52 @@ BEGIN
 
   v_sufixo := replace(v_uid::text, '-', '');
 
-  -- 2.1 Encerra vinculos (dos dois lados: o usuario pode ser aluno ou personal)
+  -- 2.1 Encerra vinculos dos dois lados (usuario pode ser aluno ou personal)
   UPDATE public."PersonalAlunos"
      SET "Ativo" = false,
          "DataDesvinculo" = (now() AT TIME ZONE 'America/Sao_Paulo')::date
    WHERE ("AlunoPerfisId" = v_uid OR "PersonalPerfisId" = v_uid)
      AND "Ativo" = true;
 
-  -- 2.2 Anonimiza o perfil
+  -- 2.2 Anonimiza o perfil.
+  -- Cpf e ChavePix sao dado pessoal sensivel — LGPD exige remover.
   UPDATE public."Perfis"
-     SET "Nome"          = 'Usuario removido',
-         "NickName"      = 'removido_' || left(v_sufixo, 12),
-         "UrlImgPerfil"  = NULL,
-         "Ativo"         = false,
-         "ExcluidoEm"    = now() AT TIME ZONE 'America/Sao_Paulo'
+     SET "Nome"           = 'Usuario removido',
+         "NickName"       = 'removido_' || left(v_sufixo, 12),
+         "UrlImgPerfil"   = NULL,
+         "Cpf"            = NULL,
+         "Bio"            = NULL,
+         "Cref"           = NULL,
+         "Unidade"        = NULL,
+         "ChavePix"       = NULL,
+         "TipoPix"        = NULL,
+         "DataNascimento" = NULL,
+         "Ativo"          = false,
+         "IsDeleted"      = true,
+         "ExcluidoEm"     = now() AT TIME ZONE 'America/Sao_Paulo'
    WHERE "idUser" = v_uid;
 
-  -- 2.3 Anonimiza telefone (se houver vinculo)
-  UPDATE public."Telefones" t
+  -- 2.3 Anonimiza telefone(s).
+  -- CORRIGIDO: o vinculo e Telefones.PerfisId -> Perfis.idUser.
+  UPDATE public."Telefones"
      SET "Numero"     = NULL,
          "IsWhatsApp" = false,
          "Ativo"      = false
-   FROM public."Perfis" p
-  WHERE p."idUser" = v_uid
-    AND t."Id" = p."TelefonesId";
+   WHERE "PerfisId" = v_uid;
 
   -- 2.4 Revoga o login. Nao apagamos a linha de auth.users para nao
   --     cascatear em FKs; tornamos as credenciais inutilizaveis.
   UPDATE auth.users
-     SET email             = 'removido+' || v_sufixo || '@datafit.invalid',
-         phone             = NULL,
+     SET email              = 'removido+' || v_sufixo || '@datafit.invalid',
+         phone              = NULL,
          encrypted_password = '',
          email_confirmed_at = NULL,
          raw_user_meta_data = '{}'::jsonb,
-         banned_until      = 'infinity'
+         banned_until       = 'infinity'
    WHERE id = v_uid;
 
   -- 2.5 Encerra sessoes ativas
-  DELETE FROM auth.sessions  WHERE user_id = v_uid;
+  DELETE FROM auth.sessions       WHERE user_id = v_uid;
   DELETE FROM auth.refresh_tokens WHERE user_id = v_uid::text;
 
   RETURN jsonb_build_object('sucesso', true, 'excluidoEm', now());
@@ -128,22 +122,8 @@ COMMENT ON FUNCTION public.excluir_minha_conta() IS
   'Anonimiza Perfis/Telefones, encerra vinculos e revoga o login. '
   'Retorna {sucesso:bool, erro?:text, alunosAtivos?:int}.';
 
--- =====================================================================
--- BLOCO DE VERIFICACAO — rode ANTES de aplicar o resto
--- =====================================================================
--- Confirma nomes de coluna usados acima:
---
--- SELECT table_name, column_name
---   FROM information_schema.columns
---  WHERE table_schema='public'
---    AND table_name IN ('Perfis','PersonalAlunos','Telefones')
---  ORDER BY table_name, ordinal_position;
---
--- Confirma que nao ha overload conflitante (ver RULES.md):
---
--- SELECT pg_get_function_arguments(oid)
---   FROM pg_proc WHERE proname = 'excluir_minha_conta';
---
--- Teste com a aluna de teste (NAO rodar em conta real):
---   Maria Miranda ad2b23a6-c484-48ab-b3e9-d60b7665add4
--- =====================================================================
+-- 3. Confirma que criou (tem que aparecer 1 linha)
+SELECT proname AS funcao_criada,
+       pg_get_function_arguments(oid) AS argumentos
+  FROM pg_proc
+ WHERE proname = 'excluir_minha_conta';
