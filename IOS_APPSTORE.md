@@ -30,10 +30,18 @@ Restam 6 itens abertos.
       Apple nem de assinatura — só confirma que o projeto compila em macOS.
       **Fazer isso antes da Apple aprovar**, para não descobrir erro de build no dia da submissão.
 
-- [ ] **4. Aplicar `migrations/excluir_conta_usuario.sql`.** Rodar antes o bloco de
-      VERIFICAÇÃO no fim do arquivo — o SQL foi escrito a partir do `DATABASE.md`,
-      sem acesso de leitura ao banco. Depois testar o botão "Excluir minha conta"
-      no perfil. *Enquanto não aplicar, o botão falha em runtime.*
+- [x] **4. Aplicar `migrations/excluir_conta_usuario.sql`.** ✅ Aplicado em
+      2026-08-04; `excluir_minha_conta()` existe no banco, sem overload conflitante.
+      A verificação pegou dois erros na versão escrita a partir do `DATABASE.md`
+      (commit `c2674d5`): o JOIN de telefone usava `Perfis."TelefonesId"`, coluna
+      **inexistente** — o vínculo real é `Telefones."PerfisId" -> Perfis."idUser"`,
+      e como plpgsql não valida colunas na criação, teria quebrado só em runtime;
+      e `Perfis` **tem** `IsDeleted`, que agora é marcada. Passou a limpar também
+      `Cpf`, `ChavePix`, `TipoPix`, `Bio`, `Cref`, `Unidade`, `DataNascimento`.
+      **Falta:** testar o botão no app com uma conta descartável.
+
+      ⚠️ O MCP do Supabase segue **sem permissão** ("You do not have permission") —
+      SQL tem que ser rodado por Pedro no SQL Editor.
 
 - [ ] **5. Hospedar `privacidade.html`.** Precisa de URL pública (GitHub Pages serve).
 
