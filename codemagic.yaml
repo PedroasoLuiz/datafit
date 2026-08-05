@@ -32,9 +32,10 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.virtus.datafit
+      # Sem bloco `ios_signing:` de proposito. A assinatura e feita
+      # explicitamente nos scripts abaixo (fetch-signing-files --create), porque
+      # a conta e nova e ainda nao tem certificado de distribuicao. Manter os
+      # dois mecanismos juntos faz o automatico e o manual disputarem a keychain.
       vars:
         BUNDLE_ID: "com.virtus.datafit"
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
@@ -67,7 +68,27 @@ workflows:
           set -e
           find . -name "Podfile" -execdir pod install \;
 
-      - name: Perfis de assinatura
+      # --- Assinatura -------------------------------------------------------
+      # Ordem obrigatoria: initialize -> fetch -> add-certificates -> use-profiles.
+      # `use-profiles` sozinho so aplica o que ja esta no disco; sem o fetch antes
+      # ele falha com "No matching profiles found for bundle identifier".
+
+      - name: Inicializa a keychain
+        script: keychain initialize
+
+      - name: Busca (ou cria) certificado e provisioning profile
+        script: |
+          set -e
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          echo "--- Profiles baixados ---"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
+
+      - name: Adiciona os certificados na keychain
+        script: keychain add-certificates
+
+      - name: Aplica os perfis no projeto Xcode
         script: xcode-project use-profiles
 
       - name: Build do IPA
