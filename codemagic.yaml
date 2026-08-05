@@ -10,9 +10,8 @@
 #      > App Store Connect API > (+). Guardar o .p8 (so baixa uma vez),
 #      o Key ID e o Issuer ID.
 #
-#   2. Criar o app no App Store Connect com o bundle ID com.virtus.datafit
-#      e substituir APP_STORE_APPLE_ID abaixo pelo "Apple ID" numerico do app
-#      (aparece em App Information > General Information).
+#   2. FEITO: app criado no App Store Connect com o bundle com.virtus.datafit,
+#      Apple ID numerico 6798420221 ja preenchido em APP_STORE_APPLE_ID.
 #
 #   3. Environment variables > grupo "datafit_ios": nada obrigatorio hoje,
 #      o grupo existe para segredos futuros.
@@ -38,8 +37,9 @@ workflows:
         BUNDLE_ID: "com.virtus.datafit"
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-        # TROCAR pelo Apple ID numerico do app no App Store Connect:
-        APP_STORE_APPLE_ID: 0000000000
+        # Apple ID numerico do app no App Store Connect
+        # (App Information > General Information > Apple ID)
+        APP_STORE_APPLE_ID: 6798420221
 
     triggering:
       events:
