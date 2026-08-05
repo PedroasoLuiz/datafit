@@ -3,12 +3,11 @@
 # PRE-REQUISITOS no painel do Codemagic (fazer uma vez, depois que a Apple
 # aprovar a conta de desenvolvedor):
 #
-#   1. Teams > Integrations > Developer Portal > conectar a App Store Connect
-#      API Key. Anote o nome dado a integracao e ajuste `app_store_connect:`
-#      abaixo se nao for "datafit_asc".
-#      A chave e gerada em: App Store Connect > Users and Access > Integrations
-#      > App Store Connect API > (+). Guardar o .p8 (so baixa uma vez),
-#      o Key ID e o Issuer ID.
+#   1. FEITO: App Store Connect API Key conectada em Teams > Integrations >
+#      Developer Portal com o nome "DATAFIT" (referenciado em app_store_connect
+#      abaixo). A chave precisa ter papel Admin ou App Manager COM acesso a
+#      "Certificates, Identifiers & Profiles" — sem isso o Codemagic autentica
+#      mas nao consegue criar o provisioning profile.
 #
 #   2. FEITO: app criado no App Store Connect com o bundle com.virtus.datafit,
 #      Apple ID numerico 6798420221 ja preenchido em APP_STORE_APPLE_ID.
@@ -24,7 +23,10 @@ workflows:
     working_directory: datafit
 
     integrations:
-      app_store_connect: datafit_asc
+      # Nome EXATO da integracao em Teams > Integrations > Developer Portal.
+      # Se nao bater, o Codemagic segue sem credenciais da App Store Connect e
+      # a assinatura falha com "No matching profiles found for bundle identifier".
+      app_store_connect: DATAFIT
 
     environment:
       flutter: stable
