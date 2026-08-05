@@ -8,20 +8,23 @@
 
 ## 🚦 RETOMAR DAQUI
 
-Estado em 2026-08-03: Apple Developer Program assinado, **aguardando aprovação**.
-Tudo que dava para fazer no código já está commitado (`43c7f1b` → `3e89e6d`).
-São 8 itens abertos, nesta ordem:
+Estado em 2026-08-04: **Apple Developer Program aprovado e ativo**
+("Certificates, Identifiers & Profiles" disponível no painel).
+Restam 6 itens abertos.
 
 ### Destrava tudo — fazer primeiro (não depende da Apple)
 
-- [ ] **1. Ícone 1024×1024.** Exportar o original (Canva/Figma) em PNG quadrado.
-      Rodar: `python scripts/gerar_icones_ios.py CAMINHO.png`
-      Conferir com: `python scripts/gerar_icones_ios.py --conferir` (tem que dar < 5%; hoje dá **41,89%**).
-      *Sem isso o app é rejeitado — foi exatamente o que derrubou o Datafit duas vezes no Google Play.*
+- [x] **1. Ícone 1024×1024.** ✅ Feito em 2026-08-04 (`01bac88`). Fonte:
+      `Downloads/icone-datafit.jpg` (1024×1024 RGB, símbolo da espiral).
+      Gerados os 15 tamanhos do iOS **e os 5 do Android** — o Android usava a
+      logo escrita "datafit", divergente do ícone real. Divergência **41,89% → 0,05%**.
+      512×512 para a ficha do Play em `Documents/aiaiaiia/icone-play-512.png`
+      (**upload manual pendente no Play Console** — a ficha ainda tem o ícone antigo).
 
-- [ ] **2. Push do repo.** O repo é local em `Documents/datafit`. Codemagic exige
-      GitHub/GitLab/Bitbucket. O `gh` CLI **não está instalado** nesta máquina.
-      Criar o repo e: `git remote add origin <url> && git push -u origin main`
+- [x] **2. Push do repo.** ✅ Feito em 2026-08-04.
+      Remote: `https://github.com/PedroasoLuiz/datafit` — **repositório público**.
+      Auditado: nenhum keystore/`.p8`/`.p12`/service account commitado; as únicas
+      chaves no código são a **anon key** do Supabase (pública por design, RLS protege).
 
 - [ ] **3. Rodar o workflow `ios-build-check` no Codemagic.** Não precisa de conta
       Apple nem de assinatura — só confirma que o projeto compila em macOS.
@@ -34,7 +37,7 @@ São 8 itens abertos, nesta ordem:
 
 - [ ] **5. Hospedar `privacidade.html`.** Precisa de URL pública (GitHub Pages serve).
 
-### Depois que a Apple aprovar a conta
+### Conta Apple já aprovada — liberado
 
 - [ ] **6. App Store Connect API Key.** Users and Access > Integrations > App Store
       Connect API > (+). Guardar o `.p8` (só baixa uma vez), Key ID e Issuer ID.
