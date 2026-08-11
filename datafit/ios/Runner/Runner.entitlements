@@ -2,5 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!--
+	  Sign in with Apple. O arquivo existia vazio e nao estava referenciado no
+	  projeto Xcode, entao o app pedia a autorizacao sem ter a capability e o
+	  AuthenticationServices respondia com "a operacao nao pode ser concluida".
+
+	  A capability tambem precisa estar habilitada no App ID
+	  (com.virtus.datafit) no Apple Developer Portal — sem isso o provisioning
+	  profile nao carrega a entitlement e o erro volta.
+	-->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

@@ -18,6 +18,7 @@ import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,6 +44,10 @@ class _TreinosDetalhesCardioNovoWidgetState
     with TickerProviderStateMixin {
   late TreinosDetalhesCardioNovoModel _model;
 
+  /// Calorias informadas pelo aluno. Opcional: vazio grava
+  /// nulo, que e diferente de zero ("gastei 0 kcal").
+  late final TextEditingController _kcalController;
+
   var hasContainerTriggered = false;
   var hasIconButtonTriggered1 = false;
   var hasIconButtonTriggered2 = false;
@@ -57,6 +62,7 @@ class _TreinosDetalhesCardioNovoWidgetState
   @override
   void initState() {
     super.initState();
+    _kcalController = TextEditingController();
     _model = createModel(context, () => TreinosDetalhesCardioNovoModel());
 
     // On component load action.
@@ -183,6 +189,7 @@ class _TreinosDetalhesCardioNovoWidgetState
 
   @override
   void dispose() {
+    _kcalController.dispose();
     _model.maybeDispose();
 
     super.dispose();
@@ -1126,6 +1133,59 @@ class _TreinosDetalhesCardioNovoWidgetState
                       ),
                     ),
                     Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Calorias (kcal)',
+                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                  font: GoogleFonts.inter(fontWeight: FontWeight.normal),
+                                  color: FlutterFlowTheme.of(context).secondaryText,
+                                  fontSize: 13.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                          ),
+                          SizedBox(height: 8.0),
+                          TextFormField(
+                            controller: _kcalController,
+                            keyboardType: TextInputType.number,
+                            // Kcal e sempre inteiro: nada de virgula, sinal ou letra.
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            decoration: InputDecoration(
+                              isDense: true,
+                              hintText: 'Opcional',
+                              hintStyle: FlutterFlowTheme.of(context).labelMedium.override(
+                                    font: GoogleFonts.inter(fontWeight: FontWeight.normal),
+                                    color: FlutterFlowTheme.of(context).secondaryText,
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0x00000000), width: 1.0),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: FlutterFlowTheme.of(context).primary, width: 1.0),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              filled: true,
+                              fillColor: FlutterFlowTheme.of(context).primaryBackground,
+                              contentPadding: EdgeInsets.all(16.0),
+                            ),
+                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                  font: GoogleFonts.inter(),
+                                  letterSpacing: 0.0,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 0.0, 8.0),
                       child: Text(
@@ -1297,6 +1357,9 @@ class _TreinosDetalhesCardioNovoWidgetState
                             : (_model.distancia / 1000),
                         0.0,
                       ),
+                      'Kcal': _kcalController.text.trim().isEmpty
+                          ? null
+                          : int.tryParse(_kcalController.text.trim()),
                       'Observacao': _model.txtObsTextController.text.trim(),
                       'DataHoraInicio': supaSerialize<DateTime>(DateTime.now()),
                       'DataHoraFim': supaSerialize<DateTime>(DateTime.now()

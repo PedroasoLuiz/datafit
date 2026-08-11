@@ -46,8 +46,6 @@ class SocialAuthException implements Exception {
   String toString() => mensagem;
 }
 
-bool _googleInicializado = false;
-
 /// Entra com Google. Retorna `false` se o usuário cancelou (sem erro).
 /// Lança [SocialAuthException] em caso de falha real.
 Future<bool> entrarComGoogle() async {
@@ -58,16 +56,25 @@ Future<bool> entrarComGoogle() async {
 
   final google = GoogleSignIn.instance;
 
-  // `initialize` precisa rodar uma única vez antes de qualquer outra chamada.
-  if (!_googleInicializado) {
-    await google.initialize(
-      clientId: defaultTargetPlatform == TargetPlatform.iOS
-          ? SocialAuthConfig.googleIosClientId
-          : null,
-      serverClientId: SocialAuthConfig.googleWebClientId,
-    );
-    _googleInicializado = true;
-  }
+  // O nonce precisa ser novo a cada tentativa, então `initialize` roda sempre.
+  //
+  // Sem passar nonce aqui, o google_sign_in gera um por conta própria e o
+  // embute no id_token; o Supabase então recusa com "Passed nonce and nonce in
+  // id_token should either both exist or not", porque nós não mandamos nenhum.
+  //
+  // O Google embute no token exatamente o que recebe, e o Supabase compara o
+  // SHA-256 do que passamos com o que está no token. Por isso o provedor
+  // recebe o hash e o Supabase recebe o nonce cru — mesma mecânica do Apple.
+  final nonceCru = _gerarNonce();
+  final nonceHash = sha256.convert(utf8.encode(nonceCru)).toString();
+
+  await google.initialize(
+    clientId: defaultTargetPlatform == TargetPlatform.iOS
+        ? SocialAuthConfig.googleIosClientId
+        : null,
+    serverClientId: SocialAuthConfig.googleWebClientId,
+    nonce: nonceHash,
+  );
 
   final GoogleSignInAccount conta;
   try {
@@ -89,6 +96,7 @@ Future<bool> entrarComGoogle() async {
   final res = await SupaFlow.client.auth.signInWithIdToken(
     provider: OAuthProvider.google,
     idToken: idToken,
+    nonce: nonceCru,
   );
   await prepararSessaoPara(res.user?.id);
   return true;
