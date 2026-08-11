@@ -1,6 +1,7 @@
 import '/auth/social_auth.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
+import '/components/botao_social.dart';
 import '/components/google_g_icon.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -611,182 +612,40 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 12.0, 0.0, 0.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      await _loginSocial(entrarComGoogle);
-                                    },
-                                    text: ' Google',
-                                    icon: GoogleGIcon(size: 16.0),
-                                    options: FFButtonOptions(
-                                      height: 40.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      disabledColor:
-                                          FlutterFlowTheme.of(context)
-                                              .alternate,
-                                      disabledTextColor:
-                                          FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    // Idem Google — trocar pelo handler do OAuth
-                                    // do Facebook quando for implementado.
-                                    onPressed: null,
-                                    text: 'Facebook',
-                                    icon: FaIcon(
-                                      FontAwesomeIcons.facebook,
-                                      size: 14.0,
-                                    ),
-                                    options: FFButtonOptions(
-                                      height: 40.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      disabledColor:
-                                          FlutterFlowTheme.of(context)
-                                              .alternate,
-                                      disabledTextColor:
-                                          FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                    ),
-                                  ),
-                                ),
-                              ].divide(SizedBox(width: 10.0)),
-                            ),
-                          ),
-                          // Guideline 4.8 da Apple: oferecer login social no iOS
-                          // obriga a oferecer "Entrar com a Apple" também.
-                          if (appleSignInDisponivel)
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 10.0, 0.0, 0.0),
-                              child: FFButtonWidget(
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              BotaoSocial(
+                                icone: GoogleGIcon(size: 18.0),
+                                texto: 'Continuar com Google',
                                 onPressed: () async {
-                                  await _loginSocial(entrarComApple);
+                                  await _loginSocial(entrarComGoogle);
                                 },
-                                text: 'Entrar com a Apple',
-                                icon: FaIcon(
-                                  FontAwesomeIcons.apple,
-                                  size: 16.0,
-                                ),
-                                options: FFButtonOptions(
-                                  width: MediaQuery.sizeOf(context).width * 1.0,
-                                  height: 40.0,
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 0.0, 16.0, 0.0),
-                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 8.0, 0.0),
-                                  color: Colors.black,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmall
-                                                  .fontWeight,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .fontStyle,
-                                        ),
-                                        color: Colors.white,
-                                        fontSize: 12.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                  elevation: 0.0,
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
                               ),
-                            ),
+                              if (appleSignInDisponivel)
+                                BotaoSocial(
+                                  icone: FaIcon(
+                                    FontAwesomeIcons.apple,
+                                    size: 19.0,
+                                    color: FlutterFlowTheme.of(context).primaryText,
+                                  ),
+                                  texto: 'Continuar com Apple',
+                                  onPressed: () async {
+                                    await _loginSocial(entrarComApple);
+                                  },
+                                ),
+                              // Facebook segue desabilitado ate ser implementado.
+                              BotaoSocial(
+                                icone: FaIcon(
+                                  FontAwesomeIcons.facebook,
+                                  size: 19.0,
+                                  color: FlutterFlowTheme.of(context).primaryText,
+                                ),
+                                texto: 'Continuar com Facebook',
+                                onPressed: null,
+                              ),
+                            ],
+                          ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 32.0, 0.0, 0.0),

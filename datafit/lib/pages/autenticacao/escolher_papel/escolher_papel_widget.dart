@@ -52,6 +52,9 @@ class _EscolherPapelWidgetState extends State<EscolherPapelWidget> {
     super.initState();
     _nomeController = TextEditingController(text: _nomeDoProvedor ?? '');
     _bioController = TextEditingController();
+    // Já vem preenchida quando o login foi por Google. A pessoa continua
+    // podendo trocar tocando na foto.
+    _fotoUrl = _fotoDoProvedor;
   }
 
   @override
@@ -66,6 +69,18 @@ class _EscolherPapelWidgetState extends State<EscolherPapelWidget> {
     final meta = SupaFlow.client.auth.currentUser?.userMetadata;
     final nome = (meta?['full_name'] ?? meta?['name']) as String?;
     final limpo = nome?.trim();
+    return (limpo == null || limpo.isEmpty) ? null : limpo;
+  }
+
+  /// Foto que o provedor social já entregou.
+  ///
+  /// O Google manda em `avatar_url` (e às vezes em `picture`). A Apple **não
+  /// devolve foto** — por isso quem entra por lá continua caindo no seletor
+  /// de imagem normalmente.
+  String? get _fotoDoProvedor {
+    final meta = SupaFlow.client.auth.currentUser?.userMetadata;
+    final url = (meta?['avatar_url'] ?? meta?['picture']) as String?;
+    final limpo = url?.trim();
     return (limpo == null || limpo.isEmpty) ? null : limpo;
   }
 
