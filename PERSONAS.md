@@ -8,8 +8,8 @@
 
 | ID | Nome | Descrição |
 |---|---|---|
-| 1 | `Aluno` | Atleta. Executa treinos, acompanha evolução. |
-| 2 | `Personal` | Treinador. Cria treinos, gerencia alunos, controla pagamentos. |
+| 1 | `Personal` | Treinador. Cria treinos, gerencia alunos, controla pagamentos. |
+| 2 | `Aluno` | Atleta. Executa treinos, acompanha evolução. |
 | 3 | `Admin` | Administrador da plataforma. Gerencia personals e assinaturas. |
 
 ---

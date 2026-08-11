@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '/auth/auth_manager.dart';
+import '/auth/sessao.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'email_auth.dart';
@@ -12,7 +13,10 @@ export '/auth/base_auth_user_provider.dart';
 
 class SupabaseAuthManager extends AuthManager with EmailSignInManager {
   @override
-  Future signOut() {
+  Future signOut() async {
+    // Sem isto, os dados em cache (alunos, pagamentos, notificações) ficam no
+    // aparelho e aparecem para a próxima conta que logar.
+    await encerrarSessaoLocal();
     return SupaFlow.client.auth.signOut();
   }
 
@@ -130,6 +134,12 @@ class SupabaseAuthManager extends AuthManager with EmailSignInManager {
     try {
       final user = await signInFunc();
       final authUser = user == null ? null : DatafitSupabaseUser(user);
+
+      // Descarta o cache da conta anterior antes que qualquer tela leia o
+      // AppState. Não faz nada se for a mesma conta de antes.
+      if (user != null) {
+        await prepararSessaoPara(user.id);
+      }
 
       // Update currentUser here in case user info needs to be used immediately
       // after a user is signed in. This should be handled by the user stream,

@@ -12,6 +12,8 @@ export '/pages/perfil/perfilaluno/perfilaluno_widget.dart'
 export '/pages/perfil/perfil/perfil_widget.dart' show PerfilWidget;
 export '/pages/perfil/completar_perfil/completar_perfil_widget.dart'
     show CompletarPerfilWidget;
+export '/pages/autenticacao/escolher_papel/escolher_papel_widget.dart'
+    show EscolherPapelWidget;
 export '/pages/treinos/treinos/treinos_widget.dart' show TreinosWidget;
 export '/pages/treinos/treinos_execucao/treinos_execucao_widget.dart'
     show TreinosExecucaoWidget;

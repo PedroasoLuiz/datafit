@@ -5,7 +5,9 @@ import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/unidade_carga.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/pages/treinos/videoplay/videoplay_widget.dart';
@@ -20,6 +22,7 @@ import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -58,6 +61,44 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
 
   final animationsMap = <String, AnimationInfo>{};
 
+  /// Campo de carga. `_model.peso` guarda o numero que esta na tela, na
+  /// unidade do seletor ao lado; a conversao para kg acontece na gravacao.
+  final TextEditingController _pesoController = TextEditingController();
+
+  /// O seletor de unidade da propria tela manda aqui (2 = Lb, 1 = Kg).
+  bool get _emLibras => _model.dropDownValue == 2;
+
+  /// Altera a carga e mantem o campo de texto em sincronia.
+  void _definirPeso(double valor) {
+    final novo = valor < 0 ? 0.0 : valor;
+    _model.peso = novo;
+    _pesoController.text = formatarCarga(novo);
+    _pesoController.selection =
+        TextSelection.collapsed(offset: _pesoController.text.length);
+    safeSetState(() {});
+  }
+
+  /// Busca a ultima carga que o aluno usou neste exercicio para abrir o campo
+  /// preenchido em vez de zerado. O valor vem em kg.
+  Future<void> _carregarUltimaCarga() async {
+    try {
+      final resposta = await SupaFlow.client.rpc(
+        'get_ultima_carga_exercicio',
+        params: {
+          'p_aluno_uuid': currentUserUid,
+          'p_execucao_id': FFAppState().exercicioTemp.execucaoId,
+        },
+      );
+      final mapa = (resposta as Map?)?.cast<String, dynamic>() ?? {};
+      if (!mounted || mapa['temRegistro'] != true) return;
+      final kg = (mapa['peso'] as num?)?.toDouble();
+      if (kg == null || kg <= 0) return;
+      _definirPeso(deKg(kg, emLibras: _emLibras));
+    } catch (_) {
+      // Sugestao e conveniencia: falhando, o campo so fica vazio.
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +107,11 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       _model.repets = FFAppState().exercicioTemp.repeticoes;
+      // Unidade inicial vem da preferencia do perfil; o seletor ao lado do
+      // campo continua podendo trocar so para esta digitacao.
+      _model.dropDownValue ??= usaLibras ? 2 : kMedidaKgId;
       safeSetState(() {});
+      await _carregarUltimaCarga();
     });
 
     animationsMap.addAll({
@@ -96,6 +141,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
 
   @override
   void dispose() {
+    _pesoController.dispose();
     _model.dispose();
 
     super.dispose();
@@ -756,49 +802,38 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment.end,
                                                     children: [
-                                                      Text(
-                                                        valueOrDefault<String>(
-                                                          formatNumber(
-                                                            _model.peso,
-                                                            formatType:
-                                                                FormatType
-                                                                    .custom,
-                                                            format: '#,##0.0',
-                                                            locale: 'pt_br',
+                                                      Expanded(
+                                                        child: TextFormField(
+                                                          controller: _pesoController,
+                                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                                          inputFormatters: [
+                                                            // So digito, virgula e ponto. Evita sinal, espaco e letras.
+                                                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                                                          ],
+                                                          textInputAction: TextInputAction.done,
+                                                          onChanged: (texto) {
+                                                            final valor = lerCargaDigitada(texto);
+                                                            if (valor != null) {
+                                                              _model.peso = valor;
+                                                            }
+                                                          },
+                                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                                                          decoration: const InputDecoration(
+                                                            isDense: true,
+                                                            border: InputBorder.none,
+                                                            enabledBorder: InputBorder.none,
+                                                            focusedBorder: InputBorder.none,
+                                                            contentPadding: EdgeInsets.zero,
+                                                            hintText: '0',
                                                           ),
-                                                          '0',
+                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                fontSize: 30.0,
+                                                                letterSpacing: 0.0,
+                                                                fontWeight: FontWeight.w600,
+                                                              ),
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  font:
-                                                                      GoogleFonts
-                                                                          .inter(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      30.0,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
                                                       ),
                                                       FlutterFlowDropDown<int>(
                                                         controller: _model
@@ -814,10 +849,22 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                           'Lb',
                                                           'Kg'
                                                         ],
-                                                        onChanged: (val) =>
-                                                            safeSetState(() =>
-                                                                _model.dropDownValue =
-                                                                    val),
+                                                        onChanged: (val) {
+                                                          // Converte o valor
+                                                          // exibido para a
+                                                          // nova unidade.
+                                                          final eraLb =
+                                                              _emLibras;
+                                                          final emKg = paraKg(
+                                                              _model.peso,
+                                                              emLibras: eraLb);
+                                                          _model.dropDownValue =
+                                                              val;
+                                                          _definirPeso(deKg(
+                                                              emKg,
+                                                              emLibras:
+                                                                  val == 2));
+                                                        },
                                                         width: 42.0,
                                                         height: 24.0,
                                                         textStyle:
@@ -919,8 +966,8 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                               onPressed: (_model.peso <= 0.0)
                                                   ? null
                                                   : () async {
-                                                      _model.peso =
-                                                          _model.peso + -0.5;
+                                                      _definirPeso(
+                                                          _model.peso - 0.5);
                                                       safeSetState(() {});
                                                     },
                                             ),
@@ -931,8 +978,8 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                               highlightColor:
                                                   Colors.transparent,
                                               onLongPress: () async {
-                                                _model.peso =
-                                                    _model.peso + 10.0;
+                                                _definirPeso(
+                                                    _model.peso + 10.0);
                                                 safeSetState(() {});
                                               },
                                               child: FlutterFlowIconButton(
@@ -950,8 +997,8 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                   size: 20.0,
                                                 ),
                                                 onPressed: () async {
-                                                  _model.peso =
-                                                      _model.peso + 0.5;
+                                                  _definirPeso(
+                                                      _model.peso + 0.5);
                                                   safeSetState(() {});
                                                 },
                                               ),
@@ -2000,9 +2047,14 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                             1,
                                                         pRepeticoes:
                                                             _model.repets,
-                                                        pPeso: _model.peso,
-                                                        pMedidaId: _model
-                                                            .dropDownValue,
+                                                        // Normalizado: o
+                                                        // banco guarda sempre
+                                                        // em quilos.
+                                                        pPeso: paraKg(
+                                                            _model.peso,
+                                                            emLibras:
+                                                                _emLibras),
+                                                        pMedidaId: kMedidaKgId,
                                                         pPulado: false,
                                                         pSerieAquecimento:
                                                             false,

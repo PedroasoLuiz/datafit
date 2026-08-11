@@ -1,5 +1,6 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/schema/structs/index.dart';
+import '/components/df_estado_vazio.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/components/navbar/navbar_widget.dart';
@@ -64,6 +65,9 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         body: SafeArea(
           top: true,
+          // A navbar reserva o inset inferior por dentro, para o branco
+          // dela chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -610,6 +614,26 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                   .toList()
                                   .take(100)
                                   .toList();
+
+                              if (pgtos.isEmpty) {
+                                return Center(
+                                  child: SingleChildScrollView(
+                                    child: DfEstadoVazio(
+                                      icone: FFIcons.kproperty1FiRrReceipt,
+                                      titulo: _model.menu == 0
+                                          ? 'Nenhum pagamento atrasado'
+                                          : _model.menu == 1
+                                              ? 'Nenhum pagamento recebido'
+                                              : 'Nenhum pagamento por aqui',
+                                      descricao: _model.menu == 0
+                                          ? 'Seus alunos estão todos em dia.'
+                                          : _model.menu == 1
+                                              ? 'Os pagamentos confirmados aparecem aqui.'
+                                              : 'Cadastre uma cobrança para começar a acompanhar.',
+                                    ),
+                                  ),
+                                );
+                              }
 
                               return SingleChildScrollView(
                                 controller: _model.columnController,

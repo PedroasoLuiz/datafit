@@ -2,6 +2,7 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
+import '/components/df_estado_vazio.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/pages/components/navbar/navbar_widget.dart';
@@ -145,6 +146,9 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         body: SafeArea(
           top: true,
+          // A navbar reserva o inset inferior por dentro, para o branco
+          // dela chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -427,54 +431,14 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
   }
 
   // ── ESTADO VAZIO ─────────────────────────────────────────────────────
+  // Usa o componente compartilhado, igual a alunos, pagamentos e videos.
   Widget _buildEstadoVazio(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 64.0,
-            height: 64.0,
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).alternate,
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Icon(
-              FFIcons.kproperty1FiRrGym,
-              color: FlutterFlowTheme.of(context).secondaryText,
-              size: 28.0,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Text(
-            'Nenhum treino criado',
-            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                  font: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                  ),
-                  fontSize: 15.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: 6.0),
-          Text(
-            'Toque em + para criar seu primeiro treino',
-            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                  font: GoogleFonts.inter(
-                    fontWeight:
-                        FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                  ),
-                  color: FlutterFlowTheme.of(context).secondaryText,
-                  fontSize: 13.0,
-                  letterSpacing: 0.0,
-                ),
-          ),
-        ],
+      child: DfEstadoVazio(
+        icone: FFIcons.kproperty1FiRrGym,
+        titulo: 'Nenhum treino criado',
+        descricao:
+            'Monte seu primeiro treino e atribua aos seus alunos.',
       ),
     );
   }

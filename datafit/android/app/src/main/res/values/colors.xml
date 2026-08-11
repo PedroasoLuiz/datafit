@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Azul primario do Datafit (FlutterFlowTheme.primary = 0xFF1B98E0).
+         Usado no splash para o fundo casar com o icone e com a primeira tela
+         do app, que tambem e azul. -->
+    <color name="splash_bg">#FF1B98E0</color>
+
+    <!-- Fundo do icone adaptativo. Preenche o circulo inteiro, por isso
+         nao sobra mais a borda branca em volta do quadrado. -->
+    <color name="ic_launcher_background">#FF1B98E0</color>
+</resources>

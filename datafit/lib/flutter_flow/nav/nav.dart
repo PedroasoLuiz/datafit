@@ -170,6 +170,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
         builder: (context, params) => CompletarPerfilWidget(),
       ),
       FFRoute(
+        name: EscolherPapelWidget.routeName,
+        path: EscolherPapelWidget.routePath,
+        builder: (context, params) => EscolherPapelWidget(),
+      ),
+      FFRoute(
         name: TreinosExecucaoWidget.routeName,
         path: TreinosExecucaoWidget.routePath,
         builder: (context, params) => TreinosExecucaoWidget(
@@ -508,7 +513,8 @@ class FFRoute {
                   name: state.name,
                   child: child,
                   transitionDuration: transitionInfo.duration,
-                  transitionsBuilder:
+                  reverseTransitionDuration: transitionInfo.duration,
+                  transitionsBuilder: transitionInfo.builder ??
                       (context, animation, secondaryAnimation, child) =>
                           PageTransition(
                     type: transitionInfo.transitionType,
@@ -536,12 +542,23 @@ class TransitionInfo {
     this.transitionType = PageTransitionType.fade,
     this.duration = const Duration(milliseconds: 300),
     this.alignment,
+    this.builder,
   });
 
   final bool hasTransition;
   final PageTransitionType transitionType;
   final Duration duration;
   final Alignment? alignment;
+
+  /// Transição própria do app. Quando informada, substitui o `PageTransition`
+  /// do pacote — que só oferece deslizes de tela cheia. Ver
+  /// `flutter_flow/transicoes_datafit.dart`.
+  final Widget Function(
+    BuildContext,
+    Animation<double>,
+    Animation<double>,
+    Widget,
+  )? builder;
 
   static TransitionInfo appDefault() => TransitionInfo(hasTransition: false);
 }

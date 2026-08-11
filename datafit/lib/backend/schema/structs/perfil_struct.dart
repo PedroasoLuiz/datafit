@@ -20,6 +20,7 @@ class PerfilStruct extends BaseStruct {
     String? cpf,
     String? bio,
     String? cref,
+    String? unidade,
     double? pesoAtual,
     double? altura,
     String? tipoPerfil,
@@ -41,6 +42,7 @@ class PerfilStruct extends BaseStruct {
         _cpf = cpf,
         _bio = bio,
         _cref = cref,
+        _unidade = unidade,
         _pesoAtual = pesoAtual,
         _altura = altura,
         _tipoPerfil = tipoPerfil,
@@ -146,6 +148,14 @@ class PerfilStruct extends BaseStruct {
   String get cref => _cref ?? '';
   set cref(String? val) => _cref = val;
 
+  // "unidade" field. Preferencia de exibicao de carga: 'Kg' ou 'lbs'.
+  // O banco guarda sempre em kg; isto muda apenas exibicao e digitacao.
+  String? _unidade;
+  String get unidade => _unidade ?? 'Kg';
+  set unidade(String? val) => _unidade = val;
+
+  bool hasUnidade() => _unidade != null;
+
   bool hasCref() => _cref != null;
 
   // "pesoAtual" field.
@@ -235,6 +245,7 @@ class PerfilStruct extends BaseStruct {
         cpf: data['cpf'] as String?,
         bio: data['bio'] as String?,
         cref: data['cref'] as String?,
+        unidade: data['unidade'] as String?,
         pesoAtual: castToType<double>(data['pesoAtual']),
         altura: castToType<double>(data['altura']),
         tipoPerfil: data['tipoPerfil'] as String?,
@@ -264,6 +275,7 @@ class PerfilStruct extends BaseStruct {
         'cpf': _cpf,
         'bio': _bio,
         'cref': _cref,
+        'unidade': _unidade,
         'pesoAtual': _pesoAtual,
         'altura': _altura,
         'tipoPerfil': _tipoPerfil,
@@ -323,6 +335,10 @@ class PerfilStruct extends BaseStruct {
         ),
         'bio': serializeParam(
           _bio,
+          ParamType.String,
+        ),
+        'unidade': serializeParam(
+          _unidade,
           ParamType.String,
         ),
         'cref': serializeParam(
@@ -426,6 +442,11 @@ class PerfilStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        unidade: deserializeParam(
+          data['unidade'],
+          ParamType.String,
+          false,
+        ),
         cref: deserializeParam(
           data['cref'],
           ParamType.String,
@@ -494,6 +515,7 @@ class PerfilStruct extends BaseStruct {
         cpf == other.cpf &&
         bio == other.bio &&
         cref == other.cref &&
+        unidade == other.unidade &&
         pesoAtual == other.pesoAtual &&
         altura == other.altura &&
         tipoPerfil == other.tipoPerfil &&
@@ -519,6 +541,7 @@ class PerfilStruct extends BaseStruct {
         cpf,
         bio,
         cref,
+        unidade,
         pesoAtual,
         altura,
         tipoPerfil,
@@ -543,6 +566,7 @@ PerfilStruct createPerfilStruct({
   String? cpf,
   String? bio,
   String? cref,
+  String? unidade,
   double? pesoAtual,
   double? altura,
   String? tipoPerfil,
@@ -565,6 +589,7 @@ PerfilStruct createPerfilStruct({
       cpf: cpf,
       bio: bio,
       cref: cref,
+      unidade: unidade,
       pesoAtual: pesoAtual,
       altura: altura,
       tipoPerfil: tipoPerfil,

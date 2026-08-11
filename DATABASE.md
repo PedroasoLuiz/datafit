@@ -40,7 +40,12 @@ Perfil público do usuário.
 | `Ativo` | `bool` | |
 
 #### `TiposPerfil`
-Catálogo: `Aluno` (1), `Personal` (2), `Admin` (3).
+Catálogo: **`Personal` (1), `Aluno` (2), `Administrador` (3)**.
+
+> ⚠️ Conferido no banco em 2026-08-10. Esta doc afirmava o inverso (Aluno=1,
+> Personal=2) e isso já gerou código errado — ver `scripts/conta_demo_revisor.sql`.
+> Ao criar perfil, prefira resolver pelo texto (`WHERE "Descricao" = 'Personal'`),
+> como fazem `fn_auto_assinatura_free` e `criar_perfil_inicial`.
 
 #### `Telefones`
 | Coluna | Tipo |

@@ -1,6 +1,8 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
+import '/components/df_estado_vazio.dart';
+import '/components/aviso_plano_free.dart';
 import '/components/empty_aluno_widget.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -419,6 +421,9 @@ class _AlunoWidgetState extends State<AlunoWidget> {
         ),
         body: SafeArea(
           top: true,
+          // A navbar reserva o inset inferior por dentro, para o branco
+          // dela chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -662,6 +667,8 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                       ],
                     ),
                   ),
+                  // Some sozinho se o plano não for free (e no iOS).
+                  const AvisoPlanoFree(),
                   Expanded(
                     child: SingleChildScrollView(
                       controller: _model.columnController1,
@@ -1223,7 +1230,12 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                         .toList();
                                     if (alunos.isEmpty) {
                                       return Center(
-                                        child: EmptyAlunoWidget(),
+                                        child: DfEstadoVazio(
+                                          icone: FFIcons.kproperty1FiRrUserAdd,
+                                          titulo: 'Nenhum aluno ainda',
+                                          descricao:
+                                              'Convide seu primeiro aluno pelo e-mail dele.',
+                                        ),
                                       );
                                     }
 

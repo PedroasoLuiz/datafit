@@ -1,3 +1,4 @@
+import '/flutter_flow/transicoes_datafit.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -190,6 +191,22 @@ class _NavbarWidgetState extends State<NavbarWidget>
     super.dispose();
   }
 
+  /// Troca de aba com a transicao direcional do app: o conteudo entra
+  /// pelo lado em que a aba esta na navbar.
+  void _irParaAba(String rota, int destino) {
+    final atual = widget.index ?? 0;
+    if (destino == atual) {
+      return;
+    }
+    // goNamed e nao pushNamed: aba substitui aba. Com push a pilha crescia a
+    // cada toque, o app segurava todas as telas visitadas na memoria e o botao
+    // voltar percorria o historico inteiro de abas.
+    context.goNamed(
+      rota,
+      extra: extraDaAba(paraDireita: destino > atual),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
@@ -210,6 +227,12 @@ class _NavbarWidgetState extends State<NavbarWidget>
             color: FlutterFlowTheme.of(context).primaryBackground,
             boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.md],
           ),
+          // O branco precisa alcancar a borda inferior da tela. As paginas
+          // passaram a usar SafeArea(bottom: false), entao e a navbar que
+          // reserva o espaco do indicador do iPhone — por dentro, com padding,
+          // em vez de ser empurrada para cima e deixar o fundo aparecendo.
+          padding: EdgeInsetsDirectional.fromSTEB(
+              0.0, 0.0, 0.0, MediaQuery.paddingOf(context).bottom),
           child: ClipRect(
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(
@@ -247,8 +270,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                     hoverColor: Colors.transparent,
                                     highlightColor: Colors.transparent,
                                     onTap: () async {
-                                      context
-                                          .pushNamed(TreinosWidget.routeName);
+                                      _irParaAba(TreinosWidget.routeName, 0);
                                     },
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -300,7 +322,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(TreinosWidget.routeName);
+                                    _irParaAba(TreinosWidget.routeName, 0);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -339,7 +361,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(MetasWidget.routeName);
+                                    _irParaAba(MetasWidget.routeName, 1);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -399,7 +421,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(MetasWidget.routeName);
+                                    _irParaAba(MetasWidget.routeName, 1);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -440,7 +462,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(AlunoWidget.routeName);
+                                    _irParaAba(AlunoWidget.routeName, 2);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -500,17 +522,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(
-                                      AlunoWidget.routeName,
-                                      extra: <String, dynamic>{
-                                        '__transition_info__': TransitionInfo(
-                                          hasTransition: true,
-                                          transitionType:
-                                              PageTransitionType.fade,
-                                          duration: Duration(milliseconds: 0),
-                                        ),
-                                      },
-                                    );
+                                    _irParaAba(AlunoWidget.routeName, 2);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -551,7 +563,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(MetricasWidget.routeName);
+                                    _irParaAba(MetricasWidget.routeName, 3);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -611,7 +623,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(MetricasWidget.routeName);
+                                    _irParaAba(MetricasWidget.routeName, 3);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -647,8 +659,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(
-                                        TreinosPersonalWidget.routeName);
+                                    _irParaAba(TreinosPersonalWidget.routeName, 5);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -710,8 +721,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(
-                                        TreinosPersonalWidget.routeName);
+                                    _irParaAba(TreinosPersonalWidget.routeName, 5);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -750,8 +760,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context
-                                        .pushNamed(PagamentosWidget.routeName);
+                                    _irParaAba(PagamentosWidget.routeName, 3);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -811,8 +820,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context
-                                        .pushNamed(PagamentosWidget.routeName);
+                                    _irParaAba(PagamentosWidget.routeName, 3);
                                   },
                                   child: Container(
                                     width: 60.0,
@@ -847,7 +855,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onTap: () async {
-                                  context.pushNamed(PerfilWidget.routeName);
+                                  _irParaAba(PerfilWidget.routeName, 4);
                                 },
                                 child: Container(
                                   width: 60.0,
@@ -876,7 +884,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onTap: () async {
-                                  context.pushNamed(PerfilWidget.routeName);
+                                  _irParaAba(PerfilWidget.routeName, 4);
                                 },
                                 child: Container(
                                   width: 60.0,

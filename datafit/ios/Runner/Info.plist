@@ -30,6 +30,8 @@
         <key>CFBundleURLSchemes</key>
         <array>
         <string>datafit</string>
+        <string>com.virtus.datafit</string>
+        <string>com.googleusercontent.apps.122518873534-5iv7ma1q89lutg84lmt1d17vf27jnqok</string>
         </array>
         </dict>
     </array>

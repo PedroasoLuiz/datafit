@@ -163,6 +163,9 @@ class _MetricasWidgetState extends State<MetricasWidget>
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         body: SafeArea(
           top: true,
+          // A navbar reserva o inset inferior por dentro, para o branco
+          // dela chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -1350,84 +1353,176 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                       color: FlutterFlowTheme.of(context)
                                           .alternate,
                                     ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0,
-                                        valueOrDefault<double>(
-                                          _model.select == 0 ? 16.0 : 0.0,
-                                          0.0,
-                                        ),
-                                        0.0,
-                                        0.0),
-                                    child: FlutterFlowDropDown<String>(
-                                      controller:
-                                          _model.dropDownValueController1 ??=
-                                              FormFieldController<String>(
-                                        _model.dropDownValue1 ??= '7 dias',
+                                  // O periodo em analise governa a tela
+                                  // inteira, entao ganha um cartao proprio,
+                                  // separado dos filtros de exercicio.
+                                  Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryBackground,
+                                      borderRadius:
+                                          BorderRadius.circular(16.0),
+                                      border: Border.all(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
                                       ),
-                                      options: [
-                                        '7 dias',
-                                        '15 dias',
-                                        '30 dias',
-                                        '2 meses',
-                                        '3 meses',
-                                        '4 meses',
-                                        '6 meses'
+                                    ),
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        12.0, 4.0, 12.0, 12.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0,
+                                            valueOrDefault<double>(
+                                              _model.select == 0 ? 16.0 : 0.0,
+                                              0.0,
+                                            ),
+                                            0.0,
+                                            0.0),
+                                        child: Text(
+                                          'Tempo em análise:',
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium
+                                              .override(
+                                                font: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                                color: FlutterFlowTheme.of(context)
+                                                    .secondaryText,
+                                                fontSize: 13.0,
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 8.0, 0.0, 0.0),
+                                        child: FlutterFlowDropDown<String>(
+                                          controller:
+                                              _model.dropDownValueController1 ??=
+                                                  FormFieldController<String>(
+                                            _model.dropDownValue1 ??= '7 dias',
+                                          ),
+                                          options: [
+                                            '7 dias',
+                                            '15 dias',
+                                            '30 dias',
+                                            '2 meses',
+                                            '3 meses',
+                                            '4 meses',
+                                            '6 meses'
+                                          ],
+                                          onChanged: (val) async {
+                                            safeSetState(
+                                                () => _model.dropDownValue1 = val);
+                                            await action_blocks.getMetricasAluno(
+                                              context,
+                                              meses: 4,
+                                              periodo: _model.dropDownValue1,
+                                            );
+                                            safeSetState(() {});
+                                            FFAppState().updatingvariable = 1;
+                                            safeSetState(() {});
+                                          },
+                                          width: MediaQuery.sizeOf(context).width *
+                                              1.0,
+                                          height: 40.0,
+                                          maxHeight: 200.0,
+                                          textStyle: FlutterFlowTheme.of(context)
+                                              .bodyMedium
+                                              .override(
+                                                font: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.w500,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                          hintText: 'Selecione...',
+                                          icon: Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            size: 24.0,
+                                          ),
+                                          fillColor: FlutterFlowTheme.of(context)
+                                              .primaryBackground,
+                                          elevation: 2.0,
+                                          borderColor: Colors.transparent,
+                                          borderWidth: 0.0,
+                                          borderRadius: 12.0,
+                                          margin: EdgeInsetsDirectional.fromSTEB(
+                                              16.0, 0.0, 16.0, 0.0),
+                                          hidesUnderline: true,
+                                          isOverButton: false,
+                                          isSearchable: false,
+                                          isMultiSelect: false,
+                                        ),
+                                      ),
                                       ],
-                                      onChanged: (val) async {
-                                        safeSetState(
-                                            () => _model.dropDownValue1 = val);
-                                        await action_blocks.getMetricasAluno(
-                                          context,
-                                          meses: 4,
-                                          periodo: _model.dropDownValue1,
-                                        );
-                                        safeSetState(() {});
-                                        FFAppState().updatingvariable = 1;
-                                        safeSetState(() {});
-                                      },
-                                      width: MediaQuery.sizeOf(context).width *
-                                          1.0,
-                                      height: 40.0,
-                                      maxHeight: 200.0,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  if (_model.select == 0)
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 16.0, 0.0, 16.0),
+                                      child: Divider(
+                                        height: 1.0,
+                                        thickness: 1.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                      ),
+                                    ),
+                                  if (_model.select == 0)
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 0.0, 0.0, 8.0),
+                                      child: Text(
+                                        'Exercício',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.bold,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .fontStyle,
                                             ),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                      hintText: 'Selecione...',
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        size: 24.0,
                                       ),
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .primaryBackground,
-                                      elevation: 2.0,
-                                      borderColor: Colors.transparent,
-                                      borderWidth: 0.0,
-                                      borderRadius: 12.0,
-                                      margin: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      hidesUnderline: true,
-                                      isOverButton: false,
-                                      isSearchable: false,
-                                      isMultiSelect: false,
                                     ),
-                                  ),
                                   if (_model.select == 0)
                                     FlutterFlowDropDown<String>(
                                       controller:

@@ -111,19 +111,39 @@ class _LoadingWidgetState extends State<LoadingWidget> {
       ]);
 
       if (!mounted) return;
+
+      // Sem perfil o papel vem 0 e a pessoa caía no `else` abaixo, indo parar
+      // na lista de alunos do personal. Acontece com quem se cadastra sozinho:
+      // nada além do `criar_ou_vincular_aluno` criava o registro em Perfis.
+      if (FFAppState().perfil.tipoPerfilId == 0) {
+        context.goNamed(EscolherPapelWidget.routeName);
+        return;
+      }
+
+      // goNamed e nao pushNamed: o Loading nao deve sobrar na pilha, senao o
+      // botao voltar na home devolve o usuario para a tela de carregamento.
       if (FFAppState().perfil.tipoPerfilId == 2) {
-        context.pushNamed(
+        context.goNamed(
           TreinosWidget.routeName,
           extra: <String, dynamic>{
             '__transition_info__': TransitionInfo(
               hasTransition: true,
               transitionType: PageTransitionType.fade,
-              duration: Duration(milliseconds: 0),
+              duration: Duration(milliseconds: 220),
             ),
           },
         );
       } else {
-        context.pushNamed(AlunoWidget.routeName);
+        context.goNamed(
+          AlunoWidget.routeName,
+          extra: <String, dynamic>{
+            '__transition_info__': TransitionInfo(
+              hasTransition: true,
+              transitionType: PageTransitionType.fade,
+              duration: Duration(milliseconds: 220),
+            ),
+          },
+        );
       }
     });
 

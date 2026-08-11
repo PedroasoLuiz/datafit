@@ -365,6 +365,9 @@ class _MetasWidgetState extends State<MetasWidget> {
         ),
         body: SafeArea(
           top: true,
+          // A navbar reserva o inset inferior por dentro, para o branco
+          // dela chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(

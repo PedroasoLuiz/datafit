@@ -261,102 +261,20 @@ class _StartWidgetState extends State<StartWidget>
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Expanded(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'd',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Colors.white,
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                        child: Align(
+                          alignment: AlignmentDirectional(0.0, 0.0),
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                32.0, 0.0, 32.0, 0.0),
+                            child: Image.asset(
+                              'assets/images/logodatafitbranca.png',
+                              width: 240.0,
+                              height: 66.0,
+                              fit: BoxFit.contain,
+                              alignment: Alignment(0.0, 0.0),
                             ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation1']!),
-                            Text(
-                              'a',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Colors.white,
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation2']!),
-                            Text(
-                              't',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Colors.white,
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation3']!),
-                            Text(
-                              'a',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Colors.white,
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation4']!),
-                            Text(
-                              'f',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Color(0xFF022638),
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation5']!),
-                            Text(
-                              'i',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Color(0xFF022638),
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation6']!),
-                            Text(
-                              't',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'ibrand',
-                                    color: Color(0xFF022638),
-                                    fontSize: 50.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ).animateOnPageLoad(
-                                animationsMap['textOnPageLoadAnimation7']!),
-                          ].divide(SizedBox(width: 2.0)),
+                                animationsMap['imageOnPageLoadAnimation']!),
+                          ),
                         ),
                       ),
                     ],

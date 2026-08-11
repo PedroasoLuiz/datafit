@@ -216,6 +216,9 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         body: SafeArea(
           top: true,
+          // A barra de baixo reserva o inset por dentro, para o gradiente
+          // chegar ate a borda da tela no iPhone.
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -1148,7 +1151,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                           size: 14.0,
                                                                                                         ),
                                                                                                         Text(
-                                                                                                          '${exerciciosItem.tempoDescansoSeg.toString()}s',
+                                                                                                          'Descanso ${exerciciosItem.tempoDescansoSeg.toString()}s',
                                                                                                           style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                                 font: GoogleFonts.inter(
                                                                                                                   fontWeight: FontWeight.normal,
@@ -2589,6 +2592,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                             end: AlignmentDirectional(0, 1.0),
                           ),
                         ),
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            0.0, 0.0, 0.0, MediaQuery.paddingOf(context).bottom),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
