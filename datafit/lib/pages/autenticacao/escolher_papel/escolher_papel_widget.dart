@@ -419,8 +419,8 @@ class _EscolherPapelWidgetState extends State<EscolherPapelWidget> {
                   decoration: BoxDecoration(
                     color: tema.primary,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                        color: tema.secondaryBackground, width: 2.0),
+                    border:
+                        Border.all(color: tema.secondaryBackground, width: 2.0),
                   ),
                   child: Icon(Icons.photo_camera_rounded,
                       color: Colors.white, size: 15.0),
@@ -509,8 +509,7 @@ class _EscolherPapelWidgetState extends State<EscolherPapelWidget> {
                       height: 20.0,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
                   : Text(

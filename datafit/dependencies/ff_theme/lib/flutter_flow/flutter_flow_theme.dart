@@ -127,7 +127,11 @@ class LightModeTheme extends FlutterFlowTheme {
   late Color primaryText = const Color(0xFF181818);
   late Color secondaryText = const Color(0xFF828282);
   late Color primaryBackground = const Color(0xFFFDFDFD);
-  late Color secondaryBackground = const Color(0xFFF2F4F7);
+
+  // Cinza de fundo das telas. Era 0xFFF2F4F7 — praticamente neutro (saturação
+  // ~2%) e bem claro. Puxado para o azul do primary (#1B98E0, matiz 202°) e
+  // escurecido um passo: matiz 206°, saturação 38%, luminosidade 95,9% → 93%.
+  late Color secondaryBackground = const Color(0xFFE6EEF4);
   late Color accent1 = const Color(0xFFDCF1FF);
   late Color accent2 = const Color(0xFFFFDCCA);
   late Color accent3 = const Color(0xFFFAF0D0);

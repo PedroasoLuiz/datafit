@@ -1,20 +1,46 @@
+/// Barra de navegação flutuante.
+///
+/// Antes cada aba era um par de blocos escritos à mão (um para o estado
+/// selecionado, outro para o não selecionado), dez blocos no total, e a aba
+/// ativa se distinguia só por um retângulo cinza-claro atrás do ícone —
+/// contraste fraco demais para dizer onde o usuário está.
+///
+/// Agora a barra é uma pílula flutuante: a aba ativa vira uma pílula azul com
+/// ícone **e** rótulo lado a lado; as inativas são só o ícone, sem fundo
+/// nenhum. As abas viraram dados (`_Aba`), então acrescentar ou reordenar é
+/// mexer numa lista, não duplicar blocos de layout.
+library;
+
 import '/flutter_flow/transicoes_datafit.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:math';
 import 'dart:ui';
 import '/index.dart';
 import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
     as cupertino_time_picker_hiuzb7_app_state;
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'navbar_model.dart';
 export 'navbar_model.dart';
+
+/// Uma aba da barra. `indice` é o mesmo número que as páginas passam em
+/// `NavbarWidget(index: ...)` — por isso os valores não são sequenciais.
+class _Aba {
+  const _Aba({
+    required this.indice,
+    required this.rota,
+    required this.icone,
+    required this.rotulo,
+  });
+
+  final int indice;
+  final String rota;
+  final IconData icone;
+  final String rotulo;
+}
 
 class NavbarWidget extends StatefulWidget {
   const NavbarWidget({
@@ -46,136 +72,22 @@ class _NavbarWidgetState extends State<NavbarWidget>
     _model = createModel(context, () => NavbarModel());
 
     animationsMap.addAll({
-      'columnOnPageLoadAnimation1': AnimationInfo(
+      'barOnPageLoadAnimation': AnimationInfo(
         trigger: AnimationTrigger.onPageLoad,
         effectsBuilder: () => [
           MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
+            curve: Curves.easeOutCubic,
+            delay: 0.0.ms,
+            duration: 420.0.ms,
+            begin: Offset(0.0, 60.0),
             end: Offset(0.0, 0.0),
           ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'containerOnPageLoadAnimation1': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'containerOnPageLoadAnimation2': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'containerOnPageLoadAnimation3': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'columnOnPageLoadAnimation2': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'containerOnPageLoadAnimation4': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'containerOnPageLoadAnimation5': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          MoveEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(0.0, 100.0),
-            end: Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.elasticOut,
-            delay: 100.0.ms,
-            duration: 600.0.ms,
-            begin: Offset(1.0, 1.0),
-            end: Offset(1.0, 1.0),
+          FadeEffect(
+            curve: Curves.easeInOut,
+            delay: 0.0.ms,
+            duration: 320.0.ms,
+            begin: 0.0,
+            end: 1.0,
           ),
         ],
       ),
@@ -207,744 +119,206 @@ class _NavbarWidgetState extends State<NavbarWidget>
     );
   }
 
+  /// Abas do papel logado. Aluno e personal têm quatro cada, e só o Perfil é
+  /// comum aos dois.
+  List<_Aba> get _abas {
+    final ehAluno = FFAppState().perfil.tipoPerfilId == 2;
+
+    if (ehAluno) {
+      return [
+        _Aba(
+          indice: 0,
+          rota: TreinosWidget.routeName,
+          icone: FFIcons.kproperty1FiRrGym,
+          rotulo: 'Treino',
+        ),
+        _Aba(
+          indice: 1,
+          rota: MetasWidget.routeName,
+          icone: Icons.star_border,
+          rotulo: 'Metas',
+        ),
+        _Aba(
+          indice: 3,
+          rota: MetricasWidget.routeName,
+          icone: FFIcons.kproperty1FiRrDashboard,
+          rotulo: 'Métricas',
+        ),
+        _Aba(
+          indice: 4,
+          rota: PerfilWidget.routeName,
+          icone: FFIcons.kproperty1FiRrUser,
+          rotulo: 'Perfil',
+        ),
+      ];
+    }
+
+    return [
+      _Aba(
+        indice: 5,
+        rota: TreinosPersonalWidget.routeName,
+        icone: FFIcons.kproperty1FiRrGym,
+        rotulo: 'Treinos',
+      ),
+      _Aba(
+        indice: 2,
+        rota: AlunoWidget.routeName,
+        icone: FFIcons.kproperty1FiRrGraduationCap,
+        rotulo: 'Alunos',
+      ),
+      _Aba(
+        indice: 3,
+        rota: PagamentosWidget.routeName,
+        icone: Icons.add_card,
+        rotulo: 'Cobrança',
+      ),
+      _Aba(
+        indice: 4,
+        rota: PerfilWidget.routeName,
+        icone: FFIcons.kproperty1FiRrUser,
+        rotulo: 'Perfil',
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
     context.watch<cupertino_time_picker_hiuzb7_app_state.FFAppState>();
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Divider(
-          height: 1.0,
-          thickness: 1.0,
-          color: FlutterFlowTheme.of(context).alternate,
+    final tema = FlutterFlowTheme.of(context);
+    final atual = widget.index ?? 0;
+
+    final barra = Container(
+      decoration: BoxDecoration(
+        // No iPhone o fundo é translúcido para o conteúdo aparecer por trás
+        // do desfoque; nas outras plataformas fica sólido, já que sem o
+        // BackdropFilter a transparência só mostraria o fundo cru.
+        color: isiOS
+            ? tema.primaryBackground.withValues(alpha: 0.72)
+            : tema.primaryBackground,
+        borderRadius: BorderRadius.circular(999.0),
+        border: Border.all(
+          color: tema.primaryText.withValues(alpha: 0.06),
+          width: 1.0,
         ),
-        Container(
-          width: MediaQuery.sizeOf(context).width * 1.0,
-          decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).primaryBackground,
-            boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.md],
-          ),
-          // O branco precisa alcancar a borda inferior da tela. As paginas
-          // passaram a usar SafeArea(bottom: false), entao e a navbar que
-          // reserva o espaco do indicador do iPhone — por dentro, com padding,
-          // em vez de ser empurrada para cima e deixar o fundo aparecendo.
-          padding: EdgeInsetsDirectional.fromSTEB(
-              0.0, 0.0, 0.0, MediaQuery.paddingOf(context).bottom),
-          child: ClipRect(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 0.0,
-                sigmaY: 0.0,
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(1.0),
-                child: Container(
-                  decoration: BoxDecoration(),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (FFAppState().perfil.tipoPerfilId == 2)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 0)
-                                Container(
-                                  width: 60.0,
-                                  height: 60.0,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    shape: BoxShape.rectangle,
-                                  ),
-                                  child: InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      _irParaAba(TreinosWidget.routeName, 0);
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGym,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Treino',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ).animateOnPageLoad(animationsMap[
-                                      'columnOnPageLoadAnimation1']!),
-                                ),
-                              if (widget!.index != 0)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(TreinosWidget.routeName, 0);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGym,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (FFAppState().perfil.tipoPerfilId == 2)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 1)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(MetasWidget.routeName, 1);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            Icons.star_border,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Metas',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ).animateOnPageLoad(animationsMap[
-                                    'containerOnPageLoadAnimation1']!),
-                              if (widget!.index != 1)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(MetasWidget.routeName, 1);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            Icons.star_border,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (FFAppState().perfil.tipoPerfilId != 2)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 2)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(AlunoWidget.routeName, 2);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGraduationCap,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Alunos',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ).animateOnPageLoad(animationsMap[
-                                    'containerOnPageLoadAnimation2']!),
-                              if (widget!.index != 2)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(AlunoWidget.routeName, 2);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGraduationCap,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (FFAppState().perfil.tipoPerfilId == 2)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 3)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(MetricasWidget.routeName, 3);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrDashboard,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Métricas',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ).animateOnPageLoad(animationsMap[
-                                    'containerOnPageLoadAnimation3']!),
-                              if (widget!.index != 3)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(MetricasWidget.routeName, 3);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          FFIcons.kproperty1FiRrDashboard,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          size: 20.0,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (FFAppState().perfil.tipoPerfilId == 1)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 5)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(TreinosPersonalWidget.routeName, 5);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius:
-                                          BorderRadius.circular(10.0),
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGym,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Treinos',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ).animateOnPageLoad(animationsMap[
-                                        'columnOnPageLoadAnimation2']!),
-                                  ),
-                                ),
-                              if (widget!.index != 5)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(TreinosPersonalWidget.routeName, 5);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            FFIcons.kproperty1FiRrGym,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (FFAppState().perfil.tipoPerfilId == 1)
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (widget!.index == 3)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(PagamentosWidget.routeName, 3);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 4.0),
-                                          child: Icon(
-                                            Icons.add_card,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Cobrança',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 11.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ).animateOnPageLoad(animationsMap[
-                                    'containerOnPageLoadAnimation4']!),
-                              if (widget!.index != 3)
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _irParaAba(PagamentosWidget.routeName, 3);
-                                  },
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add_card,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          size: 20.0,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            if (widget!.index != 4)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  _irParaAba(PerfilWidget.routeName, 4);
-                                },
-                                child: Container(
-                                  width: 60.0,
-                                  height: 60.0,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.rectangle,
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        FFIcons.kproperty1FiRrUser,
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryText,
-                                        size: 20.0,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            if (widget!.index == 4)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  _irParaAba(PerfilWidget.routeName, 4);
-                                },
-                                child: Container(
-                                  width: 60.0,
-                                  height: 60.0,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 0.0, 0.0, 4.0),
-                                        child: Icon(
-                                          FFIcons.kproperty1FiRrUser,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          size: 20.0,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Perfil',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                              fontSize: 11.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ).animateOnPageLoad(animationsMap[
-                                  'containerOnPageLoadAnimation5']!),
-                          ],
-                        ),
-                      ].divide(SizedBox(width: 8.0)),
-                    ),
+        boxShadow: [tema.designToken.shadow.lg],
+      ),
+      padding: EdgeInsetsDirectional.fromSTEB(6.0, 6.0, 6.0, 6.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var i = 0; i < _abas.length; i++) ...[
+            // As abas estavam encostadas uma na outra.
+            if (i > 0) SizedBox(width: 4.0),
+            _ItemNavbar(
+              aba: _abas[i],
+              selecionada: _abas[i].indice == atual,
+              onTap: () => _irParaAba(_abas[i].rota, _abas[i].indice),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Padding(
+      // A barra flutua: respira nas laterais e fica acima do indicador do
+      // iPhone em vez de encostar na borda.
+      padding: EdgeInsetsDirectional.fromSTEB(
+        16.0,
+        0.0,
+        16.0,
+        MediaQuery.paddingOf(context).bottom + 10.0,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional(0.0, 1.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(999.0),
+          // O desfoque do que passa por trás só existe no iPhone. É uma
+          // aproximação do vidro do sistema, não o efeito nativo: o Flutter
+          // 3.44 não expõe a API de Liquid Glass do iOS 26.
+          child: isiOS
+              ? BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+                  child: barra,
+                )
+              : barra,
+        ),
+      ),
+    ).animateOnPageLoad(animationsMap['barOnPageLoadAnimation']!);
+  }
+}
+
+/// Um item da barra.
+///
+/// Selecionado: pílula azul com ícone e rótulo lado a lado.
+/// Não selecionado: só o ícone, sem fundo — é o que faz a aba ativa saltar.
+class _ItemNavbar extends StatelessWidget {
+  const _ItemNavbar({
+    required this.aba,
+    required this.selecionada,
+    required this.onTap,
+  });
+
+  final _Aba aba;
+  final bool selecionada;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return InkWell(
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999.0),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        height: 44.0,
+        padding: EdgeInsetsDirectional.fromSTEB(
+          selecionada ? 16.0 : 14.0,
+          0.0,
+          selecionada ? 18.0 : 14.0,
+          0.0,
+        ),
+        decoration: BoxDecoration(
+          color: selecionada ? tema.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(999.0),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              aba.icone,
+              color: selecionada ? Colors.white : tema.secondaryText,
+              size: 20.0,
+            ),
+            // O rótulo só existe na aba ativa. Mostrar os quatro deixaria a
+            // barra cheia demais e tiraria justamente o contraste que faz a
+            // pílula funcionar.
+            if (selecionada)
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                child: Text(
+                  aba.rotulo,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    color: Colors.white,
+                    fontSize: 13.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

@@ -17,6 +17,18 @@
 
 ---
 
+## Autenticação
+
+### ✅ Tela de Boas-vindas (`/start`)
+- `StartWidget` deixou de ser splash (mostrava o logo por 10s e empurrava o login sozinho) e virou a tela de entrada
+- Saudação por horário do aparelho: "Bom dia" (<12h) / "Boa tarde" (<18h) / "Boa noite"
+- Dois botões: `Já tenho conta` → `/login` · `Sou novo por aqui` → `/cadastro`
+- Continua sendo a primeira tela (rota `/` para deslogado), não uma etapa a mais
+- `FFRoute` já mostra spinner enquanto `appStateNotifier.loading` — logado nunca vê esta tela
+- Botão de voltar adicionado em `login` e `cadastro`: a transição de fade não tem o gesto de voltar do iOS
+
+---
+
 ## Módulos do Aluno
 
 ### ✅ Execução de Treino

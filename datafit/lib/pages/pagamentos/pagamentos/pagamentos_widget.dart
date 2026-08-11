@@ -1,3 +1,4 @@
+import '/components/chip_filtro.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
@@ -284,310 +285,33 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               0.0, 16.0, 0.0, 0.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_model.menu != 2)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      _model.menu = 2;
-                                      safeSetState(() {});
-                                    },
-                                    text: 'Todos',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: Color(0x00FDFDFD),
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  ),
-                                ),
-                              if (_model.menu == 2)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () {
-                                      print('Button pressed ...');
-                                    },
-                                    text: 'Todos',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              if (_model.menu == 0)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () {
-                                      print('Button pressed ...');
-                                    },
-                                    text: 'Atrasado',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              if (_model.menu != 0)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      _model.menu = 0;
-                                      safeSetState(() {});
-                                    },
-                                    text: 'Atrasado',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: Color(0x00FDFDFD),
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  ),
-                                ),
-                              if (_model.menu == 1)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      _model.menu = 1;
-                                      safeSetState(() {});
-                                    },
-                                    text: 'Pago',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              if (_model.menu != 1)
-                                Expanded(
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      _model.menu = 1;
-                                      safeSetState(() {});
-                                    },
-                                    text: 'Pago',
-                                    options: FFButtonOptions(
-                                      width: 114.0,
-                                      height: 31.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: Color(0x00FDFDFD),
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 13.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  ),
-                                ),
-                            ]
-                                .divide(SizedBox(width: 6.0))
-                                .addToStart(SizedBox(width: () {
-                              if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointSmall) {
-                                return 16.0;
-                              } else if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointMedium) {
-                                return 16.0;
-                              } else if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointLarge) {
-                                return 32.0;
-                              } else {
-                                return 32.0;
-                              }
-                            }())).addToEnd(SizedBox(width: () {
-                              if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointSmall) {
-                                return 16.0;
-                              } else if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointMedium) {
-                                return 16.0;
-                              } else if (MediaQuery.sizeOf(context).width <
-                                  kBreakpointLarge) {
-                                return 32.0;
-                              } else {
-                                return 32.0;
-                              }
-                            }())),
+                          child: LinhaChipsFiltro(
+                            chips: [
+                              ChipFiltro(
+                                texto: 'Todos',
+                                selecionado: _model.menu == 2,
+                                onTap: () {
+                                  _model.menu = 2;
+                                  safeSetState(() {});
+                                },
+                              ),
+                              ChipFiltro(
+                                texto: 'Atrasado',
+                                selecionado: _model.menu == 0,
+                                onTap: () {
+                                  _model.menu = 0;
+                                  safeSetState(() {});
+                                },
+                              ),
+                              ChipFiltro(
+                                texto: 'Pago',
+                                selecionado: _model.menu == 1,
+                                onTap: () {
+                                  _model.menu = 1;
+                                  safeSetState(() {});
+                                },
+                              ),
+                            ],
                           ),
                         ),
                         Expanded(

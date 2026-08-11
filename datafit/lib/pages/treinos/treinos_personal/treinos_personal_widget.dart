@@ -131,6 +131,30 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
     if (ok == true && mounted) await _carregarTreinos();
   }
 
+  /// Abre o bottom sheet de novo treino e recarrega a lista se algo foi criado.
+  ///
+  /// Estava embutido no onTap do botao "+" do cabecalho; virou metodo para o
+  /// card de atalho poder chamar a mesma coisa.
+  Future<void> _abrirNovoTreino() async {
+    final criou = await showModalBottomSheet<bool>(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) {
+        return WebViewAware(
+          child: Padding(
+            padding: MediaQuery.viewInsetsOf(context),
+            child: const TreinosNovoTreinoWidget(),
+          ),
+        );
+      },
+    );
+    if (criou == true) {
+      await _carregarTreinos();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
@@ -179,100 +203,8 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                                 ),
                           ),
                         ),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () => context.pushNamed(
-                                GestaoExerciciosWidget.routeName,
-                                extra: <String, dynamic>{
-                                  '__transition_info__': TransitionInfo(
-                                    hasTransition: true,
-                                    transitionType:
-                                        PageTransitionType.fade,
-                                    duration:
-                                        const Duration(milliseconds: 0),
-                                  ),
-                                },
-                              ),
-                              child: Container(
-                                width: 36.0,
-                                height: 36.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).accent1,
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                child: Align(
-                                  alignment:
-                                      const AlignmentDirectional(0.0, 0.0),
-                                  child: Icon(
-                                    Icons.fitness_center_rounded,
-                                    color:
-                                        FlutterFlowTheme.of(context).primary,
-                                    size: 18.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8.0),
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                final criou =
-                                    await showModalBottomSheet<bool>(
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  enableDrag: false,
-                                  context: context,
-                                  builder: (context) {
-                                    return WebViewAware(
-                                      child: Padding(
-                                        padding:
-                                            MediaQuery.viewInsetsOf(context),
-                                        child:
-                                            const TreinosNovoTreinoWidget(),
-                                      ),
-                                    );
-                                  },
-                                );
-                                if (criou == true) {
-                                  await _carregarTreinos();
-                                }
-                              },
-                              child: Container(
-                                width: 36.0,
-                                height: 36.0,
-                                decoration: BoxDecoration(
-                                  color:
-                                      FlutterFlowTheme.of(context).accent1,
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                child: Align(
-                                  alignment:
-                                      const AlignmentDirectional(0.0, 0.0),
-                                  child: Icon(
-                                    Icons.add_sharp,
-                                    color:
-                                        FlutterFlowTheme.of(context).primary,
-                                    size: 18.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
 
                   // ── BUSCA ────────────────────────────────────────────
@@ -359,15 +291,28 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                               color: FlutterFlowTheme.of(context).primary,
                             ),
                           )
-                        : _model.treinos.isEmpty
-                            ? _buildEstadoVazio(context)
-                            : _model.treinosFiltrados.isEmpty
-                                ? _buildSemResultados(context)
-                                : ListView.separated(
-                                    padding: const EdgeInsets.only(
-                                        top: 8.0, bottom: 120.0),
-                                    itemCount:
-                                        _model.treinosFiltrados.length,
+                        : CustomScrollView(
+                            slivers: [
+                              // Os atalhos rolam junto com a lista.
+                              SliverToBoxAdapter(
+                                child: _buildAtalhos(context),
+                              ),
+                              if (_model.treinos.isEmpty)
+                                SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: _buildEstadoVazio(context),
+                                )
+                              else if (_model.treinosFiltrados.isEmpty)
+                                SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: _buildSemResultados(context),
+                                )
+                              else
+                                SliverPadding(
+                                  padding: const EdgeInsets.only(
+                                      top: 8.0, bottom: 120.0),
+                                  sliver: SliverList.separated(
+                                    itemCount: _model.treinosFiltrados.length,
                                     separatorBuilder: (_, __) => Divider(
                                       height: 1.0,
                                       thickness: 1.0,
@@ -401,15 +346,17 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                                         ),
                                         onEdit: () => _abrirEditarGrupo(
                                             grupo.grupoTreinoId, grupo.nome),
-                                        onDelete: () =>
-                                            _confirmarExcluirGrupo(
-                                                grupo.grupoTreinoId,
-                                                grupo.nome.isNotEmpty
-                                                    ? grupo.nome
-                                                    : 'Treino sem nome'),
+                                        onDelete: () => _confirmarExcluirGrupo(
+                                            grupo.grupoTreinoId,
+                                            grupo.nome.isNotEmpty
+                                                ? grupo.nome
+                                                : 'Treino sem nome'),
                                       );
                                     },
                                   ),
+                                ),
+                            ],
+                          ),
                   ),
                 ],
               ),
@@ -430,6 +377,51 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
     );
   }
 
+  // ── ATALHOS ───────────────────────────────────────────────────────────
+  // Estes dois cards substituem os botoes so-icone que ficavam no topo: em
+  // 36x36 sem rotulo, nem o halter nem o "+" diziam para onde levavam. O
+  // icone de cada um e o mesmo do botao antigo, para quem ja usava reconhecer.
+  Widget _buildAtalhos(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 4.0, 16.0, 8.0),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _CardAtalho(
+                titulo: 'Novo treino',
+                descricao: 'Monte um grupo e adicione exercícios',
+                rotulo: 'Criar',
+                icone: Icons.add_rounded,
+                onTap: _abrirNovoTreino,
+              ),
+            ),
+            const SizedBox(width: 12.0),
+            Expanded(
+              child: _CardAtalho(
+                titulo: 'Exercícios',
+                descricao: 'Seu catálogo para montar os treinos',
+                rotulo: 'Gerenciar',
+                icone: Icons.fitness_center_rounded,
+                onTap: () => context.pushNamed(
+                  GestaoExerciciosWidget.routeName,
+                  extra: <String, dynamic>{
+                    '__transition_info__': TransitionInfo(
+                      hasTransition: true,
+                      transitionType: PageTransitionType.fade,
+                      duration: const Duration(milliseconds: 0),
+                    ),
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── ESTADO VAZIO ─────────────────────────────────────────────────────
   // Usa o componente compartilhado, igual a alunos, pagamentos e videos.
   Widget _buildEstadoVazio(BuildContext context) {
@@ -437,8 +429,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
       child: DfEstadoVazio(
         icone: FFIcons.kproperty1FiRrGym,
         titulo: 'Nenhum treino criado',
-        descricao:
-            'Monte seu primeiro treino e atribua aos seus alunos.',
+        descricao: 'Monte seu primeiro treino e atribua aos seus alunos.',
       ),
     );
   }
@@ -451,10 +442,8 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
         textAlign: TextAlign.center,
         style: FlutterFlowTheme.of(context).bodyMedium.override(
               font: GoogleFonts.inter(
-                fontWeight:
-                    FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                fontStyle:
-                    FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
               ),
               color: FlutterFlowTheme.of(context).secondaryText,
               fontSize: 13.0,
@@ -508,8 +497,7 @@ class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
     final theme = FlutterFlowTheme.of(context);
     final grupo = widget.grupo;
     final count = grupo.subagrupamentos.length;
-    final displayName =
-        grupo.nome.isNotEmpty ? grupo.nome : 'Treino sem nome';
+    final displayName = grupo.nome.isNotEmpty ? grupo.nome : 'Treino sem nome';
 
     return GestureDetector(
       onHorizontalDragUpdate: _onDragUpdate,
@@ -678,6 +666,114 @@ class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Card de atalho do topo de "Meus Treinos".
+///
+/// Diz o que e, o que faz e para onde leva — o oposto do botao so-icone que
+/// existia antes. A seta a 45 graus e a mesma convencao de "isso abre outra
+/// tela" usada fora do app.
+class _CardAtalho extends StatelessWidget {
+  const _CardAtalho({
+    required this.titulo,
+    required this.descricao,
+    required this.rotulo,
+    required this.icone,
+    required this.onTap,
+  });
+
+  final String titulo;
+  final String descricao;
+  final String rotulo;
+  final IconData icone;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Material(
+      color: tema.primaryBackground,
+      borderRadius: BorderRadius.circular(14.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14.0),
+        child: Container(
+          padding: const EdgeInsets.all(14.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      titulo,
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                        color: tema.primaryText,
+                        fontSize: 14.0,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    icone,
+                    color: tema.primary,
+                    size: 20.0,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4.0),
+              Text(
+                descricao,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                  color: tema.secondaryText,
+                  fontSize: 11.5,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w400,
+                  lineHeight: 1.35,
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              // Empurra a chamada para o rodape para os dois cards alinharem
+              // a linha azul na mesma altura, mesmo com descricoes de tamanhos
+              // diferentes.
+              const Spacer(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    rotulo,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                      color: tema.primary,
+                      fontSize: 12.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  const SizedBox(width: 4.0),
+                  Icon(
+                    Icons.arrow_outward,
+                    color: tema.primary,
+                    size: 14.0,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -25,6 +25,7 @@ class PersonalalunosStruct extends BaseStruct {
     String? alunoUuid,
     String? status,
     String? dataVinculo,
+    int? diasSemTreinar,
   })  : _createdAt = createdAt,
         _nome = nome,
         _nascimento = nascimento,
@@ -42,7 +43,8 @@ class PersonalalunosStruct extends BaseStruct {
         _email = email,
         _alunoUuid = alunoUuid,
         _status = status,
-        _dataVinculo = dataVinculo;
+        _dataVinculo = dataVinculo,
+        _diasSemTreinar = diasSemTreinar;
 
   // "createdAt" field.
   String? _createdAt;
@@ -174,6 +176,17 @@ class PersonalalunosStruct extends BaseStruct {
 
   bool hasDataVinculo() => _dataVinculo != null;
 
+  // "diasSemTreinar" field.
+  //
+  // null = nunca treinou; 0 = treinou hoje. Sao coisas diferentes, entao
+  // quem le precisa checar hasDiasSemTreinar() antes de usar o getter —
+  // o `?? 0` transformaria "nunca" em "hoje".
+  int? _diasSemTreinar;
+  int get diasSemTreinar => _diasSemTreinar ?? 0;
+  set diasSemTreinar(int? val) => _diasSemTreinar = val;
+
+  bool hasDiasSemTreinar() => _diasSemTreinar != null;
+
   static PersonalalunosStruct fromMap(Map<String, dynamic> data) =>
       PersonalalunosStruct(
         createdAt: data['createdAt'] as String?,
@@ -194,6 +207,7 @@ class PersonalalunosStruct extends BaseStruct {
         alunoUuid: data['alunoUuid'] as String?,
         status: data['status'] as String?,
         dataVinculo: data['dataVinculo'] as String?,
+        diasSemTreinar: (data['diasSemTreinar'] as num?)?.toInt(),
       );
 
   static PersonalalunosStruct? maybeFromMap(dynamic data) => data is Map
@@ -219,6 +233,7 @@ class PersonalalunosStruct extends BaseStruct {
         'alunoUuid': _alunoUuid,
         'status': _status,
         'dataVinculo': _dataVinculo,
+        'diasSemTreinar': _diasSemTreinar,
       }.withoutNulls;
 
   @override
@@ -294,6 +309,10 @@ class PersonalalunosStruct extends BaseStruct {
         'dataVinculo': serializeParam(
           _dataVinculo,
           ParamType.String,
+        ),
+        'diasSemTreinar': serializeParam(
+          _diasSemTreinar,
+          ParamType.int,
         ),
       }.withoutNulls;
 
@@ -389,6 +408,11 @@ class PersonalalunosStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        diasSemTreinar: deserializeParam(
+          data['diasSemTreinar'],
+          ParamType.int,
+          false,
+        ),
       );
 
   @override
@@ -414,7 +438,8 @@ class PersonalalunosStruct extends BaseStruct {
         email == other.email &&
         alunoUuid == other.alunoUuid &&
         status == other.status &&
-        dataVinculo == other.dataVinculo;
+        dataVinculo == other.dataVinculo &&
+        diasSemTreinar == other.diasSemTreinar;
   }
 
   @override
@@ -436,7 +461,8 @@ class PersonalalunosStruct extends BaseStruct {
         email,
         alunoUuid,
         status,
-        dataVinculo
+        dataVinculo,
+        diasSemTreinar
       ]);
 }
 
@@ -459,6 +485,7 @@ PersonalalunosStruct createPersonalalunosStruct({
   String? alunoUuid,
   String? status,
   String? dataVinculo,
+  int? diasSemTreinar,
 }) =>
     PersonalalunosStruct(
       createdAt: createdAt,
@@ -479,4 +506,5 @@ PersonalalunosStruct createPersonalalunosStruct({
       alunoUuid: alunoUuid,
       status: status,
       dataVinculo: dataVinculo,
+      diasSemTreinar: diasSemTreinar,
     );
