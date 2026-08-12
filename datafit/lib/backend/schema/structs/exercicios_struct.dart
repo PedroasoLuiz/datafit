@@ -10,6 +10,7 @@ class ExerciciosStruct extends BaseStruct {
     int? execucaoId,
     String? nome,
     String? linkInstrucao,
+    double? thumbSegundo,
     int? series,
     int? repeticoes,
     int? tempoDescansoSeg,
@@ -24,6 +25,7 @@ class ExerciciosStruct extends BaseStruct {
   })  : _execucaoId = execucaoId,
         _nome = nome,
         _linkInstrucao = linkInstrucao,
+        _thumbSegundo = thumbSegundo,
         _series = series,
         _repeticoes = repeticoes,
         _tempoDescansoSeg = tempoDescansoSeg,
@@ -58,6 +60,16 @@ class ExerciciosStruct extends BaseStruct {
   set linkInstrucao(String? val) => _linkInstrucao = val;
 
   bool hasLinkInstrucao() => _linkInstrucao != null;
+
+  // "thumbSegundo" field.
+  double? _thumbSegundo;
+  double get thumbSegundo => _thumbSegundo ?? 0.0;
+  set thumbSegundo(double? val) => _thumbSegundo = val;
+
+  void incrementThumbSegundo(double amount) =>
+      thumbSegundo = thumbSegundo + amount;
+
+  bool hasThumbSegundo() => _thumbSegundo != null;
 
   // "series" field.
   int? _series;
@@ -159,6 +171,7 @@ class ExerciciosStruct extends BaseStruct {
         execucaoId: castToType<int>(data['execucaoId']),
         nome: data['nome'] as String?,
         linkInstrucao: data['linkInstrucao'] as String?,
+        thumbSegundo: castToType<double>(data['thumbSegundo']),
         series: castToType<int>(data['series']),
         repeticoes: castToType<int>(data['repeticoes']),
         tempoDescansoSeg: castToType<int>(data['tempoDescansoSeg']),
@@ -180,6 +193,7 @@ class ExerciciosStruct extends BaseStruct {
         'execucaoId': _execucaoId,
         'nome': _nome,
         'linkInstrucao': _linkInstrucao,
+        'thumbSegundo': _thumbSegundo,
         'series': _series,
         'repeticoes': _repeticoes,
         'tempoDescansoSeg': _tempoDescansoSeg,
@@ -206,6 +220,10 @@ class ExerciciosStruct extends BaseStruct {
         'linkInstrucao': serializeParam(
           _linkInstrucao,
           ParamType.String,
+        ),
+        'thumbSegundo': serializeParam(
+          _thumbSegundo,
+          ParamType.double,
         ),
         'series': serializeParam(
           _series,
@@ -268,6 +286,11 @@ class ExerciciosStruct extends BaseStruct {
         linkInstrucao: deserializeParam(
           data['linkInstrucao'],
           ParamType.String,
+          false,
+        ),
+        thumbSegundo: deserializeParam(
+          data['thumbSegundo'],
+          ParamType.double,
           false,
         ),
         series: deserializeParam(
@@ -336,6 +359,7 @@ class ExerciciosStruct extends BaseStruct {
         execucaoId == other.execucaoId &&
         nome == other.nome &&
         linkInstrucao == other.linkInstrucao &&
+        thumbSegundo == other.thumbSegundo &&
         series == other.series &&
         repeticoes == other.repeticoes &&
         tempoDescansoSeg == other.tempoDescansoSeg &&
@@ -354,6 +378,7 @@ class ExerciciosStruct extends BaseStruct {
         execucaoId,
         nome,
         linkInstrucao,
+        thumbSegundo,
         series,
         repeticoes,
         tempoDescansoSeg,

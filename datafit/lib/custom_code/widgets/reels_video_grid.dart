@@ -47,43 +47,13 @@ class ReelsVideoGrid extends StatelessWidget {
     return null;
   }
 
-  /// YouTube sai para o app/navegador; video nosso toca aqui dentro.
+  /// YouTube sai para o app/navegador; video nosso abre em tela cheia.
   ///
   /// Mandar o video da plataforma para o `launchUrl` abria o arquivo cru no
-  /// navegador — sem controle, sem voltar. O player proprio ja existe em
-  /// `video_exercicio.dart` e e o mesmo usado na execucao do treino.
+  /// navegador — sem controle, sem voltar.
   Future<void> _abrir(BuildContext context, String url) async {
     if (ehVideoDaPlataforma(url)) {
-      await showDialog(
-        context: context,
-        useRootNavigator: true,
-        barrierColor: Colors.black87,
-        builder: (dialogContext) => Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: PlayerVideoPlataforma(
-                  url: url,
-                  autoPlay: true,
-                  // Video de pe encheria a tela inteira e esconderia o X.
-                  alturaMaxima: MediaQuery.sizeOf(context).height * 0.7,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: IconButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  icon: const Icon(Icons.close_rounded, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      await mostrarVideoEmTelaCheia(context, url: url);
       return;
     }
 
@@ -95,13 +65,17 @@ class ReelsVideoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final urls = exercicios
-        .map((e) => e.linkInstrucao)
-        .where((l) => l != null && l.isNotEmpty)
-        .cast<String>()
-        .toList();
+    // Mais recente primeiro. A RPC devolve agrupado por categoria e em ordem
+    // alfabetica dentro dela, entao um exercicio recem-criado caia no meio da
+    // grade — nao e onde a pessoa procura o que acabou de cadastrar.
+    // `execucaoId` aqui e o Id do exercicio, entao o maior e o mais novo.
+    final comVideo = exercicios
+        .where((e) => e.linkInstrucao.isNotEmpty)
+        .toList()
+      ..sort((a, b) => b.execucaoId.compareTo(a.execucaoId));
 
-    if (urls.isEmpty) return const SizedBox.shrink();
+
+    if (comVideo.isEmpty) return const SizedBox.shrink();
 
     return GridView.builder(
       shrinkWrap: true,
@@ -113,9 +87,10 @@ class ReelsVideoGrid extends StatelessWidget {
         mainAxisSpacing: 2,
         childAspectRatio: 9 / 16,
       ),
-      itemCount: urls.length,
+      itemCount: comVideo.length,
       itemBuilder: (context, index) {
-        final url = urls[index];
+        final exercicio = comVideo[index];
+        final url = exercicio.linkInstrucao;
         // Video da plataforma nao tem thumbnail publica como a do YouTube.
         // Em vez de gerar quadro (que exigiria pacote nativo de thumbnail ou
         // um player por celula do grid), a celula mostra a marca de video.
@@ -130,13 +105,23 @@ class ReelsVideoGrid extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              thumbUrl != null
-                  ? Image(
-                      image: CachedNetworkImageProvider(thumbUrl),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const _Placeholder(),
-                    )
-                  : const _Placeholder(),
+              // YouTube tem miniatura publica; o video enviado pelo
+              // personal nao tem, entao a capa vem do primeiro quadro dele.
+              if (thumbUrl != null)
+                Image(
+                  image: CachedNetworkImageProvider(thumbUrl),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const _Placeholder(),
+                )
+              else if (daPlataforma)
+                CapaVideoPlataforma(
+                  url: url,
+                  segundo: exercicio.hasThumbSegundo()
+                      ? exercicio.thumbSegundo
+                      : null,
+                )
+              else
+                const _Placeholder(),
               // Antes era um play grande no meio da celula: tapava a
               // imagem justo onde ela e mais legivel. No canto ele marca
               // "isto e video" sem competir com a miniatura.

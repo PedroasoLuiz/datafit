@@ -298,76 +298,14 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      badges.Badge(
-                                        badgeContent: Text(
-                                          FFAppState()
-                                              .notificacoes
-                                              .where((e) => !e.lida)
-                                              .length
-                                              .toString(),
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .override(
-                                                font: GoogleFonts.inter(),
-                                                color: Colors.white,
-                                                fontSize: 12.0,
-                                                letterSpacing: 0.0,
-                                              ),
-                                        ),
-                                        showBadge: FFAppState()
-                                            .notificacoes
-                                            .any((e) => !e.lida),
-                                        shape: badges.BadgeShape.circle,
-                                        badgeColor: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        elevation: 4.0,
-                                        padding: EdgeInsets.all(6.0),
-                                        position: badges.BadgePosition.topEnd(),
-                                        animationType:
-                                            badges.BadgeAnimationType.scale,
-                                        toAnimate: true,
-                                        child: InkWell(
-                                          splashColor: Colors.transparent,
-                                          focusColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () async {
-                                            scaffoldKey.currentState!
-                                                .openDrawer();
-                                          },
-                                          child: Container(
-                                            width: 36.0,
-                                            height: 36.0,
-                                            decoration: BoxDecoration(
-                                              // Branco com sombra, como o
-                                              // resto do kit.
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryBackground,
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                              shape: BoxShape.rectangle,
-                                              boxShadow: [
-                                                FlutterFlowTheme.of(context)
-                                                    .designToken
-                                                    .shadow
-                                                    .sm
-                                              ],
-                                            ),
-                                            child: Align(
-                                              alignment: AlignmentDirectional(
-                                                  0.0, 0.0),
-                                              child: Icon(
-                                                FFIcons.kproperty1FiRrBell,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primary,
-                                                size: 18.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                      // As notificacoes moram no perfil
+                                      // agora. O quadrado vazio fica no
+                                      // lugar do sino porque o titulo e
+                                      // centralizado por estar entre dois
+                                      // elementos: sem ele, "Meus alunos"
+                                      // deslizaria para a esquerda.
+                                      const SizedBox(
+                                          width: 36.0, height: 36.0),
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         children: [

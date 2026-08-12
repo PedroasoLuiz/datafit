@@ -43,11 +43,38 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
     with TickerProviderStateMixin {
   late NovoExercicioModel _model;
 
+  /// Le a capa ja escolhida quando se abre um exercicio para editar.
+  ///
+  /// Nao vem por parametro porque as telas que abrem esta folha so conhecem
+  /// nome, link e subcategoria — passar mais um campo obrigaria a mexer em
+  /// todos os pontos de chamada por um dado que so esta folha usa.
+  Future<void> _carregarCapaAtual() async {
+    if (widget.exercicioId == null) return;
+    try {
+      final linha = await SupaFlow.client
+          .from('Exercicios')
+          .select('ThumbSegundo')
+          .eq('Id', widget.exercicioId!)
+          .maybeSingle();
+      final v = (linha as Map?)?['ThumbSegundo'];
+      if (v == null || !mounted) return;
+      safeSetState(() => _thumbSegundo = (v as num).toDouble());
+    } catch (_) {
+      // Sem a capa salva a regua comeca no zero, que e o padrao.
+    }
+  }
+
   /// Envio do video do exercicio para o bucket `Videos`.
   ///
   /// O caminho comeca com o uid porque a politica de storage exige isso: sem
   /// a pasta do dono, um personal poderia sobrescrever o video de outro.
   bool _enviandoVideo = false;
+
+  /// Segundo do video escolhido como capa, em `SeletorCapaVideo`.
+  ///
+  /// Nulo quer dizer "primeiro quadro", que e o padrao de quem nao mexeu na
+  /// regua. Vai para a coluna `ThumbSegundo` de Exercicios.
+  double? _thumbSegundo;
 
   Future<void> _enviarVideo() async {
     if (_enviandoVideo) return;
@@ -74,6 +101,9 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
         _enviandoVideo = false;
         if (url != null && url.isNotEmpty) {
           _model.txtLinkTextController?.text = url;
+          // Video novo, capa nova: o segundo do anterior nao quer dizer nada
+          // neste arquivo.
+          _thumbSegundo = null;
         }
       });
       if (url == null || url.isEmpty) {
@@ -121,6 +151,8 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
   void initState() {
     super.initState();
     _model = createModel(context, () => NovoExercicioModel());
+
+    _carregarCapaAtual();
 
     _model.txtNomeTextController ??=
         TextEditingController(text: widget.nomeInicial ?? '');
@@ -353,6 +385,54 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       ),
                     ),
 
+                    // ── VIDEO ─────────────────────────────────────
+                    // Primeiro item do formulario: e o que o personal acabou
+                    // de gravar e quer conferir, e e onde ele escolhe a capa.
+                    // Enterrado depois do nome e do grupo muscular, a previa
+                    // ficava pequena e fora de vista.
+                    _buildLabel(context, 'Vídeo de demonstração (opcional)'),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                          16.0, 4.0, 16.0, 0.0),
+                      child: DashedButton(
+                        width: double.infinity,
+                        height: 46.0,
+                        label: _enviandoVideo
+                            ? 'Enviando…'
+                            : (ehVideoDaPlataforma(
+                                    _model.txtLinkTextController?.text)
+                                ? 'Trocar vídeo'
+                                : 'Enviar vídeo'),
+                        labelSize: 14.0,
+                        labelColor: FlutterFlowTheme.of(context).primary,
+                        fontWeight: 'semibold',
+                        icon: Icon(_enviandoVideo
+                            ? Icons.cloud_upload_rounded
+                            : Icons.videocam_rounded),
+                        iconSize: 18.0,
+                        borderColor: FlutterFlowTheme.of(context).primary,
+                        borderRadius: 12.0,
+                        // Sem preenchimento: a borda tracejada e o desenho de
+                        // "aqui ainda nao tem nada". O azul claro por tras
+                        // fazia o botao parecer uma acao ja resolvida.
+                        onPressed: _enviandoVideo ? null : _enviarVideo,
+                      ),
+                    ),
+                    if (ehVideoDaPlataforma(_model.txtLinkTextController?.text))
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            16.0, 12.0, 16.0, 0.0),
+                        child: SeletorCapaVideo(
+                          // A chave amarra o seletor a URL: trocar o video
+                          // recria o widget em vez de reaproveitar o player
+                          // apontando para o arquivo antigo.
+                          key: ValueKey(_model.txtLinkTextController!.text),
+                          url: _model.txtLinkTextController!.text,
+                          segundoInicial: _thumbSegundo,
+                          aoEscolher: (s) => _thumbSegundo = s,
+                        ),
+                      ),
+
                     // ── NOME ──────────────────────────────────────
                     _buildLabel(context, 'Nome do exercício'),
                     _buildTextField(
@@ -417,64 +497,20 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       ),
                     ),
 
-                    // ── VIDEO ─────────────────────────────────────
-                    // Enviar pelo app e o caminho principal. O campo de link
-                    // continua abaixo porque 22 exercicios ja apontam para o
-                    // YouTube e seguem validos.
-                    _buildLabel(context, 'Vídeo de demonstração (opcional)'),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 4.0, 0.0, 0.0),
-                      // Borda tracejada: e o desenho que o app usa para "aqui
-                      // ainda nao tem nada, toque para colocar". Um botao
-                      // solido leria como acao ja resolvida.
-                      child: DashedButton(
-                        width: double.infinity,
-                        height: 46.0,
-                        label: _enviandoVideo
-                            ? 'Enviando…'
-                            : (ehVideoDaPlataforma(
-                                    _model.txtLinkTextController?.text)
-                                ? 'Trocar vídeo'
-                                : 'Enviar vídeo'),
-                        labelSize: 14.0,
-                        labelColor: FlutterFlowTheme.of(context).primary,
-                        fontWeight: 'semibold',
-                        icon: Icon(_enviandoVideo
-                            ? Icons.cloud_upload_rounded
-                            : Icons.videocam_rounded),
-                        iconSize: 18.0,
-                        borderColor: FlutterFlowTheme.of(context).primary,
-                        borderRadius: 12.0,
-                        backgroundColor: FlutterFlowTheme.of(context).accent1,
-                        // Durante o envio o toque nao faz nada: sem isso dava
-                        // para abrir a folha de midia por cima do upload.
-                        onPressed: _enviandoVideo ? null : _enviarVideo,
-                      ),
-                    ),
-                    if (ehVideoDaPlataforma(_model.txtLinkTextController?.text))
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                            0.0, 8.0, 0.0, 0.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: PlayerVideoPlataforma(
-                            url: _model.txtLinkTextController!.text,
-                            // Sem o teto, video gravado de pe empurrava o
-                            // botao de concluir para fora da folha.
-                            alturaMaxima: 220.0,
-                          ),
-                        ),
-                      ),
-
                     // ── LINK ──────────────────────────────────────
-                    _buildLabel(context, 'ou link do YouTube (opcional)'),
-                    _buildTextField(
-                      context,
-                      controller: _model.txtLinkTextController!,
-                      focusNode: _model.txtLinkFocusNode!,
-                      hint: 'https://youtube.com/...',
-                    ),
+                    // So aparece quando nao ha video enviado. Com video, este
+                    // campo mostraria a URL do storage: um texto enorme que
+                    // nao diz nada ao personal e que ele nao deve editar.
+                    if (!ehVideoDaPlataforma(
+                        _model.txtLinkTextController?.text)) ...[
+                      _buildLabel(context, 'ou link do YouTube (opcional)'),
+                      _buildTextField(
+                        context,
+                        controller: _model.txtLinkTextController!,
+                        focusNode: _model.txtLinkFocusNode!,
+                        hint: 'https://youtube.com/...',
+                      ),
+                    ],
                   ].addToEnd(const SizedBox(height: 16.0)),
                 ),
               ),
@@ -546,6 +582,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       'SubCategoriasTrabalhadasId': subcatId,
                       'LinkInstrucao':
                           (link != null && link.isNotEmpty) ? link : null,
+                      'ThumbSegundo': _thumbSegundo,
                     }).eq('Id', widget.exercicioId!);
                   } else {
                     await SupaFlow.client.from('Exercicios').insert({
@@ -555,6 +592,8 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         'SubCategoriasTrabalhadasId': subcatId,
                       if (link != null && link.isNotEmpty)
                         'LinkInstrucao': link,
+                      if (_thumbSegundo != null)
+                        'ThumbSegundo': _thumbSegundo,
                     });
                   }
 
