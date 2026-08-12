@@ -29,7 +29,12 @@ workflows:
       app_store_connect: DATAFIT
 
     environment:
-      flutter: stable
+      # Versao fixa, nao `stable`. O `stable` avancou por baixo e trouxe um
+      # flutter_localizations que exige intl ^0.20.3, enquanto o pubspec fixa
+      # 0.20.2 — o pub get quebrou no CI enquanto o build local seguia
+      # passando. Fixar aqui faz o artefato do TestFlight sair do mesmo SDK
+      # em que o codigo e analisado e compilado antes de subir.
+      flutter: 3.44.2
       xcode: latest
       cocoapods: default
       # Sem bloco `ios_signing:` de proposito. A assinatura e feita
@@ -134,7 +139,12 @@ workflows:
     working_directory: datafit
 
     environment:
-      flutter: stable
+      # Versao fixa, nao `stable`. O `stable` avancou por baixo e trouxe um
+      # flutter_localizations que exige intl ^0.20.3, enquanto o pubspec fixa
+      # 0.20.2 — o pub get quebrou no CI enquanto o build local seguia
+      # passando. Fixar aqui faz o artefato do TestFlight sair do mesmo SDK
+      # em que o codigo e analisado e compilado antes de subir.
+      flutter: 3.44.2
       xcode: latest
       cocoapods: default
 
