@@ -2168,6 +2168,7 @@ class InformarPagamentoCall {
     int? pPagamentoId,
     String? pAlunoUuid = '',
     String? pDataPagamento = '',
+    String? pTipoPagamento,
     String? project,
     String? apikey,
   }) async {
@@ -2182,7 +2183,8 @@ class InformarPagamentoCall {
 {
   "p_pagamento_id": ${pPagamentoId ?? 0},
   "p_aluno_uuid": "${escapeStringForJson(pAlunoUuid)}",
-  "p_data_pagamento": "${escapeStringForJson(pDataPagamento)}"
+  "p_data_pagamento": "${escapeStringForJson(pDataPagamento)}",
+  "p_tipo_pagamento": ${pTipoPagamento == null ? 'null' : '"\${escapeStringForJson(pTipoPagamento)}"'}
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'informar pagamento',

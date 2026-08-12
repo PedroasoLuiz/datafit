@@ -112,6 +112,10 @@ class _TreinosDetalhesCardioEditWidgetState
           });
           safeSetState(() {
             _model.txtObsTextController?.text = widget!.cardio!.observacao;
+            if (widget!.cardio!.hasKcal()) {
+              _model.txtKcalTextController?.text =
+                  widget!.cardio!.kcal.toString();
+            }
           });
           _model.distancia = valueOrDefault<double>(
             widget!.cardio?.distanciaKm,
@@ -126,6 +130,9 @@ class _TreinosDetalhesCardioEditWidgetState
 
     _model.txtDescricaoTextController ??=
         TextEditingController(text: widget!.cardio?.descricao);
+
+    _model.txtKcalTextController ??= TextEditingController();
+    _model.txtKcalFocusNode ??= FocusNode();
 
     _model.txtObsTextController ??=
         TextEditingController(text: widget!.cardio?.observacao);
@@ -1301,6 +1308,96 @@ class _TreinosDetalhesCardioEditWidgetState
                         ),
                       ),
                     ),
+                    // Calorias. O valor ja existia na tabela (RegistrosCardio
+                    // .Kcal) e agora vem pela RPC, entao o campo abre
+                    // preenchido em vez de zerar o que estava gravado.
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 0.0, 8.0),
+                      child: Text(
+                        'Calorias (kcal)',
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.normal,
+                              ),
+                              color: FlutterFlowTheme.of(context).secondaryText,
+                              fontSize: 14.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.normal,
+                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                      child: SizedBox(
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        child: TextFormField(
+                          controller: _model.txtKcalTextController,
+                          focusNode: _model.txtKcalFocusNode,
+                          autofocus: false,
+                          obscureText: false,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Opcional',
+                            hintStyle: FlutterFlowTheme.of(context)
+                                .labelMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: FlutterFlowTheme.of(context).alternate,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: FlutterFlowTheme.of(context).primary,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: FlutterFlowTheme.of(context).error,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: FlutterFlowTheme.of(context).error,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            filled: true,
+                            fillColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                            contentPadding: EdgeInsets.all(16.0),
+                          ),
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                          cursorColor: FlutterFlowTheme.of(context).primaryText,
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 0.0, 8.0),
@@ -1524,6 +1621,10 @@ class _TreinosDetalhesCardioEditWidgetState
                               : (_model.distancia / 1000),
                           0.0,
                         ),
+                        // Campo vazio grava null, nao 0: "nao informei" e
+                        // diferente de "gastei zero caloria".
+                        'Kcal': int.tryParse(
+                            _model.txtKcalTextController.text.trim()),
                         'Observacao': _model.txtObsTextController.text.trim(),
                         'DataHoraInicio':
                             supaSerialize<DateTime>(_model.inicio),

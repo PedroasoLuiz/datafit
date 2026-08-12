@@ -297,15 +297,21 @@ Future metasAluno(BuildContext context) async {
   }
 }
 
+/// Carrega as metricas em FFAppState().metricasTemp.
+///
+/// [alunoUuid] existe para o personal abrir as metricas de um aluno. Quando
+/// vem nulo assume o proprio usuario, que e o caso do aluno vendo as dele.
 Future getMetricasAluno(
   BuildContext context, {
   required int? meses,
   required String? periodo,
+  String? alunoUuid,
 }) async {
   ApiCallResponse? apiResult5af;
 
   apiResult5af = await AlunoGroup.getMetricasCall.call(
-    pAlunoUuid: currentUserUid,
+    pAlunoUuid:
+        (alunoUuid == null || alunoUuid.isEmpty) ? currentUserUid : alunoUuid,
     pPeriodo: periodo,
   );
 

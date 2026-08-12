@@ -1,3 +1,4 @@
+import '/components/chip_filtro.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
@@ -191,6 +192,23 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
     return s;
   }
 
+  /// Forma escolhida pelo aluno.
+  ///
+  /// A cobranca ja nasce com um TipoPagamento definido pelo personal, mas a
+  /// forma so se decide na hora de pagar: quem combinou boleto acaba mandando
+  /// Pix. Sem isso o personal recebia "pagamento informado" sem saber onde
+  /// procurar o dinheiro.
+  String? _forma;
+
+  static const List<String> _formas = [
+    'Pix',
+    'Dinheiro',
+    'Cartão',
+    'Transferência Bancária',
+    'Boleto',
+    'Outro',
+  ];
+
   String _formatarDataApi(DateTime dt) {
     final d = dt.day.toString().padLeft(2, '0');
     final m = dt.month.toString().padLeft(2, '0');
@@ -359,6 +377,40 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                     ),
                   ),
 
+                  // Seletor de forma de pagamento.
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 8.0),
+                    child: Align(
+                      alignment: AlignmentDirectional(-1.0, 0.0),
+                      child: Text(
+                        'Como você pagou?',
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
+                              color: FlutterFlowTheme.of(context).secondaryText,
+                              fontSize: 13.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
+                    child: LinhaChipsFiltro(
+                      chips: [
+                        for (final f in _formas)
+                          ChipFiltro(
+                            texto: f,
+                            selecionado: _forma == f,
+                            onTap: () => safeSetState(() => _forma = f),
+                          ),
+                      ],
+                    ),
+                  ),
+
                   // Date picker row
                   Padding(
                     padding:
@@ -462,7 +514,9 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
               child: GestureDetector(
-                onTap: _model.isLoading || _model.dataSelecionada == null
+                onTap: _model.isLoading ||
+                        _model.dataSelecionada == null ||
+                        _forma == null
                     ? null
                     : () async {
                         safeSetState(() => _model.isLoading = true);
@@ -472,6 +526,7 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                           pAlunoUuid: currentUserUid,
                           pDataPagamento:
                               _formatarDataApi(_model.dataSelecionada!),
+                          pTipoPagamento: _forma,
                         );
                         if (!mounted) return;
                         safeSetState(() => _model.isLoading = false);

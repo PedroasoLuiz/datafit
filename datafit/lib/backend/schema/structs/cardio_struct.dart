@@ -11,6 +11,7 @@ class CardioStruct extends BaseStruct {
     String? descricao,
     int? duracaoMinutos,
     double? distanciaKm,
+    int? kcal,
     String? observacao,
     String? createdAt,
     String? dataHoraInicio,
@@ -19,6 +20,7 @@ class CardioStruct extends BaseStruct {
         _descricao = descricao,
         _duracaoMinutos = duracaoMinutos,
         _distanciaKm = distanciaKm,
+        _kcal = kcal,
         _observacao = observacao,
         _createdAt = createdAt,
         _dataHoraInicio = dataHoraInicio,
@@ -60,6 +62,16 @@ class CardioStruct extends BaseStruct {
 
   bool hasDistanciaKm() => _distanciaKm != null;
 
+  // "kcal" field.
+  //
+  // Nullable de proposito: null e "nao informado", que e diferente de 0.
+  // Quem le deve checar hasKcal() antes de confiar no getter.
+  int? _kcal;
+  int get kcal => _kcal ?? 0;
+  set kcal(int? val) => _kcal = val;
+
+  bool hasKcal() => _kcal != null;
+
   // "observacao" field.
   String? _observacao;
   String get observacao => _observacao ?? '';
@@ -93,6 +105,7 @@ class CardioStruct extends BaseStruct {
         descricao: data['descricao'] as String?,
         duracaoMinutos: (data['duracaoMinutos'] as num?)?.toInt(),
         distanciaKm: (data['distanciaKm'] as num?)?.toDouble(),
+        kcal: (data['kcal'] as num?)?.toInt(),
         observacao: data['observacao'] as String?,
         createdAt: data['createdAt'] as String?,
         dataHoraInicio: data['dataHoraInicio'] as String?,
@@ -107,6 +120,7 @@ class CardioStruct extends BaseStruct {
         'descricao': _descricao,
         'duracaoMinutos': _duracaoMinutos,
         'distanciaKm': _distanciaKm,
+        'kcal': _kcal,
         'observacao': _observacao,
         'createdAt': _createdAt,
         'dataHoraInicio': _dataHoraInicio,
@@ -130,6 +144,10 @@ class CardioStruct extends BaseStruct {
         'distanciaKm': serializeParam(
           _distanciaKm,
           ParamType.double,
+        ),
+        'kcal': serializeParam(
+          _kcal,
+          ParamType.int,
         ),
         'observacao': serializeParam(
           _observacao,
@@ -171,6 +189,11 @@ class CardioStruct extends BaseStruct {
           ParamType.double,
           false,
         ),
+        kcal: deserializeParam(
+          data['kcal'],
+          ParamType.int,
+          false,
+        ),
         observacao: deserializeParam(
           data['observacao'],
           ParamType.String,
@@ -203,6 +226,7 @@ class CardioStruct extends BaseStruct {
         descricao == other.descricao &&
         duracaoMinutos == other.duracaoMinutos &&
         distanciaKm == other.distanciaKm &&
+        kcal == other.kcal &&
         observacao == other.observacao &&
         createdAt == other.createdAt &&
         dataHoraInicio == other.dataHoraInicio &&
@@ -215,6 +239,7 @@ class CardioStruct extends BaseStruct {
         descricao,
         duracaoMinutos,
         distanciaKm,
+        kcal,
         observacao,
         createdAt,
         dataHoraInicio,
@@ -227,6 +252,7 @@ CardioStruct createCardioStruct({
   String? descricao,
   int? duracaoMinutos,
   double? distanciaKm,
+  int? kcal,
   String? observacao,
   String? createdAt,
   String? dataHoraInicio,
@@ -237,6 +263,7 @@ CardioStruct createCardioStruct({
       descricao: descricao,
       duracaoMinutos: duracaoMinutos,
       distanciaKm: distanciaKm,
+      kcal: kcal,
       observacao: observacao,
       createdAt: createdAt,
       dataHoraInicio: dataHoraInicio,

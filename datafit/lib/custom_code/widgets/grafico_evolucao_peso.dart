@@ -7,6 +7,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import '/custom_code/actions/index.dart'; // Imports custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
+import '/flutter_flow/unidade_carga.dart';
 import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
@@ -440,11 +441,15 @@ class _GraficoEvolucaoPesoState extends State<GraficoEvolucaoPeso>
     final corPeso = widget.corPrimaria;
     final corGordura = const Color(0xFFF59E0B);
     final corAtiva = _mostrarGordura ? corGordura : corPeso;
-    final unidade = _mostrarGordura ? '%' : 'kg';
+    // A unidade sai da preferencia do perfil, nao de um literal. O banco
+    // guarda sempre em kg (ver unidade_carga.dart); aqui e so exibicao.
+    // Gordura e percentual e nao se converte.
+    final unidade = _mostrarGordura ? '%' : rotuloUnidade;
 
     final valores = slots
-        .map((s) =>
-            _mostrarGordura ? (s['gordura'] as double) : (s['peso'] as double))
+        .map((s) => _mostrarGordura
+            ? (s['gordura'] as double)
+            : kgParaExibicao(s['peso'] as double))
         .toList();
     final temDados = slots.map((s) => s['temDado'] as bool).toList();
 

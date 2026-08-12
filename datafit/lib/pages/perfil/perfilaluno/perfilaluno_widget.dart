@@ -53,6 +53,14 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await action_blocks.getPerfilAluno(context, alunoId: widget.alunoId);
+      // Metricas do aluno aberto, nao do personal logado.
+      await action_blocks.getMetricasAluno(
+        context,
+        meses: 4,
+        periodo: '4 meses',
+        alunoUuid: widget.alunoId,
+      );
+      if (mounted) safeSetState(() {});
       if (mounted) {
         _model.isLoading = false;
         safeSetState(() {});
@@ -3242,6 +3250,75 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                 ),
                               ),
                             ),
+                            // ── METRICAS ──────────────────────────
+                            // A RPC sempre aceitou qualquer aluno; faltava a
+                            // tela do personal pedir as do aluno aberto.
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 24.0, 16.0, 8.0),
+                              child: Align(
+                                alignment: AlignmentDirectional(-1.0, 0.0),
+                                child: Text(
+                                  'Evolução',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold),
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontSize: 16.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 0.0, 16.0, 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: FlutterFlowTheme.of(context)
+                                      .primaryBackground,
+                                  borderRadius: BorderRadius.circular(16.0),
+                                ),
+                                padding: EdgeInsets.all(12.0),
+                                child: custom_widgets.GraficoEvolucaoPeso(
+                                  width: double.infinity,
+                                  height: 280.0,
+                                  periodoLabel: '4 meses',
+                                  corPrimaria:
+                                      FlutterFlowTheme.of(context).primary,
+                                ),
+                              ),
+                            ),
+                            if (functions
+                                .listarExercicios(FFAppState().metricasTemp)
+                                .isNotEmpty)
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    16.0, 0.0, 16.0, 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryBackground,
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  padding: EdgeInsets.all(12.0),
+                                  child: custom_widgets.GraficoEvolucaoCarga(
+                                    width: double.infinity,
+                                    height: 280.0,
+                                    exercicioSelecionado: functions
+                                        .listarExercicios(
+                                            FFAppState().metricasTemp)
+                                        .first,
+                                    periodoLabel: '4 meses',
+                                    corPrimaria:
+                                        FlutterFlowTheme.of(context).primary,
+                                  ),
+                                ),
+                              ),
                           ].addToEnd(SizedBox(height: 16.0)),
                         ),
                       ),

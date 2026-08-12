@@ -52,6 +52,11 @@ class TreinosDetalhesCardioEditModel
   FormFieldController<String>? dpKmValueController;
   DateTime? datePicked1;
   DateTime? datePicked2;
+  // State field(s) for txtKcal widget.
+  FocusNode? txtKcalFocusNode;
+  TextEditingController? txtKcalTextController;
+  String? Function(BuildContext, String?)? txtKcalTextControllerValidator;
+
   // State field(s) for txtObs widget.
   FocusNode? txtObsFocusNode;
   TextEditingController? txtObsTextController;
@@ -68,6 +73,8 @@ class TreinosDetalhesCardioEditModel
     columnController?.dispose();
     txtDescricaoFocusNode?.dispose();
 
+    txtKcalFocusNode?.dispose();
+    txtKcalTextController?.dispose();
     txtObsFocusNode?.dispose();
     txtObsTextController?.dispose();
   }
