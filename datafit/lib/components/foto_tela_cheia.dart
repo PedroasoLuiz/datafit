@@ -53,20 +53,17 @@ class _FotoTelaCheia extends StatelessWidget {
           Positioned.fill(
             child: GestureDetector(
               onTap: () => Navigator.of(context).pop(),
-              child: InteractiveViewer(
-                minScale: 1.0,
-                maxScale: 4.0,
-                // `SizedBox.expand` nao e enfeite: sem tamanho imposto, a
-                // imagem dentro do InteractiveViewer assume a dimensao
-                // natural do arquivo. Foto de celular tem milhares de pixels
-                // de lado, entao ela nascia gigante e cortada pelas bordas —
-                // o `BoxFit.contain` sozinho nao adianta quando nao ha caixa
-                // para caber dentro.
-                child: SizedBox.expand(
-                  child: CachedNetworkImage(
-                    imageUrl: url,
-                    fit: BoxFit.contain,
-                    placeholder: (_, __) => const SizedBox(
+              // Sem InteractiveViewer: mesmo com tamanho imposto ele
+              // continuava posicionando a imagem no topo e em escala errada.
+              // Um Image simples ocupando a tela e `contain` faz o obvio —
+              // a foto inteira, centralizada, no maior tamanho que couber.
+              // Perde-se a pinca para aproximar; ver a foto vale mais.
+              child: SizedBox.expand(
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.contain,
+                  placeholder: (_, __) => const Center(
+                    child: SizedBox(
                       width: 28.0,
                       height: 28.0,
                       child: CircularProgressIndicator(
@@ -75,7 +72,9 @@ class _FotoTelaCheia extends StatelessWidget {
                             AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
-                    errorWidget: (_, __, ___) => const Icon(
+                  ),
+                  errorWidget: (_, __, ___) => const Center(
+                    child: Icon(
                       Icons.broken_image_rounded,
                       color: Colors.white54,
                       size: 48.0,

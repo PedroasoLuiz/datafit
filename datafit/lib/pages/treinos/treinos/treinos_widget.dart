@@ -1107,7 +1107,9 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
     // Frente: gira conforme o arraste. Fundo: giro fixo, alternando o lado.
     final giro = daFrente
         ? (largura > 0 ? (_arraste / largura) * 0.22 : 0.0)
-        : (paraDireita ? 1 : -1) * _giroFundo * camadaEfetiva;
+        // Angulo fixo por lado, sem multiplicar pela camada: com o fator, a
+        // terceira carta girava o dobro da segunda e ficava deitada.
+        : (paraDireita ? 1 : -1) * _giroFundo;
 
     final carta = Transform.translate(
       offset: Offset(desloc, 0.0),

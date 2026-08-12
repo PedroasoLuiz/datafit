@@ -1780,25 +1780,11 @@ class _MetricasWidgetState extends State<MetricasWidget>
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Métricas',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                ),
+                                // O titulo "Métricas" saiu: a aba logo
+                                // acima ja diz onde se esta, e repetir a
+                                // palavra duas vezes seguidas so ocupa
+                                // altura. O "Hoje" continua, porque diz
+                                // outra coisa — o periodo dos numeros.
                                 if (responsiveVisibility(
                                   context: context,
                                   phone: false,

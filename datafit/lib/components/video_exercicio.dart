@@ -420,13 +420,15 @@ class _PaginaReelsState extends State<_PaginaReels> {
                           ),
                         ),
                       )
-                    // `SizedBox.expand` por fora do FittedBox: sem ele o
-                    // conjunto assume o tamanho natural do vídeo e sai da
-                    // tela em vez de preenchê-la.
+                    // `contain`, e nao `cover`: com `cover` o video era
+                    // recortado nas laterais para encher a tela, e sumia
+                    // justamente a parte que mostra a execucao do exercicio.
+                    // Video gravado de pe (9:16) enche a tela do mesmo jeito;
+                    // o deitado ganha tarja, que e o certo — melhor tarja do
+                    // que metade do movimento cortada.
                     : SizedBox.expand(
                         child: FittedBox(
-                          fit: BoxFit.cover,
-                          clipBehavior: Clip.hardEdge,
+                          fit: BoxFit.contain,
                           child: SizedBox(
                             width: c.value.size.width,
                             height: c.value.size.height,
@@ -451,13 +453,26 @@ class _PaginaReelsState extends State<_PaginaReels> {
             left: 0.0,
             right: 0.0,
             bottom: 0.0,
-            child: VideoProgressIndicator(
-              c,
-              allowScrubbing: true,
-              colors: const VideoProgressColors(
-                playedColor: Colors.white,
-                bufferedColor: Colors.white24,
-                backgroundColor: Colors.white10,
+            // SafeArea: encostada em `bottom: 0` a barra ficava atras do
+            // indicador de home do iPhone, fora do alcance do dedo e quase
+            // invisivel.
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(999.0),
+                  child: VideoProgressIndicator(
+                    c,
+                    allowScrubbing: true,
+                    colors: const VideoProgressColors(
+                      playedColor: Colors.white,
+                      bufferedColor: Colors.white24,
+                      backgroundColor: Colors.white10,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

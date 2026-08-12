@@ -65,21 +65,28 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
 
     final total =
         comExercicios.fold<int>(0, (soma, c) => soma + c.total);
-    final maior = comExercicios
-        .map((c) => c.total)
-        .reduce((a, b) => a > b ? a : b);
+
+    /// Quantos exercicios daquele grupo ja apareceram no periodo.
+    int feitosDe(DsExerciciosStruct c) => c.subcategorias
+        .expand((s) => s.exercicios)
+        .where((e) => e.totalConclusoes > 0)
+        .length;
+
+    final feitos =
+        comExercicios.fold<int>(0, (soma, c) => soma + feitosDe(c));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Resumo: o número que responde "quanto no total".
+        // Resumo em frase, e nao um numero solto: "44" sozinho nao dizia
+        // se era muito, pouco, feito ou por fazer.
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 12.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '$total',
+                '$feitos',
                 style: tema.bodyMedium.override(
                   font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                   color: tema.primaryText,
@@ -93,7 +100,7 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
                 padding:
                     const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
                 child: Text(
-                  total == 1 ? 'exercício no plano' : 'exercícios no plano',
+                  'de $total exercícios você já fez',
                   style: tema.bodyMedium.override(
                     font: GoogleFonts.inter(fontWeight: FontWeight.w500),
                     color: tema.secondaryText,
@@ -106,15 +113,31 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 2.0, 16.0, 14.0),
+          child: Text(
+            total - feitos == 0
+                ? 'Você passou por todos no período.'
+                : 'Faltam ${total - feitos} que ainda não apareceram.',
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+              color: tema.secondaryText,
+              fontSize: 12.0,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
 
         for (final categoria in comExercicios)
           _CardCategoria(
             categoria: categoria,
-            // A barra compara com a MAIOR categoria, não com o total: assim
-            // a maior sempre enche a barra e a diferença entre elas fica
-            // visível. Contra o total, com seis grupos, todas ficariam curtas
-            // e parecidas.
-            proporcao: maior == 0 ? 0.0 : categoria.total / maior,
+            feitos: feitosDe(categoria),
+            // A barra mede o que foi FEITO dentro do grupo, e nao o tamanho
+            // dele. Cheia quer dizer "passei por todos deste grupo". Antes ela
+            // media o tamanho e parecia progresso — era isso que confundia.
+            proporcao:
+                categoria.total == 0 ? 0.0 : feitosDe(categoria) / categoria.total,
             aberta: _abertaId == categoria.categoriaId,
             aoTocar: () => setState(() {
               _abertaId = _abertaId == categoria.categoriaId
@@ -130,12 +153,17 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
 class _CardCategoria extends StatelessWidget {
   const _CardCategoria({
     required this.categoria,
+    required this.feitos,
     required this.proporcao,
     required this.aberta,
     required this.aoTocar,
   });
 
   final DsExerciciosStruct categoria;
+
+  /// Quantos exercicios deste grupo ja apareceram no periodo.
+  final int feitos;
+
   final double proporcao;
   final bool aberta;
   final VoidCallback aoTocar;
@@ -184,14 +212,16 @@ class _CardCategoria extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${categoria.total}',
+                            '$feitos de ${categoria.total}',
                             style: tema.bodyMedium.override(
                               font: GoogleFonts.inter(
-                                  fontWeight: FontWeight.bold),
-                              color: tema.primary,
-                              fontSize: 15.0,
-                              letterSpacing: -0.2,
-                              fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600),
+                              color: feitos > 0
+                                  ? tema.primary
+                                  : tema.secondaryText,
+                              fontSize: 13.0,
+                              letterSpacing: -0.1,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (subcategorias.isNotEmpty)
@@ -325,7 +355,9 @@ class _BlocoSubcategoria extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999.0),
                       ),
                       child: Text(
-                        '${ex.totalConclusoes}×',
+                        ex.totalConclusoes == 1
+                            ? 'feito 1×'
+                            : 'feito ${ex.totalConclusoes}×',
                         style: tema.bodyMedium.override(
                           font:
                               GoogleFonts.inter(fontWeight: FontWeight.w600),

@@ -27,20 +27,21 @@ class ConfigPush {
   //   appId         -> client[0].client_info.mobilesdk_app_id
   //   messagingSenderId -> project_info.project_number
   //   projectId     -> project_info.project_id
-  static const String androidApiKey = '';
-  static const String androidAppId = '';
+  static const String androidApiKey = 'AIzaSyD7czOkJQEv4VqQFa001j7lP_3uREYsYs8';
+  static const String androidAppId =
+      '1:1044404812821:android:0b9f09b737c94ff614e21c';
 
   // ── iOS ────────────────────────────────────────────────────────────
   // De `GoogleService-Info.plist`:
   //   apiKey -> API_KEY
   //   appId  -> GOOGLE_APP_ID
-  static const String iosApiKey = '';
-  static const String iosAppId = '';
+  static const String iosApiKey = 'AIzaSyAz30SWFtxv1W8jL0WZLqcymFV2cC9xmRc';
+  static const String iosAppId = '1:1044404812821:ios:350810942e7d0d6314e21c';
 
   // ── Comuns aos dois ────────────────────────────────────────────────
-  static const String messagingSenderId = '';
-  static const String projectId = '';
-  static const String storageBucket = '';
+  static const String messagingSenderId = '1044404812821';
+  static const String projectId = 'datafit-3ef9e';
+  static const String storageBucket = 'datafit-3ef9e.firebasestorage.app';
 
   /// Verdadeiro quando há credencial suficiente para a plataforma atual.
   static bool get configurado {
