@@ -932,9 +932,12 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
   static const double _passoLateral = 26.0;
   static const double _passoEscala = 0.06;
 
-  /// Giro das cartas de tras, em radianos (~30 graus). A da esquerda gira
-  /// para um lado e a da direita para o outro, abrindo o leque.
-  static const double _giroFundo = 0.52;
+  /// Giro das cartas de tras, em radianos (~8 graus). A da esquerda gira para
+  /// um lado e a da direita para o outro, abrindo o leque.
+  ///
+  /// Comecou em 30 graus e ficou deitado demais: a carta de tras virava um
+  /// losango e competia com a da frente em vez de so sugerir profundidade.
+  static const double _giroFundo = 0.14;
 
   /// A carta da frente nao ocupa a largura toda: e a sobra que deixa as
   /// pontas das de tras aparecerem sem precisar empurra-las para fora.
