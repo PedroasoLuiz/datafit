@@ -118,8 +118,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                           ExerciciossimplyStruct.maybeFromMap)
                       .whereType<ExerciciossimplyStruct>()
                       .toList())
-                    ..sort((a, b) =>
-                        (a.nome ?? '').compareTo(b.nome ?? ''));
+                    ..sort((a, b) => (a.nome ?? '').compareTo(b.nome ?? ''));
                 }
               }
             } catch (_) {}
@@ -296,8 +295,7 @@ class _TreinosNovoExercicioTreinoWidgetState
       children: [
         Flexible(
           child: Padding(
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20.0),
               child: Container(
@@ -397,8 +395,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 0.0, 16.0, 0.0),
                             child: FlutterFlowDropDown<int>(
-                              controller: _model
-                                      .dpExerciciosValueController ??=
+                              controller: _model.dpExerciciosValueController ??=
                                   FormFieldController<int>(
                                       _model.dpExerciciosValue),
                               options: List<int>.from(
@@ -420,8 +417,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color:
-                                        FlutterFlowTheme.of(context).primaryText,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
@@ -432,8 +429,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                                 color: FlutterFlowTheme.of(context).primary,
                                 size: 24.0,
                               ),
-                              fillColor:
-                                  FlutterFlowTheme.of(context).primaryBackground,
+                              fillColor: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
                               elevation: 2.0,
                               borderColor:
                                   FlutterFlowTheme.of(context).alternate,
@@ -450,7 +447,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                         ],
 
                         // ── EXERCISE NAME (edit only) ──────────────────
-                        if (isEdit && (widget.exercicioNome?.isNotEmpty ?? false))
+                        if (isEdit &&
+                            (widget.exercicioNome?.isNotEmpty ?? false))
                           Padding(
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 16.0, 16.0, 0.0),
@@ -473,10 +471,9 @@ class _TreinosNovoExercicioTreinoWidgetState
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w500,
-                                        fontStyle:
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
                                       ),
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
@@ -513,9 +510,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                           children: [
                             Expanded(
                               child: Padding(
-                                padding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 0.0, 4.0, 0.0),
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    16.0, 0.0, 4.0, 0.0),
                                 child: _buildNumericField(
                                   context,
                                   ctrl: _model.txtSeriesTextController!,
@@ -532,15 +528,13 @@ class _TreinosNovoExercicioTreinoWidgetState
                                   8.0, 0.0, 8.0, 0.0),
                               child: Text(
                                 'de',
-                                style:
-                                    FlutterFlowTheme.of(context).bodyMedium,
+                                style: FlutterFlowTheme.of(context).bodyMedium,
                               ),
                             ),
                             Expanded(
                               child: Padding(
-                                padding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        4.0, 0.0, 16.0, 0.0),
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    4.0, 0.0, 16.0, 0.0),
                                 child: _buildNumericField(
                                   context,
                                   ctrl: _model.txtRepetTextController!,
@@ -587,8 +581,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                                   .primaryBackground,
                               borderRadius: BorderRadius.circular(12.0),
                               border: Border.all(
-                                color: (_model.txtDescansoFocusNode
-                                            ?.hasFocus ??
+                                color: (_model.txtDescansoFocusNode?.hasFocus ??
                                         false)
                                     ? FlutterFlowTheme.of(context).primary
                                     : FlutterFlowTheme.of(context).alternate,
@@ -673,7 +666,11 @@ class _TreinosNovoExercicioTreinoWidgetState
                                           fontWeight: FontWeight.w500,
                                         ),
                                     maxLength: 4,
-                                    buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                                    buildCounter: (_,
+                                            {required currentLength,
+                                            required isFocused,
+                                            maxLength}) =>
+                                        null,
                                     keyboardType: TextInputType.number,
                                     cursorColor: FlutterFlowTheme.of(context)
                                         .primaryText,
@@ -687,15 +684,13 @@ class _TreinosNovoExercicioTreinoWidgetState
                                   ),
                                 ),
                                 Padding(
-                                  padding:
-                                      const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 12.0, 0.0),
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 12.0, 0.0),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: FlutterFlowTheme.of(context)
                                           .secondaryBackground,
-                                      borderRadius:
-                                          BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(4.0),
                                       border: Border.all(
                                         color: FlutterFlowTheme.of(context)
                                             .alternate,
@@ -720,8 +715,9 @@ class _TreinosNovoExercicioTreinoWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: FlutterFlowTheme.of(context)
-                                                  .secondaryText,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
                                               fontSize: 12.0,
                                               letterSpacing: 0.0,
                                             ),
@@ -795,8 +791,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                    color:
-                                        FlutterFlowTheme.of(context).primary,
+                                    color: FlutterFlowTheme.of(context).primary,
                                     width: 1.0),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
@@ -813,8 +808,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               filled: true,
-                              fillColor:
-                                  FlutterFlowTheme.of(context).primaryBackground,
+                              fillColor: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
                             ),
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
@@ -848,8 +843,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding:
@@ -871,10 +865,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                                         ),
                                         Expanded(
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                    8.0, 0.0, 0.0, 0.0),
+                                            padding: const EdgeInsetsDirectional
+                                                .fromSTEB(8.0, 0.0, 0.0, 0.0),
                                             child: Text(
                                               'Aquecimento',
                                               style: FlutterFlowTheme.of(
@@ -890,14 +882,12 @@ class _TreinosNovoExercicioTreinoWidgetState
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
-                                                    color:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .primaryText,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
                                                     fontSize: 18.0,
                                                     letterSpacing: 0.0,
-                                                    fontWeight:
-                                                        FontWeight.w500,
+                                                    fontWeight: FontWeight.w500,
                                                   ),
                                             ),
                                           ),
@@ -909,11 +899,9 @@ class _TreinosNovoExercicioTreinoWidgetState
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
                                             safeSetState(() {
-                                              _model
-                                                  .txtSeriesAqueTextController
+                                              _model.txtSeriesAqueTextController
                                                   ?.clear();
-                                              _model
-                                                  .txtRepetAqueTextController
+                                              _model.txtRepetAqueTextController
                                                   ?.clear();
                                             });
                                             if (animationsMap[
@@ -978,10 +966,8 @@ class _TreinosNovoExercicioTreinoWidgetState
                                       children: [
                                         Expanded(
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                    16.0, 0.0, 4.0, 0.0),
+                                            padding: const EdgeInsetsDirectional
+                                                .fromSTEB(16.0, 0.0, 4.0, 0.0),
                                             child: _buildNumericField(
                                               context,
                                               ctrl: _model
@@ -1003,16 +989,14 @@ class _TreinosNovoExercicioTreinoWidgetState
                                         ),
                                         Expanded(
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                    4.0, 0.0, 16.0, 0.0),
+                                            padding: const EdgeInsetsDirectional
+                                                .fromSTEB(4.0, 0.0, 16.0, 0.0),
                                             child: _buildNumericField(
                                               context,
                                               ctrl: _model
                                                   .txtRepetAqueTextController!,
-                                              focus: _model
-                                                  .txtRepetAqueFocusNode!,
+                                              focus:
+                                                  _model.txtRepetAqueFocusNode!,
                                               hint: '15',
                                             ),
                                           ),
@@ -1044,12 +1028,11 @@ class _TreinosNovoExercicioTreinoWidgetState
                                     null) {
                                   safeSetState(
                                       () => hasContainerTriggered2 = true);
-                                  SchedulerBinding.instance
-                                      .addPostFrameCallback((_) async =>
-                                          await animationsMap[
-                                                  'containerOnActionTriggerAnimation2']!
-                                              .controller
-                                              .forward(from: 0.0));
+                                  SchedulerBinding.instance.addPostFrameCallback(
+                                      (_) async => await animationsMap[
+                                              'containerOnActionTriggerAnimation2']!
+                                          .controller
+                                          .forward(from: 0.0));
                                 }
                                 _model.aquecimento = true;
                                 safeSetState(() {});
@@ -1060,8 +1043,7 @@ class _TreinosNovoExercicioTreinoWidgetState
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
                                   border: Border.all(
-                                    color:
-                                        FlutterFlowTheme.of(context).primary,
+                                    color: FlutterFlowTheme.of(context).primary,
                                     width: 1.0,
                                   ),
                                 ),
@@ -1115,8 +1097,7 @@ class _TreinosNovoExercicioTreinoWidgetState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
@@ -1147,21 +1128,17 @@ class _TreinosNovoExercicioTreinoWidgetState
                       _model.txtSeriesAqueTextController?.text.trim() ?? '');
                   final ra = int.tryParse(
                       _model.txtRepetAqueTextController?.text.trim() ?? '');
-                  final obs =
-                      _model.txtObsTextController?.text.trim() ?? '';
+                  final obs = _model.txtObsTextController?.text.trim() ?? '';
 
                   if (isEdit) {
-                    await SupaFlow.client
-                        .from('ExerciciosTreinos')
-                        .update({
-                          'SerieExecucao': s,
-                          'RepeticaoExecucao': r,
-                          'SerieAquecimento': sa,
-                          'RepeticaoAquecimento': ra,
-                          'TempoDescansoSegundos': d,
-                          'Observacao': obs.isEmpty ? null : obs,
-                        })
-                        .eq('Id', widget.etId!);
+                    await SupaFlow.client.from('ExerciciosTreinos').update({
+                      'SerieExecucao': s,
+                      'RepeticaoExecucao': r,
+                      'SerieAquecimento': sa,
+                      'RepeticaoAquecimento': ra,
+                      'TempoDescansoSegundos': d,
+                      'Observacao': obs.isEmpty ? null : obs,
+                    }).eq('Id', widget.etId!);
                   } else {
                     await SupaFlow.client.from('ExerciciosTreinos').insert({
                       'TreinosId': widget.treinoId,
@@ -1185,13 +1162,11 @@ class _TreinosNovoExercicioTreinoWidgetState
                   hasBeenTriggered: hasIconButtonTriggered1),
             ),
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
+                fillColor: FlutterFlowTheme.of(context).secondaryBackground,
                 icon: Icon(
                   FFIcons.kproperty1FiRrCrossSmall,
                   color: FlutterFlowTheme.of(context).secondaryText,
@@ -1230,14 +1205,13 @@ class _TreinosNovoExercicioTreinoWidgetState
       obscureText: false,
       decoration: InputDecoration(
         isDense: true,
-        contentPadding: const EdgeInsetsDirectional.fromSTEB(
-            12.0, 12.0, 12.0, 12.0),
+        contentPadding:
+            const EdgeInsetsDirectional.fromSTEB(12.0, 12.0, 12.0, 12.0),
         hintText: hint,
         hintStyle: FlutterFlowTheme.of(context).labelMedium.override(
               font: GoogleFonts.inter(
                 fontWeight: FontWeight.normal,
-                fontStyle:
-                    FlutterFlowTheme.of(context).labelMedium.fontStyle,
+                fontStyle: FlutterFlowTheme.of(context).labelMedium.fontStyle,
               ),
               color: FlutterFlowTheme.of(context).secondaryText,
               fontSize: 14.0,
@@ -1255,13 +1229,13 @@ class _TreinosNovoExercicioTreinoWidgetState
           borderRadius: BorderRadius.circular(12.0),
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: FlutterFlowTheme.of(context).error, width: 1.0),
+          borderSide:
+              BorderSide(color: FlutterFlowTheme.of(context).error, width: 1.0),
           borderRadius: BorderRadius.circular(12.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: FlutterFlowTheme.of(context).error, width: 1.0),
+          borderSide:
+              BorderSide(color: FlutterFlowTheme.of(context).error, width: 1.0),
           borderRadius: BorderRadius.circular(12.0),
         ),
         filled: true,
@@ -1270,20 +1244,17 @@ class _TreinosNovoExercicioTreinoWidgetState
       style: FlutterFlowTheme.of(context).bodyMedium.override(
             font: GoogleFonts.inter(
               fontWeight: FontWeight.w500,
-              fontStyle:
-                  FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
             ),
             letterSpacing: 0.0,
             fontWeight: FontWeight.w500,
           ),
       maxLength: 3,
-      buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-          null,
+      buildCounter:
+          (_, {required currentLength, required isFocused, maxLength}) => null,
       keyboardType: TextInputType.number,
       cursorColor: FlutterFlowTheme.of(context).primaryText,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d+$'))
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+$'))],
       validator: validator,
     );
   }

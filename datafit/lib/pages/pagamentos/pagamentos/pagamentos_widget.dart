@@ -820,16 +820,6 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                   ),
                 ],
               ),
-              Align(
-                alignment: AlignmentDirectional(0.0, 1.0),
-                child: wrapWithModel(
-                  model: _model.navbarModel,
-                  updateCallback: () => safeSetState(() {}),
-                  child: NavbarWidget(
-                    index: 3,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

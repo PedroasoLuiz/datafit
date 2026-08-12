@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'treinos_novo_treino_widget.dart';
 export 'treinos_novo_treino_widget.dart';
 
-class TreinosNovoTreinoModel
-    extends FlutterFlowModel<TreinosNovoTreinoWidget> {
+class TreinosNovoTreinoModel extends FlutterFlowModel<TreinosNovoTreinoWidget> {
   TextEditingController? txtNomeTextController;
   FocusNode? txtNomeFocusNode;
   String? Function(BuildContext, String?)? txtNomeTextControllerValidator;

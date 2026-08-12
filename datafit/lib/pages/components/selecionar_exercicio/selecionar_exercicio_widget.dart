@@ -185,275 +185,278 @@ class _SelecionarExercicioWidgetState extends State<SelecionarExercicioWidget>
       onTap: () {},
       behavior: HitTestBehavior.opaque,
       child: Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.secondaryBackground,
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // ── Header ───────────────────────────────────────
-                    Container(
-                      decoration: BoxDecoration(
-                        color: theme.accent1,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10.0),
-                          topRight: Radius.circular(10.0),
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Padding(
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.secondaryBackground,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ── Header ───────────────────────────────────────
+                      Container(
+                        decoration: BoxDecoration(
+                          color: theme.accent1,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10.0),
+                            topRight: Radius.circular(10.0),
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Selecionar Exercício',
-                                style: theme.bodyMedium.override(
-                                  font: GoogleFonts.inter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Selecionar Exercício',
+                                  style: theme.bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: theme.bodyMedium.fontStyle,
+                                    ),
+                                    color: theme.primaryText,
+                                    fontSize: 18.0,
+                                    letterSpacing: 0.0,
                                     fontWeight: FontWeight.bold,
-                                    fontStyle: theme.bodyMedium.fontStyle,
                                   ),
-                                  color: theme.primaryText,
-                                  fontSize: 18.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            Icon(
-                              FFIcons.kproperty1FiRrGym,
-                              color: theme.primary,
-                              size: 18.0,
-                            ),
-                          ].divide(const SizedBox(width: 8.0)),
+                              Icon(
+                                FFIcons.kproperty1FiRrGym,
+                                color: theme.primary,
+                                size: 18.0,
+                              ),
+                            ].divide(const SizedBox(width: 8.0)),
+                          ),
                         ),
                       ),
-                    ),
 
-                    // ── Campo de busca ───────────────────────────────
-                    Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
-                      child: TextFormField(
-                        controller: _model.buscaController,
-                        focusNode: _model.buscaFocusNode,
-                        onChanged: (v) => safeSetState(() {
-                          _model.buscaTexto = v;
-                          _model.itemsVisiveis = 15;
-                        }),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'Buscar exercício...',
-                          hintStyle: theme.labelMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FontWeight.normal,
-                              fontStyle: theme.labelMedium.fontStyle,
+                      // ── Campo de busca ───────────────────────────────
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
+                        child: TextFormField(
+                          controller: _model.buscaController,
+                          focusNode: _model.buscaFocusNode,
+                          onChanged: (v) => safeSetState(() {
+                            _model.buscaTexto = v;
+                            _model.itemsVisiveis = 15;
+                          }),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Buscar exercício...',
+                            hintStyle: theme.labelMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.normal,
+                                fontStyle: theme.labelMedium.fontStyle,
+                              ),
+                              color: theme.secondaryText,
+                              fontSize: 14.0,
+                              letterSpacing: 0.0,
                             ),
-                            color: theme.secondaryText,
+                            prefixIcon: Icon(
+                              Icons.search_rounded,
+                              color: theme.secondaryText,
+                              size: 18.0,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: theme.alternate, width: 1.0),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: theme.primary, width: 1.0),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: theme.primaryBackground,
+                            contentPadding:
+                                const EdgeInsetsDirectional.fromSTEB(
+                                    12.0, 10.0, 12.0, 10.0),
+                          ),
+                          style: theme.bodyMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FontWeight.w500,
+                              fontStyle: theme.bodyMedium.fontStyle,
+                            ),
                             fontSize: 14.0,
                             letterSpacing: 0.0,
                           ),
-                          prefixIcon: Icon(
-                            Icons.search_rounded,
-                            color: theme.secondaryText,
-                            size: 18.0,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: theme.alternate, width: 1.0),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: theme.primary, width: 1.0),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: theme.primaryBackground,
-                          contentPadding:
-                              const EdgeInsetsDirectional.fromSTEB(
-                                  12.0, 10.0, 12.0, 10.0),
-                        ),
-                        style: theme.bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FontWeight.w500,
-                            fontStyle: theme.bodyMedium.fontStyle,
-                          ),
-                          fontSize: 14.0,
-                          letterSpacing: 0.0,
                         ),
                       ),
-                    ),
 
-                    // ── Conteúdo ─────────────────────────────────────
-                    if (_model.isLoading)
-                      Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child:
-                            CircularProgressIndicator(color: theme.primary),
-                      )
-                    else if (filtrados.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(28.0),
-                        child: Text(
-                          _model.buscaTexto.isEmpty
-                              ? 'Nenhum exercício encontrado.'
-                              : 'Nenhum resultado para "${_model.buscaTexto}".',
-                          textAlign: TextAlign.center,
-                          style: theme.bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: theme.bodyMedium.fontWeight,
-                              fontStyle: theme.bodyMedium.fontStyle,
+                      // ── Conteúdo ─────────────────────────────────────
+                      if (_model.isLoading)
+                        Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child:
+                              CircularProgressIndicator(color: theme.primary),
+                        )
+                      else if (filtrados.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(28.0),
+                          child: Text(
+                            _model.buscaTexto.isEmpty
+                                ? 'Nenhum exercício encontrado.'
+                                : 'Nenhum resultado para "${_model.buscaTexto}".',
+                            textAlign: TextAlign.center,
+                            style: theme.bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: theme.bodyMedium.fontWeight,
+                                fontStyle: theme.bodyMedium.fontStyle,
+                              ),
+                              color: theme.secondaryText,
+                              letterSpacing: 0.0,
                             ),
-                            color: theme.secondaryText,
-                            letterSpacing: 0.0,
                           ),
-                        ),
-                      )
-                    else
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              MediaQuery.of(context).size.height * 0.48,
-                        ),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListView.separated(
-                                shrinkWrap: true,
-                                primary: false,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.zero,
-                                itemCount: visiveis,
-                                separatorBuilder: (_, __) => Divider(
-                                  height: 1.0,
-                                  thickness: 1.0,
-                                  indent: 16.0,
-                                  endIndent: 16.0,
-                                  color: theme.alternate,
+                        )
+                      else
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                MediaQuery.of(context).size.height * 0.48,
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  primary: false,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: visiveis,
+                                  separatorBuilder: (_, __) => Divider(
+                                    height: 1.0,
+                                    thickness: 1.0,
+                                    indent: 16.0,
+                                    endIndent: 16.0,
+                                    color: theme.alternate,
+                                  ),
+                                  itemBuilder: (_, index) {
+                                    final exercicio = filtrados[index];
+                                    return InkWell(
+                                      onTap: () => _fechar(exercicio),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0, vertical: 14.0),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 36.0,
+                                              height: 36.0,
+                                              decoration: BoxDecoration(
+                                                color: theme.accent1,
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              child: Align(
+                                                alignment:
+                                                    const AlignmentDirectional(
+                                                        0.0, 0.0),
+                                                child: Icon(
+                                                  FFIcons.kproperty1FiRrGym,
+                                                  color: theme.primary,
+                                                  size: 18.0,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12.0),
+                                            Expanded(
+                                              child: Text(
+                                                exercicio.nome,
+                                                style:
+                                                    theme.bodyMedium.override(
+                                                  font: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontStyle: theme
+                                                        .bodyMedium.fontStyle,
+                                                  ),
+                                                  fontSize: 14.0,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons
+                                                  .keyboard_arrow_right_rounded,
+                                              color: theme.secondaryText,
+                                              size: 18.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                itemBuilder: (_, index) {
-                                  final exercicio = filtrados[index];
-                                  return InkWell(
-                                    onTap: () => _fechar(exercicio),
+                                if (temMais)
+                                  InkWell(
+                                    onTap: () => safeSetState(
+                                        () => _model.itemsVisiveis += 15),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0, vertical: 14.0),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 36.0,
-                                            height: 36.0,
-                                            decoration: BoxDecoration(
-                                              color: theme.accent1,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Align(
-                                              alignment:
-                                                  const AlignmentDirectional(
-                                                      0.0, 0.0),
-                                              child: Icon(
-                                                FFIcons.kproperty1FiRrGym,
-                                                color: theme.primary,
-                                                size: 18.0,
-                                              ),
-                                            ),
+                                          vertical: 14.0),
+                                      child: Text(
+                                        'Ver mais (${filtrados.length - _model.itemsVisiveis} restantes)',
+                                        style: theme.bodyMedium.override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                theme.bodyMedium.fontStyle,
                                           ),
-                                          const SizedBox(width: 12.0),
-                                          Expanded(
-                                            child: Text(
-                                              exercicio.nome,
-                                              style: theme.bodyMedium.override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontStyle: theme
-                                                      .bodyMedium.fontStyle,
-                                                ),
-                                                fontSize: 14.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.keyboard_arrow_right_rounded,
-                                            color: theme.secondaryText,
-                                            size: 18.0,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              if (temMais)
-                                InkWell(
-                                  onTap: () => safeSetState(
-                                      () => _model.itemsVisiveis += 15),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14.0),
-                                    child: Text(
-                                      'Ver mais (${filtrados.length - _model.itemsVisiveis} restantes)',
-                                      style: theme.bodyMedium.override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              theme.bodyMedium.fontStyle,
+                                          color: theme.primary,
+                                          fontSize: 13.0,
+                                          letterSpacing: 0.0,
                                         ),
-                                        color: theme.primary,
-                                        fontSize: 13.0,
-                                        letterSpacing: 0.0,
                                       ),
                                     ),
                                   ),
-                                ),
-                              const SizedBox(height: 8.0),
-                            ],
+                                const SizedBox(height: 8.0),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+            ).animateOnActionTrigger(
+              animationsMap['cardOnActionTriggerAnimation']!,
+              hasBeenTriggered: hasCardTriggered,
             ),
-          ).animateOnActionTrigger(
-            animationsMap['cardOnActionTriggerAnimation']!,
-            hasBeenTriggered: hasCardTriggered,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
-          child: FlutterFlowIconButton(
-            borderRadius: 20.0,
-            buttonSize: 56.0,
-            fillColor: theme.secondaryBackground,
-            icon: Icon(
-              FFIcons.kproperty1FiRrCrossSmall,
-              color: theme.secondaryText,
-              size: 24.0,
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
+            child: FlutterFlowIconButton(
+              borderRadius: 20.0,
+              buttonSize: 56.0,
+              fillColor: theme.secondaryBackground,
+              icon: Icon(
+                FFIcons.kproperty1FiRrCrossSmall,
+                color: theme.secondaryText,
+                size: 24.0,
+              ),
+              onPressed: _fechar,
+            ).animateOnActionTrigger(
+              animationsMap['closeButtonOnActionTriggerAnimation']!,
+              hasBeenTriggered: hasBtn1Triggered,
             ),
-            onPressed: _fechar,
-          ).animateOnActionTrigger(
-            animationsMap['closeButtonOnActionTriggerAnimation']!,
-            hasBeenTriggered: hasBtn1Triggered,
           ),
-        ),
-      ]
-          .divide(const SizedBox(height: 16.0))
-          .addToStart(const SizedBox(height: 40.0))
-          .addToEnd(const SizedBox(height: 40.0)),
+        ]
+            .divide(const SizedBox(height: 16.0))
+            .addToStart(const SizedBox(height: 40.0))
+            .addToEnd(const SizedBox(height: 40.0)),
       ),
     );
   }

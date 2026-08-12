@@ -111,12 +111,11 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
     _model.txtCoxaDirTextController ??= TextEditingController();
     _model.txtCoxaDirFocusNode ??= FocusNode();
 
-    _model.txtChavePixTextController ??= TextEditingController(
-        text: FFAppState().perfil.chavePix);
+    _model.txtChavePixTextController ??=
+        TextEditingController(text: FFAppState().perfil.chavePix);
     _model.txtChavePixFocusNode ??= FocusNode();
-    _model.dpTipoPixValue = FFAppState().perfil.hasTipoPix()
-        ? FFAppState().perfil.tipoPix
-        : null;
+    _model.dpTipoPixValue =
+        FFAppState().perfil.hasTipoPix() ? FFAppState().perfil.tipoPix : null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       safeSetState(() {
@@ -2626,8 +2625,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                               .override(
                                 font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600),
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryText,
+                                color:
+                                    FlutterFlowTheme.of(context).secondaryText,
                                 letterSpacing: 0.0,
                               ),
                         ),
@@ -2638,13 +2637,10 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                         child: Container(
                           width: MediaQuery.sizeOf(context).width * 1.0,
                           decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .primaryBackground,
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
                             boxShadow: [
-                              FlutterFlowTheme.of(context)
-                                  .designToken
-                                  .shadow
-                                  .lg
+                              FlutterFlowTheme.of(context).designToken.shadow.lg
                             ],
                             borderRadius: BorderRadius.circular(16.0),
                           ),
@@ -2655,12 +2651,36 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ...[
-                                  (label: 'Braço direito', ctrl: _model.txtBracoDirTextController!, focus: _model.txtBracoDirFocusNode!),
-                                  (label: 'Peitoral',      ctrl: _model.txtPeitoralTextController!, focus: _model.txtPeitoralFocusNode!),
-                                  (label: 'Cintura',       ctrl: _model.txtCinturaTextController!,  focus: _model.txtCinturaFocusNode!),
-                                  (label: 'Abdômen',       ctrl: _model.txtAbdomenTextController!,  focus: _model.txtAbdomenFocusNode!),
-                                  (label: 'Quadril',       ctrl: _model.txtQuadrilTextController!,  focus: _model.txtQuadrilFocusNode!),
-                                  (label: 'Coxa direita',  ctrl: _model.txtCoxaDirTextController!,  focus: _model.txtCoxaDirFocusNode!),
+                                  (
+                                    label: 'Braço direito',
+                                    ctrl: _model.txtBracoDirTextController!,
+                                    focus: _model.txtBracoDirFocusNode!
+                                  ),
+                                  (
+                                    label: 'Peitoral',
+                                    ctrl: _model.txtPeitoralTextController!,
+                                    focus: _model.txtPeitoralFocusNode!
+                                  ),
+                                  (
+                                    label: 'Cintura',
+                                    ctrl: _model.txtCinturaTextController!,
+                                    focus: _model.txtCinturaFocusNode!
+                                  ),
+                                  (
+                                    label: 'Abdômen',
+                                    ctrl: _model.txtAbdomenTextController!,
+                                    focus: _model.txtAbdomenFocusNode!
+                                  ),
+                                  (
+                                    label: 'Quadril',
+                                    ctrl: _model.txtQuadrilTextController!,
+                                    focus: _model.txtQuadrilFocusNode!
+                                  ),
+                                  (
+                                    label: 'Coxa direita',
+                                    ctrl: _model.txtCoxaDirTextController!,
+                                    focus: _model.txtCoxaDirFocusNode!
+                                  ),
                                 ].map((f) => Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           0.0, 0.0, 6.0, 0.0),
@@ -2677,10 +2697,9 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                   font: GoogleFonts.inter(
                                                       fontWeight:
                                                           FontWeight.w500),
-                                                  color:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .secondaryText,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
                                                   letterSpacing: 0.0,
                                                 ),
                                           ),
@@ -2697,21 +2716,21 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                               decoration: InputDecoration(
                                                 isDense: true,
                                                 hintText: '0.0',
-                                                hintStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                hintStyle: FlutterFlowTheme.of(
+                                                        context)
+                                                    .labelMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .secondaryText,
-                                                          letterSpacing: 0.0,
-                                                        ),
-                                                enabledBorder: OutlineInputBorder(
+                                                      letterSpacing: 0.0,
+                                                    ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Color(0x00000000),
                                                       width: 1.0),
@@ -2719,7 +2738,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       BorderRadius.circular(
                                                           12.0),
                                                 ),
-                                                focusedBorder: OutlineInputBorder(
+                                                focusedBorder:
+                                                    OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Color(0x00000000),
                                                       width: 1.0),
@@ -2733,8 +2753,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                         .primaryBackground,
                                                 contentPadding:
                                                     EdgeInsetsDirectional
-                                                        .fromSTEB(
-                                                            0.0, 12.0, 10.0, 12.0),
+                                                        .fromSTEB(0.0, 12.0,
+                                                            10.0, 12.0),
                                               ),
                                               style:
                                                   FlutterFlowTheme.of(context)
@@ -2742,7 +2762,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       .override(
                                                         font: GoogleFonts.inter(
                                                             fontWeight:
-                                                                FontWeight.w500),
+                                                                FontWeight
+                                                                    .w500),
                                                         letterSpacing: 0.0,
                                                       ),
                                             ),
@@ -2759,10 +2780,9 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                 borderRadius:
                                                     BorderRadius.circular(6.0),
                                                 border: Border.all(
-                                                  color:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .alternate,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .alternate,
                                                 ),
                                               ),
                                               child: Padding(
@@ -2771,21 +2791,21 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                     vertical: 2.0),
                                                 child: Text(
                                                   'cm',
-                                                  style:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts.inter(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
                                                                 .secondaryText,
-                                                            fontSize: 12.0,
-                                                            letterSpacing: 0.0,
-                                                          ),
+                                                        fontSize: 12.0,
+                                                        letterSpacing: 0.0,
+                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -2858,9 +2878,9 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                 font: GoogleFonts.inter(
                                                     fontWeight:
                                                         FontWeight.w500),
-                                                color: FlutterFlowTheme.of(
-                                                        context)
-                                                    .secondaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryText,
                                                 letterSpacing: 0.0,
                                               ),
                                         ),
@@ -2879,18 +2899,26 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                     font: GoogleFonts.inter(
                                                         fontWeight:
                                                             FontWeight.w500),
-                                                    color:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .secondaryText,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
                                                     letterSpacing: 0.0,
                                                   ),
                                             ),
-                                            items: ['CPF', 'CNPJ', 'Email', 'Telefone', 'Aleatória']
+                                            items: [
+                                              'CPF',
+                                              'CNPJ',
+                                              'Email',
+                                              'Telefone',
+                                              'Aleatória'
+                                            ]
                                                 .map((t) => DropdownMenuItem(
                                                     value: t,
                                                     child: Text(t,
-                                                        style: FlutterFlowTheme.of(context).bodyMedium)))
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium)))
                                                 .toList(),
                                             onChanged: (val) => safeSetState(
                                                 () => _model.dpTipoPixValue =
@@ -2934,16 +2962,16 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                 font: GoogleFonts.inter(
                                                     fontWeight:
                                                         FontWeight.w500),
-                                                color: FlutterFlowTheme.of(
-                                                        context)
-                                                    .secondaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryText,
                                                 letterSpacing: 0.0,
                                               ),
                                         ),
                                         Expanded(
                                           child: TextFormField(
-                                            controller:
-                                                _model.txtChavePixTextController,
+                                            controller: _model
+                                                .txtChavePixTextController,
                                             focusNode:
                                                 _model.txtChavePixFocusNode,
                                             textAlign: TextAlign.end,
@@ -2957,10 +2985,9 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                     font: GoogleFonts.inter(
                                                         fontWeight:
                                                             FontWeight.w500),
-                                                    color:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .secondaryText,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
                                                     letterSpacing: 0.0,
                                                   ),
                                               enabledBorder: OutlineInputBorder(
@@ -2983,8 +3010,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       .primaryBackground,
                                               contentPadding:
                                                   EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 12.0, 10.0, 12.0),
+                                                      .fromSTEB(0.0, 12.0, 10.0,
+                                                          12.0),
                                             ),
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
@@ -3048,8 +3075,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 10.0, vertical: 4.0),
                                 decoration: BoxDecoration(
-                                  color:
-                                      FlutterFlowTheme.of(context).primary,
+                                  color: FlutterFlowTheme.of(context).primary,
                                   borderRadius: BorderRadius.circular(20.0),
                                 ),
                                 child: Row(
@@ -3151,8 +3177,9 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                           Divider(
                                               thickness: 1.0,
                                               height: 1.0,
-                                              color: FlutterFlowTheme.of(context)
-                                                  .alternate),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate),
                                         Padding(
                                           padding:
                                               EdgeInsetsDirectional.fromSTEB(
@@ -3171,21 +3198,20 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                   decoration: InputDecoration(
                                                     isDense: true,
                                                     hintText: 'Nome',
-                                                    hintStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .labelMedium
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              letterSpacing: 0.0,
-                                                            ),
+                                                    hintStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .labelMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryText,
+                                                          letterSpacing: 0.0,
+                                                        ),
                                                     enabledBorder:
                                                         OutlineInputBorder(
                                                       borderSide: BorderSide(
@@ -3222,10 +3248,12 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       .override(
                                                         font: GoogleFonts.inter(
                                                             fontWeight:
-                                                                FontWeight.w500),
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryText,
+                                                                FontWeight
+                                                                    .w500),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
                                                         letterSpacing: 0.0,
                                                       ),
                                                 ),
@@ -3242,22 +3270,21 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                   decoration: InputDecoration(
                                                     isDense: true,
                                                     hintText: '0',
-                                                    hintStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .labelMedium
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              fontSize: 14.0,
-                                                              letterSpacing: 0.0,
-                                                            ),
+                                                    hintStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .labelMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryText,
+                                                          fontSize: 14.0,
+                                                          letterSpacing: 0.0,
+                                                        ),
                                                     enabledBorder:
                                                         OutlineInputBorder(
                                                       borderSide: BorderSide(
@@ -3294,7 +3321,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       .override(
                                                         font: GoogleFonts.inter(
                                                             fontWeight:
-                                                                FontWeight.w500),
+                                                                FontWeight
+                                                                    .w500),
                                                         letterSpacing: 0.0,
                                                       ),
                                                 ),
@@ -3306,7 +3334,8 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   borderRadius:
-                                                      BorderRadius.circular(6.0),
+                                                      BorderRadius.circular(
+                                                          6.0),
                                                   border: Border.all(
                                                       color:
                                                           FlutterFlowTheme.of(
@@ -3320,8 +3349,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                   child: IntrinsicWidth(
                                                     child: TextFormField(
                                                       controller: _model
-                                                          .campoUnidadeControllers[
-                                                              i],
+                                                          .campoUnidadeControllers[i],
                                                       textAlign:
                                                           TextAlign.center,
                                                       minLines: 1,
@@ -3335,15 +3363,15 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                                     context)
                                                                 .bodyMedium
                                                                 .override(
-                                                                  font: GoogleFonts
-                                                                      .inter(
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
-                                                                  color: FlutterFlowTheme
-                                                                          .of(
-                                                                              context)
+                                                                  font: GoogleFonts.inter(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
                                                                       .secondaryText,
-                                                                  fontSize: 12.0,
+                                                                  fontSize:
+                                                                      12.0,
                                                                   letterSpacing:
                                                                       0.0,
                                                                 ),
@@ -3353,13 +3381,12 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                                   context)
                                                               .bodyMedium
                                                               .override(
-                                                                font: GoogleFonts
-                                                                    .inter(
-                                                                        fontWeight:
-                                                                            FontWeight.w500),
-                                                                color: FlutterFlowTheme
-                                                                        .of(
-                                                                            context)
+                                                                font: GoogleFonts.inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
                                                                     .secondaryText,
                                                                 fontSize: 12.0,
                                                                 letterSpacing:
@@ -3611,22 +3638,54 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                             }
                                             // Save optional body measurements
                                             for (final entry in [
-                                              (ctrl: _model.txtBracoDirTextController, tipo: 1),
-                                              (ctrl: _model.txtPeitoralTextController, tipo: 5),
-                                              (ctrl: _model.txtCinturaTextController, tipo: 6),
-                                              (ctrl: _model.txtAbdomenTextController, tipo: 7),
-                                              (ctrl: _model.txtQuadrilTextController, tipo: 8),
-                                              (ctrl: _model.txtCoxaDirTextController, tipo: 9),
+                                              (
+                                                ctrl: _model
+                                                    .txtBracoDirTextController,
+                                                tipo: 1
+                                              ),
+                                              (
+                                                ctrl: _model
+                                                    .txtPeitoralTextController,
+                                                tipo: 5
+                                              ),
+                                              (
+                                                ctrl: _model
+                                                    .txtCinturaTextController,
+                                                tipo: 6
+                                              ),
+                                              (
+                                                ctrl: _model
+                                                    .txtAbdomenTextController,
+                                                tipo: 7
+                                              ),
+                                              (
+                                                ctrl: _model
+                                                    .txtQuadrilTextController,
+                                                tipo: 8
+                                              ),
+                                              (
+                                                ctrl: _model
+                                                    .txtCoxaDirTextController,
+                                                tipo: 9
+                                              ),
                                             ]) {
-                                              final txt = entry.ctrl?.text.trim() ?? '';
+                                              final txt =
+                                                  entry.ctrl?.text.trim() ?? '';
                                               if (txt.isNotEmpty) {
-                                                final valor = double.tryParse(txt.replaceAll(',', '.'));
-                                                if (valor != null && valor > 0) {
-                                                  await PerimetrosCorporaisTable().insert({
+                                                final valor = double.tryParse(
+                                                    txt.replaceAll(',', '.'));
+                                                if (valor != null &&
+                                                    valor > 0) {
+                                                  await PerimetrosCorporaisTable()
+                                                      .insert({
                                                     'PerfisId': currentUserUid,
-                                                    'TiposPerimetroId': entry.tipo,
+                                                    'TiposPerimetroId':
+                                                        entry.tipo,
                                                     'ValorCm': valor,
-                                                    'DataRegistro': DateTime.now().toIso8601String().split('T')[0],
+                                                    'DataRegistro':
+                                                        DateTime.now()
+                                                            .toIso8601String()
+                                                            .split('T')[0],
                                                   });
                                                 }
                                               }

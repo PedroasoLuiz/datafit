@@ -325,8 +325,7 @@ class _SelecionarTreinoAlunoWidgetState
 
                     // ── Campo de busca ───────────────────────────────
                     Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
+                      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
                       child: TextFormField(
                         controller: _model.buscaController,
                         focusNode: _model.buscaFocusNode,
@@ -363,9 +362,8 @@ class _SelecionarTreinoAlunoWidgetState
                           ),
                           filled: true,
                           fillColor: theme.primaryBackground,
-                          contentPadding:
-                              const EdgeInsetsDirectional.fromSTEB(
-                                  12.0, 10.0, 12.0, 10.0),
+                          contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                              12.0, 10.0, 12.0, 10.0),
                         ),
                         style: theme.bodyMedium.override(
                           font: GoogleFonts.inter(
@@ -382,8 +380,7 @@ class _SelecionarTreinoAlunoWidgetState
                     if (_model.isLoading)
                       Padding(
                         padding: const EdgeInsets.all(32.0),
-                        child:
-                            CircularProgressIndicator(color: theme.primary),
+                        child: CircularProgressIndicator(color: theme.primary),
                       )
                     else if (_model.emExecucao)
                       Padding(
@@ -442,8 +439,7 @@ class _SelecionarTreinoAlunoWidgetState
                     else
                       ConstrainedBox(
                         constraints: BoxConstraints(
-                          maxHeight:
-                              MediaQuery.of(context).size.height * 0.45,
+                          maxHeight: MediaQuery.of(context).size.height * 0.45,
                         ),
                         child: SingleChildScrollView(
                           child: Column(
@@ -466,8 +462,7 @@ class _SelecionarTreinoAlunoWidgetState
                                   final treino = filtrados[index];
                                   final selecionado = treino.grupoTreinoId ==
                                       widget.grupoTreinoIdAtual;
-                                  final count =
-                                      treino.subagrupamentos.length;
+                                  final count = treino.subagrupamentos.length;
                                   final displayName = treino.nome.isNotEmpty
                                       ? treino.nome
                                       : 'Treino sem nome';
@@ -498,8 +493,7 @@ class _SelecionarTreinoAlunoWidgetState
                                               child: Icon(
                                                 selecionado
                                                     ? Icons.check_rounded
-                                                    : FFIcons
-                                                        .kproperty1FiRrGym,
+                                                    : FFIcons.kproperty1FiRrGym,
                                                 color: selecionado
                                                     ? Colors.white
                                                     : theme.primary,
@@ -516,22 +510,20 @@ class _SelecionarTreinoAlunoWidgetState
                                               children: [
                                                 Text(
                                                   displayName,
-                                                  style: theme.bodyMedium
-                                                      .override(
+                                                  style:
+                                                      theme.bodyMedium.override(
                                                     font: GoogleFonts.inter(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle: theme
-                                                          .bodyMedium
-                                                          .fontStyle,
+                                                          .bodyMedium.fontStyle,
                                                     ),
                                                     color: selecionado
                                                         ? theme.primary
                                                         : theme.primaryText,
                                                     fontSize: 14.0,
                                                     letterSpacing: 0.0,
-                                                    fontWeight:
-                                                        FontWeight.w600,
+                                                    fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 if (count > 0)
@@ -564,8 +556,7 @@ class _SelecionarTreinoAlunoWidgetState
                                                 color: theme.primary,
                                                 size: 18.0)
                                           else
-                                            Icon(
-                                                Icons.radio_button_off_rounded,
+                                            Icon(Icons.radio_button_off_rounded,
                                                 color: theme.secondaryText,
                                                 size: 18.0),
                                         ],
@@ -586,8 +577,7 @@ class _SelecionarTreinoAlunoWidgetState
                                       style: theme.bodyMedium.override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              theme.bodyMedium.fontStyle,
+                                          fontStyle: theme.bodyMedium.fontStyle,
                                         ),
                                         color: theme.primary,
                                         fontSize: 13.0,

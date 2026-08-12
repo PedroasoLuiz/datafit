@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 
-class InformarPagamentoModel
-    extends FlutterFlowModel<InformarPagamentoWidget> {
+class InformarPagamentoModel extends FlutterFlowModel<InformarPagamentoWidget> {
   DateTime? dataSelecionada;
   bool isLoading = false;
 

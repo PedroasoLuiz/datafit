@@ -318,7 +318,8 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12.0),
                             onTap: () async {
-                              final result = await showModalBottomSheet<ExerciciossimplyStruct>(
+                              final result = await showModalBottomSheet<
+                                  ExerciciossimplyStruct>(
                                 context: context,
                                 isScrollControlled: true,
                                 enableDrag: false,
@@ -342,7 +343,8 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                               width: MediaQuery.sizeOf(context).width * 1.0,
                               height: 40.0,
                               decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context).primaryBackground,
+                                color: FlutterFlowTheme.of(context)
+                                    .primaryBackground,
                                 borderRadius: BorderRadius.circular(12.0),
                                 border: Border.all(
                                   color: FlutterFlowTheme.of(context).alternate,
@@ -369,9 +371,13 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: _model.exercicioSelecionadoNome.isEmpty
-                                                  ? FlutterFlowTheme.of(context).secondaryText
-                                                  : FlutterFlowTheme.of(context).primaryText,
+                                              color: _model
+                                                      .exercicioSelecionadoNome
+                                                      .isEmpty
+                                                  ? FlutterFlowTheme.of(context)
+                                                      .secondaryText
+                                                  : FlutterFlowTheme.of(context)
+                                                      .primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w500,
@@ -380,7 +386,8 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                                     ),
                                     Icon(
                                       Icons.keyboard_arrow_down_rounded,
-                                      color: FlutterFlowTheme.of(context).primary,
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
                                       size: 24.0,
                                     ),
                                   ],
@@ -1856,8 +1863,7 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                     try {
                       final treinoExecRows =
                           await TreinosExecucaoTable().queryRows(
-                        queryFn: (q) =>
-                            q.eq('Id', widget!.treinoExecucaoId!),
+                        queryFn: (q) => q.eq('Id', widget!.treinoExecucaoId!),
                       );
                       final treinosId = treinoExecRows.first.treinosId;
                       await ExerciciosTreinosTable().insert({
@@ -1867,8 +1873,8 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                             int.tryParse(_model.txtSeriesTextController.text),
                         'RepeticaoExecucao':
                             int.tryParse(_model.txtRepetTextController.text),
-                        'TempoDescansoSegundos': int.tryParse(
-                            _model.txtDescansoTextController.text),
+                        'TempoDescansoSegundos':
+                            int.tryParse(_model.txtDescansoTextController.text),
                         'SerieAquecimento': int.tryParse(
                             _model.txtSeriesAqueTextController.text),
                         'RepeticaoAquecimento': int.tryParse(
@@ -1916,8 +1922,7 @@ class _AlunosNovoExercicioWidgetState extends State<AlunosNovoExercicioWidget>
                             'Erro ao salvar exercício. Tente novamente.',
                             style: TextStyle(color: Colors.white),
                           ),
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).error,
+                          backgroundColor: FlutterFlowTheme.of(context).error,
                           duration: const Duration(seconds: 3),
                         ),
                       );

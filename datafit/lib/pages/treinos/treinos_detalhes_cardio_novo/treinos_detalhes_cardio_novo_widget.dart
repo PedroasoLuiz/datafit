@@ -518,41 +518,27 @@ class _TreinosDetalhesCardioNovoWidgetState
                                 ),
                               ),
                               child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(12.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 0.0, 0.0, 12.0),
-                                              child: Text(
-                                                'Distância',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 12.0),
+                                            child: Text(
+                                              'Distância',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
                                                       fontWeight:
                                                           FontWeight.w500,
                                                       fontStyle:
@@ -561,51 +547,47 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
-                                              ),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
                                             ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      valueOrDefault<String>(
-                                                        formatNumber(
-                                                          _model.distancia,
-                                                          formatType:
-                                                              FormatType.custom,
-                                                          format: '#,##0.0',
-                                                          locale: 'pt-br',
-                                                        ),
-                                                        '0',
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    valueOrDefault<String>(
+                                                      formatNumber(
+                                                        _model.distancia,
+                                                        formatType:
+                                                            FormatType.custom,
+                                                        format: '#,##0.0',
+                                                        locale: 'pt-br',
                                                       ),
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts
-                                                                .inter(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                            ),
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                            fontSize: 30.0,
-                                                            letterSpacing: 0.0,
+                                                      '0',
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             fontStyle:
@@ -614,160 +596,164 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                                     .bodyMedium
                                                                     .fontStyle,
                                                           ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontSize: 30.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                  ),
+                                                  FlutterFlowDropDown<String>(
+                                                    controller: _model
+                                                            .dpKmValueController ??=
+                                                        FormFieldController<
+                                                            String>(
+                                                      _model.dpKmValue ??= 'KM',
                                                     ),
-                                                    FlutterFlowDropDown<String>(
-                                                      controller: _model
-                                                              .dpKmValueController ??=
-                                                          FormFieldController<
-                                                              String>(
-                                                        _model.dpKmValue ??=
-                                                            'KM',
-                                                      ),
-                                                      options: ['M', 'KM'],
-                                                      onChanged: (val) =>
-                                                          safeSetState(() =>
-                                                              _model.dpKmValue =
-                                                                  val),
-                                                      width: 42.0,
-                                                      height: 24.0,
-                                                      textStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondary,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontStyle: FlutterFlowTheme.of(
+                                                    options: ['M', 'KM'],
+                                                    onChanged: (val) =>
+                                                        safeSetState(() =>
+                                                            _model.dpKmValue =
+                                                                val),
+                                                    width: 42.0,
+                                                    height: 24.0,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
                                                                     .fontStyle,
-                                                              ),
-                                                      icon: Icon(
-                                                        Icons
-                                                            .keyboard_arrow_down_rounded,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                        size: 16.0,
-                                                      ),
-                                                      fillColor:
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondary,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                    icon: Icon(
+                                                      Icons
+                                                          .keyboard_arrow_down_rounded,
+                                                      color:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .primaryBackground,
-                                                      elevation: 2.0,
-                                                      borderColor:
-                                                          Colors.transparent,
-                                                      borderWidth: 0.0,
-                                                      borderRadius: 0.0,
-                                                      margin:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  4.0,
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      hidesUnderline: true,
-                                                      isOverButton: false,
-                                                      isSearchable: false,
-                                                      isMultiSelect: false,
+                                                              .secondary,
+                                                      size: 16.0,
                                                     ),
-                                                  ].divide(
-                                                      SizedBox(width: 8.0)),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                                    fillColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .primaryBackground,
+                                                    elevation: 2.0,
+                                                    borderColor:
+                                                        Colors.transparent,
+                                                    borderWidth: 0.0,
+                                                    borderRadius: 0.0,
+                                                    margin:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(4.0, 0.0,
+                                                                0.0, 0.0),
+                                                    hidesUnderline: true,
+                                                    isOverButton: false,
+                                                    isSearchable: false,
+                                                    isMultiSelect: false,
+                                                  ),
+                                                ].divide(SizedBox(width: 8.0)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 12.0, 22.0, 12.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          FlutterFlowIconButton(
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 12.0, 22.0, 12.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        FlutterFlowIconButton(
+                                          borderRadius: 12.0,
+                                          buttonSize: 40.0,
+                                          fillColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .accent1,
+                                          disabledColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .alternate,
+                                          disabledIconColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .secondaryText,
+                                          icon: Icon(
+                                            FFIcons.kproperty1FiRrMinusSmall,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            size: 20.0,
+                                          ),
+                                          onPressed: (_model.distancia <= 0.0)
+                                              ? null
+                                              : () async {
+                                                  _model.distancia =
+                                                      _model.distancia + -1.0;
+                                                  safeSetState(() {});
+                                                },
+                                        ),
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onLongPress: () async {
+                                            _model.distancia =
+                                                _model.distancia + 10.0;
+                                            safeSetState(() {});
+                                          },
+                                          child: FlutterFlowIconButton(
                                             borderRadius: 12.0,
                                             buttonSize: 40.0,
                                             fillColor:
                                                 FlutterFlowTheme.of(context)
-                                                    .accent1,
-                                            disabledColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .alternate,
-                                            disabledIconColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                                    .primary,
                                             icon: Icon(
-                                              FFIcons.kproperty1FiRrMinusSmall,
+                                              FFIcons.kproperty1FiRrPlusSmall,
                                               color:
                                                   FlutterFlowTheme.of(context)
-                                                      .primary,
+                                                      .primaryBackground,
                                               size: 20.0,
                                             ),
-                                            onPressed: (_model.distancia <= 0.0)
-                                                ? null
-                                                : () async {
-                                                    _model.distancia =
-                                                        _model.distancia + -1.0;
-                                                    safeSetState(() {});
-                                                  },
-                                          ),
-                                          InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onLongPress: () async {
+                                            onPressed: () async {
                                               _model.distancia =
-                                                  _model.distancia + 10.0;
+                                                  _model.distancia + 1.0;
                                               safeSetState(() {});
                                             },
-                                            child: FlutterFlowIconButton(
-                                              borderRadius: 12.0,
-                                              buttonSize: 40.0,
-                                              fillColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              icon: Icon(
-                                                FFIcons.kproperty1FiRrPlusSmall,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryBackground,
-                                                size: 20.0,
-                                              ),
-                                              onPressed: () async {
-                                                _model.distancia =
-                                                    _model.distancia + 1.0;
-                                                safeSetState(() {});
-                                              },
-                                            ),
                                           ),
-                                        ].divide(SizedBox(width: 8.0)),
-                                      ),
+                                        ),
+                                      ].divide(SizedBox(width: 8.0)),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                            ),
                             Divider(
                               height: 1.0,
                               thickness: 1.0,
@@ -795,8 +781,8 @@ class _TreinosDetalhesCardioNovoWidgetState
                                             CrossAxisAlignment.start,
                                         children: [
                                           Padding(
-                                            padding: EdgeInsetsDirectional
-                                                .fromSTEB(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
                                                     0.0, 0.0, 0.0, 12.0),
                                             child: Text(
                                               'Horas',
@@ -889,16 +875,15 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                               .primary,
                                                       size: 20.0,
                                                     ),
-                                                    onPressed:
-                                                        (_model.horas <= 0)
-                                                            ? null
-                                                            : () async {
-                                                                _model.horas =
-                                                                    _model.horas -
-                                                                        1;
-                                                                safeSetState(
-                                                                    () {});
-                                                              },
+                                                    onPressed: (_model.horas <=
+                                                            0)
+                                                        ? null
+                                                        : () async {
+                                                            _model.horas =
+                                                                _model.horas -
+                                                                    1;
+                                                            safeSetState(() {});
+                                                          },
                                                   ),
                                                   FlutterFlowIconButton(
                                                     borderRadius: 12.0,
@@ -910,10 +895,9 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                     icon: Icon(
                                                       FFIcons
                                                           .kproperty1FiRrPlusSmall,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryBackground,
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
                                                       size: 20.0,
                                                     ),
                                                     onPressed: () async {
@@ -948,8 +932,8 @@ class _TreinosDetalhesCardioNovoWidgetState
                                             CrossAxisAlignment.start,
                                         children: [
                                           Padding(
-                                            padding: EdgeInsetsDirectional
-                                                .fromSTEB(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
                                                     0.0, 0.0, 0.0, 12.0),
                                             child: Text(
                                               'Minutos',
@@ -1044,22 +1028,21 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                               .primary,
                                                       size: 20.0,
                                                     ),
-                                                    onPressed:
-                                                        (_model.minutos <= 0)
-                                                            ? null
-                                                            : () async {
-                                                                _model.minutos =
-                                                                    _model.minutos -
-                                                                        5;
-                                                                if (_model
-                                                                        .minutos <
-                                                                    0) {
-                                                                  _model.minutos =
-                                                                      0;
-                                                                }
-                                                                safeSetState(
-                                                                    () {});
-                                                              },
+                                                    onPressed: (_model
+                                                                .minutos <=
+                                                            0)
+                                                        ? null
+                                                        : () async {
+                                                            _model.minutos =
+                                                                _model.minutos -
+                                                                    5;
+                                                            if (_model.minutos <
+                                                                0) {
+                                                              _model.minutos =
+                                                                  0;
+                                                            }
+                                                            safeSetState(() {});
+                                                          },
                                                   ),
                                                   InkWell(
                                                     splashColor:
@@ -1084,7 +1067,8 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                       }
                                                       safeSetState(() {});
                                                     },
-                                                    child: FlutterFlowIconButton(
+                                                    child:
+                                                        FlutterFlowIconButton(
                                                       borderRadius: 12.0,
                                                       buttonSize: 40.0,
                                                       fillColor:
@@ -1094,10 +1078,9 @@ class _TreinosDetalhesCardioNovoWidgetState
                                                       icon: Icon(
                                                         FFIcons
                                                             .kproperty1FiRrPlusSmall,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryBackground,
+                                                        color: FlutterFlowTheme
+                                                                .of(context)
+                                                            .primaryBackground,
                                                         size: 20.0,
                                                       ),
                                                       onPressed: () async {
@@ -1133,16 +1116,21 @@ class _TreinosDetalhesCardioNovoWidgetState
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Calorias (kcal)',
-                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                  font: GoogleFonts.inter(fontWeight: FontWeight.normal),
-                                  color: FlutterFlowTheme.of(context).secondaryText,
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.normal),
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
                                   fontSize: 13.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.normal,
@@ -1153,31 +1141,42 @@ class _TreinosDetalhesCardioNovoWidgetState
                             controller: _kcalController,
                             keyboardType: TextInputType.number,
                             // Kcal e sempre inteiro: nada de virgula, sinal ou letra.
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                             decoration: InputDecoration(
                               isDense: true,
                               hintText: 'Opcional',
-                              hintStyle: FlutterFlowTheme.of(context).labelMedium.override(
-                                    font: GoogleFonts.inter(fontWeight: FontWeight.normal),
-                                    color: FlutterFlowTheme.of(context).secondaryText,
+                              hintStyle: FlutterFlowTheme.of(context)
+                                  .labelMedium
+                                  .override(
+                                    font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.normal),
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
                                   ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color(0x00000000), width: 1.0),
+                                borderSide: BorderSide(
+                                    color: Color(0x00000000), width: 1.0),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary, width: 1.0),
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    width: 1.0),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               filled: true,
-                              fillColor: FlutterFlowTheme.of(context).primaryBackground,
+                              fillColor: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
                               contentPadding: EdgeInsets.all(16.0),
                             ),
-                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
                                   font: GoogleFonts.inter(),
                                   letterSpacing: 0.0,
                                 ),
@@ -1349,8 +1348,7 @@ class _TreinosDetalhesCardioNovoWidgetState
                           ?.treinoExecucaoId,
                       'Descricao':
                           _model.txtDescricaoTextController.text.trim(),
-                      'DuracaoMinutos':
-                          _model.horas * 60 + _model.minutos,
+                      'DuracaoMinutos': _model.horas * 60 + _model.minutos,
                       'DistanciaKm': valueOrDefault<double>(
                         _model.dpKmValue == 'KM'
                             ? _model.distancia
@@ -1362,10 +1360,9 @@ class _TreinosDetalhesCardioNovoWidgetState
                           : int.tryParse(_kcalController.text.trim()),
                       'Observacao': _model.txtObsTextController.text.trim(),
                       'DataHoraInicio': supaSerialize<DateTime>(DateTime.now()),
-                      'DataHoraFim': supaSerialize<DateTime>(DateTime.now()
-                          .add(Duration(
-                              minutes:
-                                  _model.horas * 60 + _model.minutos))),
+                      'DataHoraFim': supaSerialize<DateTime>(DateTime.now().add(
+                          Duration(
+                              minutes: _model.horas * 60 + _model.minutos))),
                     });
                     await Future.wait([
                       Future(() async {

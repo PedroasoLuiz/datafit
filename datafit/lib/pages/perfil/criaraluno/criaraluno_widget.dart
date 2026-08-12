@@ -631,56 +631,90 @@ class _CriaralunoWidgetState extends State<CriaralunoWidget> {
                                   ),
                                 ],
                               ),
-                              if (getJsonField(FFAppState().existeCadastro, r'''$.existeNaAuth''') == true)
+                              if (getJsonField(FFAppState().existeCadastro,
+                                      r'''$.existeNaAuth''') ==
+                                  true)
                                 Builder(builder: (context) {
-                                  final primeiroNome = FFAppState().perfil.nome.trim().split(' ').first;
-                                  final perfilCompleto = getJsonField(FFAppState().existeCadastro, r'''$.perfilCompleto''') == true;
-                                  final outrosPersonais = getJsonField(FFAppState().existeCadastro, r'''$.outrosPersonais''') as List? ?? [];
-                                  final temPersonal = outrosPersonais.isNotEmpty;
-                                  final nomePersonal = temPersonal ? (outrosPersonais.first['nome'] ?? '') : '';
+                                  final primeiroNome = FFAppState()
+                                      .perfil
+                                      .nome
+                                      .trim()
+                                      .split(' ')
+                                      .first;
+                                  final perfilCompleto = getJsonField(
+                                          FFAppState().existeCadastro,
+                                          r'''$.perfilCompleto''') ==
+                                      true;
+                                  final outrosPersonais = getJsonField(
+                                          FFAppState().existeCadastro,
+                                          r'''$.outrosPersonais''') as List? ??
+                                      [];
+                                  final temPersonal =
+                                      outrosPersonais.isNotEmpty;
+                                  final nomePersonal = temPersonal
+                                      ? (outrosPersonais.first['nome'] ?? '')
+                                      : '';
 
                                   return SizedBox(
                                     width: double.infinity,
                                     child: Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Ei $primeiroNome! Encontrei um cadastro com esse e-mail.',
-                                          style: FlutterFlowTheme.of(context).bodySmall.override(
-                                            font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                                            color: FlutterFlowTheme.of(context).warning,
-                                            letterSpacing: 0,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          perfilCompleto
-                                              ? 'Perfil completo — ao salvar, ela será associada a você.'
-                                              : 'Perfil incompleto — oriente a aluna a completar os dados após o primeiro acesso.',
-                                          style: FlutterFlowTheme.of(context).bodySmall.override(
-                                            font: GoogleFonts.inter(),
-                                            color: FlutterFlowTheme.of(context).secondaryText,
-                                            letterSpacing: 0,
-                                          ),
-                                        ),
-                                        if (temPersonal) ...[
-                                          const SizedBox(height: 2),
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              0, 8, 0, 0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
                                           Text(
-                                            'Já vinculada a $nomePersonal.',
-                                            style: FlutterFlowTheme.of(context).bodySmall.override(
-                                              font: GoogleFonts.inter(),
-                                              color: FlutterFlowTheme.of(context).secondaryText,
-                                              letterSpacing: 0,
-                                            ),
+                                            'Ei $primeiroNome! Encontrei um cadastro com esse e-mail.',
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodySmall
+                                                .override(
+                                                  font: GoogleFonts.inter(
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .warning,
+                                                  letterSpacing: 0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                           ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            perfilCompleto
+                                                ? 'Perfil completo — ao salvar, ela será associada a você.'
+                                                : 'Perfil incompleto — oriente a aluna a completar os dados após o primeiro acesso.',
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodySmall
+                                                .override(
+                                                  font: GoogleFonts.inter(),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  letterSpacing: 0,
+                                                ),
+                                          ),
+                                          if (temPersonal) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'Já vinculada a $nomePersonal.',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodySmall
+                                                  .override(
+                                                    font: GoogleFonts.inter(),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    letterSpacing: 0,
+                                                  ),
+                                            ),
+                                          ],
                                         ],
-                                      ],
+                                      ),
                                     ),
-                                  ),
                                   );
                                 }),
                               Padding(

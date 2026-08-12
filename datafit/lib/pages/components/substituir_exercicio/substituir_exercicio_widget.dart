@@ -213,8 +213,7 @@ class _SubstituirExercicioWidgetState extends State<SubstituirExercicioWidget>
                                       style: theme.bodyMedium.override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              theme.bodyMedium.fontStyle,
+                                          fontStyle: theme.bodyMedium.fontStyle,
                                         ),
                                         color: theme.primaryText,
                                         fontSize: 18.0,
@@ -228,8 +227,7 @@ class _SubstituirExercicioWidgetState extends State<SubstituirExercicioWidget>
                                       style: theme.bodyMedium.override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              theme.bodyMedium.fontStyle,
+                                          fontStyle: theme.bodyMedium.fontStyle,
                                         ),
                                         color: theme.secondaryText,
                                         fontSize: 13.0,
@@ -328,8 +326,8 @@ class _SubstituirExercicioWidgetState extends State<SubstituirExercicioWidget>
                                             style: theme.bodyMedium.override(
                                               font: GoogleFonts.inter(
                                                 fontWeight: FontWeight.w500,
-                                                fontStyle: theme
-                                                    .bodyMedium.fontStyle,
+                                                fontStyle:
+                                                    theme.bodyMedium.fontStyle,
                                               ),
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,

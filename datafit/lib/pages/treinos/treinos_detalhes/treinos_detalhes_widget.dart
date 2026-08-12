@@ -536,61 +536,59 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                         children: [
                                           InkWell(
                                             splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                if (_model.index == 0) {
-                                                  _model.index =
-                                                      valueOrDefault<int>(
-                                                    FFAppState()
-                                                            .treinosTemp
-                                                            .subagrupamentos
-                                                            .length -
-                                                        1,
-                                                    0,
-                                                  );
-                                                  safeSetState(() {});
-                                                } else {
-                                                  _model.index =
-                                                      _model.index + -1;
-                                                  safeSetState(() {});
-                                                }
-
-                                                safeSetState(() {
-                                                  _model.txtFeedbackTextController
-                                                          ?.text =
-                                                      FFAppState()
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              if (_model.index == 0) {
+                                                _model.index =
+                                                    valueOrDefault<int>(
+                                                  FFAppState()
                                                           .treinosTemp
                                                           .subagrupamentos
-                                                          .elementAtOrNull(
-                                                              _model.index)!
-                                                          .feedback;
-                                                });
-                                              },
-                                              child: Container(
-                                                width: 32.0,
-                                                height: 32.0,
-                                                decoration: BoxDecoration(),
-                                                child: Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          0.0, 0.0),
-                                                  child: Icon(
-                                                    FFIcons
-                                                        .kproperty1FiRrAngleSmallLeft,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primary,
-                                                    size: 18.0,
-                                                  ).animateOnActionTrigger(
-                                                    animationsMap[
-                                                        'iconOnActionTriggerAnimation1']!,
-                                                  ),
+                                                          .length -
+                                                      1,
+                                                  0,
+                                                );
+                                                safeSetState(() {});
+                                              } else {
+                                                _model.index =
+                                                    _model.index + -1;
+                                                safeSetState(() {});
+                                              }
+
+                                              safeSetState(() {
+                                                _model.txtFeedbackTextController
+                                                        ?.text =
+                                                    FFAppState()
+                                                        .treinosTemp
+                                                        .subagrupamentos
+                                                        .elementAtOrNull(
+                                                            _model.index)!
+                                                        .feedback;
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 32.0,
+                                              height: 32.0,
+                                              decoration: BoxDecoration(),
+                                              child: Align(
+                                                alignment: AlignmentDirectional(
+                                                    0.0, 0.0),
+                                                child: Icon(
+                                                  FFIcons
+                                                      .kproperty1FiRrAngleSmallLeft,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 18.0,
+                                                ).animateOnActionTrigger(
+                                                  animationsMap[
+                                                      'iconOnActionTriggerAnimation1']!,
                                                 ),
                                               ),
                                             ),
+                                          ),
                                           SizedBox(
                                             height: 26.0,
                                             child: VerticalDivider(
@@ -607,59 +605,56 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                             splashColor: Colors.transparent,
                                             focusColor: Colors.transparent,
                                             hoverColor: Colors.transparent,
-                                            highlightColor:
-                                                Colors.transparent,
-                                              onTap: () async {
-                                                if (_model.index >=
-                                                    valueOrDefault<int>(
-                                                      FFAppState()
-                                                              .treinosTemp
-                                                              .subagrupamentos
-                                                              .length -
-                                                          1,
-                                                      0,
-                                                    )) {
-                                                  _model.index = 0;
-                                                  safeSetState(() {});
-                                                } else {
-                                                  _model.index =
-                                                      _model.index + 1;
-                                                  safeSetState(() {});
-                                                }
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              if (_model.index >=
+                                                  valueOrDefault<int>(
+                                                    FFAppState()
+                                                            .treinosTemp
+                                                            .subagrupamentos
+                                                            .length -
+                                                        1,
+                                                    0,
+                                                  )) {
+                                                _model.index = 0;
+                                                safeSetState(() {});
+                                              } else {
+                                                _model.index = _model.index + 1;
+                                                safeSetState(() {});
+                                              }
 
-                                                safeSetState(() {
-                                                  _model.txtFeedbackTextController
-                                                          ?.text =
-                                                      FFAppState()
-                                                          .treinosTemp
-                                                          .subagrupamentos
-                                                          .elementAtOrNull(
-                                                              _model.index)!
-                                                          .feedback;
-                                                });
-                                              },
-                                              child: Container(
-                                                width: 32.0,
-                                                height: 32.0,
-                                                decoration: BoxDecoration(),
-                                                child: Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          0.0, 0.0),
-                                                  child: Icon(
-                                                    FFIcons
-                                                        .kproperty1FiRrAngleSmallRight,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primary,
-                                                    size: 18.0,
-                                                  ).animateOnActionTrigger(
-                                                    animationsMap[
-                                                        'iconOnActionTriggerAnimation2']!,
-                                                  ),
+                                              safeSetState(() {
+                                                _model.txtFeedbackTextController
+                                                        ?.text =
+                                                    FFAppState()
+                                                        .treinosTemp
+                                                        .subagrupamentos
+                                                        .elementAtOrNull(
+                                                            _model.index)!
+                                                        .feedback;
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 32.0,
+                                              height: 32.0,
+                                              decoration: BoxDecoration(),
+                                              child: Align(
+                                                alignment: AlignmentDirectional(
+                                                    0.0, 0.0),
+                                                child: Icon(
+                                                  FFIcons
+                                                      .kproperty1FiRrAngleSmallRight,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 18.0,
+                                                ).animateOnActionTrigger(
+                                                  animationsMap[
+                                                      'iconOnActionTriggerAnimation2']!,
                                                 ),
                                               ),
                                             ),
+                                          ),
                                         ].divide(SizedBox(width: 8.0)),
                                       ),
                                     ),
@@ -672,393 +667,355 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ListView(
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          valueOrDefault<double>(
-                                            () {
-                                              if (MediaQuery.sizeOf(context)
-                                                      .width <
-                                                  kBreakpointSmall) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointMedium) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointLarge) {
-                                                return 32.0;
-                                              } else {
-                                                return 32.0;
-                                              }
-                                            }(),
-                                            0.0,
-                                          ),
+                                padding: EdgeInsets.zero,
+                                primary: false,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        valueOrDefault<double>(
+                                          () {
+                                            if (MediaQuery.sizeOf(context)
+                                                    .width <
+                                                kBreakpointSmall) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointMedium) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointLarge) {
+                                              return 32.0;
+                                            } else {
+                                              return 32.0;
+                                            }
+                                          }(),
                                           0.0,
-                                          valueOrDefault<double>(
-                                            () {
-                                              if (MediaQuery.sizeOf(context)
-                                                      .width <
-                                                  kBreakpointSmall) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointMedium) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointLarge) {
-                                                return 32.0;
-                                              } else {
-                                                return 32.0;
-                                              }
-                                            }(),
-                                            0.0,
-                                          ),
-                                          0.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.sizeOf(context).width *
-                                                1.0,
-                                        decoration: BoxDecoration(),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Builder(
-                                              builder: (context) {
-                                                final subGrupos = FFAppState()
-                                                        .treinosTemp
-                                                        .subagrupamentos
-                                                        .elementAtOrNull(
-                                                            _model.index)
-                                                        ?.grupos
-                                                        ?.map((e) => e)
-                                                        .toList()
-                                                        ?.toList() ??
-                                                    [];
+                                        ),
+                                        0.0,
+                                        valueOrDefault<double>(
+                                          () {
+                                            if (MediaQuery.sizeOf(context)
+                                                    .width <
+                                                kBreakpointSmall) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointMedium) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointLarge) {
+                                              return 32.0;
+                                            } else {
+                                              return 32.0;
+                                            }
+                                          }(),
+                                          0.0,
+                                        ),
+                                        0.0),
+                                    child: Container(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          1.0,
+                                      decoration: BoxDecoration(),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Builder(
+                                            builder: (context) {
+                                              final subGrupos = FFAppState()
+                                                      .treinosTemp
+                                                      .subagrupamentos
+                                                      .elementAtOrNull(
+                                                          _model.index)
+                                                      ?.grupos
+                                                      ?.map((e) => e)
+                                                      .toList()
+                                                      ?.toList() ??
+                                                  [];
 
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: List.generate(
-                                                      subGrupos.length,
-                                                      (subGruposIndex) {
-                                                    final subGruposItem =
-                                                        subGrupos[
-                                                            subGruposIndex];
-                                                    return Container(
-                                                      decoration: BoxDecoration(
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .primaryBackground,
-                                                        boxShadow: [
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .designToken
-                                                              .shadow
-                                                              .lg
-                                                        ],
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(16.0),
-                                                      ),
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        16.0,
-                                                                        16.0,
-                                                                        16.0,
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: List.generate(
+                                                    subGrupos.length,
+                                                    (subGruposIndex) {
+                                                  final subGruposItem =
+                                                      subGrupos[subGruposIndex];
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
+                                                      boxShadow: [
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .designToken
+                                                            .shadow
+                                                            .lg
+                                                      ],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16.0),
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      16.0,
+                                                                      16.0,
+                                                                      16.0,
+                                                                      0.0),
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
+                                                            children: [
+                                                              Align(
+                                                                alignment:
+                                                                    AlignmentDirectional(
+                                                                        -1.0,
                                                                         0.0),
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                Align(
-                                                                  alignment:
-                                                                      AlignmentDirectional(
-                                                                          -1.0,
-                                                                          0.0),
-                                                                  child: Text(
-                                                                    valueOrDefault<
-                                                                        String>(
-                                                                      subGruposItem
-                                                                          .subcategoria,
-                                                                      '-',
-                                                                    ),
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.inter(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryText,
-                                                                          fontSize:
-                                                                              14.0,
-                                                                          letterSpacing:
-                                                                              0.0,
+                                                                child: Text(
+                                                                  valueOrDefault<
+                                                                      String>(
+                                                                    subGruposItem
+                                                                        .subcategoria,
+                                                                    '-',
+                                                                  ),
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .inter(
                                                                           fontWeight:
                                                                               FontWeight.bold,
                                                                           fontStyle: FlutterFlowTheme.of(context)
                                                                               .bodyMedium
                                                                               .fontStyle,
                                                                         ),
-                                                                  ),
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .secondaryText,
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        letterSpacing:
+                                                                            0.0,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                      ),
                                                                 ),
-                                                              ],
-                                                            ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          Builder(
-                                                            builder: (context) {
-                                                              final exercicios =
-                                                                  subGruposItem
-                                                                      .exercicios
-                                                                      .map(
-                                                                          (e) =>
-                                                                              e)
-                                                                      .toList();
+                                                        ),
+                                                        Builder(
+                                                          builder: (context) {
+                                                            final exercicios =
+                                                                subGruposItem
+                                                                    .exercicios
+                                                                    .map((e) =>
+                                                                        e)
+                                                                    .toList();
 
-                                                              return Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: List.generate(
-                                                                    exercicios
-                                                                        .length,
-                                                                    (exerciciosIndex) {
-                                                                  final exerciciosItem =
-                                                                      exercicios[
-                                                                          exerciciosIndex];
-                                                                  return Column(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .min,
-                                                                    children: [
-                                                                      Container(
+                                                            return Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: List.generate(
+                                                                  exercicios
+                                                                      .length,
+                                                                  (exerciciosIndex) {
+                                                                final exerciciosItem =
+                                                                    exercicios[
+                                                                        exerciciosIndex];
+                                                                return Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Container(
+                                                                      decoration:
+                                                                          BoxDecoration(),
+                                                                      child:
+                                                                          Container(
                                                                         decoration:
                                                                             BoxDecoration(),
                                                                         child:
-                                                                            Container(
-                                                                          decoration:
-                                                                              BoxDecoration(),
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: [
-                                                                              Padding(
-                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
-                                                                                child: Row(
-                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    Column(
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            Padding(
+                                                                              padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
+                                                                              child: Row(
+                                                                                mainAxisSize: MainAxisSize.max,
+                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                children: [
+                                                                                  Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: [
+                                                                                      Row(
+                                                                                        mainAxisSize: MainAxisSize.max,
+                                                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                        children: [
+                                                                                          if (exerciciosItem.isConcluido && !exerciciosItem.isPulado)
+                                                                                            Padding(
+                                                                                              padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                              child: Icon(
+                                                                                                Icons.check_circle,
+                                                                                                color: FlutterFlowTheme.of(context).primary,
+                                                                                                size: 20.0,
+                                                                                              ),
+                                                                                            ),
+                                                                                          if (!exerciciosItem.isConcluido && !exerciciosItem.isPulado)
+                                                                                            Padding(
+                                                                                              padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                              child: Container(
+                                                                                                height: 20.0,
+                                                                                                constraints: BoxConstraints(
+                                                                                                  minWidth: 20.0,
+                                                                                                ),
+                                                                                                decoration: BoxDecoration(
+                                                                                                  borderRadius: BorderRadius.circular(30.0),
+                                                                                                  shape: BoxShape.rectangle,
+                                                                                                  border: Border.all(
+                                                                                                    color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                    width: 2.1,
+                                                                                                  ),
+                                                                                                ),
+                                                                                                child: Align(
+                                                                                                  alignment: AlignmentDirectional(0.0, 0.0),
+                                                                                                  child: Padding(
+                                                                                                    padding: EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
+                                                                                                    child: Text(
+                                                                                                      valueOrDefault<String>(
+                                                                                                        (exerciciosIndex + 1).toString(),
+                                                                                                        '0',
+                                                                                                      ),
+                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                            font: GoogleFonts.inter(
+                                                                                                              fontWeight: FontWeight.w500,
+                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                            ),
+                                                                                                            color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                            fontSize: 11.0,
+                                                                                                            letterSpacing: 0.0,
+                                                                                                            fontWeight: FontWeight.w500,
+                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                          ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ),
+                                                                                            ),
+                                                                                          if (exerciciosItem.isPulado)
+                                                                                            Padding(
+                                                                                              padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                              child: Icon(
+                                                                                                Icons.snooze_rounded,
+                                                                                                color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                size: 20.0,
+                                                                                              ),
+                                                                                            ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  Expanded(
+                                                                                    child: Column(
                                                                                       mainAxisSize: MainAxisSize.min,
                                                                                       children: [
                                                                                         Row(
                                                                                           mainAxisSize: MainAxisSize.max,
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
                                                                                           children: [
-                                                                                            if (exerciciosItem.isConcluido && !exerciciosItem.isPulado)
-                                                                                              Padding(
-                                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                                child: Icon(
-                                                                                                  Icons.check_circle,
-                                                                                                  color: FlutterFlowTheme.of(context).primary,
-                                                                                                  size: 20.0,
-                                                                                                ),
-                                                                                              ),
-                                                                                            if (!exerciciosItem.isConcluido && !exerciciosItem.isPulado)
-                                                                                              Padding(
-                                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                                child: Container(
-                                                                                                  height: 20.0,
-                                                                                                  constraints: BoxConstraints(
-                                                                                                    minWidth: 20.0,
-                                                                                                  ),
-                                                                                                  decoration: BoxDecoration(
-                                                                                                    borderRadius: BorderRadius.circular(30.0),
-                                                                                                    shape: BoxShape.rectangle,
-                                                                                                    border: Border.all(
-                                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                      width: 2.1,
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                  child: Align(
-                                                                                                    alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                    child: Padding(
-                                                                                                      padding: EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
-                                                                                                      child: Text(
-                                                                                                        valueOrDefault<String>(
-                                                                                                          (exerciciosIndex + 1).toString(),
-                                                                                                          '0',
-                                                                                                        ),
-                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                              font: GoogleFonts.inter(
-                                                                                                                fontWeight: FontWeight.w500,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                              color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                              fontSize: 11.0,
-                                                                                                              letterSpacing: 0.0,
-                                                                                                              fontWeight: FontWeight.w500,
-                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                            if (!exerciciosItem.isConcluido)
+                                                                                              Expanded(
+                                                                                                child: Column(
+                                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                  children: [
+                                                                                                    RichText(
+                                                                                                      textScaler: MediaQuery.of(context).textScaler,
+                                                                                                      text: TextSpan(
+                                                                                                        children: [
+                                                                                                          TextSpan(
+                                                                                                            text: valueOrDefault<String>(
+                                                                                                              exerciciosItem.nome,
+                                                                                                              '-',
                                                                                                             ),
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            if (exerciciosItem.isPulado)
-                                                                                              Padding(
-                                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                                child: Icon(
-                                                                                                  Icons.snooze_rounded,
-                                                                                                  color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                  size: 20.0,
-                                                                                                ),
-                                                                                              ),
-                                                                                          ],
-                                                                                        ),
-                                                                                      ],
-                                                                                    ),
-                                                                                    Expanded(
-                                                                                      child: Column(
-                                                                                        mainAxisSize: MainAxisSize.min,
-                                                                                        children: [
-                                                                                          Row(
-                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                            children: [
-                                                                                              if (!exerciciosItem.isConcluido)
-                                                                                                Expanded(
-                                                                                                  child: Column(
-                                                                                                    mainAxisSize: MainAxisSize.min,
-                                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                                    children: [
-                                                                                                      RichText(
-                                                                                                        textScaler: MediaQuery.of(context).textScaler,
-                                                                                                        text: TextSpan(
-                                                                                                          children: [
-                                                                                                            TextSpan(
-                                                                                                              text: valueOrDefault<String>(
-                                                                                                                exerciciosItem.nome,
-                                                                                                                '-',
-                                                                                                              ),
-                                                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                    font: GoogleFonts.inter(
-                                                                                                                      fontWeight: FontWeight.w600,
-                                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                    ),
-                                                                                                                    color: _model.substitutos.containsKey(exerciciosItem.execucaoId)
-                                                                                                                        ? FlutterFlowTheme.of(context).secondaryText
-                                                                                                                        : null,
-                                                                                                                    fontSize: 14.0,
-                                                                                                                    letterSpacing: 0.0,
-                                                                                                                    fontWeight: FontWeight.w600,
-                                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                    decoration: _model.substitutos.containsKey(exerciciosItem.execucaoId)
-                                                                                                                        ? TextDecoration.lineThrough
-                                                                                                                        : null,
-                                                                                                                  ),
-                                                                                                            )
-                                                                                                          ],
-                                                                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                font: GoogleFonts.inter(
-                                                                                                                  fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                ),
-                                                                                                                letterSpacing: 0.0,
-                                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                      if (_model.substitutos.containsKey(exerciciosItem.execucaoId))
-                                                                                                        Padding(
-                                                                                                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
-                                                                                                          child: Text(
-                                                                                                            _model.substitutos[exerciciosItem.execucaoId]!,
                                                                                                             style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                                   font: GoogleFonts.inter(
                                                                                                                     fontWeight: FontWeight.w600,
                                                                                                                     fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                                   ),
+                                                                                                                  color: _model.substitutos.containsKey(exerciciosItem.execucaoId) ? FlutterFlowTheme.of(context).secondaryText : null,
                                                                                                                   fontSize: 14.0,
                                                                                                                   letterSpacing: 0.0,
                                                                                                                   fontWeight: FontWeight.w600,
                                                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                                  decoration: _model.substitutos.containsKey(exerciciosItem.execucaoId) ? TextDecoration.lineThrough : null,
                                                                                                                 ),
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                    ],
-                                                                                                  ),
-                                                                                                ),
-                                                                                              if (exerciciosItem.isConcluido)
-                                                                                                Expanded(
-                                                                                                  child: Column(
-                                                                                                    mainAxisSize: MainAxisSize.min,
-                                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                                    children: [
-                                                                                                      RichText(
-                                                                                                        textScaler: MediaQuery.of(context).textScaler,
-                                                                                                        text: TextSpan(
-                                                                                                          children: [
-                                                                                                            TextSpan(
-                                                                                                              text: valueOrDefault<String>(
-                                                                                                                exerciciosItem.nome,
-                                                                                                                '-',
+                                                                                                          )
+                                                                                                        ],
+                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                              font: GoogleFonts.inter(
+                                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                               ),
-                                                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                    font: GoogleFonts.inter(
-                                                                                                                      fontWeight: FontWeight.w600,
-                                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                    ),
-                                                                                                                    color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                                    fontSize: 14.0,
-                                                                                                                    letterSpacing: 0.0,
-                                                                                                                    fontWeight: FontWeight.w600,
-                                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                    decoration: TextDecoration.lineThrough,
-                                                                                                                  ),
-                                                                                                            )
-                                                                                                          ],
+                                                                                                              letterSpacing: 0.0,
+                                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                            ),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                    if (_model.substitutos.containsKey(exerciciosItem.execucaoId))
+                                                                                                      Padding(
+                                                                                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
+                                                                                                        child: Text(
+                                                                                                          _model.substitutos[exerciciosItem.execucaoId]!,
                                                                                                           style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                                 font: GoogleFonts.inter(
-                                                                                                                  fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                                  fontWeight: FontWeight.w600,
                                                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                                 ),
-                                                                                                                fontSize: 16.0,
+                                                                                                                fontSize: 14.0,
                                                                                                                 letterSpacing: 0.0,
-                                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                                fontWeight: FontWeight.w600,
                                                                                                                 fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                               ),
                                                                                                         ),
                                                                                                       ),
-                                                                                                      if (_model.substitutos.containsKey(exerciciosItem.execucaoId))
-                                                                                                        Padding(
-                                                                                                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
-                                                                                                          child: Text(
-                                                                                                            _model.substitutos[exerciciosItem.execucaoId]!,
+                                                                                                  ],
+                                                                                                ),
+                                                                                              ),
+                                                                                            if (exerciciosItem.isConcluido)
+                                                                                              Expanded(
+                                                                                                child: Column(
+                                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                  children: [
+                                                                                                    RichText(
+                                                                                                      textScaler: MediaQuery.of(context).textScaler,
+                                                                                                      text: TextSpan(
+                                                                                                        children: [
+                                                                                                          TextSpan(
+                                                                                                            text: valueOrDefault<String>(
+                                                                                                              exerciciosItem.nome,
+                                                                                                              '-',
+                                                                                                            ),
                                                                                                             style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                                   font: GoogleFonts.inter(
                                                                                                                     fontWeight: FontWeight.w600,
@@ -1069,570 +1026,103 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                                   letterSpacing: 0.0,
                                                                                                                   fontWeight: FontWeight.w600,
                                                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                                  decoration: TextDecoration.lineThrough,
                                                                                                                 ),
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                    ],
-                                                                                                  ),
-                                                                                                ),
-                                                                                            ],
-                                                                                          ),
-                                                                                          Row(
-                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                            children: [
-                                                                                              if (exerciciosItem.observacao != '')
-                                                                                                Expanded(
-                                                                                                  child: Padding(
-                                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
-                                                                                                    child: Text(
-                                                                                                      exerciciosItem.observacao,
-                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                            font: GoogleFonts.inter(
+                                                                                                          )
+                                                                                                        ],
+                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                              font: GoogleFonts.inter(
+                                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                              ),
+                                                                                                              fontSize: 16.0,
+                                                                                                              letterSpacing: 0.0,
                                                                                                               fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
                                                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                             ),
-                                                                                                            color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                            fontSize: 12.0,
-                                                                                                            letterSpacing: 0.0,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                    if (_model.substitutos.containsKey(exerciciosItem.execucaoId))
+                                                                                                      Padding(
+                                                                                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
+                                                                                                        child: Text(
+                                                                                                          _model.substitutos[exerciciosItem.execucaoId]!,
+                                                                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                                font: GoogleFonts.inter(
+                                                                                                                  fontWeight: FontWeight.w600,
+                                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                                ),
+                                                                                                                color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                                fontSize: 14.0,
+                                                                                                                letterSpacing: 0.0,
+                                                                                                                fontWeight: FontWeight.w600,
+                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                              ),
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              ),
+                                                                                          ],
+                                                                                        ),
+                                                                                        Row(
+                                                                                          mainAxisSize: MainAxisSize.max,
+                                                                                          children: [
+                                                                                            if (exerciciosItem.observacao != '')
+                                                                                              Expanded(
+                                                                                                child: Padding(
+                                                                                                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
+                                                                                                  child: Text(
+                                                                                                    exerciciosItem.observacao,
+                                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                          font: GoogleFonts.inter(
                                                                                                             fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
                                                                                                             fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                           ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                            ],
-                                                                                          ),
-                                                                                          Padding(
-                                                                                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 16.0),
-                                                                                            child: Row(
-                                                                                              mainAxisSize: MainAxisSize.max,
-                                                                                              children: [
-                                                                                                Container(
-                                                                                                  decoration: BoxDecoration(
-                                                                                                    color: FlutterFlowTheme.of(context).accent2,
-                                                                                                    borderRadius: BorderRadius.circular(12.0),
-                                                                                                  ),
-                                                                                                  child: Padding(
-                                                                                                    padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                                                    child: Row(
-                                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                                      children: [
-                                                                                                        Text(
-                                                                                                          '${exerciciosItem.series.toString()} x ${exerciciosItem.repeticoes.toString()}',
-                                                                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                font: GoogleFonts.inter(
-                                                                                                                  fontWeight: FontWeight.normal,
-                                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                ),
-                                                                                                                color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                                fontSize: 12.0,
-                                                                                                                letterSpacing: 0.0,
-                                                                                                                fontWeight: FontWeight.normal,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                        ),
-                                                                                                      ],
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                                Container(
-                                                                                                  decoration: BoxDecoration(
-                                                                                                    color: FlutterFlowTheme.of(context).accent2,
-                                                                                                    borderRadius: BorderRadius.circular(12.0),
-                                                                                                  ),
-                                                                                                  child: Padding(
-                                                                                                    padding: EdgeInsetsDirectional.fromSTEB(4.0, 2.0, 6.0, 2.0),
-                                                                                                    child: Row(
-                                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                                      children: [
-                                                                                                        Icon(
-                                                                                                          FFIcons.kproperty1FiRrTimeQuarterPast,
-                                                                                                          color: FlutterFlowTheme.of(context).secondary,
-                                                                                                          size: 14.0,
-                                                                                                        ),
-                                                                                                        Text(
-                                                                                                          'Descanso ${exerciciosItem.tempoDescansoSeg.toString()}s',
-                                                                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                font: GoogleFonts.inter(
-                                                                                                                  fontWeight: FontWeight.normal,
-                                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                ),
-                                                                                                                color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                                fontSize: 12.0,
-                                                                                                                letterSpacing: 0.0,
-                                                                                                                fontWeight: FontWeight.normal,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                        ),
-                                                                                                      ].divide(SizedBox(width: 4.0)),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ].divide(SizedBox(width: 6.0)),
-                                                                                            ),
-                                                                                          ),
-                                                                                        ],
-                                                                                      ),
-                                                                                    ),
-                                                                                    Row(
-                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                      children: [
-                                                                                        if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
-                                                                                          Padding(
-                                                                                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                            child: InkWell(
-                                                                                              splashColor: Colors.transparent,
-                                                                                              focusColor: Colors.transparent,
-                                                                                              hoverColor: Colors.transparent,
-                                                                                              highlightColor: Colors.transparent,
-                                                                                              onTap: () async {
-                                                                                                final String? nomeSubstituto = await showModalBottomSheet<String>(
-                                                                                                  isScrollControlled: true,
-                                                                                                  backgroundColor: Colors.transparent,
-                                                                                                  enableDrag: false,
-                                                                                                  context: context,
-                                                                                                  builder: (ctx) => WebViewAware(
-                                                                                                    child: GestureDetector(
-                                                                                                      onTap: () {
-                                                                                                        FocusScope.of(ctx).unfocus();
-                                                                                                        FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                      },
-                                                                                                      child: Padding(
-                                                                                                        padding: MediaQuery.viewInsetsOf(ctx),
-                                                                                                        child: SubstituirExercicioWidget(
-                                                                                                          execucaoId: exerciciosItem.execucaoId,
-                                                                                                          nomeOriginal: exerciciosItem.nome,
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                );
-                                                                                                if (nomeSubstituto == null) return;
-                                                                                                if (!context.mounted) return;
-                                                                                                safeSetState(() {
-                                                                                                  _model.substitutos[exerciciosItem.execucaoId] = nomeSubstituto;
-                                                                                                });
-                                                                                              },
-                                                                                              child: Container(
-                                                                                                width: 32.0,
-                                                                                                height: 32.0,
-                                                                                                decoration: BoxDecoration(
-                                                                                                  color: FlutterFlowTheme.of(context).accent1,
-                                                                                                  borderRadius: BorderRadius.circular(12.0),
-                                                                                                ),
-                                                                                                child: Align(
-                                                                                                  alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                  child: Icon(
-                                                                                                    FFIcons.kproperty1FiRrRefresh,
-                                                                                                    color: FlutterFlowTheme.of(context).primary,
-                                                                                                    size: 14.0,
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
-                                                                                          ),
-                                                                                        if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
-                                                                                          InkWell(
-                                                                                            splashColor: Colors.transparent,
-                                                                                            focusColor: Colors.transparent,
-                                                                                            hoverColor: Colors.transparent,
-                                                                                            highlightColor: Colors.transparent,
-                                                                                            onTap: () async {
-                                                                                              if (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId != exerciciosItem.execucaoId) : false) {
-                                                                                                await showModalBottomSheet(
-                                                                                                  isScrollControlled: true,
-                                                                                                  backgroundColor: Colors.transparent,
-                                                                                                  enableDrag: false,
-                                                                                                  context: context,
-                                                                                                  builder: (context) {
-                                                                                                    return WebViewAware(
-                                                                                                      child: GestureDetector(
-                                                                                                        onTap: () {
-                                                                                                          FocusScope.of(context).unfocus();
-                                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                        },
-                                                                                                        child: Padding(
-                                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                                          child: MensagemWidget(
-                                                                                                            texto: 'Conclua o exercício primeiro!',
-                                                                                                            tipo: '3',
-                                                                                                            fechasozinho: true,
-                                                                                                            mostrabotoes: false,
-                                                                                                            action: () async {
-                                                                                                              safeSetState(() {});
-                                                                                                            },
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                    );
-                                                                                                  },
-                                                                                                ).then((value) => safeSetState(() {}));
-                                                                                              } else {
-                                                                                                FFAppState().exercicioTemp = exerciciosItem;
-                                                                                                if (_model.substitutos.containsKey(exerciciosItem.execucaoId)) {
-                                                                                                  final subNome = _model.substitutos[exerciciosItem.execucaoId]!;
-                                                                                                  final subMap = FFAppState().exercicioTemp.toMap();
-                                                                                                  subMap['nome'] = subNome;
-                                                                                                  FFAppState().exercicioTemp = ExerciciosStruct.fromMap(subMap);
-                                                                                                }
-                                                                                                FFAppState().treinoExecucaoIdAtivo = FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)!.treinoExecucaoId;
-                                                                                                safeSetState(() {});
-
-                                                                                                context.pushNamed(
-                                                                                                  TreinosExecucaoWidget.routeName,
-                                                                                                  queryParameters: {
-                                                                                                    'treinoABC': serializeParam(
-                                                                                                      valueOrDefault<String>(
-                                                                                                        FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.nome,
-                                                                                                        '-',
-                                                                                                      ),
-                                                                                                      ParamType.String,
-                                                                                                    ),
-                                                                                                    'index': serializeParam(
-                                                                                                      _model.index,
-                                                                                                      ParamType.int,
-                                                                                                    ),
-                                                                                                    'indexGrupo': serializeParam(
-                                                                                                      subGruposIndex,
-                                                                                                      ParamType.int,
-                                                                                                    ),
-                                                                                                    'indexExercicio': serializeParam(
-                                                                                                      exerciciosIndex + 1,
-                                                                                                      ParamType.int,
-                                                                                                    ),
-                                                                                                  }.withoutNulls,
-                                                                                                  extra: <String, dynamic>{
-                                                                                                    '__transition_info__': TransitionInfo(
-                                                                                                      hasTransition: true,
-                                                                                                      transitionType: PageTransitionType.fade,
-                                                                                                      duration: Duration(milliseconds: 0),
-                                                                                                    ),
-                                                                                                  },
-                                                                                                );
-                                                                                              }
-                                                                                            },
-                                                                                            child: Container(
-                                                                                              width: 32.0,
-                                                                                              height: 32.0,
-                                                                                              decoration: BoxDecoration(
-                                                                                                color: valueOrDefault<Color>(
-                                                                                                  (FFAppState().exercicioEmAndamento == true ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).alternate,
-                                                                                                  FlutterFlowTheme.of(context).accent1,
-                                                                                                ),
-                                                                                                borderRadius: BorderRadius.circular(12.0),
-                                                                                              ),
-                                                                                              child: Align(
-                                                                                                alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                child: Icon(
-                                                                                                  FFIcons.kproperty1FiRrPlay,
-                                                                                                  color: valueOrDefault<Color>(
-                                                                                                    (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
-                                                                                                    FlutterFlowTheme.of(context).primary,
-                                                                                                  ),
-                                                                                                  size: 14.0,
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
-                                                                                          ),
-                                                                                      ].addToStart(SizedBox(width: 16.0)).addToEnd(SizedBox(width: 16.0)),
-                                                                                    ),
-                                                                                  ].addToStart(SizedBox(width: 16.0)),
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                      if (exerciciosIndex !=
-                                                                          (subGruposItem.exercicios.length -
-                                                                              1))
-                                                                        Divider(
-                                                                          height:
-                                                                              1.0,
-                                                                          thickness:
-                                                                              1.0,
-                                                                          indent:
-                                                                              46.0,
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).alternate,
-                                                                        ),
-                                                                    ],
-                                                                  );
-                                                                }),
-                                                              );
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  }).divide(
-                                                      SizedBox(height: 16.0)),
-                                                );
-                                              },
-                                            ),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color: FlutterFlowTheme.of(
-                                                        context)
-                                                    .primaryBackground,
-                                                  boxShadow: [
-                                                    FlutterFlowTheme.of(context)
-                                                        .designToken
-                                                        .shadow
-                                                        .lg
-                                                  ],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16.0),
-                                                ),
-                                                child: SingleChildScrollView(
-                                                  primary: false,
-                                                  controller:
-                                                      _model.columnController2,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    16.0,
-                                                                    16.0,
-                                                                    16.0,
-                                                                    0.0),
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          children: [
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      -1.0,
-                                                                      0.0),
-                                                              child: Text(
-                                                                'Cárdio',
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryText,
-                                                                      fontSize:
-                                                                          14.0,
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0,
-                                                                    16.0),
-                                                        child: Builder(
-                                                          builder: (context) {
-                                                            final cardios = FFAppState()
-                                                                    .treinosTemp
-                                                                    .subagrupamentos
-                                                                    .elementAtOrNull(
-                                                                        _model
-                                                                            .index)
-                                                                    ?.cardios
-                                                                    ?.map((e) =>
-                                                                        e)
-                                                                    .toList()
-                                                                    ?.toList() ??
-                                                                [];
-
-                                                            return Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: List.generate(
-                                                                  cardios
-                                                                      .length,
-                                                                  (cardiosIndex) {
-                                                                final cardiosItem =
-                                                                    cardios[
-                                                                        cardiosIndex];
-                                                                return Column(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  children: [
-                                                                    Container(
-                                                                      decoration:
-                                                                          BoxDecoration(),
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.max,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.start,
-                                                                        children: [
-                                                                          Padding(
-                                                                            padding: EdgeInsetsDirectional.fromSTEB(
-                                                                                0.0,
-                                                                                16.0,
-                                                                                0.0,
-                                                                                0.0),
-                                                                            child:
-                                                                                Row(
-                                                                              mainAxisSize: MainAxisSize.max,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Column(
-                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                  children: [
-                                                                                    Padding(
-                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                      child: Icon(
-                                                                                        Icons.check_circle,
-                                                                                        color: FlutterFlowTheme.of(context).primary,
-                                                                                        size: 20.0,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                Expanded(
-                                                                                  child: Column(
-                                                                                    mainAxisSize: MainAxisSize.max,
-                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                    children: [
-                                                                                      Padding(
-                                                                                        padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                        child: Row(
-                                                                                          mainAxisSize: MainAxisSize.max,
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          children: [
-                                                                                            Expanded(
-                                                                                              child: RichText(
-                                                                                                textScaler: MediaQuery.of(context).textScaler,
-                                                                                                text: TextSpan(
-                                                                                                  children: [
-                                                                                                    TextSpan(
-                                                                                                      text: valueOrDefault<String>(
-                                                                                                        cardiosItem.descricao,
-                                                                                                        '-',
-                                                                                                      ),
-                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                            font: GoogleFonts.inter(
-                                                                                                              fontWeight: FontWeight.w600,
-                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                            ),
-                                                                                                            color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                            fontSize: 14.0,
-                                                                                                            letterSpacing: 0.0,
-                                                                                                            fontWeight: FontWeight.w600,
-                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                            decoration: TextDecoration.lineThrough,
-                                                                                                          ),
-                                                                                                    )
-                                                                                                  ],
-                                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                        font: GoogleFonts.inter(
+                                                                                                          color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                          fontSize: 12.0,
+                                                                                                          letterSpacing: 0.0,
                                                                                                           fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
                                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                         ),
-                                                                                                        letterSpacing: 0.0,
-                                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
+                                                                                                  ),
                                                                                                 ),
                                                                                               ),
-                                                                                            ),
                                                                                           ],
                                                                                         ),
-                                                                                      ),
-                                                                                      Row(
-                                                                                        mainAxisSize: MainAxisSize.max,
-                                                                                        children: [
-                                                                                          if (cardiosItem.observacao != '')
-                                                                                            Expanded(
-                                                                                              child: Padding(
-                                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-                                                                                                child: Text(
-                                                                                                  cardiosItem.observacao,
-                                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                        font: GoogleFonts.inter(
-                                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                        ),
-                                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                        fontSize: 12.0,
-                                                                                                        letterSpacing: 0.0,
-                                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
-                                                                                        ].addToEnd(SizedBox(width: 16.0)),
-                                                                                      ),
-                                                                                      Padding(
+                                                                                        Padding(
                                                                                           padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 16.0),
                                                                                           child: Row(
                                                                                             mainAxisSize: MainAxisSize.max,
                                                                                             children: [
-                                                                                              if (cardiosItem.distanciaKm > 0.0)
-                                                                                                Padding(
-                                                                                                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 6.0, 0.0),
-                                                                                                  child: Container(
-                                                                                                    decoration: BoxDecoration(
-                                                                                                      color: FlutterFlowTheme.of(context).accent2,
-                                                                                                      borderRadius: BorderRadius.circular(12.0),
-                                                                                                    ),
-                                                                                                    child: Padding(
-                                                                                                      padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                                                      child: Row(
-                                                                                                        mainAxisSize: MainAxisSize.max,
-                                                                                                        children: [
-                                                                                                          Text(
-                                                                                                            '${valueOrDefault<String>(
-                                                                                                              cardiosItem.distanciaKm.toString(),
-                                                                                                              '-',
-                                                                                                            )}km',
-                                                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                  font: GoogleFonts.inter(
-                                                                                                                    fontWeight: FontWeight.normal,
-                                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                  ),
-                                                                                                                  color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                                  fontSize: 12.0,
-                                                                                                                  letterSpacing: 0.0,
-                                                                                                                  fontWeight: FontWeight.normal,
-                                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                ),
-                                                                                                          ),
-                                                                                                        ],
+                                                                                              Container(
+                                                                                                decoration: BoxDecoration(
+                                                                                                  color: FlutterFlowTheme.of(context).accent2,
+                                                                                                  borderRadius: BorderRadius.circular(12.0),
+                                                                                                ),
+                                                                                                child: Padding(
+                                                                                                  padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
+                                                                                                  child: Row(
+                                                                                                    mainAxisSize: MainAxisSize.max,
+                                                                                                    children: [
+                                                                                                      Text(
+                                                                                                        '${exerciciosItem.series.toString()} x ${exerciciosItem.repeticoes.toString()}',
+                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                              font: GoogleFonts.inter(
+                                                                                                                fontWeight: FontWeight.normal,
+                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                              ),
+                                                                                                              color: FlutterFlowTheme.of(context).primaryText,
+                                                                                                              fontSize: 12.0,
+                                                                                                              letterSpacing: 0.0,
+                                                                                                              fontWeight: FontWeight.normal,
+                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                            ),
                                                                                                       ),
-                                                                                                    ),
+                                                                                                    ],
                                                                                                   ),
                                                                                                 ),
+                                                                                              ),
                                                                                               Container(
                                                                                                 decoration: BoxDecoration(
                                                                                                   color: FlutterFlowTheme.of(context).accent2,
@@ -1649,7 +1139,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                         size: 14.0,
                                                                                                       ),
                                                                                                       Text(
-                                                                                                        '${cardiosItem.duracaoMinutos.toString()}m',
+                                                                                                        'Descanso ${exerciciosItem.tempoDescansoSeg.toString()}s',
                                                                                                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                               font: GoogleFonts.inter(
                                                                                                                 fontWeight: FontWeight.normal,
@@ -1666,19 +1156,17 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                   ),
                                                                                                 ),
                                                                                               ),
-                                                                                            ],
+                                                                                            ].divide(SizedBox(width: 6.0)),
                                                                                           ),
                                                                                         ),
-                                                                                    ],
+                                                                                      ],
+                                                                                    ),
                                                                                   ),
-                                                                                ),
-                                                                                Align(
-                                                                                  alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                  child: Row(
+                                                                                  Row(
                                                                                     mainAxisSize: MainAxisSize.max,
                                                                                     crossAxisAlignment: CrossAxisAlignment.center,
                                                                                     children: [
-                                                                                      if (FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento')
+                                                                                      if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
                                                                                         Padding(
                                                                                           padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
                                                                                           child: InkWell(
@@ -1687,85 +1175,32 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                             hoverColor: Colors.transparent,
                                                                                             highlightColor: Colors.transparent,
                                                                                             onTap: () async {
-                                                                                              if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
-                                                                                                await animationsMap['containerOnActionTriggerAnimation2']!.controller.reverse();
-                                                                                              }
-                                                                                              _model.opAtv = true;
-                                                                                              safeSetState(() {});
-                                                                                              await showModalBottomSheet(
+                                                                                              final String? nomeSubstituto = await showModalBottomSheet<String>(
                                                                                                 isScrollControlled: true,
                                                                                                 backgroundColor: Colors.transparent,
                                                                                                 enableDrag: false,
                                                                                                 context: context,
-                                                                                                builder: (context) {
-                                                                                                  return WebViewAware(
-                                                                                                    child: GestureDetector(
-                                                                                                      onTap: () {
-                                                                                                        FocusScope.of(context).unfocus();
-                                                                                                        FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                      },
-                                                                                                      child: Padding(
-                                                                                                        padding: MediaQuery.viewInsetsOf(context),
-                                                                                                        child: MensagemWidget(
-                                                                                                          texto: 'Remover registro?',
-                                                                                                          tipo: '2',
-                                                                                                          fechasozinho: false,
-                                                                                                          mostrabotoes: true,
-                                                                                                          action: () async {
-                                                                                                            await RegistrosCardioTable().delete(
-                                                                                                              matchingRows: (rows) => rows.eqOrNull(
-                                                                                                                'Id',
-                                                                                                                cardiosItem.id,
-                                                                                                              ),
-                                                                                                            );
-                                                                                                            await Future.delayed(
-                                                                                                              Duration(
-                                                                                                                milliseconds: 1000,
-                                                                                                              ),
-                                                                                                            );
-                                                                                                            await action_blocks.getTreinosAluno(context);
-                                                                                                            await showModalBottomSheet(
-                                                                                                              isScrollControlled: true,
-                                                                                                              backgroundColor: Colors.transparent,
-                                                                                                              enableDrag: false,
-                                                                                                              context: context,
-                                                                                                              builder: (context) {
-                                                                                                                return WebViewAware(
-                                                                                                                  child: GestureDetector(
-                                                                                                                    onTap: () {
-                                                                                                                      FocusScope.of(context).unfocus();
-                                                                                                                      FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                                    },
-                                                                                                                    child: Padding(
-                                                                                                                      padding: MediaQuery.viewInsetsOf(context),
-                                                                                                                      child: MensagemWidget(
-                                                                                                                        texto: 'Registro deletado com sucesso!',
-                                                                                                                        tipo: '1',
-                                                                                                                        fechasozinho: true,
-                                                                                                                        mostrabotoes: false,
-                                                                                                                        action: () async {
-                                                                                                                          safeSetState(() {});
-                                                                                                                        },
-                                                                                                                      ),
-                                                                                                                    ),
-                                                                                                                  ),
-                                                                                                                );
-                                                                                                              },
-                                                                                                            ).then((value) => safeSetState(() {}));
-                                                                                                          },
-                                                                                                        ),
+                                                                                                builder: (ctx) => WebViewAware(
+                                                                                                  child: GestureDetector(
+                                                                                                    onTap: () {
+                                                                                                      FocusScope.of(ctx).unfocus();
+                                                                                                      FocusManager.instance.primaryFocus?.unfocus();
+                                                                                                    },
+                                                                                                    child: Padding(
+                                                                                                      padding: MediaQuery.viewInsetsOf(ctx),
+                                                                                                      child: SubstituirExercicioWidget(
+                                                                                                        execucaoId: exerciciosItem.execucaoId,
+                                                                                                        nomeOriginal: exerciciosItem.nome,
                                                                                                       ),
                                                                                                     ),
-                                                                                                  );
-                                                                                                },
-                                                                                              ).then((value) => safeSetState(() {}));
-
-                                                                                              _model.opAtv = false;
-                                                                                              safeSetState(() {});
-                                                                                              if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
-                                                                                                safeSetState(() => hasContainerTriggered2 = true);
-                                                                                                SchedulerBinding.instance.addPostFrameCallback((_) async => await animationsMap['containerOnActionTriggerAnimation2']!.controller.forward(from: 0.0));
-                                                                                              }
+                                                                                                  ),
+                                                                                                ),
+                                                                                              );
+                                                                                              if (nomeSubstituto == null) return;
+                                                                                              if (!context.mounted) return;
+                                                                                              safeSetState(() {
+                                                                                                _model.substitutos[exerciciosItem.execucaoId] = nomeSubstituto;
+                                                                                              });
                                                                                             },
                                                                                             child: Container(
                                                                                               width: 32.0,
@@ -1777,7 +1212,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                               child: Align(
                                                                                                 alignment: AlignmentDirectional(0.0, 0.0),
                                                                                                 child: Icon(
-                                                                                                  FFIcons.kproperty1FiRrTrash,
+                                                                                                  FFIcons.kproperty1FiRrRefresh,
                                                                                                   color: FlutterFlowTheme.of(context).primary,
                                                                                                   size: 14.0,
                                                                                                 ),
@@ -1785,55 +1220,14 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                             ),
                                                                                           ),
                                                                                         ),
-                                                                                      if (FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento')
+                                                                                      if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
                                                                                         InkWell(
                                                                                           splashColor: Colors.transparent,
                                                                                           focusColor: Colors.transparent,
                                                                                           hoverColor: Colors.transparent,
                                                                                           highlightColor: Colors.transparent,
                                                                                           onTap: () async {
-                                                                                            if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
-                                                                                              await animationsMap['containerOnActionTriggerAnimation2']!.controller.reverse();
-                                                                                            }
-                                                                                            _model.opAtv = true;
-                                                                                            safeSetState(() {});
-                                                                                            await showModalBottomSheet(
-                                                                                              isScrollControlled: true,
-                                                                                              backgroundColor: Colors.transparent,
-                                                                                              enableDrag: false,
-                                                                                              context: context,
-                                                                                              builder: (context) {
-                                                                                                return WebViewAware(
-                                                                                                  child: GestureDetector(
-                                                                                                    onTap: () {
-                                                                                                      FocusScope.of(context).unfocus();
-                                                                                                      FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                    },
-                                                                                                    child: Padding(
-                                                                                                      padding: MediaQuery.viewInsetsOf(context),
-                                                                                                      child: TreinosDetalhesCardioEditWidget(
-                                                                                                        index: _model.index,
-                                                                                                        cardio: cardiosItem,
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                );
-                                                                                              },
-                                                                                            ).then((value) => safeSetState(() => _model.editou = value));
-
-                                                                                            _model.opAtv = false;
-                                                                                            safeSetState(() {});
-                                                                                            if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
-                                                                                              safeSetState(() => hasContainerTriggered2 = true);
-                                                                                            }
-                                                                                            if (_model.editou!) {
-                                                                                              await Future.delayed(
-                                                                                                Duration(
-                                                                                                  milliseconds: 1000,
-                                                                                                ),
-                                                                                              );
-                                                                                              await action_blocks.getTreinosAluno(context);
-                                                                                              safeSetState(() {});
+                                                                                            if (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId != exerciciosItem.execucaoId) : false) {
                                                                                               await showModalBottomSheet(
                                                                                                 isScrollControlled: true,
                                                                                                 backgroundColor: Colors.transparent,
@@ -1849,8 +1243,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                       child: Padding(
                                                                                                         padding: MediaQuery.viewInsetsOf(context),
                                                                                                         child: MensagemWidget(
-                                                                                                          texto: 'Cárdio atualizado!',
-                                                                                                          tipo: '1',
+                                                                                                          texto: 'Conclua o exercício primeiro!',
+                                                                                                          tipo: '3',
                                                                                                           fechasozinho: true,
                                                                                                           mostrabotoes: false,
                                                                                                           action: () async {
@@ -1862,41 +1256,84 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                   );
                                                                                                 },
                                                                                               ).then((value) => safeSetState(() {}));
-                                                                                            }
+                                                                                            } else {
+                                                                                              FFAppState().exercicioTemp = exerciciosItem;
+                                                                                              if (_model.substitutos.containsKey(exerciciosItem.execucaoId)) {
+                                                                                                final subNome = _model.substitutos[exerciciosItem.execucaoId]!;
+                                                                                                final subMap = FFAppState().exercicioTemp.toMap();
+                                                                                                subMap['nome'] = subNome;
+                                                                                                FFAppState().exercicioTemp = ExerciciosStruct.fromMap(subMap);
+                                                                                              }
+                                                                                              FFAppState().treinoExecucaoIdAtivo = FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)!.treinoExecucaoId;
+                                                                                              safeSetState(() {});
 
-                                                                                            safeSetState(() {});
+                                                                                              context.pushNamed(
+                                                                                                TreinosExecucaoWidget.routeName,
+                                                                                                queryParameters: {
+                                                                                                  'treinoABC': serializeParam(
+                                                                                                    valueOrDefault<String>(
+                                                                                                      FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.nome,
+                                                                                                      '-',
+                                                                                                    ),
+                                                                                                    ParamType.String,
+                                                                                                  ),
+                                                                                                  'index': serializeParam(
+                                                                                                    _model.index,
+                                                                                                    ParamType.int,
+                                                                                                  ),
+                                                                                                  'indexGrupo': serializeParam(
+                                                                                                    subGruposIndex,
+                                                                                                    ParamType.int,
+                                                                                                  ),
+                                                                                                  'indexExercicio': serializeParam(
+                                                                                                    exerciciosIndex + 1,
+                                                                                                    ParamType.int,
+                                                                                                  ),
+                                                                                                }.withoutNulls,
+                                                                                                extra: <String, dynamic>{
+                                                                                                  '__transition_info__': TransitionInfo(
+                                                                                                    hasTransition: true,
+                                                                                                    transitionType: PageTransitionType.fade,
+                                                                                                    duration: Duration(milliseconds: 0),
+                                                                                                  ),
+                                                                                                },
+                                                                                              );
+                                                                                            }
                                                                                           },
                                                                                           child: Container(
                                                                                             width: 32.0,
                                                                                             height: 32.0,
                                                                                             decoration: BoxDecoration(
-                                                                                              color: FlutterFlowTheme.of(context).accent1,
+                                                                                              color: valueOrDefault<Color>(
+                                                                                                (FFAppState().exercicioEmAndamento == true ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).alternate,
+                                                                                                FlutterFlowTheme.of(context).accent1,
+                                                                                              ),
                                                                                               borderRadius: BorderRadius.circular(12.0),
                                                                                             ),
                                                                                             child: Align(
                                                                                               alignment: AlignmentDirectional(0.0, 0.0),
                                                                                               child: Icon(
-                                                                                                FFIcons.kproperty1FiRrEdit,
-                                                                                                color: FlutterFlowTheme.of(context).primary,
+                                                                                                FFIcons.kproperty1FiRrPlay,
+                                                                                                color: valueOrDefault<Color>(
+                                                                                                  (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
+                                                                                                  FlutterFlowTheme.of(context).primary,
+                                                                                                ),
                                                                                                 size: 14.0,
                                                                                               ),
                                                                                             ),
                                                                                           ),
                                                                                         ),
-                                                                                    ].addToStart(SizedBox(width: 8.0)).addToEnd(SizedBox(width: 16.0)),
+                                                                                    ].addToStart(SizedBox(width: 16.0)).addToEnd(SizedBox(width: 16.0)),
                                                                                   ),
-                                                                                ),
-                                                                              ].addToStart(SizedBox(width: 16.0)),
+                                                                                ].addToStart(SizedBox(width: 16.0)),
+                                                                              ),
                                                                             ),
-                                                                          ),
-                                                                        ],
+                                                                          ],
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                    if (cardiosIndex !=
-                                                                        (valueOrDefault<int>(
-                                                                              FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.cardios?.length,
-                                                                              0,
-                                                                            ) -
+                                                                    if (exerciciosIndex !=
+                                                                        (subGruposItem.exercicios.length -
                                                                             1))
                                                                       Divider(
                                                                         height:
@@ -1914,271 +1351,1169 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                             );
                                                           },
                                                         ),
-                                                      ),
-                                                      if (FFAppState()
-                                                              .treinosTemp
-                                                              .subagrupamentos
-                                                              .elementAtOrNull(
-                                                                  _model.index)
-                                                              ?.status ==
-                                                          'em_andamento')
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      16.0,
-                                                                      0.0,
-                                                                      16.0,
-                                                                      16.0),
-                                                          child: Container(
-                                                            width: MediaQuery
-                                                                        .sizeOf(
+                                                      ],
+                                                    ),
+                                                  );
+                                                }).divide(
+                                                    SizedBox(height: 16.0)),
+                                              );
+                                            },
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryBackground,
+                                              boxShadow: [
+                                                FlutterFlowTheme.of(context)
+                                                    .designToken
+                                                    .shadow
+                                                    .lg
+                                              ],
+                                              borderRadius:
+                                                  BorderRadius.circular(16.0),
+                                            ),
+                                            child: SingleChildScrollView(
+                                              primary: false,
+                                              controller:
+                                                  _model.columnController2,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                16.0,
+                                                                16.0,
+                                                                16.0,
+                                                                0.0),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  -1.0, 0.0),
+                                                          child: Text(
+                                                            'Cárdio',
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  font:
+                                                                      GoogleFonts
+                                                                          .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle: FlutterFlowTheme.of(
                                                                             context)
-                                                                    .width *
-                                                                1.0,
-                                                            height: 38.0,
-                                                            child: custom_widgets
-                                                                .DashedButton(
-                                                              width: MediaQuery
-                                                                          .sizeOf(
-                                                                              context)
-                                                                      .width *
-                                                                  1.0,
-                                                              height: 38.0,
-                                                              label:
-                                                                  'Adicionar exercício',
-                                                              labelSize: 14.0,
-                                                              labelColor:
-                                                                  FlutterFlowTheme.of(
+                                                                        .bodyMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                                  color: FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primary,
-                                                              icon: Icon(
-                                                                Icons.add,
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primary,
-                                                                size: 18.0,
-                                                              ),
-                                                              iconColor:
-                                                                  FlutterFlowTheme.of(
+                                                                      .secondaryText,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontStyle: FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primary,
-                                                              iconGap: 4.0,
-                                                              borderColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primary,
-                                                              borderRadius:
-                                                                  10.0,
-                                                              borderWidth: 1.0,
-                                                              dashWidth: 4.0,
-                                                              dashGap: 4.0,
-                                                              onPressed:
-                                                                  () async {
-                                                                await showModalBottomSheet(
-                                                                  isScrollControlled:
-                                                                      true,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  enableDrag:
-                                                                      false,
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return WebViewAware(
-                                                                      child:
-                                                                          GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                          FocusManager
-                                                                              .instance
-                                                                              .primaryFocus
-                                                                              ?.unfocus();
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              MediaQuery.viewInsetsOf(context),
-                                                                          child:
-                                                                              TreinosDetalhesCardioNovoWidget(
-                                                                            index:
-                                                                                _model.index,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ).then((value) =>
-                                                                    safeSetState(() =>
-                                                                        _model.add =
-                                                                            value));
-
-                                                                if (_model
-                                                                        .add ==
-                                                                    true) {
-                                                                  await Future
-                                                                      .delayed(
-                                                                    Duration(
-                                                                      milliseconds:
-                                                                          1000,
-                                                                    ),
-                                                                  );
-                                                                  if (!mounted)
-                                                                    return;
-                                                                  await action_blocks
-                                                                      .getTreinosAluno(
-                                                                          context);
-                                                                  if (!mounted)
-                                                                    return;
-                                                                  await showModalBottomSheet(
-                                                                    isScrollControlled:
-                                                                        true,
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    enableDrag:
-                                                                        false,
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return WebViewAware(
-                                                                        child:
-                                                                            GestureDetector(
-                                                                          onTap:
-                                                                              () {
-                                                                            FocusScope.of(context).unfocus();
-                                                                            FocusManager.instance.primaryFocus?.unfocus();
-                                                                          },
-                                                                          child:
-                                                                              Padding(
-                                                                            padding:
-                                                                                MediaQuery.viewInsetsOf(context),
-                                                                            child:
-                                                                                MensagemWidget(
-                                                                              texto: 'Cárdio adicionado!',
-                                                                              tipo: '1',
-                                                                              fechasozinho: true,
-                                                                              mostrabotoes: false,
-                                                                              action: () async {
-                                                                                safeSetState(() {});
-                                                                              },
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  ).then((value) =>
-                                                                      safeSetState(
-                                                                          () {}));
-                                                                }
-
-                                                                safeSetState(
-                                                                    () {});
-                                                              },
-                                                            ),
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
                                                           ),
                                                         ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(0.0, 0.0,
+                                                                0.0, 16.0),
+                                                    child: Builder(
+                                                      builder: (context) {
+                                                        final cardios = FFAppState()
+                                                                .treinosTemp
+                                                                .subagrupamentos
+                                                                .elementAtOrNull(
+                                                                    _model
+                                                                        .index)
+                                                                ?.cardios
+                                                                ?.map((e) => e)
+                                                                .toList()
+                                                                ?.toList() ??
+                                                            [];
+
+                                                        return Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: List.generate(
+                                                              cardios.length,
+                                                              (cardiosIndex) {
+                                                            final cardiosItem =
+                                                                cardios[
+                                                                    cardiosIndex];
+                                                            return Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              children: [
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(),
+                                                                  child: Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                                                            0.0,
+                                                                            16.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children:
+                                                                              [
+                                                                            Column(
+                                                                              mainAxisSize: MainAxisSize.max,
+                                                                              children: [
+                                                                                Padding(
+                                                                                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                  child: Icon(
+                                                                                    Icons.check_circle,
+                                                                                    color: FlutterFlowTheme.of(context).primary,
+                                                                                    size: 20.0,
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            Expanded(
+                                                                              child: Column(
+                                                                                mainAxisSize: MainAxisSize.max,
+                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                children: [
+                                                                                  Padding(
+                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                    child: Row(
+                                                                                      mainAxisSize: MainAxisSize.max,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Expanded(
+                                                                                          child: RichText(
+                                                                                            textScaler: MediaQuery.of(context).textScaler,
+                                                                                            text: TextSpan(
+                                                                                              children: [
+                                                                                                TextSpan(
+                                                                                                  text: valueOrDefault<String>(
+                                                                                                    cardiosItem.descricao,
+                                                                                                    '-',
+                                                                                                  ),
+                                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                        font: GoogleFonts.inter(
+                                                                                                          fontWeight: FontWeight.w600,
+                                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                        ),
+                                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                        fontSize: 14.0,
+                                                                                                        letterSpacing: 0.0,
+                                                                                                        fontWeight: FontWeight.w600,
+                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                        decoration: TextDecoration.lineThrough,
+                                                                                                      ),
+                                                                                                )
+                                                                                              ],
+                                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                    font: GoogleFonts.inter(
+                                                                                                      fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                    ),
+                                                                                                    letterSpacing: 0.0,
+                                                                                                    fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                  ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  Row(
+                                                                                    mainAxisSize: MainAxisSize.max,
+                                                                                    children: [
+                                                                                      if (cardiosItem.observacao != '')
+                                                                                        Expanded(
+                                                                                          child: Padding(
+                                                                                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+                                                                                            child: Text(
+                                                                                              cardiosItem.observacao,
+                                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                    font: GoogleFonts.inter(
+                                                                                                      fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                    ),
+                                                                                                    color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                    fontSize: 12.0,
+                                                                                                    letterSpacing: 0.0,
+                                                                                                    fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                  ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                    ].addToEnd(SizedBox(width: 16.0)),
+                                                                                  ),
+                                                                                  Padding(
+                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 16.0),
+                                                                                    child: Row(
+                                                                                      mainAxisSize: MainAxisSize.max,
+                                                                                      children: [
+                                                                                        if (cardiosItem.distanciaKm > 0.0)
+                                                                                          Padding(
+                                                                                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 6.0, 0.0),
+                                                                                            child: Container(
+                                                                                              decoration: BoxDecoration(
+                                                                                                color: FlutterFlowTheme.of(context).accent2,
+                                                                                                borderRadius: BorderRadius.circular(12.0),
+                                                                                              ),
+                                                                                              child: Padding(
+                                                                                                padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
+                                                                                                child: Row(
+                                                                                                  mainAxisSize: MainAxisSize.max,
+                                                                                                  children: [
+                                                                                                    Text(
+                                                                                                      '${valueOrDefault<String>(
+                                                                                                        cardiosItem.distanciaKm.toString(),
+                                                                                                        '-',
+                                                                                                      )}km',
+                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                            font: GoogleFonts.inter(
+                                                                                                              fontWeight: FontWeight.normal,
+                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                            ),
+                                                                                                            color: FlutterFlowTheme.of(context).primaryText,
+                                                                                                            fontSize: 12.0,
+                                                                                                            letterSpacing: 0.0,
+                                                                                                            fontWeight: FontWeight.normal,
+                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                          ),
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        Container(
+                                                                                          decoration: BoxDecoration(
+                                                                                            color: FlutterFlowTheme.of(context).accent2,
+                                                                                            borderRadius: BorderRadius.circular(12.0),
+                                                                                          ),
+                                                                                          child: Padding(
+                                                                                            padding: EdgeInsetsDirectional.fromSTEB(4.0, 2.0, 6.0, 2.0),
+                                                                                            child: Row(
+                                                                                              mainAxisSize: MainAxisSize.max,
+                                                                                              children: [
+                                                                                                Icon(
+                                                                                                  FFIcons.kproperty1FiRrTimeQuarterPast,
+                                                                                                  color: FlutterFlowTheme.of(context).secondary,
+                                                                                                  size: 14.0,
+                                                                                                ),
+                                                                                                Text(
+                                                                                                  '${cardiosItem.duracaoMinutos.toString()}m',
+                                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                        font: GoogleFonts.inter(
+                                                                                                          fontWeight: FontWeight.normal,
+                                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                        ),
+                                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                                        fontSize: 12.0,
+                                                                                                        letterSpacing: 0.0,
+                                                                                                        fontWeight: FontWeight.normal,
+                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                                      ),
+                                                                                                ),
+                                                                                              ].divide(SizedBox(width: 4.0)),
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                            Align(
+                                                                              alignment: AlignmentDirectional(0.0, 0.0),
+                                                                              child: Row(
+                                                                                mainAxisSize: MainAxisSize.max,
+                                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                children: [
+                                                                                  if (FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento')
+                                                                                    Padding(
+                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                                                                                      child: InkWell(
+                                                                                        splashColor: Colors.transparent,
+                                                                                        focusColor: Colors.transparent,
+                                                                                        hoverColor: Colors.transparent,
+                                                                                        highlightColor: Colors.transparent,
+                                                                                        onTap: () async {
+                                                                                          if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
+                                                                                            await animationsMap['containerOnActionTriggerAnimation2']!.controller.reverse();
+                                                                                          }
+                                                                                          _model.opAtv = true;
+                                                                                          safeSetState(() {});
+                                                                                          await showModalBottomSheet(
+                                                                                            isScrollControlled: true,
+                                                                                            backgroundColor: Colors.transparent,
+                                                                                            enableDrag: false,
+                                                                                            context: context,
+                                                                                            builder: (context) {
+                                                                                              return WebViewAware(
+                                                                                                child: GestureDetector(
+                                                                                                  onTap: () {
+                                                                                                    FocusScope.of(context).unfocus();
+                                                                                                    FocusManager.instance.primaryFocus?.unfocus();
+                                                                                                  },
+                                                                                                  child: Padding(
+                                                                                                    padding: MediaQuery.viewInsetsOf(context),
+                                                                                                    child: MensagemWidget(
+                                                                                                      texto: 'Remover registro?',
+                                                                                                      tipo: '2',
+                                                                                                      fechasozinho: false,
+                                                                                                      mostrabotoes: true,
+                                                                                                      action: () async {
+                                                                                                        await RegistrosCardioTable().delete(
+                                                                                                          matchingRows: (rows) => rows.eqOrNull(
+                                                                                                            'Id',
+                                                                                                            cardiosItem.id,
+                                                                                                          ),
+                                                                                                        );
+                                                                                                        await Future.delayed(
+                                                                                                          Duration(
+                                                                                                            milliseconds: 1000,
+                                                                                                          ),
+                                                                                                        );
+                                                                                                        await action_blocks.getTreinosAluno(context);
+                                                                                                        await showModalBottomSheet(
+                                                                                                          isScrollControlled: true,
+                                                                                                          backgroundColor: Colors.transparent,
+                                                                                                          enableDrag: false,
+                                                                                                          context: context,
+                                                                                                          builder: (context) {
+                                                                                                            return WebViewAware(
+                                                                                                              child: GestureDetector(
+                                                                                                                onTap: () {
+                                                                                                                  FocusScope.of(context).unfocus();
+                                                                                                                  FocusManager.instance.primaryFocus?.unfocus();
+                                                                                                                },
+                                                                                                                child: Padding(
+                                                                                                                  padding: MediaQuery.viewInsetsOf(context),
+                                                                                                                  child: MensagemWidget(
+                                                                                                                    texto: 'Registro deletado com sucesso!',
+                                                                                                                    tipo: '1',
+                                                                                                                    fechasozinho: true,
+                                                                                                                    mostrabotoes: false,
+                                                                                                                    action: () async {
+                                                                                                                      safeSetState(() {});
+                                                                                                                    },
+                                                                                                                  ),
+                                                                                                                ),
+                                                                                                              ),
+                                                                                                            );
+                                                                                                          },
+                                                                                                        ).then((value) => safeSetState(() {}));
+                                                                                                      },
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ),
+                                                                                              );
+                                                                                            },
+                                                                                          ).then((value) => safeSetState(() {}));
+
+                                                                                          _model.opAtv = false;
+                                                                                          safeSetState(() {});
+                                                                                          if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
+                                                                                            safeSetState(() => hasContainerTriggered2 = true);
+                                                                                            SchedulerBinding.instance.addPostFrameCallback((_) async => await animationsMap['containerOnActionTriggerAnimation2']!.controller.forward(from: 0.0));
+                                                                                          }
+                                                                                        },
+                                                                                        child: Container(
+                                                                                          width: 32.0,
+                                                                                          height: 32.0,
+                                                                                          decoration: BoxDecoration(
+                                                                                            color: FlutterFlowTheme.of(context).accent1,
+                                                                                            borderRadius: BorderRadius.circular(12.0),
+                                                                                          ),
+                                                                                          child: Align(
+                                                                                            alignment: AlignmentDirectional(0.0, 0.0),
+                                                                                            child: Icon(
+                                                                                              FFIcons.kproperty1FiRrTrash,
+                                                                                              color: FlutterFlowTheme.of(context).primary,
+                                                                                              size: 14.0,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  if (FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento')
+                                                                                    InkWell(
+                                                                                      splashColor: Colors.transparent,
+                                                                                      focusColor: Colors.transparent,
+                                                                                      hoverColor: Colors.transparent,
+                                                                                      highlightColor: Colors.transparent,
+                                                                                      onTap: () async {
+                                                                                        if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
+                                                                                          await animationsMap['containerOnActionTriggerAnimation2']!.controller.reverse();
+                                                                                        }
+                                                                                        _model.opAtv = true;
+                                                                                        safeSetState(() {});
+                                                                                        await showModalBottomSheet(
+                                                                                          isScrollControlled: true,
+                                                                                          backgroundColor: Colors.transparent,
+                                                                                          enableDrag: false,
+                                                                                          context: context,
+                                                                                          builder: (context) {
+                                                                                            return WebViewAware(
+                                                                                              child: GestureDetector(
+                                                                                                onTap: () {
+                                                                                                  FocusScope.of(context).unfocus();
+                                                                                                  FocusManager.instance.primaryFocus?.unfocus();
+                                                                                                },
+                                                                                                child: Padding(
+                                                                                                  padding: MediaQuery.viewInsetsOf(context),
+                                                                                                  child: TreinosDetalhesCardioEditWidget(
+                                                                                                    index: _model.index,
+                                                                                                    cardio: cardiosItem,
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ),
+                                                                                            );
+                                                                                          },
+                                                                                        ).then((value) => safeSetState(() => _model.editou = value));
+
+                                                                                        _model.opAtv = false;
+                                                                                        safeSetState(() {});
+                                                                                        if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
+                                                                                          safeSetState(() => hasContainerTriggered2 = true);
+                                                                                        }
+                                                                                        if (_model.editou!) {
+                                                                                          await Future.delayed(
+                                                                                            Duration(
+                                                                                              milliseconds: 1000,
+                                                                                            ),
+                                                                                          );
+                                                                                          await action_blocks.getTreinosAluno(context);
+                                                                                          safeSetState(() {});
+                                                                                          await showModalBottomSheet(
+                                                                                            isScrollControlled: true,
+                                                                                            backgroundColor: Colors.transparent,
+                                                                                            enableDrag: false,
+                                                                                            context: context,
+                                                                                            builder: (context) {
+                                                                                              return WebViewAware(
+                                                                                                child: GestureDetector(
+                                                                                                  onTap: () {
+                                                                                                    FocusScope.of(context).unfocus();
+                                                                                                    FocusManager.instance.primaryFocus?.unfocus();
+                                                                                                  },
+                                                                                                  child: Padding(
+                                                                                                    padding: MediaQuery.viewInsetsOf(context),
+                                                                                                    child: MensagemWidget(
+                                                                                                      texto: 'Cárdio atualizado!',
+                                                                                                      tipo: '1',
+                                                                                                      fechasozinho: true,
+                                                                                                      mostrabotoes: false,
+                                                                                                      action: () async {
+                                                                                                        safeSetState(() {});
+                                                                                                      },
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ),
+                                                                                              );
+                                                                                            },
+                                                                                          ).then((value) => safeSetState(() {}));
+                                                                                        }
+
+                                                                                        safeSetState(() {});
+                                                                                      },
+                                                                                      child: Container(
+                                                                                        width: 32.0,
+                                                                                        height: 32.0,
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: FlutterFlowTheme.of(context).accent1,
+                                                                                          borderRadius: BorderRadius.circular(12.0),
+                                                                                        ),
+                                                                                        child: Align(
+                                                                                          alignment: AlignmentDirectional(0.0, 0.0),
+                                                                                          child: Icon(
+                                                                                            FFIcons.kproperty1FiRrEdit,
+                                                                                            color: FlutterFlowTheme.of(context).primary,
+                                                                                            size: 14.0,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                ].addToStart(SizedBox(width: 8.0)).addToEnd(SizedBox(width: 16.0)),
+                                                                              ),
+                                                                            ),
+                                                                          ].addToStart(SizedBox(width: 16.0)),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                if (cardiosIndex !=
+                                                                    (valueOrDefault<
+                                                                            int>(
+                                                                          FFAppState()
+                                                                              .treinosTemp
+                                                                              .subagrupamentos
+                                                                              .elementAtOrNull(_model.index)
+                                                                              ?.cardios
+                                                                              ?.length,
+                                                                          0,
+                                                                        ) -
+                                                                        1))
+                                                                  Divider(
+                                                                    height: 1.0,
+                                                                    thickness:
+                                                                        1.0,
+                                                                    indent:
+                                                                        46.0,
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .alternate,
+                                                                  ),
+                                                              ],
+                                                            );
+                                                          }),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  if (FFAppState()
+                                                          .treinosTemp
+                                                          .subagrupamentos
+                                                          .elementAtOrNull(
+                                                              _model.index)
+                                                          ?.status ==
+                                                      'em_andamento')
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  16.0,
+                                                                  0.0,
+                                                                  16.0,
+                                                                  16.0),
+                                                      child: Container(
+                                                        width:
+                                                            MediaQuery.sizeOf(
+                                                                        context)
+                                                                    .width *
+                                                                1.0,
+                                                        height: 38.0,
+                                                        child: custom_widgets
+                                                            .DashedButton(
+                                                          width:
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  1.0,
+                                                          height: 38.0,
+                                                          label:
+                                                              'Adicionar exercício',
+                                                          labelSize: 14.0,
+                                                          labelColor:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .primary,
+                                                          icon: Icon(
+                                                            Icons.add,
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primary,
+                                                            size: 18.0,
+                                                          ),
+                                                          iconColor:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .primary,
+                                                          iconGap: 4.0,
+                                                          borderColor:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .primary,
+                                                          borderRadius: 10.0,
+                                                          borderWidth: 1.0,
+                                                          dashWidth: 4.0,
+                                                          dashGap: 4.0,
+                                                          onPressed: () async {
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          TreinosDetalhesCardioNovoWidget(
+                                                                        index: _model
+                                                                            .index,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(() =>
+                                                                    _model.add =
+                                                                        value));
+
+                                                            if (_model.add ==
+                                                                true) {
+                                                              await Future
+                                                                  .delayed(
+                                                                Duration(
+                                                                  milliseconds:
+                                                                      1000,
+                                                                ),
+                                                              );
+                                                              if (!mounted)
+                                                                return;
+                                                              await action_blocks
+                                                                  .getTreinosAluno(
+                                                                      context);
+                                                              if (!mounted)
+                                                                return;
+                                                              await showModalBottomSheet(
+                                                                isScrollControlled:
+                                                                    true,
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                enableDrag:
+                                                                    false,
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return WebViewAware(
+                                                                    child:
+                                                                        GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        FocusScope.of(context)
+                                                                            .unfocus();
+                                                                        FocusManager
+                                                                            .instance
+                                                                            .primaryFocus
+                                                                            ?.unfocus();
+                                                                      },
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            MediaQuery.viewInsetsOf(context),
+                                                                        child:
+                                                                            MensagemWidget(
+                                                                          texto:
+                                                                              'Cárdio adicionado!',
+                                                                          tipo:
+                                                                              '1',
+                                                                          fechasozinho:
+                                                                              true,
+                                                                          mostrabotoes:
+                                                                              false,
+                                                                          action:
+                                                                              () async {
+                                                                            safeSetState(() {});
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ).then((value) =>
+                                                                  safeSetState(
+                                                                      () {}));
+                                                            }
+
+                                                            safeSetState(() {});
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
-                                          ].divide(SizedBox(height: 16.0)),
-                                        ),
+                                            ),
+                                          ),
+                                        ].divide(SizedBox(height: 16.0)),
                                       ),
                                     ),
-                                  ].divide(SizedBox(height: 16.0)),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 16.0, 0.0, 0.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        if (FFAppState()
-                                                .treinosTemp
-                                                .subagrupamentos
-                                                .elementAtOrNull(_model.index)
-                                                ?.status ==
-                                            'em_andamento')
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
-                                                        } else {
-                                                          return 32.0;
-                                                        }
-                                                      }(),
-                                                      0.0,
+                                  ),
+                                ].divide(SizedBox(height: 16.0)),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 16.0, 0.0, 0.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      if (FFAppState()
+                                              .treinosTemp
+                                              .subagrupamentos
+                                              .elementAtOrNull(_model.index)
+                                              ?.status ==
+                                          'em_andamento')
+                                        Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  16.0,
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  0.0),
+                                          child: Container(
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
+                                            decoration: BoxDecoration(),
+                                            child: Text(
+                                              'Feedback',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium
+                                                              .fontStyle,
                                                     ),
-                                                    16.0,
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
-                                                        } else {
-                                                          return 32.0;
-                                                        }
-                                                      }(),
-                                                      0.0,
-                                                    ),
-                                                    0.0),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 13.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      if (FFAppState()
+                                              .treinosTemp
+                                              .subagrupamentos
+                                              .elementAtOrNull(_model.index)
+                                              ?.status ==
+                                          'em_andamento')
+                                        Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  0.0,
+                                                  valueOrDefault<double>(
+                                                    () {
+                                                      if (MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width <
+                                                          kBreakpointSmall) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointMedium) {
+                                                        return 16.0;
+                                                      } else if (MediaQuery
+                                                                  .sizeOf(
+                                                                      context)
+                                                              .width <
+                                                          kBreakpointLarge) {
+                                                        return 32.0;
+                                                      } else {
+                                                        return 32.0;
+                                                      }
+                                                    }(),
+                                                    0.0,
+                                                  ),
+                                                  0.0),
+                                          child: Container(
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                FlutterFlowTheme.of(context)
+                                                    .designToken
+                                                    .shadow
+                                                    .lg
+                                              ],
+                                            ),
                                             child: Container(
-                                              width: MediaQuery.sizeOf(context)
-                                                      .width *
-                                                  1.0,
-                                              decoration: BoxDecoration(),
-                                              child: Text(
-                                                'Feedback',
+                                              width: 200.0,
+                                              child: TextFormField(
+                                                controller: _model
+                                                    .txtFeedbackTextController,
+                                                focusNode:
+                                                    _model.txtFeedbackFocusNode,
+                                                onFieldSubmitted: (_) async {
+                                                  _model.reultFeedback =
+                                                      await AlunoGroup
+                                                          .salvarFeedbackCall
+                                                          .call(
+                                                    pAlunoUuid: currentUserUid,
+                                                    pTreinoExecucaoId:
+                                                        FFAppState()
+                                                            .treinosTemp
+                                                            .subagrupamentos
+                                                            .elementAtOrNull(
+                                                                _model.index)
+                                                            ?.treinoExecucaoId,
+                                                    pFeedback: _model
+                                                        .txtFeedbackTextController
+                                                        .text
+                                                        .trim(),
+                                                  );
+
+                                                  if ((_model.reultFeedback
+                                                          ?.succeeded ??
+                                                      true)) {
+                                                    FFAppState()
+                                                        .updateTreinosTempStruct(
+                                                      (e) => e
+                                                        ..updateSubagrupamentos(
+                                                          (e) => e[_model.index]
+                                                            ..feedback = _model
+                                                                .txtFeedbackTextController
+                                                                .text
+                                                                .trim(),
+                                                        ),
+                                                    );
+                                                    safeSetState(() {});
+                                                    await showModalBottomSheet(
+                                                      isScrollControlled: true,
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      enableDrag: false,
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return WebViewAware(
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .unfocus();
+                                                              FocusManager
+                                                                  .instance
+                                                                  .primaryFocus
+                                                                  ?.unfocus();
+                                                            },
+                                                            child: Padding(
+                                                              padding: MediaQuery
+                                                                  .viewInsetsOf(
+                                                                      context),
+                                                              child:
+                                                                  MensagemWidget(
+                                                                texto:
+                                                                    'Feedback salvo com sucesso!',
+                                                                tipo: '1',
+                                                                fechasozinho:
+                                                                    true,
+                                                                mostrabotoes:
+                                                                    false,
+                                                                action:
+                                                                    () async {
+                                                                  safeSetState(
+                                                                      () {});
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ).then((value) =>
+                                                        safeSetState(() {}));
+                                                  } else {
+                                                    await showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (alertDialogContext) {
+                                                        return WebViewAware(
+                                                          child: AlertDialog(
+                                                            content: Text((_model
+                                                                        .reultFeedback
+                                                                        ?.jsonBody ??
+                                                                    '')
+                                                                .toString()),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () =>
+                                                                    Navigator.pop(
+                                                                        alertDialogContext),
+                                                                child:
+                                                                    Text('Ok'),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                  }
+
+                                                  safeSetState(() {});
+                                                },
+                                                autofocus: false,
+                                                enabled: true,
+                                                textInputAction:
+                                                    TextInputAction.go,
+                                                obscureText: false,
+                                                decoration: InputDecoration(
+                                                  isDense: true,
+                                                  labelStyle: FlutterFlowTheme
+                                                          .of(context)
+                                                      .labelMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .labelMedium
+                                                                  .fontWeight,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .labelMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        fontSize: 12.0,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .labelMedium
+                                                                .fontWeight,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .labelMedium
+                                                                .fontStyle,
+                                                      ),
+                                                  hintText:
+                                                      'Deixe seu feedback sobre este treino....',
+                                                  hintStyle: FlutterFlowTheme
+                                                          .of(context)
+                                                      .labelMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .labelMedium
+                                                                  .fontWeight,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .labelMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .labelMedium
+                                                                .fontWeight,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .labelMedium
+                                                                .fontStyle,
+                                                      ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Color(0x00000000),
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Color(0x00000000),
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0),
+                                                  ),
+                                                  errorBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .error,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0),
+                                                  ),
+                                                  focusedErrorBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .error,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0),
+                                                  ),
+                                                  filled: true,
+                                                  fillColor:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .primaryBackground,
+                                                  contentPadding:
+                                                      EdgeInsets.all(16.0),
+                                                ),
                                                 style: FlutterFlowTheme.of(
                                                         context)
                                                     .bodyMedium
                                                     .override(
                                                       font: GoogleFonts.inter(
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                            FontWeight.w500,
                                                         fontStyle:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -2188,386 +2523,38 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                       color:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .secondaryText,
-                                                      fontSize: 13.0,
+                                                              .primaryText,
+                                                      fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                          FontWeight.w500,
                                                       fontStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
+                                                maxLines: 5,
+                                                cursorColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
+                                                enableInteractiveSelection:
+                                                    true,
+                                                validator: _model
+                                                    .txtFeedbackTextControllerValidator
+                                                    .asValidator(context),
                                               ),
                                             ),
                                           ),
-                                        if (FFAppState()
-                                                .treinosTemp
-                                                .subagrupamentos
-                                                .elementAtOrNull(_model.index)
-                                                ?.status ==
-                                            'em_andamento')
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
-                                                        } else {
-                                                          return 32.0;
-                                                        }
-                                                      }(),
-                                                      0.0,
-                                                    ),
-                                                    0.0,
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
-                                                        } else {
-                                                          return 32.0;
-                                                        }
-                                                      }(),
-                                                      0.0,
-                                                    ),
-                                                    0.0),
-                                            child: Container(
-                                              width: MediaQuery.sizeOf(context)
-                                                      .width *
-                                                  1.0,
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  FlutterFlowTheme.of(context)
-                                                      .designToken
-                                                      .shadow
-                                                      .lg
-                                                ],
-                                              ),
-                                              child: Container(
-                                                width: 200.0,
-                                                child: TextFormField(
-                                                  controller: _model
-                                                      .txtFeedbackTextController,
-                                                  focusNode: _model
-                                                      .txtFeedbackFocusNode,
-                                                  onFieldSubmitted: (_) async {
-                                                    _model.reultFeedback =
-                                                        await AlunoGroup
-                                                            .salvarFeedbackCall
-                                                            .call(
-                                                      pAlunoUuid:
-                                                          currentUserUid,
-                                                      pTreinoExecucaoId:
-                                                          FFAppState()
-                                                              .treinosTemp
-                                                              .subagrupamentos
-                                                              .elementAtOrNull(
-                                                                  _model.index)
-                                                              ?.treinoExecucaoId,
-                                                      pFeedback: _model
-                                                          .txtFeedbackTextController
-                                                          .text
-                                                          .trim(),
-                                                    );
-
-                                                    if ((_model.reultFeedback
-                                                            ?.succeeded ??
-                                                        true)) {
-                                                      FFAppState()
-                                                          .updateTreinosTempStruct(
-                                                        (e) => e
-                                                          ..updateSubagrupamentos(
-                                                            (e) => e[
-                                                                _model.index]
-                                                              ..feedback = _model
-                                                                  .txtFeedbackTextController
-                                                                  .text
-                                                                  .trim(),
-                                                          ),
-                                                      );
-                                                      safeSetState(() {});
-                                                      await showModalBottomSheet(
-                                                        isScrollControlled:
-                                                            true,
-                                                        backgroundColor:
-                                                            Colors.transparent,
-                                                        enableDrag: false,
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return WebViewAware(
-                                                            child:
-                                                                GestureDetector(
-                                                              onTap: () {
-                                                                FocusScope.of(
-                                                                        context)
-                                                                    .unfocus();
-                                                                FocusManager
-                                                                    .instance
-                                                                    .primaryFocus
-                                                                    ?.unfocus();
-                                                              },
-                                                              child: Padding(
-                                                                padding: MediaQuery
-                                                                    .viewInsetsOf(
-                                                                        context),
-                                                                child:
-                                                                    MensagemWidget(
-                                                                  texto:
-                                                                      'Feedback salvo com sucesso!',
-                                                                  tipo: '1',
-                                                                  fechasozinho:
-                                                                      true,
-                                                                  mostrabotoes:
-                                                                      false,
-                                                                  action:
-                                                                      () async {
-                                                                    safeSetState(
-                                                                        () {});
-                                                                  },
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ).then((value) =>
-                                                          safeSetState(() {}));
-                                                    } else {
-                                                      await showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (alertDialogContext) {
-                                                          return WebViewAware(
-                                                            child: AlertDialog(
-                                                              content: Text((_model
-                                                                          .reultFeedback
-                                                                          ?.jsonBody ??
-                                                                      '')
-                                                                  .toString()),
-                                                              actions: [
-                                                                TextButton(
-                                                                  onPressed: () =>
-                                                                      Navigator.pop(
-                                                                          alertDialogContext),
-                                                                  child: Text(
-                                                                      'Ok'),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        },
-                                                      );
-                                                    }
-
-                                                    safeSetState(() {});
-                                                  },
-                                                  autofocus: false,
-                                                  enabled: true,
-                                                  textInputAction:
-                                                      TextInputAction.go,
-                                                  obscureText: false,
-                                                  decoration: InputDecoration(
-                                                    isDense: true,
-                                                    labelStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .labelMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primaryText,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                    hintText:
-                                                        'Deixe seu feedback sobre este treino....',
-                                                    hintStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .labelMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            Color(0x00000000),
-                                                        width: 1.0,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16.0),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            Color(0x00000000),
-                                                        width: 1.0,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16.0),
-                                                    ),
-                                                    errorBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .error,
-                                                        width: 1.0,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16.0),
-                                                    ),
-                                                    focusedErrorBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .error,
-                                                        width: 1.0,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16.0),
-                                                    ),
-                                                    filled: true,
-                                                    fillColor:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .primaryBackground,
-                                                    contentPadding:
-                                                        EdgeInsets.all(16.0),
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        fontSize: 14.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                  maxLines: 5,
-                                                  cursorColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primaryText,
-                                                  enableInteractiveSelection:
-                                                      true,
-                                                  validator: _model
-                                                      .txtFeedbackTextControllerValidator
-                                                      .asValidator(context),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ]
-                                          .divide(SizedBox(height: 16.0))
-                                          .addToEnd(SizedBox(height: 140.0)),
-                                    ),
+                                        ),
+                                    ]
+                                        .divide(SizedBox(height: 16.0))
+                                        .addToEnd(SizedBox(height: 140.0)),
                                   ),
                                 ),
-                              ].divide(SizedBox(height: 16.0)),
-                            ),
+                              ),
+                            ].divide(SizedBox(height: 16.0)),
+                          ),
                         ],
                       ),
                     ),
@@ -2592,8 +2579,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                             end: AlignmentDirectional(0, 1.0),
                           ),
                         ),
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            0.0, 0.0, 0.0, MediaQuery.paddingOf(context).bottom),
+                        padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0,
+                            MediaQuery.paddingOf(context).bottom),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [

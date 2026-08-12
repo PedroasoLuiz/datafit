@@ -360,16 +360,6 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                   ),
                 ],
               ),
-
-              // ── NAVBAR ───────────────────────────────────────────────
-              Align(
-                alignment: const AlignmentDirectional(0.0, 1.0),
-                child: wrapWithModel(
-                  model: _model.navbarModel,
-                  updateCallback: () => safeSetState(() {}),
-                  child: const NavbarWidget(index: 5),
-                ),
-              ),
             ],
           ),
         ),

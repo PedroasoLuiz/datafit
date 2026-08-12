@@ -265,8 +265,7 @@ class _TreinosNovoTreinoWidgetState extends State<TreinosNovoTreinoWidget>
                                     .bodyMedium
                                     .fontStyle,
                               ),
-                              color:
-                                  FlutterFlowTheme.of(context).secondaryText,
+                              color: FlutterFlowTheme.of(context).secondaryText,
                               fontSize: 14.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.normal,
@@ -286,20 +285,21 @@ class _TreinosNovoTreinoWidgetState extends State<TreinosNovoTreinoWidget>
                           decoration: InputDecoration(
                             isDense: true,
                             hintText: 'Ex: Hipertrofia, FullBody...',
-                            hintStyle:
-                                FlutterFlowTheme.of(context).labelMedium.override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .labelMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                    ),
+                            hintStyle: FlutterFlowTheme.of(context)
+                                .labelMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.normal,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: FlutterFlowTheme.of(context).alternate,
@@ -332,18 +332,18 @@ class _TreinosNovoTreinoWidgetState extends State<TreinosNovoTreinoWidget>
                             fillColor:
                                 FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                          cursorColor:
-                              FlutterFlowTheme.of(context).primaryText,
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                          cursorColor: FlutterFlowTheme.of(context).primaryText,
                           validator: _model.txtNomeTextControllerValidator
                               .asValidator(context),
                         ),

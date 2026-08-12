@@ -496,7 +496,10 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget>
                                             '_model.emailTextController',
                                             Duration(milliseconds: 2000),
                                             () async {
-                                              if (_model.emailTextController.text.trim().isEmpty) return;
+                                              if (_model
+                                                  .emailTextController.text
+                                                  .trim()
+                                                  .isEmpty) return;
                                               await action_blocks
                                                   .verificaCadastroEmail(
                                                 context,
@@ -641,47 +644,94 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget>
                                       ),
                                     ),
                                     if (FFAppState().existeCadastro != null &&
-                                        getJsonField(FFAppState().existeCadastro, r'''$.existeNaAuth''') == true)
+                                        getJsonField(
+                                                FFAppState().existeCadastro,
+                                                r'''$.existeNaAuth''') ==
+                                            true)
                                       Builder(builder: (context) {
-                                        final primeiroNome = FFAppState().perfil.nome.trim().split(' ').first;
-                                        final perfilCompleto = getJsonField(FFAppState().existeCadastro, r'''$.perfilCompleto''') == true;
-                                        final outrosPersonais = getJsonField(FFAppState().existeCadastro, r'''$.outrosPersonais''') as List? ?? [];
-                                        final temPersonal = outrosPersonais.isNotEmpty;
-                                        final nomePersonal = temPersonal ? (outrosPersonais.first['nome']?.toString() ?? '') : '';
+                                        final primeiroNome = FFAppState()
+                                            .perfil
+                                            .nome
+                                            .trim()
+                                            .split(' ')
+                                            .first;
+                                        final perfilCompleto = getJsonField(
+                                                FFAppState().existeCadastro,
+                                                r'''$.perfilCompleto''') ==
+                                            true;
+                                        final outrosPersonais = getJsonField(
+                                                    FFAppState().existeCadastro,
+                                                    r'''$.outrosPersonais''')
+                                                as List? ??
+                                            [];
+                                        final temPersonal =
+                                            outrosPersonais.isNotEmpty;
+                                        final nomePersonal = temPersonal
+                                            ? (outrosPersonais.first['nome']
+                                                    ?.toString() ??
+                                                '')
+                                            : '';
                                         return SizedBox(
                                           width: double.infinity,
                                           child: Padding(
-                                            padding: const EdgeInsets.only(top: 8.0),
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Text(
                                                   'Ei $primeiroNome! Encontrei um cadastro com esse e-mail.',
-                                                  style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                                                    color: FlutterFlowTheme.of(context).warning,
-                                                    letterSpacing: 0,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodySmall
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .warning,
+                                                        letterSpacing: 0,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                 ),
                                                 const SizedBox(height: 4),
                                                 Text(
-                                                  perfilCompleto ? 'Perfil completo.' : 'Perfil incompleto.',
-                                                  style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                    font: GoogleFonts.inter(),
-                                                    color: FlutterFlowTheme.of(context).secondaryText,
-                                                    letterSpacing: 0,
-                                                  ),
+                                                  perfilCompleto
+                                                      ? 'Perfil completo.'
+                                                      : 'Perfil incompleto.',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodySmall
+                                                      .override(
+                                                        font:
+                                                            GoogleFonts.inter(),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        letterSpacing: 0,
+                                                      ),
                                                 ),
                                                 if (temPersonal)
                                                   Text(
                                                     'Já vinculada a $nomePersonal.',
-                                                    style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                      font: GoogleFonts.inter(),
-                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                      letterSpacing: 0,
-                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodySmall
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .inter(),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryText,
+                                                          letterSpacing: 0,
+                                                        ),
                                                   ),
                                               ],
                                             ),
@@ -741,7 +791,8 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget>
 
                   Map<String, dynamic> resultado;
                   try {
-                    resultado = jsonDecode(resultadoRaw) as Map<String, dynamic>;
+                    resultado =
+                        jsonDecode(resultadoRaw) as Map<String, dynamic>;
                   } catch (e) {
                     resultado = {
                       'sucesso': false,
@@ -750,7 +801,9 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget>
                   }
                   final sucesso = resultado['sucesso'] == true;
                   final mensagem = resultado['mensagem']?.toString() ??
-                      (sucesso ? 'Convite enviado.' : 'Não foi possível enviar o convite.');
+                      (sucesso
+                          ? 'Convite enviado.'
+                          : 'Não foi possível enviar o convite.');
 
                   if (!context.mounted) return;
                   await showModalBottomSheet(

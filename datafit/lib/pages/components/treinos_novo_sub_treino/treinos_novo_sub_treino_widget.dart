@@ -31,8 +31,8 @@ class TreinosNovoSubTreinoWidget extends StatefulWidget {
       _TreinosNovoSubTreinoWidgetState();
 }
 
-class _TreinosNovoSubTreinoWidgetState
-    extends State<TreinosNovoSubTreinoWidget> with TickerProviderStateMixin {
+class _TreinosNovoSubTreinoWidgetState extends State<TreinosNovoSubTreinoWidget>
+    with TickerProviderStateMixin {
   late TreinosNovoSubTreinoModel _model;
 
   var hasContainerTriggered = false;
@@ -199,8 +199,7 @@ class _TreinosNovoSubTreinoWidgetState
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Padding(
-          padding:
-              const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
             child: Container(
@@ -235,10 +234,9 @@ class _TreinosNovoSubTreinoWidgetState
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.bold,
-                                        fontStyle:
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
                                       ),
                                       color: FlutterFlowTheme.of(context)
                                           .primaryText,
@@ -262,20 +260,18 @@ class _TreinosNovoSubTreinoWidgetState
                           16.0, 16.0, 0.0, 8.0),
                       child: Text(
                         'Nome do treino',
-                        style:
-                            FlutterFlowTheme.of(context).bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.normal,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.normal,
-                                ),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.normal,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).secondaryText,
+                              fontSize: 14.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.normal,
+                            ),
                       ),
                     ),
                     Padding(
@@ -338,18 +334,18 @@ class _TreinosNovoSubTreinoWidgetState
                             fillColor:
                                 FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                          cursorColor:
-                              FlutterFlowTheme.of(context).primaryText,
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                          cursorColor: FlutterFlowTheme.of(context).primaryText,
                           validator: _model.txtNomeTextControllerValidator
                               .asValidator(context),
                         ),
@@ -368,8 +364,7 @@ class _TreinosNovoSubTreinoWidgetState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
@@ -380,15 +375,13 @@ class _TreinosNovoSubTreinoWidgetState
                   size: 24.0,
                 ),
                 onPressed: () async {
-                  final nome =
-                      _model.txtNomeTextController?.text.trim() ?? '';
+                  final nome = _model.txtNomeTextController?.text.trim() ?? '';
                   if (nome.isEmpty) return;
 
                   if (widget.treinoId != null) {
                     await SupaFlow.client
                         .from('Treinos')
-                        .update({'Descricao': nome})
-                        .eq('Id', widget.treinoId!);
+                        .update({'Descricao': nome}).eq('Id', widget.treinoId!);
                   } else {
                     await SupaFlow.client.from('Treinos').insert({
                       'Descricao': nome,
@@ -406,13 +399,11 @@ class _TreinosNovoSubTreinoWidgetState
                   hasBeenTriggered: hasIconButtonTriggered1),
             ),
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
+                fillColor: FlutterFlowTheme.of(context).secondaryBackground,
                 icon: Icon(
                   FFIcons.kproperty1FiRrCrossSmall,
                   color: FlutterFlowTheme.of(context).secondaryText,

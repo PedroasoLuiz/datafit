@@ -64,8 +64,7 @@ class _TreinosPersonalDetalheWidgetState
     try {
       final rows = await SupaFlow.client
           .from('ExerciciosTreinos')
-          .select(
-              'Id, SerieExecucao, RepeticaoExecucao, SerieAquecimento, '
+          .select('Id, SerieExecucao, RepeticaoExecucao, SerieAquecimento, '
               'RepeticaoAquecimento, TempoDescansoSegundos, Observacao, Ordem, '
               'Exercicios(Id, Descricao, LinkInstrucao, IsDeleted, '
               'SubCategoriasTrabalhadas(Id, Descricao))')
@@ -96,8 +95,7 @@ class _TreinosPersonalDetalheWidgetState
               repeticaoAquecimento:
                   (row['RepeticaoAquecimento'] as num?)?.toInt(),
               observacao: row['Observacao'] as String?,
-              tempoDescansoSeg:
-                  (row['TempoDescansoSegundos'] as num?)?.toInt(),
+              tempoDescansoSeg: (row['TempoDescansoSegundos'] as num?)?.toInt(),
               ordem: (row['Ordem'] as num?)?.toInt() ?? 0,
             ));
       }
@@ -219,8 +217,8 @@ class _TreinosPersonalDetalheWidgetState
             children: [
               // ── HEADER ─────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 16.0, 16.0, 8.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,8 +233,7 @@ class _TreinosPersonalDetalheWidgetState
                         width: 36.0,
                         height: 36.0,
                         decoration: BoxDecoration(
-                          color:
-                              FlutterFlowTheme.of(context).primaryBackground,
+                          color: FlutterFlowTheme.of(context).primaryBackground,
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Align(
@@ -343,14 +340,12 @@ class _TreinosPersonalDetalheWidgetState
                         ? _buildEstadoVazio(context)
                         : SingleChildScrollView(
                             child: Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 8.0, 16.0, 40.0),
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 8.0, 16.0, 40.0),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: _model.grupos
-                                    .map((g) =>
-                                        _buildGrupoSection(context, g))
+                                    .map((g) => _buildGrupoSection(context, g))
                                     .toList()
                                     .divide(const SizedBox(height: 16.0)),
                               ),
@@ -372,8 +367,7 @@ class _TreinosPersonalDetalheWidgetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-              const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 8.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 8.0),
           child: Text(
             grupo.nome,
             style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -406,8 +400,8 @@ class _TreinosPersonalDetalheWidgetState
                       ex: e.value,
                       isLast: e.key == grupo.exercicios.length - 1,
                       onEdit: () => _abrirEditarExercicio(e.value),
-                      onDelete: () =>
-                          _confirmarExcluirExercicio(e.value.etId, e.value.nome),
+                      onDelete: () => _confirmarExcluirExercicio(
+                          e.value.etId, e.value.nome),
                     ))
                 .toList(),
           ),
@@ -489,8 +483,7 @@ class _SwipeableExercicioRow extends StatefulWidget {
   final VoidCallback onDelete;
 
   @override
-  State<_SwipeableExercicioRow> createState() =>
-      _SwipeableExercicioRowState();
+  State<_SwipeableExercicioRow> createState() => _SwipeableExercicioRowState();
 }
 
 class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
@@ -647,8 +640,7 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                                     '${ex.serieAquecimento != null && ex.serieAquecimento! > 0 ? '  •  +${ex.serieAquecimento} aq' : ''}',
                                     style: theme.bodyMedium.override(
                                       font: GoogleFonts.inter(
-                                        fontWeight:
-                                            theme.bodyMedium.fontWeight,
+                                        fontWeight: theme.bodyMedium.fontWeight,
                                         fontStyle: theme.bodyMedium.fontStyle,
                                       ),
                                       color: theme.secondaryText,
@@ -662,8 +654,7 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                                     ex.observacao!,
                                     style: theme.bodyMedium.override(
                                       font: GoogleFonts.inter(
-                                        fontWeight:
-                                            theme.bodyMedium.fontWeight,
+                                        fontWeight: theme.bodyMedium.fontWeight,
                                         fontStyle: theme.bodyMedium.fontStyle,
                                       ),
                                       color: theme.secondaryText,

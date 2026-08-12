@@ -230,8 +230,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Padding(
-          padding:
-              const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
             child: Container(
@@ -261,18 +260,15 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                           children: [
                             Expanded(
                               child: Text(
-                                isEdit
-                                    ? 'Editar exercício'
-                                    : 'Novo exercício',
+                                isEdit ? 'Editar exercício' : 'Novo exercício',
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.bold,
-                                        fontStyle:
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
                                       ),
                                       color: FlutterFlowTheme.of(context)
                                           .primaryText,
@@ -321,20 +317,20 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         width: double.infinity,
                         height: 48.0,
                         maxHeight: 200.0,
-                        textStyle:
-                            FlutterFlowTheme.of(context).bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        textStyle: FlutterFlowTheme.of(context)
+                            .bodyMedium
+                            .override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.w500,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              fontSize: 14.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w500,
+                            ),
                         hintText: 'Selecionar grupo...',
                         icon: Icon(
                           Icons.keyboard_arrow_down_rounded,
@@ -377,8 +373,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
@@ -389,8 +384,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                   size: 24.0,
                 ),
                 onPressed: () async {
-                  final nome =
-                      _model.txtNomeTextController?.text.trim() ?? '';
+                  final nome = _model.txtNomeTextController?.text.trim() ?? '';
                   if (nome.isEmpty) return;
 
                   // Validar nome duplicado
@@ -432,9 +426,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                   final subcatId = rawSubcat > 0 ? rawSubcat : null;
 
                   if (isEdit) {
-                    await SupaFlow.client
-                        .from('Exercicios')
-                        .update({
+                    await SupaFlow.client.from('Exercicios').update({
                       'Descricao': nome,
                       'SubCategoriasTrabalhadasId': subcatId,
                       'LinkInstrucao':
@@ -460,13 +452,11 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                   hasBeenTriggered: hasIconButtonTriggered1),
             ),
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
+                fillColor: FlutterFlowTheme.of(context).secondaryBackground,
                 icon: Icon(
                   FFIcons.kproperty1FiRrCrossSmall,
                   color: FlutterFlowTheme.of(context).secondaryText,
@@ -498,8 +488,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
         style: FlutterFlowTheme.of(context).bodyMedium.override(
               font: GoogleFonts.inter(
                 fontWeight: FontWeight.normal,
-                fontStyle:
-                    FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
               ),
               color: FlutterFlowTheme.of(context).secondaryText,
               fontSize: 14.0,
@@ -518,8 +507,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
     bool autofocus = false,
   }) {
     return Padding(
-      padding:
-          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
@@ -534,8 +522,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                 font: GoogleFonts.inter(
                   fontWeight:
                       FlutterFlowTheme.of(context).labelMedium.fontWeight,
-                  fontStyle:
-                      FlutterFlowTheme.of(context).labelMedium.fontStyle,
+                  fontStyle: FlutterFlowTheme.of(context).labelMedium.fontStyle,
                 ),
                 color: FlutterFlowTheme.of(context).secondaryText,
                 fontSize: 14.0,
@@ -575,8 +562,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
         style: FlutterFlowTheme.of(context).bodyMedium.override(
               font: GoogleFonts.inter(
                 fontWeight: FontWeight.w500,
-                fontStyle:
-                    FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
               ),
               letterSpacing: 0.0,
               fontWeight: FontWeight.w500,

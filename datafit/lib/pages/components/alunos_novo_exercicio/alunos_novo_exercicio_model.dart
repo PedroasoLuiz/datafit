@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
 class AlunosNovoExercicioModel
     extends FlutterFlowModel<AlunosNovoExercicioWidget> {
   ///  Local state fields for this component.

@@ -21,8 +21,7 @@ class GestaoExerciciosWidget extends StatefulWidget {
   static String routePath = '/gestaoExercicios';
 
   @override
-  State<GestaoExerciciosWidget> createState() =>
-      _GestaoExerciciosWidgetState();
+  State<GestaoExerciciosWidget> createState() => _GestaoExerciciosWidgetState();
 }
 
 class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
@@ -63,8 +62,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
     try {
       final rows = await SupaFlow.client
           .from('Exercicios')
-          .select(
-              'Id, Descricao, SubCategoriasTrabalhadasId, LinkInstrucao, '
+          .select('Id, Descricao, SubCategoriasTrabalhadasId, LinkInstrucao, '
               'CriadorPerfisId, SubCategoriasTrabalhadas(Descricao)')
           .or('CriadorPerfisId.is.null,CriadorPerfisId.eq.$currentUserUid')
           .or('IsDeleted.is.null,IsDeleted.eq.false')
@@ -75,15 +73,12 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
       for (final r in (rows as List)) {
         final criadorId = r['CriadorPerfisId'] as String?;
         final isGlobal = criadorId == null;
-        final subcat =
-            r['SubCategoriasTrabalhadas'] as Map<String, dynamic>?;
-        final subcatId =
-            (r['SubCategoriasTrabalhadasId'] as num?)?.toInt();
+        final subcat = r['SubCategoriasTrabalhadas'] as Map<String, dynamic>?;
+        final subcatId = (r['SubCategoriasTrabalhadasId'] as num?)?.toInt();
         final subcatNome = subcat?['Descricao'] as String? ?? 'Outros';
 
         if (!groupMap.containsKey(subcatId)) {
-          groupMap[subcatId] =
-              SubcatGestaoGroup(subcatId, subcatNome, []);
+          groupMap[subcatId] = SubcatGestaoGroup(subcatId, subcatNome, []);
         }
         groupMap[subcatId]!.exercicios.add(ExercicioGestaoRow(
               id: (r['Id'] as num).toInt(),
@@ -188,17 +183,15 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
             children: [
               // ── HEADER ─────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 16.0, 16.0, 8.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
                 child: Stack(
                   alignment: AlignmentDirectional.center,
                   children: [
                     Center(
                       child: Text(
                         'Meus Exercícios',
-                        style: FlutterFlowTheme.of(context)
-                            .bodyMedium
-                            .override(
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
                                 fontStyle: FlutterFlowTheme.of(context)
@@ -223,16 +216,15 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                           width: 36.0,
                           height: 36.0,
                           decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .primaryBackground,
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           child: Align(
                             alignment: const AlignmentDirectional(0.0, 0.0),
                             child: Icon(
                               Icons.navigate_before_rounded,
-                              color:
-                                  FlutterFlowTheme.of(context).primaryText,
+                              color: FlutterFlowTheme.of(context).primaryText,
                               size: 20.0,
                             ),
                           ),
@@ -271,8 +263,8 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
 
               // ── BUSCA ──────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 0.0, 16.0, 4.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 4.0),
                 child: TextFormField(
                   controller: _searchController,
                   focusNode: _searchFocusNode,
@@ -328,9 +320,8 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                   style: FlutterFlowTheme.of(context).bodyMedium.override(
                         font: GoogleFonts.inter(
                           fontWeight: FontWeight.w500,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .fontStyle,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
                         letterSpacing: 0.0,
                         fontWeight: FontWeight.w500,
@@ -341,8 +332,8 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
 
               // ── HINT ───────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 0.0, 16.0, 8.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 8.0),
                 child: Row(
                   children: [
                     Icon(
@@ -406,8 +397,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: filteredGrupos
-                                  .map(
-                                      (g) => _buildGrupoSection(context, g))
+                                  .map((g) => _buildGrupoSection(context, g))
                                   .toList()
                                   .divide(const SizedBox(height: 16.0)),
                             ),
@@ -424,8 +414,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
 
   // ── SECTION ───────────────────────────────────────────────────────────────
 
-  Widget _buildGrupoSection(
-      BuildContext context, SubcatGestaoGroup grupo) {
+  Widget _buildGrupoSection(BuildContext context, SubcatGestaoGroup grupo) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,24 +445,20 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: grupo.exercicios
-                .asMap()
-                .entries
-                .map((e) {
-                  final ex = e.value;
-                  final isLast = e.key == grupo.exercicios.length - 1;
-                  if (ex.isGlobal) {
-                    return _buildGlobalRow(context, ex, isLast);
-                  }
-                  return _SwipeableExRow(
-                    key: ValueKey(ex.id),
-                    ex: ex,
-                    isLast: isLast,
-                    onEdit: () => _abrirModal(ex: ex),
-                    onDelete: () => _confirmarExcluir(ex),
-                  );
-                })
-                .toList(),
+            children: grupo.exercicios.asMap().entries.map((e) {
+              final ex = e.value;
+              final isLast = e.key == grupo.exercicios.length - 1;
+              if (ex.isGlobal) {
+                return _buildGlobalRow(context, ex, isLast);
+              }
+              return _SwipeableExRow(
+                key: ValueKey(ex.id),
+                ex: ex,
+                isLast: isLast,
+                onEdit: () => _abrirModal(ex: ex),
+                onDelete: () => _confirmarExcluir(ex),
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -489,8 +474,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16.0, vertical: 14.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [

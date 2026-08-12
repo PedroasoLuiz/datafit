@@ -107,8 +107,8 @@ class _TreinosWidgetState extends State<TreinosWidget> {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const AcessoBloqueadoWidget(
-                tipo: TipoBloqueio.alunoInativo),
+            builder: (_) =>
+                const AcessoBloqueadoWidget(tipo: TipoBloqueio.alunoInativo),
           ),
         );
         return;
@@ -564,13 +564,24 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                           child: ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(100.0),
-                                            child: FFAppState().treinosTemp.hasPersonalFotoUrl() && FFAppState().treinosTemp.personalFotoUrl.isNotEmpty
+                                            child: FFAppState()
+                                                        .treinosTemp
+                                                        .hasPersonalFotoUrl() &&
+                                                    FFAppState()
+                                                        .treinosTemp
+                                                        .personalFotoUrl
+                                                        .isNotEmpty
                                                 ? Image.network(
-                                                    FFAppState().treinosTemp.personalFotoUrl,
+                                                    FFAppState()
+                                                        .treinosTemp
+                                                        .personalFotoUrl,
                                                     width: 42.0,
                                                     height: 42.0,
                                                     fit: BoxFit.cover,
-                                                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
                                                       'assets/images/Profile_Image.png',
                                                       width: 42.0,
                                                       height: 42.0,
@@ -600,363 +611,368 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                 primary: false,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          valueOrDefault<double>(
-                                            () {
-                                              if (MediaQuery.sizeOf(context)
-                                                      .width <
-                                                  kBreakpointSmall) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointMedium) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointLarge) {
-                                                return 32.0;
-                                              } else {
-                                                return 32.0;
-                                              }
-                                            }(),
-                                            0.0,
-                                          ),
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        valueOrDefault<double>(
+                                          () {
+                                            if (MediaQuery.sizeOf(context)
+                                                    .width <
+                                                kBreakpointSmall) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointMedium) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointLarge) {
+                                              return 32.0;
+                                            } else {
+                                              return 32.0;
+                                            }
+                                          }(),
                                           0.0,
-                                          valueOrDefault<double>(
-                                            () {
-                                              if (MediaQuery.sizeOf(context)
-                                                      .width <
-                                                  kBreakpointSmall) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointMedium) {
-                                                return 16.0;
-                                              } else if (MediaQuery.sizeOf(
-                                                          context)
-                                                      .width <
-                                                  kBreakpointLarge) {
-                                                return 32.0;
-                                              } else {
-                                                return 32.0;
-                                              }
-                                            }(),
-                                            0.0,
-                                          ),
-                                          0.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.sizeOf(context).width *
-                                                1.0,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryBackground,
-                                          boxShadow: [
-                                            FlutterFlowTheme.of(context)
-                                                .designToken
-                                                .shadow
-                                                .lg
-                                          ],
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
                                         ),
-                                        child: Builder(
-                                          builder: (context) {
-                                            final treinos = FFAppState()
-                                                .treinosTemp
-                                                .subagrupamentos
-                                                .map((e) => e)
-                                                .toList()
-                                                .sortedList(
-                                                    keyOf: (e) => e.ordem,
-                                                    desc: false)
-                                                .toList();
+                                        0.0,
+                                        valueOrDefault<double>(
+                                          () {
+                                            if (MediaQuery.sizeOf(context)
+                                                    .width <
+                                                kBreakpointSmall) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointMedium) {
+                                              return 16.0;
+                                            } else if (MediaQuery.sizeOf(
+                                                        context)
+                                                    .width <
+                                                kBreakpointLarge) {
+                                              return 32.0;
+                                            } else {
+                                              return 32.0;
+                                            }
+                                          }(),
+                                          0.0,
+                                        ),
+                                        0.0),
+                                    child: Container(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          1.0,
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryBackground,
+                                        boxShadow: [
+                                          FlutterFlowTheme.of(context)
+                                              .designToken
+                                              .shadow
+                                              .lg
+                                        ],
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      child: Builder(
+                                        builder: (context) {
+                                          final treinos = FFAppState()
+                                              .treinosTemp
+                                              .subagrupamentos
+                                              .map((e) => e)
+                                              .toList()
+                                              .sortedList(
+                                                  keyOf: (e) => e.ordem,
+                                                  desc: false)
+                                              .toList();
 
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children:
-                                                  List.generate(treinos.length,
-                                                      (treinosIndex) {
-                                                final treinosItem =
-                                                    treinos[treinosIndex];
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(14.0),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Padding(
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          16.0,
-                                                                          16.0,
-                                                                          0.0,
-                                                                          0.0),
-                                                              child: InkWell(
-                                                                splashColor: Colors
-                                                                    .transparent,
-                                                                focusColor: Colors
-                                                                    .transparent,
-                                                                hoverColor: Colors
-                                                                    .transparent,
-                                                                highlightColor:
-                                                                    Colors
-                                                                        .transparent,
-                                                                onTap:
-                                                                    () async {
-                                                                  context
-                                                                      .pushNamed(
-                                                                    TreinosDetalhesWidget
-                                                                        .routeName,
-                                                                    queryParameters:
-                                                                        {
-                                                                      'indexGrupo':
-                                                                          serializeParam(
-                                                                        treinosIndex,
-                                                                        ParamType
-                                                                            .int,
-                                                                      ),
-                                                                    }.withoutNulls,
-                                                                    extra: <String,
-                                                                        dynamic>{
-                                                                      '__transition_info__':
-                                                                          TransitionInfo(
-                                                                        hasTransition:
-                                                                            true,
-                                                                        transitionType:
-                                                                            PageTransitionType.fade,
-                                                                        duration:
-                                                                            Duration(milliseconds: 0),
-                                                                      ),
-                                                                    },
-                                                                  );
-                                                                },
-                                                                child: Column(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          16.0,
-                                                                          8.0),
-                                                                      child:
-                                                                          Row(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.max,
-                                                                        children: [
-                                                                          Expanded(
-                                                                            child:
-                                                                                RichText(
-                                                                              textScaler: MediaQuery.of(context).textScaler,
-                                                                              text: TextSpan(
-                                                                                children: [
-                                                                                  TextSpan(
-                                                                                    text: treinosItem.nome,
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FontWeight.w500,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          color: valueOrDefault<Color>(
-                                                                                            treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primaryText : FlutterFlowTheme.of(context).secondaryText,
-                                                                                            FlutterFlowTheme.of(context).primaryText,
-                                                                                          ),
-                                                                                          fontSize: 14.0,
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FontWeight.w500,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                  TextSpan(
-                                                                                    text: ' ',
-                                                                                    style: TextStyle(),
-                                                                                  ),
-                                                                                  TextSpan(
-                                                                                    text: () {
-                                                                                      if (treinosItem.status == 'em_andamento') {
-                                                                                        return ' Executando';
-                                                                                      } else if (treinosItem.ordem == 1) {
-                                                                                        return ' Próximo';
-                                                                                      } else {
-                                                                                        return '';
-                                                                                      }
-                                                                                    }(),
-                                                                                    style: GoogleFonts.interTight(
-                                                                                      color: FlutterFlowTheme.of(context).primary,
-                                                                                      fontWeight: FontWeight.w600,
-                                                                                      fontSize: 12.0,
-                                                                                    ),
-                                                                                  )
-                                                                                ],
-                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FontWeight.w500,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).primaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FontWeight.w500,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Padding(
-                                                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          16.0),
-                                                                      child:
-                                                                          Builder(
-                                                                        builder:
-                                                                            (context) {
-                                                                          final grupos = treinosItem
-                                                                              .grupos
-                                                                              .map((e) => e)
-                                                                              .toList();
-
-                                                                          return Wrap(
-                                                                            spacing:
-                                                                                4.0,
-                                                                            runSpacing:
-                                                                                4.0,
-                                                                            alignment:
-                                                                                WrapAlignment.start,
-                                                                            crossAxisAlignment:
-                                                                                WrapCrossAlignment.start,
-                                                                            direction:
-                                                                                Axis.horizontal,
-                                                                            runAlignment:
-                                                                                WrapAlignment.start,
-                                                                            verticalDirection:
-                                                                                VerticalDirection.down,
-                                                                            clipBehavior:
-                                                                                Clip.none,
-                                                                            children:
-                                                                                List.generate(grupos.length, (gruposIndex) {
-                                                                              final gruposItem = grupos[gruposIndex];
-                                                                              return Container(
-                                                                                decoration: BoxDecoration(
-                                                                                  color: valueOrDefault<Color>(
-                                                                                    treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                    FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  borderRadius: BorderRadius.circular(12.0),
-                                                                                  border: Border.all(
-                                                                                    color: FlutterFlowTheme.of(context).alternate,
-                                                                                  ),
-                                                                                ),
-                                                                                child: Padding(
-                                                                                  padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                                  child: Row(
-                                                                                    mainAxisSize: MainAxisSize.min,
-                                                                                    children: [
-                                                                                      Text(
-                                                                                        gruposItem.subcategoria,
-                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                              font: GoogleFonts.inter(
-                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                              ),
-                                                                                              color: valueOrDefault<Color>(
-                                                                                                treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
-                                                                                                FlutterFlowTheme.of(context).secondaryText,
-                                                                                              ),
-                                                                                              fontSize: 12.0,
-                                                                                              letterSpacing: 0.0,
-                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                            ),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                ),
-                                                                              );
-                                                                            }),
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Padding(
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: List.generate(
+                                                treinos.length, (treinosIndex) {
+                                              final treinosItem =
+                                                  treinos[treinosIndex];
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              14.0),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Padding(
                                                             padding:
                                                                 EdgeInsetsDirectional
                                                                     .fromSTEB(
-                                                                        0.0,
-                                                                        0.0,
                                                                         16.0,
+                                                                        16.0,
+                                                                        0.0,
                                                                         0.0),
-                                                            child: Icon(
-                                                              FFIcons
-                                                                  .kproperty1FiRrAngleSmallRight,
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primary,
-                                                              size: 18.0,
+                                                            child: InkWell(
+                                                              splashColor: Colors
+                                                                  .transparent,
+                                                              focusColor: Colors
+                                                                  .transparent,
+                                                              hoverColor: Colors
+                                                                  .transparent,
+                                                              highlightColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              onTap: () async {
+                                                                context
+                                                                    .pushNamed(
+                                                                  TreinosDetalhesWidget
+                                                                      .routeName,
+                                                                  queryParameters:
+                                                                      {
+                                                                    'indexGrupo':
+                                                                        serializeParam(
+                                                                      treinosIndex,
+                                                                      ParamType
+                                                                          .int,
+                                                                    ),
+                                                                  }.withoutNulls,
+                                                                  extra: <String,
+                                                                      dynamic>{
+                                                                    '__transition_info__':
+                                                                        TransitionInfo(
+                                                                      hasTransition:
+                                                                          true,
+                                                                      transitionType:
+                                                                          PageTransitionType
+                                                                              .fade,
+                                                                      duration: Duration(
+                                                                          milliseconds:
+                                                                              0),
+                                                                    ),
+                                                                  },
+                                                                );
+                                                              },
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            0.0,
+                                                                            16.0,
+                                                                            8.0),
+                                                                    child: Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .max,
+                                                                      children: [
+                                                                        Expanded(
+                                                                          child:
+                                                                              RichText(
+                                                                            textScaler:
+                                                                                MediaQuery.of(context).textScaler,
+                                                                            text:
+                                                                                TextSpan(
+                                                                              children: [
+                                                                                TextSpan(
+                                                                                  text: treinosItem.nome,
+                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                        font: GoogleFonts.inter(
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                        ),
+                                                                                        color: valueOrDefault<Color>(
+                                                                                          treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primaryText : FlutterFlowTheme.of(context).secondaryText,
+                                                                                          FlutterFlowTheme.of(context).primaryText,
+                                                                                        ),
+                                                                                        fontSize: 14.0,
+                                                                                        letterSpacing: 0.0,
+                                                                                        fontWeight: FontWeight.w500,
+                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                      ),
+                                                                                ),
+                                                                                TextSpan(
+                                                                                  text: ' ',
+                                                                                  style: TextStyle(),
+                                                                                ),
+                                                                                TextSpan(
+                                                                                  text: () {
+                                                                                    if (treinosItem.status == 'em_andamento') {
+                                                                                      return ' Executando';
+                                                                                    } else if (treinosItem.ordem == 1) {
+                                                                                      return ' Próximo';
+                                                                                    } else {
+                                                                                      return '';
+                                                                                    }
+                                                                                  }(),
+                                                                                  style: GoogleFonts.interTight(
+                                                                                    color: FlutterFlowTheme.of(context).primary,
+                                                                                    fontWeight: FontWeight.w600,
+                                                                                    fontSize: 12.0,
+                                                                                  ),
+                                                                                )
+                                                                              ],
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: FlutterFlowTheme.of(context).primaryText,
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.w500,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            0.0,
+                                                                            0.0,
+                                                                            16.0),
+                                                                    child:
+                                                                        Builder(
+                                                                      builder:
+                                                                          (context) {
+                                                                        final grupos = treinosItem
+                                                                            .grupos
+                                                                            .map((e) =>
+                                                                                e)
+                                                                            .toList();
+
+                                                                        return Wrap(
+                                                                          spacing:
+                                                                              4.0,
+                                                                          runSpacing:
+                                                                              4.0,
+                                                                          alignment:
+                                                                              WrapAlignment.start,
+                                                                          crossAxisAlignment:
+                                                                              WrapCrossAlignment.start,
+                                                                          direction:
+                                                                              Axis.horizontal,
+                                                                          runAlignment:
+                                                                              WrapAlignment.start,
+                                                                          verticalDirection:
+                                                                              VerticalDirection.down,
+                                                                          clipBehavior:
+                                                                              Clip.none,
+                                                                          children: List.generate(
+                                                                              grupos.length,
+                                                                              (gruposIndex) {
+                                                                            final gruposItem =
+                                                                                grupos[gruposIndex];
+                                                                            return Container(
+                                                                              decoration: BoxDecoration(
+                                                                                color: valueOrDefault<Color>(
+                                                                                  treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).secondaryBackground,
+                                                                                  FlutterFlowTheme.of(context).secondaryBackground,
+                                                                                ),
+                                                                                borderRadius: BorderRadius.circular(12.0),
+                                                                                border: Border.all(
+                                                                                  color: FlutterFlowTheme.of(context).alternate,
+                                                                                ),
+                                                                              ),
+                                                                              child: Padding(
+                                                                                padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
+                                                                                child: Row(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      gruposItem.subcategoria,
+                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                            font: GoogleFonts.inter(
+                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                            ),
+                                                                                            color: valueOrDefault<Color>(
+                                                                                              treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
+                                                                                              FlutterFlowTheme.of(context).secondaryText,
+                                                                                            ),
+                                                                                            fontSize: 12.0,
+                                                                                            letterSpacing: 0.0,
+                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                          ),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            );
+                                                                          }),
+                                                                        );
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      16.0,
+                                                                      0.0),
+                                                          child: Icon(
+                                                            FFIcons
+                                                                .kproperty1FiRrAngleSmallRight,
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primary,
+                                                            size: 18.0,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    if (treinosIndex !=
-                                                        valueOrDefault<int>(
-                                                          FFAppState()
-                                                                  .treinosTemp
-                                                                  .subagrupamentos
-                                                                  .length -
-                                                              1,
-                                                          0,
-                                                        ))
-                                                      Divider(
-                                                        height: 1.0,
-                                                        thickness: 1.0,
-                                                        indent: 16.0,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .alternate,
-                                                      ),
-                                                  ],
-                                                );
-                                              }),
-                                            );
-                                          },
-                                        ),
+                                                  ),
+                                                  if (treinosIndex !=
+                                                      valueOrDefault<int>(
+                                                        FFAppState()
+                                                                .treinosTemp
+                                                                .subagrupamentos
+                                                                .length -
+                                                            1,
+                                                        0,
+                                                      ))
+                                                    Divider(
+                                                      height: 1.0,
+                                                      thickness: 1.0,
+                                                      indent: 16.0,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .alternate,
+                                                    ),
+                                                ],
+                                              );
+                                            }),
+                                          );
+                                        },
                                       ),
                                     ),
-                                  ].divide(SizedBox(height: 16.0)),
-                                ),
-                              ].divide(SizedBox(height: 16.0)),
-                            ),
+                                  ),
+                                ].divide(SizedBox(height: 16.0)),
+                              ),
+                            ].divide(SizedBox(height: 16.0)),
+                          ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 32.0, 0.0, 0.0),
@@ -1041,16 +1057,6 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                     ),
                   ),
                 ],
-              ),
-              Align(
-                alignment: AlignmentDirectional(0.0, 1.0),
-                child: wrapWithModel(
-                  model: _model.navbarModel,
-                  updateCallback: () => safeSetState(() {}),
-                  child: NavbarWidget(
-                    index: 0,
-                  ),
-                ),
               ),
             ],
           ),

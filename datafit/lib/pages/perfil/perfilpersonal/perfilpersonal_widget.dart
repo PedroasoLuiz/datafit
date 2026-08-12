@@ -416,32 +416,41 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                       ),
                                     ),
                                     Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  valueOrDefault<String>(
-                                                    widget!
-                                                        .perosnal?.totalAlunos
-                                                        ?.toString(),
-                                                    '0',
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                valueOrDefault<String>(
+                                                  widget!.perosnal?.totalAlunos
+                                                      ?.toString(),
+                                                  '0',
+                                                ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -450,18 +459,90 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
-                                                        letterSpacing: 0.0,
+                                              ),
+                                              Text(
+                                                'Alunos',
+                                                textAlign: TextAlign.start,
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontWeight,
                                                         fontStyle:
                                                             FlutterFlowTheme.of(
                                                                     context)
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondaryText,
+                                                      fontSize: 12.0,
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium
+                                                              .fontWeight,
+                                                      fontStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium
+                                                              .fontStyle,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                valueOrDefault<String>(
+                                                  widget!.perosnal?.totalTreinos
+                                                      ?.toString(),
+                                                  '0',
                                                 ),
-                                                Text(
-                                                  'Alunos',
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                              ),
+                                              Align(
+                                                alignment: AlignmentDirectional(
+                                                    -1.0, 0.0),
+                                                child: Text(
+                                                  'Treinos',
                                                   textAlign: TextAlign.start,
                                                   style: FlutterFlowTheme.of(
                                                           context)
@@ -497,29 +578,40 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                                 .fontStyle,
                                                       ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  valueOrDefault<String>(
-                                                    widget!
-                                                        .perosnal?.totalTreinos
-                                                        ?.toString(),
-                                                    '0',
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                valueOrDefault<String>(
+                                                  widget!
+                                                      .perosnal?.totalExercicios
+                                                      ?.toString(),
+                                                  '0',
+                                                ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -528,45 +620,18 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          -1.0, 0.0),
-                                                  child: Text(
-                                                    'Treinos',
-                                                    textAlign: TextAlign.start,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
+                                              ),
+                                              Align(
+                                                alignment: AlignmentDirectional(
+                                                    -1.0, 0.0),
+                                                child: Text(
+                                                  'Exercícios',
+                                                  textAlign: TextAlign.start,
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -578,42 +643,17 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  valueOrDefault<String>(
-                                                    widget!.perosnal
-                                                        ?.totalExercicios
-                                                        ?.toString(),
-                                                    '0',
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        fontSize: 12.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontWeight,
                                                         fontStyle:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -621,53 +661,12 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                                 .fontStyle,
                                                       ),
                                                 ),
-                                                Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          -1.0, 0.0),
-                                                  child: Text(
-                                                    'Exercícios',
-                                                    textAlign: TextAlign.start,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -708,61 +707,60 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                         decoration: BoxDecoration(),
                       ),
                       Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 8.0, 0.0, 0.0),
-                              child: Text(
-                                'Personal',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primary,
-                                      fontSize: 12.0,
-                                      letterSpacing: 0.0,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 8.0, 0.0, 0.0),
+                            child: Text(
+                              'Personal',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.inter(
                                       fontWeight: FontWeight.normal,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                              ),
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    fontSize: 12.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
                             ),
-                          ].addToStart(SizedBox(width: () {
-                            if (MediaQuery.sizeOf(context).width <
-                                kBreakpointSmall) {
-                              return 16.0;
-                            } else if (MediaQuery.sizeOf(context).width <
-                                kBreakpointMedium) {
-                              return 16.0;
-                            } else if (MediaQuery.sizeOf(context).width <
-                                kBreakpointLarge) {
-                              return 32.0;
-                            } else {
-                              return 32.0;
-                            }
-                          }())).addToEnd(SizedBox(width: () {
-                            if (MediaQuery.sizeOf(context).width <
-                                kBreakpointSmall) {
-                              return 16.0;
-                            } else if (MediaQuery.sizeOf(context).width <
-                                kBreakpointMedium) {
-                              return 16.0;
-                            } else if (MediaQuery.sizeOf(context).width <
-                                kBreakpointLarge) {
-                              return 32.0;
-                            } else {
-                              return 32.0;
-                            }
-                          }())),
-                        ),
+                          ),
+                        ].addToStart(SizedBox(width: () {
+                          if (MediaQuery.sizeOf(context).width <
+                              kBreakpointSmall) {
+                            return 16.0;
+                          } else if (MediaQuery.sizeOf(context).width <
+                              kBreakpointMedium) {
+                            return 16.0;
+                          } else if (MediaQuery.sizeOf(context).width <
+                              kBreakpointLarge) {
+                            return 32.0;
+                          } else {
+                            return 32.0;
+                          }
+                        }())).addToEnd(SizedBox(width: () {
+                          if (MediaQuery.sizeOf(context).width <
+                              kBreakpointSmall) {
+                            return 16.0;
+                          } else if (MediaQuery.sizeOf(context).width <
+                              kBreakpointMedium) {
+                            return 16.0;
+                          } else if (MediaQuery.sizeOf(context).width <
+                              kBreakpointLarge) {
+                            return 32.0;
+                          } else {
+                            return 32.0;
+                          }
+                        }())),
+                      ),
                       Padding(
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
@@ -876,7 +874,8 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                             ),
                             8.0),
                         child: Text(
-                          'Ativo ${valueOrDefault<String>(dateTimeFormat("relative", functions.formataData(widget!.perosnal?.ultimoAcesso), locale: FFLocalizations.of(context).languageCode), '')}'.trim(),
+                          'Ativo ${valueOrDefault<String>(dateTimeFormat("relative", functions.formataData(widget!.perosnal?.ultimoAcesso), locale: FFLocalizations.of(context).languageCode), '')}'
+                              .trim(),
                           style: FlutterFlowTheme.of(context)
                               .bodyMedium
                               .override(
@@ -1291,72 +1290,82 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                         children: [
                           if (_model.index == 1)
                             Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 16.0, 0.0, 0.0),
-                                  child: Builder(
-                                    builder: (context) {
-                                      final pgtos = (widget!
-                                                  .perosnal?.pagamentos
-                                                  ?.where((e) => () {
-                                                        if (_model
-                                                                .dpPgtoValue ==
-                                                            'Atrasados') {
-                                                          return (e.status ==
-                                                              'atrasado');
-                                                        } else if (_model
-                                                                .dpPgtoValue ==
-                                                            'Pago') {
-                                                          return (e.status ==
-                                                              'pago');
-                                                        } else {
-                                                          return true;
-                                                        }
-                                                      }())
-                                                  .toList()
-                                                  ?.map((e) => e)
-                                                  .toList()
-                                                  ?.toList() ??
-                                              [])
-                                          .take(100)
-                                          .toList();
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 16.0, 0.0, 0.0),
+                              child: Builder(
+                                builder: (context) {
+                                  final pgtos = (widget!.perosnal?.pagamentos
+                                              ?.where((e) => () {
+                                                    if (_model.dpPgtoValue ==
+                                                        'Atrasados') {
+                                                      return (e.status ==
+                                                          'atrasado');
+                                                    } else if (_model
+                                                            .dpPgtoValue ==
+                                                        'Pago') {
+                                                      return (e.status ==
+                                                          'pago');
+                                                    } else {
+                                                      return true;
+                                                    }
+                                                  }())
+                                              .toList()
+                                              ?.map((e) => e)
+                                              .toList()
+                                              ?.toList() ??
+                                          [])
+                                      .take(100)
+                                      .toList();
 
-                                      return SingleChildScrollView(
-                                        controller: _model.columnController2,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            if (widget.perosnal?.hasChavePix() == true)
-                                              _buildPixCard(context),
-                                            ...List.generate(pgtos.length,
-                                                    (pgtosIndex) {
-                                              final pgtosItem = pgtos[pgtosIndex];
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: pgtosItem.status != 'pago' && pgtosItem.status != 'aguardando'
-                                                        ? () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled: true,
-                                                              backgroundColor: Colors.transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder: (context) {
-                                                                return Padding(
-                                                                  padding: MediaQuery.viewInsetsOf(context),
-                                                                  child: InformarPagamentoWidget(pagamento: pgtosItem),
-                                                                );
-                                                              },
-                                                            ).then((value) {
-                                                              if (value == true) {
-                                                                safeSetState(() {
-                                                                  pgtosItem.status = 'aguardando';
-                                                                });
-                                                              }
+                                  return SingleChildScrollView(
+                                    controller: _model.columnController2,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        if (widget.perosnal?.hasChavePix() ==
+                                            true)
+                                          _buildPixCard(context),
+                                        ...List.generate(pgtos.length,
+                                                (pgtosIndex) {
+                                          final pgtosItem = pgtos[pgtosIndex];
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: pgtosItem.status !=
+                                                            'pago' &&
+                                                        pgtosItem.status !=
+                                                            'aguardando'
+                                                    ? () async {
+                                                        await showModalBottomSheet(
+                                                          isScrollControlled:
+                                                              true,
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          enableDrag: false,
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return Padding(
+                                                              padding: MediaQuery
+                                                                  .viewInsetsOf(
+                                                                      context),
+                                                              child: InformarPagamentoWidget(
+                                                                  pagamento:
+                                                                      pgtosItem),
+                                                            );
+                                                          },
+                                                        ).then((value) {
+                                                          if (value == true) {
+                                                            safeSetState(() {
+                                                              pgtosItem.status =
+                                                                  'aguardando';
                                                             });
                                                           }
-                                                        : null,
-                                                    child: Padding(
+                                                        });
+                                                      }
+                                                    : null,
+                                                child: Padding(
                                                   padding:
                                                       EdgeInsetsDirectional
                                                           .fromSTEB(
@@ -1749,31 +1758,29 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                         SizedBox(width: 16.0)),
                                                   ),
                                                 ),
-                                                  ),
-                                                Divider(
-                                                  height: 1.0,
-                                                  thickness: 1.0,
-                                                  indent: 78.0,
-                                                  endIndent: 16.0,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .alternate,
-                                                ),
-                                                ],
-                                              );
-                                            })
-                                                .divide(SizedBox(height: 16.0))
-                                                .addToStart(
-                                                    SizedBox(height: 16.0))
-                                                .addToEnd(
-                                                    SizedBox(height: 120.0)),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                          ],
+                                              ),
+                                              Divider(
+                                                height: 1.0,
+                                                thickness: 1.0,
+                                                indent: 78.0,
+                                                endIndent: 16.0,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                              ),
+                                            ],
+                                          );
+                                        })
+                                            .divide(SizedBox(height: 16.0))
+                                            .addToStart(SizedBox(height: 16.0))
+                                            .addToEnd(SizedBox(height: 120.0)),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
                       ),
                     ].addToEnd(SizedBox(height: 120.0)),
                   ),

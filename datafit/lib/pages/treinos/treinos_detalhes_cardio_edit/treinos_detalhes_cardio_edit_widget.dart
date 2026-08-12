@@ -530,41 +530,27 @@ class _TreinosDetalhesCardioEditWidgetState
                                 ),
                               ),
                               child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(12.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 0.0, 0.0, 12.0),
-                                              child: Text(
-                                                'Distância',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 12.0),
+                                            child: Text(
+                                              'Distância',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
                                                       fontWeight:
                                                           FontWeight.w500,
                                                       fontStyle:
@@ -573,51 +559,47 @@ class _TreinosDetalhesCardioEditWidgetState
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
-                                              ),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
                                             ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      valueOrDefault<String>(
-                                                        formatNumber(
-                                                          _model.distancia,
-                                                          formatType:
-                                                              FormatType.custom,
-                                                          format: '#,##0.0',
-                                                          locale: 'pt-br',
-                                                        ),
-                                                        '0',
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    valueOrDefault<String>(
+                                                      formatNumber(
+                                                        _model.distancia,
+                                                        formatType:
+                                                            FormatType.custom,
+                                                        format: '#,##0.0',
+                                                        locale: 'pt-br',
                                                       ),
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts
-                                                                .inter(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                            ),
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                            fontSize: 30.0,
-                                                            letterSpacing: 0.0,
+                                                      '0',
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             fontStyle:
@@ -626,160 +608,164 @@ class _TreinosDetalhesCardioEditWidgetState
                                                                     .bodyMedium
                                                                     .fontStyle,
                                                           ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontSize: 30.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                  ),
+                                                  FlutterFlowDropDown<String>(
+                                                    controller: _model
+                                                            .dpKmValueController ??=
+                                                        FormFieldController<
+                                                            String>(
+                                                      _model.dpKmValue ??= 'KM',
                                                     ),
-                                                    FlutterFlowDropDown<String>(
-                                                      controller: _model
-                                                              .dpKmValueController ??=
-                                                          FormFieldController<
-                                                              String>(
-                                                        _model.dpKmValue ??=
-                                                            'KM',
-                                                      ),
-                                                      options: ['M', 'KM'],
-                                                      onChanged: (val) =>
-                                                          safeSetState(() =>
-                                                              _model.dpKmValue =
-                                                                  val),
-                                                      width: 42.0,
-                                                      height: 24.0,
-                                                      textStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondary,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontStyle: FlutterFlowTheme.of(
+                                                    options: ['M', 'KM'],
+                                                    onChanged: (val) =>
+                                                        safeSetState(() =>
+                                                            _model.dpKmValue =
+                                                                val),
+                                                    width: 42.0,
+                                                    height: 24.0,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
                                                                     .fontStyle,
-                                                              ),
-                                                      icon: Icon(
-                                                        Icons
-                                                            .keyboard_arrow_down_rounded,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                        size: 16.0,
-                                                      ),
-                                                      fillColor:
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondary,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                    icon: Icon(
+                                                      Icons
+                                                          .keyboard_arrow_down_rounded,
+                                                      color:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .primaryBackground,
-                                                      elevation: 2.0,
-                                                      borderColor:
-                                                          Colors.transparent,
-                                                      borderWidth: 0.0,
-                                                      borderRadius: 0.0,
-                                                      margin:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  4.0,
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      hidesUnderline: true,
-                                                      isOverButton: false,
-                                                      isSearchable: false,
-                                                      isMultiSelect: false,
+                                                              .secondary,
+                                                      size: 16.0,
                                                     ),
-                                                  ].divide(
-                                                      SizedBox(width: 8.0)),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                                    fillColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .primaryBackground,
+                                                    elevation: 2.0,
+                                                    borderColor:
+                                                        Colors.transparent,
+                                                    borderWidth: 0.0,
+                                                    borderRadius: 0.0,
+                                                    margin:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(4.0, 0.0,
+                                                                0.0, 0.0),
+                                                    hidesUnderline: true,
+                                                    isOverButton: false,
+                                                    isSearchable: false,
+                                                    isMultiSelect: false,
+                                                  ),
+                                                ].divide(SizedBox(width: 8.0)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 12.0, 22.0, 12.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          FlutterFlowIconButton(
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 12.0, 22.0, 12.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        FlutterFlowIconButton(
+                                          borderRadius: 12.0,
+                                          buttonSize: 40.0,
+                                          fillColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .accent1,
+                                          disabledColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .alternate,
+                                          disabledIconColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .secondaryText,
+                                          icon: Icon(
+                                            FFIcons.kproperty1FiRrMinusSmall,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            size: 20.0,
+                                          ),
+                                          onPressed: (_model.distancia <= 0.0)
+                                              ? null
+                                              : () async {
+                                                  _model.distancia =
+                                                      _model.distancia + -1.0;
+                                                  safeSetState(() {});
+                                                },
+                                        ),
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onLongPress: () async {
+                                            _model.distancia =
+                                                _model.distancia + 10.0;
+                                            safeSetState(() {});
+                                          },
+                                          child: FlutterFlowIconButton(
                                             borderRadius: 12.0,
                                             buttonSize: 40.0,
                                             fillColor:
                                                 FlutterFlowTheme.of(context)
-                                                    .accent1,
-                                            disabledColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .alternate,
-                                            disabledIconColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                                    .primary,
                                             icon: Icon(
-                                              FFIcons.kproperty1FiRrMinusSmall,
+                                              FFIcons.kproperty1FiRrPlusSmall,
                                               color:
                                                   FlutterFlowTheme.of(context)
-                                                      .primary,
+                                                      .primaryBackground,
                                               size: 20.0,
                                             ),
-                                            onPressed: (_model.distancia <= 0.0)
-                                                ? null
-                                                : () async {
-                                                    _model.distancia =
-                                                        _model.distancia + -1.0;
-                                                    safeSetState(() {});
-                                                  },
-                                          ),
-                                          InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onLongPress: () async {
+                                            onPressed: () async {
                                               _model.distancia =
-                                                  _model.distancia + 10.0;
+                                                  _model.distancia + 1.0;
                                               safeSetState(() {});
                                             },
-                                            child: FlutterFlowIconButton(
-                                              borderRadius: 12.0,
-                                              buttonSize: 40.0,
-                                              fillColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              icon: Icon(
-                                                FFIcons.kproperty1FiRrPlusSmall,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryBackground,
-                                                size: 20.0,
-                                              ),
-                                              onPressed: () async {
-                                                _model.distancia =
-                                                    _model.distancia + 1.0;
-                                                safeSetState(() {});
-                                              },
-                                            ),
                                           ),
-                                        ].divide(SizedBox(width: 8.0)),
-                                      ),
+                                        ),
+                                      ].divide(SizedBox(width: 8.0)),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                            ),
                             Divider(
                               height: 1.0,
                               thickness: 1.0,
@@ -796,41 +782,27 @@ class _TreinosDetalhesCardioEditWidgetState
                                 ),
                               ),
                               child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(12.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 0.0, 0.0, 12.0),
-                                              child: Text(
-                                                'Início',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 12.0),
+                                            child: Text(
+                                              'Início',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
                                                       fontWeight:
                                                           FontWeight.w500,
                                                       fontStyle:
@@ -839,384 +811,116 @@ class _TreinosDetalhesCardioEditWidgetState
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: InkWell(
-                                                    splashColor:
-                                                        Colors.transparent,
-                                                    focusColor:
-                                                        Colors.transparent,
-                                                    hoverColor:
-                                                        Colors.transparent,
-                                                    highlightColor:
-                                                        Colors.transparent,
-                                                    onTap: () async {
-                                                      await showModalBottomSheet<
-                                                              bool>(
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return ScrollConfiguration(
-                                                              behavior:
-                                                                  const MaterialScrollBehavior()
-                                                                      .copyWith(
-                                                                dragDevices: {
-                                                                  PointerDeviceKind
-                                                                      .mouse,
-                                                                  PointerDeviceKind
-                                                                      .touch,
-                                                                  PointerDeviceKind
-                                                                      .stylus,
-                                                                  PointerDeviceKind
-                                                                      .unknown
-                                                                },
-                                                              ),
-                                                              child: Container(
-                                                                height: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .height /
-                                                                    3,
-                                                                width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width,
-                                                                child:
-                                                                    CupertinoDatePicker(
-                                                                  mode: CupertinoDatePickerMode
-                                                                      .dateAndTime,
-                                                                  minimumDate: (_model
-                                                                          .inicio ??
-                                                                      DateTime
-                                                                          .now()),
-                                                                  initialDateTime: (_model
-                                                                          .inicio ??
-                                                                      DateTime
-                                                                          .now()),
-                                                                  maximumDate:
-                                                                      DateTime(
-                                                                          2050),
-                                                                  use24hFormat:
-                                                                      false,
-                                                                  onDateTimeChanged:
-                                                                      (newDateTime) =>
-                                                                          safeSetState(
-                                                                              () {
-                                                                    _model.datePicked1 =
-                                                                        newDateTime;
-                                                                  }),
-                                                                ),
-                                                              ),
-                                                            );
-                                                          });
-                                                      if (_model.datePicked1 !=
-                                                          null) {
-                                                        _model.inicio =
-                                                            _model.datePicked1;
-                                                        safeSetState(() {});
-                                                      }
-                                                    },
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(
-                                                          valueOrDefault<
-                                                              String>(
-                                                            dateTimeFormat(
-                                                              "HH:mm",
-                                                              _model.inicio,
-                                                              locale: FFLocalizations
-                                                                      .of(context)
-                                                                  .languageCode,
-                                                            ),
-                                                            '00:00',
-                                                          ),
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primaryText,
-                                                                fontSize: 30.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                        Icon(
-                                                          FFIcons
-                                                              .kproperty1FiRrAngleSmallDown,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          size: 24.0,
-                                                        ),
-                                                      ].divide(
-                                                          SizedBox(width: 8.0)),
-                                                    ),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
                                                   ),
-                                                ),
-                                              ],
                                             ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(0.0, 4.0, 0.0, 0.0),
-                                              child: Text(
-                                                dateTimeFormat(
-                                                  "d/MM/y",
-                                                  _model.inicio,
-                                                  locale: FFLocalizations.of(
-                                                          context)
-                                                      .languageCode,
-                                                ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 100.0,
-                                      child: VerticalDivider(
-                                        width: 1.0,
-                                        thickness: 1.0,
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(12.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 0.0, 0.0, 12.0),
-                                              child: Text(
-                                                'Fim',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                              ),
-                                            ),
-                                            InkWell(
-                                              splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                await showModalBottomSheet<
-                                                        bool>(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      final _datePicked2CupertinoTheme =
-                                                          CupertinoTheme.of(
-                                                              context);
-                                                      return ScrollConfiguration(
-                                                        behavior:
-                                                            const MaterialScrollBehavior()
-                                                                .copyWith(
-                                                          dragDevices: {
-                                                            PointerDeviceKind
-                                                                .mouse,
-                                                            PointerDeviceKind
-                                                                .touch,
-                                                            PointerDeviceKind
-                                                                .stylus,
-                                                            PointerDeviceKind
-                                                                .unknown
-                                                          },
-                                                        ),
-                                                        child: Container(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height /
-                                                              3,
-                                                          width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          child: CupertinoTheme(
-                                                            data:
-                                                                _datePicked2CupertinoTheme
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    await showModalBottomSheet<
+                                                            bool>(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return ScrollConfiguration(
+                                                            behavior:
+                                                                const MaterialScrollBehavior()
                                                                     .copyWith(
-                                                              textTheme:
-                                                                  _datePicked2CupertinoTheme
-                                                                      .textTheme
-                                                                      .copyWith(
-                                                                dateTimePickerTextStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .headlineMedium
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.inter(
-                                                                            fontWeight:
-                                                                                FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).headlineMedium.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).primaryText,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          fontWeight: FlutterFlowTheme.of(context)
-                                                                              .headlineMedium
-                                                                              .fontWeight,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .headlineMedium
-                                                                              .fontStyle,
-                                                                        ),
+                                                              dragDevices: {
+                                                                PointerDeviceKind
+                                                                    .mouse,
+                                                                PointerDeviceKind
+                                                                    .touch,
+                                                                PointerDeviceKind
+                                                                    .stylus,
+                                                                PointerDeviceKind
+                                                                    .unknown
+                                                              },
+                                                            ),
+                                                            child: Container(
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height /
+                                                                  3,
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              child:
+                                                                  CupertinoDatePicker(
+                                                                mode: CupertinoDatePickerMode
+                                                                    .dateAndTime,
+                                                                minimumDate: (_model
+                                                                        .inicio ??
+                                                                    DateTime
+                                                                        .now()),
+                                                                initialDateTime:
+                                                                    (_model.inicio ??
+                                                                        DateTime
+                                                                            .now()),
+                                                                maximumDate:
+                                                                    DateTime(
+                                                                        2050),
+                                                                use24hFormat:
+                                                                    false,
+                                                                onDateTimeChanged:
+                                                                    (newDateTime) =>
+                                                                        safeSetState(
+                                                                            () {
+                                                                  _model.datePicked1 =
+                                                                      newDateTime;
+                                                                }),
                                                               ),
                                                             ),
-                                                            child:
-                                                                CupertinoDatePicker(
-                                                              mode: CupertinoDatePickerMode
-                                                                  .dateAndTime,
-                                                              minimumDate: (_model
-                                                                      .inicio ??
-                                                                  DateTime(
-                                                                      1900)),
-                                                              initialDateTime:
-                                                                  (_model.fim ??
-                                                                      DateTime
-                                                                          .now()),
-                                                              maximumDate:
-                                                                  DateTime(
-                                                                      2050),
-                                                              backgroundColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
-                                                              use24hFormat:
-                                                                  false,
-                                                              onDateTimeChanged:
-                                                                  (newDateTime) =>
-                                                                      safeSetState(
-                                                                          () {
-                                                                _model.datePicked2 =
-                                                                    newDateTime;
-                                                              }),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    });
-                                                if (_model.datePicked2 !=
-                                                    null) {
-                                                  _model.fim =
-                                                      _model.datePicked2;
-                                                  safeSetState(() {});
-                                                }
-                                              },
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Row(
+                                                          );
+                                                        });
+                                                    if (_model.datePicked1 !=
+                                                        null) {
+                                                      _model.inicio =
+                                                          _model.datePicked1;
+                                                      safeSetState(() {});
+                                                    }
+                                                  },
+                                                  child: Row(
                                                     mainAxisSize:
                                                         MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.end,
+                                                        CrossAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Text(
                                                         valueOrDefault<String>(
                                                           dateTimeFormat(
                                                             "HH:mm",
-                                                            _model.fim,
+                                                            _model.inicio,
                                                             locale: FFLocalizations
                                                                     .of(context)
                                                                 .languageCode,
@@ -1255,36 +959,53 @@ class _TreinosDetalhesCardioEditWidgetState
                                                                       .fontStyle,
                                                                 ),
                                                       ),
+                                                      Icon(
+                                                        FFIcons
+                                                            .kproperty1FiRrAngleSmallDown,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primary,
+                                                        size: 24.0,
+                                                      ),
                                                     ].divide(
                                                         SizedBox(width: 8.0)),
                                                   ),
-                                                  Icon(
-                                                    FFIcons
-                                                        .kproperty1FiRrAngleSmallDown,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primary,
-                                                    size: 24.0,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(0.0, 4.0, 0.0, 0.0),
-                                              child: Text(
-                                                dateTimeFormat(
-                                                  "d/MM/y",
-                                                  _model.fim,
-                                                  locale: FFLocalizations.of(
-                                                          context)
-                                                      .languageCode,
                                                 ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
+                                              ),
+                                            ],
+                                          ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 4.0, 0.0, 0.0),
+                                            child: Text(
+                                              dateTimeFormat(
+                                                "d/MM/y",
+                                                _model.inicio,
+                                                locale:
+                                                    FFLocalizations.of(context)
+                                                        .languageCode,
+                                              ),
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        fontSize: 12.0,
+                                                        letterSpacing: 0.0,
                                                         fontWeight:
                                                             FontWeight.normal,
                                                         fontStyle:
@@ -1293,29 +1014,288 @@ class _TreinosDetalhesCardioEditWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 100.0,
+                                    child: VerticalDivider(
+                                      width: 1.0,
+                                      thickness: 1.0,
+                                      color: FlutterFlowTheme.of(context)
+                                          .alternate,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 12.0),
+                                            child: Text(
+                                              'Fim',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
                                                       fontWeight:
-                                                          FontWeight.normal,
+                                                          FontWeight.w500,
                                                       fontStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
                                                               .bodyMedium
                                                               .fontStyle,
                                                     ),
-                                              ),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryText,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              await showModalBottomSheet<bool>(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    final _datePicked2CupertinoTheme =
+                                                        CupertinoTheme.of(
+                                                            context);
+                                                    return ScrollConfiguration(
+                                                      behavior:
+                                                          const MaterialScrollBehavior()
+                                                              .copyWith(
+                                                        dragDevices: {
+                                                          PointerDeviceKind
+                                                              .mouse,
+                                                          PointerDeviceKind
+                                                              .touch,
+                                                          PointerDeviceKind
+                                                              .stylus,
+                                                          PointerDeviceKind
+                                                              .unknown
+                                                        },
+                                                      ),
+                                                      child: Container(
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height /
+                                                            3,
+                                                        width: MediaQuery.of(
+                                                                context)
+                                                            .size
+                                                            .width,
+                                                        color: FlutterFlowTheme
+                                                                .of(context)
+                                                            .secondaryBackground,
+                                                        child: CupertinoTheme(
+                                                          data:
+                                                              _datePicked2CupertinoTheme
+                                                                  .copyWith(
+                                                            textTheme:
+                                                                _datePicked2CupertinoTheme
+                                                                    .textTheme
+                                                                    .copyWith(
+                                                              dateTimePickerTextStyle:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .headlineMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight: FlutterFlowTheme.of(context)
+                                                                              .headlineMedium
+                                                                              .fontWeight,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .headlineMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .primaryText,
+                                                                        letterSpacing:
+                                                                            0.0,
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .headlineMedium
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .headlineMedium
+                                                                            .fontStyle,
+                                                                      ),
+                                                            ),
+                                                          ),
+                                                          child:
+                                                              CupertinoDatePicker(
+                                                            mode:
+                                                                CupertinoDatePickerMode
+                                                                    .dateAndTime,
+                                                            minimumDate: (_model
+                                                                    .inicio ??
+                                                                DateTime(1900)),
+                                                            initialDateTime:
+                                                                (_model.fim ??
+                                                                    DateTime
+                                                                        .now()),
+                                                            maximumDate:
+                                                                DateTime(2050),
+                                                            backgroundColor:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryBackground,
+                                                            use24hFormat: false,
+                                                            onDateTimeChanged:
+                                                                (newDateTime) =>
+                                                                    safeSetState(
+                                                                        () {
+                                                              _model.datePicked2 =
+                                                                  newDateTime;
+                                                            }),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  });
+                                              if (_model.datePicked2 != null) {
+                                                _model.fim = _model.datePicked2;
+                                                safeSetState(() {});
+                                              }
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      valueOrDefault<String>(
+                                                        dateTimeFormat(
+                                                          "HH:mm",
+                                                          _model.fim,
+                                                          locale:
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .languageCode,
+                                                        ),
+                                                        '00:00',
+                                                      ),
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .inter(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              fontStyle:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                            ),
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                            fontSize: 30.0,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                    ),
+                                                  ].divide(
+                                                      SizedBox(width: 8.0)),
+                                                ),
+                                                Icon(
+                                                  FFIcons
+                                                      .kproperty1FiRrAngleSmallDown,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 24.0,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 4.0, 0.0, 0.0),
+                                            child: Text(
+                                              dateTimeFormat(
+                                                "d/MM/y",
+                                                _model.fim,
+                                                locale:
+                                                    FFLocalizations.of(context)
+                                                        .languageCode,
+                                              ),
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        fontSize: 12.0,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontStyle,
+                                                      ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                            ),
                           ],
                         ),
                       ),

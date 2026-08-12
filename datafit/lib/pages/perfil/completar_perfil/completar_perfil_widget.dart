@@ -160,8 +160,8 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
       nascimento: nascimentoNormalizado,
       telefone: telefoneDigitos.isEmpty ? null : telefoneDigitos,
       isWhatsapp: _model.isWhatsapp,
-      peso: double.tryParse(
-          _model.pesoTextController!.text.replaceAll(',', '.')),
+      peso:
+          double.tryParse(_model.pesoTextController!.text.replaceAll(',', '.')),
       altura: double.tryParse(
           _model.alturaTextController!.text.replaceAll(',', '.')),
       nickname: _model.nicknameTextController!.text.isEmpty
@@ -232,8 +232,7 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
                     final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
                     if (digits.length == 11) {
                       safeSetState(() {
-                        _cpfErro =
-                            _validarCpf(value) ? null : 'CPF inválido';
+                        _cpfErro = _validarCpf(value) ? null : 'CPF inválido';
                       });
                     } else if (_cpfErro != null) {
                       safeSetState(() => _cpfErro = null);
@@ -320,8 +319,8 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
                         ),
                         child: Checkbox(
                           value: _model.isWhatsapp,
-                          onChanged: (newValue) => safeSetState(
-                              () => _model.isWhatsapp = newValue!),
+                          onChanged: (newValue) =>
+                              safeSetState(() => _model.isWhatsapp = newValue!),
                           activeColor: theme.primary,
                           checkColor: theme.info,
                         ),
@@ -362,9 +361,8 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
                             focusNode: _model.pesoFocusNode,
                             decoration: _decoration(context, '0.0'),
                             style: _fieldTextStyle(context),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                           ),
                         ],
                       ),
@@ -380,9 +378,8 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
                             focusNode: _model.alturaFocusNode,
                             decoration: _decoration(context, '0.00'),
                             style: _fieldTextStyle(context),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                           ),
                         ],
                       ),
@@ -391,8 +388,8 @@ class _CompletarPerfilWidgetState extends State<CompletarPerfilWidget> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                      0.0, 32.0, 0.0, 0.0),
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
                   child: FFButtonWidget(
                     onPressed:
                         _model.isSaving ? null : () => _concluir(context),

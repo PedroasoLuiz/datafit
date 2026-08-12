@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'gestao_exercicios_widget.dart';
 export 'gestao_exercicios_widget.dart';
 
-class GestaoExerciciosModel
-    extends FlutterFlowModel<GestaoExerciciosWidget> {
+class GestaoExerciciosModel extends FlutterFlowModel<GestaoExerciciosWidget> {
   bool isLoading = true;
   List<SubcatGestaoGroup> grupos = [];
 

@@ -17,6 +17,7 @@ import 'package:ff_commons/flutter_flow/lat_lng.dart';
 import 'package:ff_commons/flutter_flow/place.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
+import '/pages/components/navbar/navbar_widget.dart';
 
 import '/index.dart';
 import 'package:cupertino_time_picker_hiuzb7/index.dart'
@@ -95,7 +96,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
     navigatorKey: appNavigatorKey,
     errorBuilder: (context, state) =>
         appStateNotifier.loggedIn ? LoadingWidget() : StartWidget(),
-    routes: [
+    routes: _montaRotas(appStateNotifier, [
       FFRoute(
         name: '_initialize',
         path: '/',
@@ -271,11 +272,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
         path: TreinosPersonalGrupoWidget.routePath,
         builder: (context, params) => TreinosPersonalGrupoWidget(
           grupo: params.getParam(
-            'grupo',
-            ParamType.DataStruct,
-            isList: false,
-            structBuilder: GrupostreinosStruct.fromSerializableMap,
-          ) ??
+                'grupo',
+                ParamType.DataStruct,
+                isList: false,
+                structBuilder: GrupostreinosStruct.fromSerializableMap,
+              ) ??
               GrupostreinosStruct(),
         ),
       ),
@@ -299,9 +300,90 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
         builder: (context, params) =>
             $cupertino_time_picker_hiuzb7.HomePageWidget(),
       )
-    ].map((r) => r.toRoute(appStateNotifier)).toList(),
+    ]),
     observers: [routeObserver],
   );
+}
+
+/// Rotas que ficam sob a navbar. Sao as que o `NavbarWidget` lista em `_abas`.
+const _rotasDeAba = <String>{
+  '/treinos',
+  '/metas',
+  '/metricas',
+  '/aluno',
+  '/pagamentos',
+  '/perfil',
+  '/treinosPersonal',
+};
+
+/// Indice que cada rota de aba representa na navbar.
+///
+/// `/metricas` e `/pagamentos` compartilham o 3 de proposito: uma e do aluno,
+/// a outra do personal, e a navbar so mostra uma das duas por vez.
+const _indicePorRota = <String, int>{
+  '/treinos': 0,
+  '/metas': 1,
+  '/aluno': 2,
+  '/metricas': 3,
+  '/pagamentos': 3,
+  '/perfil': 4,
+  '/treinosPersonal': 5,
+};
+
+/// Separa as rotas de aba do resto e envolve as de aba num `ShellRoute`.
+///
+/// Antes cada pagina montava a propria `NavbarWidget` dentro do seu `Stack`.
+/// Como a barra fazia parte da pagina, ela entrava e saia junto na transicao:
+/// a pilula da aba ativa nao deslizava, ela piscava no lugar novo.
+///
+/// No shell a barra vive **fora** da pagina e sobrevive a troca. So o indice
+/// muda, e o `AnimatedContainer` de cada item cuida do resto.
+List<RouteBase> _montaRotas(
+  AppStateNotifier appStateNotifier,
+  List<FFRoute> rotas,
+) {
+  final abas = <RouteBase>[];
+  final resto = <RouteBase>[];
+
+  for (final r in rotas) {
+    final destino = _rotasDeAba.contains(r.path) ? abas : resto;
+    destino.add(r.toRoute(appStateNotifier));
+  }
+
+  return [
+    ShellRoute(
+      builder: (context, state, child) => _CascaComNavbar(
+        rota: state.matchedLocation,
+        child: child,
+      ),
+      routes: abas,
+    ),
+    ...resto,
+  ];
+}
+
+/// Pagina + navbar por cima. A navbar nao entra na transicao da pagina.
+class _CascaComNavbar extends StatelessWidget {
+  const _CascaComNavbar({
+    required this.rota,
+    required this.child,
+  });
+
+  final String rota;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        Align(
+          alignment: AlignmentDirectional(0.0, 1.0),
+          child: NavbarWidget(index: _indicePorRota[rota] ?? 0),
+        ),
+      ],
+    );
+  }
 }
 
 extension NavParamExtensions on Map<String, String?> {
@@ -517,17 +599,17 @@ class FFRoute {
                   transitionsBuilder: transitionInfo.builder ??
                       (context, animation, secondaryAnimation, child) =>
                           PageTransition(
-                    type: transitionInfo.transitionType,
-                    duration: transitionInfo.duration,
-                    reverseDuration: transitionInfo.duration,
-                    alignment: transitionInfo.alignment,
-                    child: child,
-                  ).buildTransitions(
-                    context,
-                    animation,
-                    secondaryAnimation,
-                    child,
-                  ),
+                            type: transitionInfo.transitionType,
+                            duration: transitionInfo.duration,
+                            reverseDuration: transitionInfo.duration,
+                            alignment: transitionInfo.alignment,
+                            child: child,
+                          ).buildTransitions(
+                            context,
+                            animation,
+                            secondaryAnimation,
+                            child,
+                          ),
                 )
               : MaterialPage(
                   key: state.pageKey, name: state.name, child: child);

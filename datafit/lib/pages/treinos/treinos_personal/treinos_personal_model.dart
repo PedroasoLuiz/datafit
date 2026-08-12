@@ -18,9 +18,7 @@ class TreinosPersonalModel extends FlutterFlowModel<TreinosPersonalWidget> {
   List<GrupostreinosStruct> get treinosFiltrados {
     final q = txtBuscaController?.text.trim().toLowerCase() ?? '';
     if (q.isEmpty) return treinos;
-    return treinos
-        .where((t) => t.nome.toLowerCase().contains(q))
-        .toList();
+    return treinos.where((t) => t.nome.toLowerCase().contains(q)).toList();
   }
 
   @override

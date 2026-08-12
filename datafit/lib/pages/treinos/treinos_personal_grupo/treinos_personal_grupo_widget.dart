@@ -153,8 +153,8 @@ class _TreinosPersonalGrupoWidgetState
             children: [
               // ── HEADER ──────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 16.0, 16.0, 8.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,8 +169,7 @@ class _TreinosPersonalGrupoWidgetState
                         width: 36.0,
                         height: 36.0,
                         decoration: BoxDecoration(
-                          color:
-                              FlutterFlowTheme.of(context).primaryBackground,
+                          color: FlutterFlowTheme.of(context).primaryBackground,
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Align(
@@ -194,19 +193,18 @@ class _TreinosPersonalGrupoWidgetState
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w600,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                                fontSize: 14.0,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                     ),
@@ -286,18 +284,14 @@ class _TreinosPersonalGrupoWidgetState
                                     '__transition_info__': TransitionInfo(
                                       hasTransition: true,
                                       transitionType: PageTransitionType.fade,
-                                      duration:
-                                          const Duration(milliseconds: 0),
+                                      duration: const Duration(milliseconds: 0),
                                     ),
                                   },
                                 ),
-                                onEdit: () => _abrirModalNome(
-                                    id: id, nomeAtual: nome),
-                                onDelete: () => _confirmarExcluir(
-                                    id,
-                                    nome.isNotEmpty
-                                        ? nome
-                                        : 'Treino $letra'),
+                                onEdit: () =>
+                                    _abrirModalNome(id: id, nomeAtual: nome),
+                                onDelete: () => _confirmarExcluir(id,
+                                    nome.isNotEmpty ? nome : 'Treino $letra'),
                               );
                             },
                           ),
@@ -451,8 +445,7 @@ class _SwipeableRowState extends State<_SwipeableRow> {
                                 style: theme.bodyMedium.override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,
-                                    fontStyle:
-                                        theme.bodyMedium.fontStyle,
+                                    fontStyle: theme.bodyMedium.fontStyle,
                                   ),
                                   color: theme.primary,
                                   fontSize: 11.0,
@@ -488,8 +481,7 @@ class _SwipeableRowState extends State<_SwipeableRow> {
                                 style: theme.bodyMedium.override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,
-                                    fontStyle:
-                                        theme.bodyMedium.fontStyle,
+                                    fontStyle: theme.bodyMedium.fontStyle,
                                   ),
                                   color: Colors.white,
                                   fontSize: 11.0,

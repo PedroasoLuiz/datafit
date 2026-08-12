@@ -265,8 +265,8 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
 
                   // Payment info
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                        16.0, 16.0, 16.0, 0.0),
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsetsDirectional.fromSTEB(
@@ -361,8 +361,8 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
 
                   // Date picker row
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                        16.0, 0.0, 16.0, 16.0),
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 16.0),
                     child: InkWell(
                       splashColor: Colors.transparent,
                       focusColor: Colors.transparent,
@@ -379,8 +379,7 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                             return Theme(
                               data: Theme.of(context).copyWith(
                                 colorScheme: ColorScheme.dark(
-                                  primary:
-                                      FlutterFlowTheme.of(context).primary,
+                                  primary: FlutterFlowTheme.of(context).primary,
                                   surface: FlutterFlowTheme.of(context)
                                       .secondaryBackground,
                                   onSurface:
@@ -392,16 +391,14 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                           },
                         );
                         if (picked != null) {
-                          safeSetState(
-                              () => _model.dataSelecionada = picked);
+                          safeSetState(() => _model.dataSelecionada = picked);
                         }
                       },
                       child: Container(
                         width: double.infinity,
                         height: 46.0,
                         decoration: BoxDecoration(
-                          color:
-                              FlutterFlowTheme.of(context).primaryBackground,
+                          color: FlutterFlowTheme.of(context).primaryBackground,
                           borderRadius: BorderRadius.circular(12.0),
                           border: Border.all(
                             color: _model.dataSelecionada != null
@@ -524,7 +521,8 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                           )
                         : Icon(
                             Icons.check_rounded,
-                            color: FlutterFlowTheme.of(context).primaryBackground,
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
                             size: 24.0,
                           ),
                   ),
@@ -538,8 +536,7 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
+                fillColor: FlutterFlowTheme.of(context).secondaryBackground,
                 icon: Icon(
                   FFIcons.kproperty1FiRrCrossSmall,
                   color: FlutterFlowTheme.of(context).secondaryText,
