@@ -51,9 +51,23 @@ class ReelsVideoGrid extends StatelessWidget {
   ///
   /// Mandar o video da plataforma para o `launchUrl` abria o arquivo cru no
   /// navegador — sem controle, sem voltar.
-  Future<void> _abrir(BuildContext context, String url) async {
+  Future<void> _abrir(
+    BuildContext context,
+    String url,
+    List<String> urls,
+  ) async {
     if (ehVideoDaPlataforma(url)) {
-      await mostrarVideoEmTelaCheia(context, url: url);
+      // Leva a lista inteira: no reels a pessoa rola para o proximo video sem
+      // voltar para a grade. So os da plataforma entram — os do YouTube saem
+      // do app e nao teriam como participar da rolagem.
+      final daPlataforma =
+          urls.where(ehVideoDaPlataforma).toList(growable: false);
+      await mostrarVideoEmTelaCheia(
+        context,
+        url: url,
+        urls: daPlataforma,
+        inicial: daPlataforma.indexOf(url),
+      );
       return;
     }
 
@@ -96,29 +110,35 @@ class ReelsVideoGrid extends StatelessWidget {
         // um player por celula do grid), a celula mostra a marca de video.
         final daPlataforma = ehVideoDaPlataforma(url);
         final videoId = daPlataforma ? null : _extractVideoId(url);
-        final thumbUrl = videoId != null
-            ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
-            : null;
+        // Capa propria primeiro (gerada no envio), depois a do YouTube.
+        final thumbUrl = exercicio.thumbUrl.isNotEmpty
+            ? exercicio.thumbUrl
+            : (videoId != null
+                ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
+                : null);
 
         return GestureDetector(
-          onTap: () => _abrir(context, url),
+          onTap: () => _abrir(
+            context,
+            url,
+            comVideo.map((e) => e.linkInstrucao).toList(),
+          ),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // YouTube tem miniatura publica; o video enviado pelo
-              // personal nao tem, entao a capa vem do primeiro quadro dele.
+              // Imagem, sempre. Antes o video da plataforma pintava a
+              // capa com um player vivo por celula: sem cache, recarregava
+              // a cada abertura da tela e nao escalava. Agora a capa e um
+              // arquivo gerado no envio, entao entra no cache como qualquer
+              // outra imagem.
+              //
+              // Exercicios enviados antes disso ainda nao tem capa e caem no
+              // fundo escuro ate serem editados de novo.
               if (thumbUrl != null)
                 Image(
                   image: CachedNetworkImageProvider(thumbUrl),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => const _Placeholder(),
-                )
-              else if (daPlataforma)
-                CapaVideoPlataforma(
-                  url: url,
-                  segundo: exercicio.hasThumbSegundo()
-                      ? exercicio.thumbSegundo
-                      : null,
                 )
               else
                 const _Placeholder(),

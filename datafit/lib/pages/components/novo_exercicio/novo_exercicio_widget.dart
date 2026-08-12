@@ -1,6 +1,12 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mensagem_widget.dart';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:path/path.dart' as p;
+import 'package:video_thumbnail/video_thumbnail.dart';
+
 import '/components/video_exercicio.dart';
 import '/custom_code/widgets/dashed_button.dart';
 import '/backend/supabase/storage/storage.dart';
@@ -64,10 +70,13 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
     }
   }
 
-  /// Envio do video do exercicio para o bucket `Videos`.
+  /// Video escolhido, ainda no aparelho.
   ///
-  /// O caminho comeca com o uid porque a politica de storage exige isso: sem
-  /// a pasta do dono, um personal poderia sobrescrever o video de outro.
+  /// Nulo nao quer dizer "sem video": ao editar um exercicio que ja tem
+  /// video, o arquivo segue no storage e este campo continua nulo.
+  String? _videoLocal;
+
+  /// Verdadeiro so durante o envio, que agora acontece ao salvar.
   bool _enviandoVideo = false;
 
   /// Segundo do video escolhido como capa, em `SeletorCapaVideo`.
@@ -76,7 +85,13 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
   /// regua. Vai para a coluna `ThumbSegundo` de Exercicios.
   double? _thumbSegundo;
 
-  Future<void> _enviarVideo() async {
+  /// Escolhe o video. Nao envia nada: so guarda o caminho no aparelho.
+  ///
+  /// Antes o arquivo subia para o bucket no instante da escolha. Quem abria a
+  /// folha, mandava um video e desistia deixava o arquivo la para sempre —
+  /// sem nenhuma linha no banco apontando para ele, ou seja, sem como achar
+  /// nem limpar depois.
+  Future<void> _escolherVideo() async {
     if (_enviandoVideo) return;
 
     final selecionados = await selectMediaWithSourceBottomSheet(
@@ -89,32 +104,88 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
     );
     if (selecionados == null || selecionados.isEmpty) return;
 
-    safeSetState(() => _enviandoVideo = true);
+    final caminho = selecionados.first.filePath;
+    if (caminho == null || caminho.isEmpty) {
+      await _avisar('Não consegui ler este arquivo. Tente outro vídeo.');
+      return;
+    }
+
+    if (!mounted) return;
+    safeSetState(() {
+      _videoLocal = caminho;
+      // Video novo, capa nova: o instante do anterior nao quer dizer nada
+      // neste arquivo.
+      _thumbSegundo = null;
+      // O campo de link guarda a URL do storage. Com video local ele nao vale
+      // mais, e o antigo continuaria mandando na previa.
+      _model.txtLinkTextController?.text = '';
+    });
+  }
+
+  /// Sobe o video e a capa. Roda no salvar, nao na escolha.
+  ///
+  /// Devolve `(urlVideo, urlCapa)`. Nulo quer dizer que o envio falhou e o
+  /// exercicio nao deve ser gravado apontando para lugar nenhum.
+  Future<(String, String?)?> _subirVideoECapa() async {
+    final caminho = _videoLocal;
+    if (caminho == null) return null;
+
     try {
       final urls = await uploadSupabaseStorageFiles(
         bucketName: 'Videos',
-        selectedFiles: selecionados,
+        selectedFiles: [
+          SelectedFile(
+            storagePath: '$currentUserUid/'
+                '${DateTime.now().microsecondsSinceEpoch}'
+                '${p.extension(caminho)}',
+            filePath: caminho,
+            bytes: await File(caminho).readAsBytes(),
+          ),
+        ],
       );
-      final url = urls.firstOrNull;
-      if (!mounted) return;
-      safeSetState(() {
-        _enviandoVideo = false;
-        if (url != null && url.isNotEmpty) {
-          _model.txtLinkTextController?.text = url;
-          // Video novo, capa nova: o segundo do anterior nao quer dizer nada
-          // neste arquivo.
-          _thumbSegundo = null;
-        }
-      });
-      if (url == null || url.isEmpty) {
-        await _avisar('Nao consegui enviar o video. Tente outro arquivo.');
-      }
+      final urlVideo = urls.firstOrNull;
+      if (urlVideo == null || urlVideo.isEmpty) return null;
+
+      return (urlVideo, await _subirCapa(caminho));
     } catch (_) {
-      if (!mounted) return;
-      safeSetState(() => _enviandoVideo = false);
-      // O limite do bucket e 100 MB; acima disso o storage recusa.
-      await _avisar(
-          'Nao consegui enviar o video. Veja se ele tem menos de 100 MB.');
+      return null;
+    }
+  }
+
+  /// Gera a imagem de capa no instante escolhido e sobe junto do video.
+  ///
+  /// Guardar a IMAGEM, e nao so o instante, e o que deixa a grade de videos
+  /// ser imagem pura: com o instante, cada celula precisaria manter um player
+  /// de video vivo so para pintar o quadro — nao escala e nao tem cache.
+  ///
+  /// Falhar aqui nao derruba o exercicio: sem capa a celula cai no fundo
+  /// escuro, que era o comportamento anterior.
+  Future<String?> _subirCapa(String caminhoVideo) async {
+    if (kIsWeb) return null;
+    try {
+      final capa = await VideoThumbnail.thumbnailFile(
+        video: caminhoVideo,
+        imageFormat: ImageFormat.JPEG,
+        timeMs: ((_thumbSegundo ?? 0.0) * 1000).round(),
+        quality: 80,
+        maxWidth: 720,
+      );
+      if (capa == null) return null;
+
+      final urls = await uploadSupabaseStorageFiles(
+        bucketName: 'Videos',
+        selectedFiles: [
+          SelectedFile(
+            storagePath: '$currentUserUid/capa_'
+                '${DateTime.now().microsecondsSinceEpoch}.jpg',
+            filePath: capa,
+            bytes: await File(capa).readAsBytes(),
+          ),
+        ],
+      );
+      return urls.firstOrNull;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -399,10 +470,11 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         height: 46.0,
                         label: _enviandoVideo
                             ? 'Enviando…'
-                            : (ehVideoDaPlataforma(
-                                    _model.txtLinkTextController?.text)
+                            : ((_videoLocal != null ||
+                                    ehVideoDaPlataforma(
+                                        _model.txtLinkTextController?.text))
                                 ? 'Trocar vídeo'
-                                : 'Enviar vídeo'),
+                                : 'Escolher vídeo'),
                         labelSize: 14.0,
                         labelColor: FlutterFlowTheme.of(context).primary,
                         fontWeight: 'semibold',
@@ -415,19 +487,23 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         // Sem preenchimento: a borda tracejada e o desenho de
                         // "aqui ainda nao tem nada". O azul claro por tras
                         // fazia o botao parecer uma acao ja resolvida.
-                        onPressed: _enviandoVideo ? null : _enviarVideo,
+                        onPressed: _enviandoVideo ? null : _escolherVideo,
                       ),
                     ),
-                    if (ehVideoDaPlataforma(_model.txtLinkTextController?.text))
+                    if (_videoLocal != null ||
+                        ehVideoDaPlataforma(
+                            _model.txtLinkTextController?.text))
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 12.0, 16.0, 0.0),
                         child: SeletorCapaVideo(
-                          // A chave amarra o seletor a URL: trocar o video
+                          // A chave amarra o seletor a origem: trocar o video
                           // recria o widget em vez de reaproveitar o player
                           // apontando para o arquivo antigo.
-                          key: ValueKey(_model.txtLinkTextController!.text),
-                          url: _model.txtLinkTextController!.text,
+                          key: ValueKey(_videoLocal ??
+                              _model.txtLinkTextController!.text),
+                          caminhoLocal: _videoLocal,
+                          url: _model.txtLinkTextController?.text,
                           segundoInicial: _thumbSegundo,
                           aoEscolher: (s) => _thumbSegundo = s,
                         ),
@@ -501,8 +577,9 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                     // So aparece quando nao ha video enviado. Com video, este
                     // campo mostraria a URL do storage: um texto enorme que
                     // nao diz nada ao personal e que ele nao deve editar.
-                    if (!ehVideoDaPlataforma(
-                        _model.txtLinkTextController?.text)) ...[
+                    if (_videoLocal == null &&
+                        !ehVideoDaPlataforma(
+                            _model.txtLinkTextController?.text)) ...[
                       _buildLabel(context, 'ou link do YouTube (opcional)'),
                       _buildTextField(
                         context,
@@ -572,7 +649,25 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                     return;
                   }
 
-                  final link = _model.txtLinkTextController?.text.trim();
+                  // O video so vai para o storage aqui, com o exercicio
+                  // ja validado: assim nao sobra arquivo orfao de quem
+                  // escolheu um video e desistiu antes de salvar.
+                  String? link = _model.txtLinkTextController?.text.trim();
+                  String? capaUrl;
+                  if (_videoLocal != null) {
+                    safeSetState(() => _enviandoVideo = true);
+                    final enviado = await _subirVideoECapa();
+                    if (!mounted) return;
+                    safeSetState(() => _enviandoVideo = false);
+                    if (enviado == null) {
+                      await _avisar('Não consegui enviar o vídeo. '
+                          'Veja se ele tem menos de 100 MB.');
+                      return;
+                    }
+                    link = enviado.$1;
+                    capaUrl = enviado.$2;
+                  }
+
                   final rawSubcat = _model.subcatController?.value ?? 0;
                   final subcatId = rawSubcat > 0 ? rawSubcat : null;
 
@@ -583,6 +678,8 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       'LinkInstrucao':
                           (link != null && link.isNotEmpty) ? link : null,
                       'ThumbSegundo': _thumbSegundo,
+                      // Sem capa nova, mantem a que ja estava gravada.
+                      if (capaUrl != null) 'ThumbUrl': capaUrl,
                     }).eq('Id', widget.exercicioId!);
                   } else {
                     await SupaFlow.client.from('Exercicios').insert({
@@ -594,6 +691,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         'LinkInstrucao': link,
                       if (_thumbSegundo != null)
                         'ThumbSegundo': _thumbSegundo,
+                      if (capaUrl != null) 'ThumbUrl': capaUrl,
                     });
                   }
 

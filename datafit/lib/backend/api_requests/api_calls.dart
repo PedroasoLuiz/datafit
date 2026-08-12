@@ -1269,6 +1269,7 @@ class AlunoGroup {
   static GetMetasCall getMetasCall = GetMetasCall();
   static GetMetricasCall getMetricasCall = GetMetricasCall();
   static GetTreinosCall getTreinosCall = GetTreinosCall();
+  static GetCalendarioCall getCalendarioCall = GetCalendarioCall();
   static IniciarTreinoCall iniciarTreinoCall = IniciarTreinoCall();
   static IniciarExercicioCall iniciarExercicioCall = IniciarExercicioCall();
   static FinalizarTreinoCall finalizarTreinoCall = FinalizarTreinoCall();
@@ -1552,6 +1553,53 @@ class GetTreinosCall {
         response,
         r'''$.grupoTreino''',
       ));
+}
+
+/// Dias treinados de um mes, com o detalhe de cada treino.
+///
+/// Um mes por chamada: o calendario mostra um mes de cada vez e a pessoa
+/// folheia. Trazer o historico inteiro cresceria sem limite com o uso.
+class GetCalendarioCall {
+  Future<ApiCallResponse> call({
+    String? alunoUuid = '',
+    int? ano,
+    int? mes,
+    String? project,
+    String? apikey,
+  }) async {
+    project ??= FFAppConstants.project;
+    apikey ??= FFAppConstants.apiKey;
+    final baseUrl = AlunoGroup.getBaseUrl(
+      project: project,
+      apikey: apikey,
+    );
+
+    final ffApiRequestBody = '''
+{
+  "p_aluno_uuid": "${escapeStringForJson(alunoUuid)}",
+  "p_ano": ${ano ?? 0},
+  "p_mes": ${mes ?? 0}
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'get Calendario',
+      apiUrl: '${baseUrl}/get_calendario_treinos_aluno',
+      callType: ApiCallType.POST,
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': '${apikey}',
+        'Authorization': 'Bearer ${apikey}',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
 }
 
 class IniciarTreinoCall {

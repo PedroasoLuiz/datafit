@@ -11,6 +11,7 @@ class ExerciciosStruct extends BaseStruct {
     String? nome,
     String? linkInstrucao,
     double? thumbSegundo,
+    String? thumbUrl,
     int? series,
     int? repeticoes,
     int? tempoDescansoSeg,
@@ -26,6 +27,7 @@ class ExerciciosStruct extends BaseStruct {
         _nome = nome,
         _linkInstrucao = linkInstrucao,
         _thumbSegundo = thumbSegundo,
+        _thumbUrl = thumbUrl,
         _series = series,
         _repeticoes = repeticoes,
         _tempoDescansoSeg = tempoDescansoSeg,
@@ -70,6 +72,13 @@ class ExerciciosStruct extends BaseStruct {
       thumbSegundo = thumbSegundo + amount;
 
   bool hasThumbSegundo() => _thumbSegundo != null;
+
+  // "thumbUrl" field.
+  String? _thumbUrl;
+  String get thumbUrl => _thumbUrl ?? '';
+  set thumbUrl(String? val) => _thumbUrl = val;
+
+  bool hasThumbUrl() => _thumbUrl != null;
 
   // "series" field.
   int? _series;
@@ -172,6 +181,7 @@ class ExerciciosStruct extends BaseStruct {
         nome: data['nome'] as String?,
         linkInstrucao: data['linkInstrucao'] as String?,
         thumbSegundo: castToType<double>(data['thumbSegundo']),
+        thumbUrl: data['thumbUrl'] as String?,
         series: castToType<int>(data['series']),
         repeticoes: castToType<int>(data['repeticoes']),
         tempoDescansoSeg: castToType<int>(data['tempoDescansoSeg']),
@@ -194,6 +204,7 @@ class ExerciciosStruct extends BaseStruct {
         'nome': _nome,
         'linkInstrucao': _linkInstrucao,
         'thumbSegundo': _thumbSegundo,
+        'thumbUrl': _thumbUrl,
         'series': _series,
         'repeticoes': _repeticoes,
         'tempoDescansoSeg': _tempoDescansoSeg,
@@ -224,6 +235,10 @@ class ExerciciosStruct extends BaseStruct {
         'thumbSegundo': serializeParam(
           _thumbSegundo,
           ParamType.double,
+        ),
+        'thumbUrl': serializeParam(
+          _thumbUrl,
+          ParamType.String,
         ),
         'series': serializeParam(
           _series,
@@ -293,6 +308,11 @@ class ExerciciosStruct extends BaseStruct {
           ParamType.double,
           false,
         ),
+        thumbUrl: deserializeParam(
+          data['thumbUrl'],
+          ParamType.String,
+          false,
+        ),
         series: deserializeParam(
           data['series'],
           ParamType.int,
@@ -360,6 +380,7 @@ class ExerciciosStruct extends BaseStruct {
         nome == other.nome &&
         linkInstrucao == other.linkInstrucao &&
         thumbSegundo == other.thumbSegundo &&
+        thumbUrl == other.thumbUrl &&
         series == other.series &&
         repeticoes == other.repeticoes &&
         tempoDescansoSeg == other.tempoDescansoSeg &&
@@ -379,6 +400,7 @@ class ExerciciosStruct extends BaseStruct {
         nome,
         linkInstrucao,
         thumbSegundo,
+        thumbUrl,
         series,
         repeticoes,
         tempoDescansoSeg,

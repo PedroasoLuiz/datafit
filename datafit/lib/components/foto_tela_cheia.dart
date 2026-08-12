@@ -56,7 +56,13 @@ class _FotoTelaCheia extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 1.0,
                 maxScale: 4.0,
-                child: Center(
+                // `SizedBox.expand` nao e enfeite: sem tamanho imposto, a
+                // imagem dentro do InteractiveViewer assume a dimensao
+                // natural do arquivo. Foto de celular tem milhares de pixels
+                // de lado, entao ela nascia gigante e cortada pelas bordas —
+                // o `BoxFit.contain` sozinho nao adianta quando nao ha caixa
+                // para caber dentro.
+                child: SizedBox.expand(
                   child: CachedNetworkImage(
                     imageUrl: url,
                     fit: BoxFit.contain,

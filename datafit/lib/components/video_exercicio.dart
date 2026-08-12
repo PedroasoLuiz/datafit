@@ -8,6 +8,8 @@
 /// precisou ser migrado e os links antigos continuam tocando.
 library;
 
+import 'dart:io';
+
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -271,32 +273,88 @@ class _CapaVideoPlataformaState extends State<CapaVideoPlataforma> {
   }
 }
 
-/// Abre o vídeo em tela cheia, no formato de reels.
+/// Abre os vídeos em tela cheia, no formato de reels.
 ///
-/// Preenche a tela, repete sozinho, e um toque alterna play/pause. A seta de
-/// voltar fica no alto à esquerda, onde a mão já procura.
+/// [urls] é a lista inteira e [inicial] diz por qual começar: rolar para cima
+/// e para baixo passa pelos outros, como no Instagram. Mostrar só o vídeo
+/// tocado obrigaria a voltar para a grade a cada troca.
 Future<void> mostrarVideoEmTelaCheia(
   BuildContext context, {
   required String url,
+  List<String>? urls,
+  int inicial = 0,
 }) async {
+  final lista = (urls == null || urls.isEmpty) ? <String>[url] : urls;
   await Navigator.of(context, rootNavigator: true).push(
     MaterialPageRoute(
       fullscreenDialog: true,
-      builder: (_) => _VideoTelaCheia(url: url),
+      builder: (_) => _ReelsTelaCheia(urls: lista, inicial: inicial),
     ),
   );
 }
 
-class _VideoTelaCheia extends StatefulWidget {
-  const _VideoTelaCheia({required this.url});
+class _ReelsTelaCheia extends StatefulWidget {
+  const _ReelsTelaCheia({required this.urls, required this.inicial});
+
+  final List<String> urls;
+  final int inicial;
+
+  @override
+  State<_ReelsTelaCheia> createState() => _ReelsTelaCheiaState();
+}
+
+class _ReelsTelaCheiaState extends State<_ReelsTelaCheia> {
+  late final PageController _paginas =
+      PageController(initialPage: widget.inicial);
+
+  @override
+  void dispose() {
+    _paginas.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _paginas,
+            scrollDirection: Axis.vertical,
+            itemCount: widget.urls.length,
+            itemBuilder: (context, i) => _PaginaReels(
+              url: widget.urls[i],
+              // A chave amarra o player à URL: sem ela, o PageView reaproveita
+              // o State ao rolar e o vídeo novo abriria mostrando o anterior.
+              key: ValueKey(widget.urls[i]),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 4.0, 0.0, 0.0),
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaginaReels extends StatefulWidget {
+  const _PaginaReels({super.key, required this.url});
 
   final String url;
 
   @override
-  State<_VideoTelaCheia> createState() => _VideoTelaCheiaState();
+  State<_PaginaReels> createState() => _PaginaReelsState();
 }
 
-class _VideoTelaCheiaState extends State<_VideoTelaCheia> {
+class _PaginaReelsState extends State<_PaginaReels> {
   VideoPlayerController? _controle;
   bool _pronto = false;
   bool _falhou = false;
@@ -338,33 +396,35 @@ class _VideoTelaCheiaState extends State<_VideoTelaCheia> {
   Widget build(BuildContext context) {
     final c = _controle;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _alternar,
-              child: _falhou
-                  ? const Center(
-                      child: Text(
-                        'Não consegui carregar este vídeo.',
-                        style: TextStyle(color: Colors.white70, fontSize: 14.0),
-                      ),
-                    )
-                  : (!_pronto || c == null)
-                      ? const Center(
-                          child: SizedBox(
-                            width: 28.0,
-                            height: 28.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: _alternar,
+            child: _falhou
+                ? const Center(
+                    child: Text(
+                      'Não consegui carregar este vídeo.',
+                      style: TextStyle(color: Colors.white70, fontSize: 14.0),
+                    ),
+                  )
+                : (!_pronto || c == null)
+                    ? const Center(
+                        child: SizedBox(
+                          width: 28.0,
+                          height: 28.0,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
-                        )
-                      : FittedBox(
+                        ),
+                      )
+                    // `SizedBox.expand` por fora do FittedBox: sem ele o
+                    // conjunto assume o tamanho natural do vídeo e sai da
+                    // tela em vez de preenchê-la.
+                    : SizedBox.expand(
+                        child: FittedBox(
                           fit: BoxFit.cover,
                           clipBehavior: Clip.hardEdge,
                           child: SizedBox(
@@ -373,48 +433,39 @@ class _VideoTelaCheiaState extends State<_VideoTelaCheia> {
                             child: VideoPlayer(c),
                           ),
                         ),
-            ),
+                      ),
           ),
-          // Pausado mostra o play grande no meio, como em qualquer reels.
-          if (_pronto && c != null && !c.value.isPlaying)
-            IgnorePointer(
-              child: Center(
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white.withValues(alpha: 0.85),
-                  size: 72.0,
-                ),
-              ),
-            ),
-          if (_pronto && c != null)
-            Positioned(
-              left: 0.0,
-              right: 0.0,
-              bottom: 0.0,
-              child: VideoProgressIndicator(
-                c,
-                allowScrubbing: true,
-                colors: const VideoProgressColors(
-                  playedColor: Colors.white,
-                  bufferedColor: Colors.white24,
-                  backgroundColor: Colors.white10,
-                ),
-              ),
-            ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 4.0, 0.0, 0.0),
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+        ),
+        if (_pronto && c != null && !c.value.isPlaying)
+          IgnorePointer(
+            child: Center(
+              child: Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white.withValues(alpha: 0.85),
+                size: 72.0,
               ),
             ),
           ),
-        ],
-      ),
+        if (_pronto && c != null)
+          Positioned(
+            left: 0.0,
+            right: 0.0,
+            bottom: 0.0,
+            child: VideoProgressIndicator(
+              c,
+              allowScrubbing: true,
+              colors: const VideoProgressColors(
+                playedColor: Colors.white,
+                bufferedColor: Colors.white24,
+                backgroundColor: Colors.white10,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
+
 
 /// Escolha do quadro de capa, no estilo do Instagram.
 ///
@@ -428,13 +479,21 @@ class _VideoTelaCheiaState extends State<_VideoTelaCheia> {
 class SeletorCapaVideo extends StatefulWidget {
   const SeletorCapaVideo({
     super.key,
-    required this.url,
     required this.aoEscolher,
+    this.url,
+    this.caminhoLocal,
     this.segundoInicial,
     this.altura = 260.0,
   });
 
-  final String url;
+  /// URL do video ja no storage. Usada quando nao ha [caminhoLocal].
+  final String? url;
+
+  /// Arquivo ainda no aparelho, escolhido nesta sessao.
+  ///
+  /// Tem prioridade sobre [url]: o video so sobe ao salvar o exercicio, entao
+  /// enquanto se escolhe a capa o arquivo de verdade e este.
+  final String? caminhoLocal;
   final ValueChanged<double> aoEscolher;
   final double? segundoInicial;
   final double altura;
@@ -456,7 +515,10 @@ class _SeletorCapaVideoState extends State<SeletorCapaVideo> {
   }
 
   Future<void> _iniciar() async {
-    final c = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    final local = widget.caminhoLocal;
+    final c = local != null
+        ? VideoPlayerController.file(File(local))
+        : VideoPlayerController.networkUrl(Uri.parse(widget.url ?? ''));
     _controle = c;
     try {
       await c.initialize();

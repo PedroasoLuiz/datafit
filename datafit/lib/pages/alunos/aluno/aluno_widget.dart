@@ -516,17 +516,24 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                               ],
                             ),
                           ),
-                          // Abaixo dos chips: o aviso fala do limite da
-                          // conta, nao da lista, entao nao precisa vir
-                          // antes do filtro. Some sozinho se o plano nao
-                          // for free (e no iOS).
-                          const AvisoPlanoFree(),
                           SingleChildScrollView(
                             primary: false,
                             controller: _model.columnController2,
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               children: [
+                                // O aviso mora AQUI DENTRO, e nao como irmao
+                                // dos chips, por causa do `.divide` mais
+                                // abaixo: ele insere 16 entre cada par de
+                                // filhos, inclusive dos dois lados de um
+                                // filho invisivel. Com o plano pago o aviso
+                                // vira SizedBox.shrink e sobravam 32 de vao
+                                // no lugar dele.
+                                //
+                                // Aqui ele traz o proprio respiro de cima
+                                // quando aparece, e nao ocupa nada quando
+                                // some.
+                                const AvisoPlanoFree(),
                                 Builder(
                                   builder: (context) {
                                     final alunos = _model.alunospersonal
@@ -902,7 +909,10 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                               Divider(
                                                 height: 1.0,
                                                 thickness: 1.0,
-                                                indent: 62.0,
+                                                // 54 da foto + 16 do vao:
+                                                // o traco comeca onde o nome
+                                                // do aluno comeca.
+                                                indent: 70.0,
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .alternate,

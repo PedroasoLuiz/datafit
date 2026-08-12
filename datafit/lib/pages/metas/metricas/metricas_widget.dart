@@ -1,4 +1,6 @@
 import '/backend/schema/structs/index.dart';
+import '/components/chip_filtro.dart';
+import '/components/calendario_treinos.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -37,6 +39,9 @@ class _MetricasWidgetState extends State<MetricasWidget>
   late MetricasModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// Aba visivel: 0 = metricas, 1 = exercicios, 2 = calendario.
+  int _aba = 0;
   var hasContainerTriggered1 = false;
   var hasContainerTriggered2 = false;
   var hasContainerTriggered3 = false;
@@ -338,6 +343,39 @@ class _MetricasWidgetState extends State<MetricasWidget>
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
                         children: [
+                          // Tres assuntos diferentes na mesma tela: a
+                          // evolucao do corpo, o desempenho por exercicio e o
+                          // historico de dias treinados. Empilhados, a lista
+                          // de exercicios empurrava os graficos para fora da
+                          // primeira tela.
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 8.0, 0.0, 4.0),
+                            child: LinhaChipsFiltro(
+                              chips: [
+                                ChipFiltro(
+                                  texto: 'Métricas',
+                                  selecionado: _aba == 0,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 0),
+                                ),
+                                ChipFiltro(
+                                  texto: 'Exercícios',
+                                  selecionado: _aba == 1,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 1),
+                                ),
+                                ChipFiltro(
+                                  texto: 'Calendário',
+                                  selecionado: _aba == 2,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_aba == 2) CalendarioTreinos(),
+                          if (_aba == 0) ...[
                           Align(
                             alignment: AlignmentDirectional(0.0, 0.0),
                             child: Padding(
@@ -3111,6 +3149,8 @@ class _MetricasWidgetState extends State<MetricasWidget>
                               ],
                             ),
                           ),
+                          ],
+                          if (_aba == 1) ...[
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 valueOrDefault<double>(
@@ -3610,6 +3650,7 @@ class _MetricasWidgetState extends State<MetricasWidget>
                               );
                             },
                           ),
+                          ],
                         ]
                             .addToStart(SizedBox(height: 16.0))
                             .addToEnd(SizedBox(height: 120.0)),

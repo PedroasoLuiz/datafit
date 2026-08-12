@@ -8,6 +8,9 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/components/navbar/navbar_widget.dart';
 import '/pages/pagamentos/notificacaoalunos/notificacaoalunos_widget.dart';
 import '/pages/pagamentos/pagamentos_novo/pagamentos_novo_widget.dart';
+import '/pages/pagamentos/pagamentos_edit/pagamentos_edit_widget.dart';
+import '/components/mensagem_widget.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 import 'dart:ui';
 import '/actions/actions.dart' as action_blocks;
 import '/flutter_flow/custom_functions.dart' as functions;
@@ -16,6 +19,7 @@ import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
@@ -55,6 +59,88 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   /// o fuso do aparelho.
   Map<String, dynamic>? _kpis;
 
+  /// Recarrega a lista depois de qualquer acao que a altere.
+  Future<void> _recarregar() async {
+    await action_blocks.pagamentos(context, uuidpersonal: currentUserUid);
+    if (!mounted) return;
+    await _carregarKpis();
+    if (!mounted) return;
+    safeSetState(() {});
+  }
+
+  Future<void> _editarPagamento(PersonalpagamentosStruct pgto) async {
+    final editou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (ctx) => WebViewAware(
+        child: Padding(
+          padding: MediaQuery.viewInsetsOf(ctx),
+          child: PagamentosEditWidget(pgto: pgto),
+        ),
+      ),
+    );
+    if (editou == true && mounted) await _recarregar();
+  }
+
+  /// Inativa (ou reativa) o vinculo com o aluno.
+  ///
+  /// E a mesma acao da lista de alunos: aqui ela existe porque cobranca em
+  /// aberto e justamente quando se pensa em cortar o acesso.
+  Future<void> _bloquearAcesso(PersonalpagamentosStruct pgto) async {
+    if (pgto.alunoUuid.isEmpty) return;
+    final novoEstado = await action_blocks.toggleAlunoAtivo(
+      context,
+      personalUuid: currentUserUid,
+      alunoUuid: pgto.alunoUuid,
+    );
+    if (novoEstado == null || !mounted) return;
+    await _recarregar();
+  }
+
+  /// Apaga a cobranca, com confirmacao.
+  ///
+  /// `PagamentosAlunos` nao tem exclusao logica, entao isto remove a linha de
+  /// vez — dai a pergunta antes, e nao um desfazer depois.
+  Future<void> _excluirPagamento(PersonalpagamentosStruct pgto) async {
+    final confirmou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (ctx) => MensagemWidget(
+        texto: 'Excluir a cobranca de ' + pgto.nome + '? Nao da para desfazer.',
+        tipo: '2',
+        mostrabotoes: true,
+        action: () async => Navigator.pop(ctx, true),
+      ),
+    );
+    if (confirmou != true || !mounted) return;
+
+    try {
+      await SupaFlow.client.from('PagamentosAlunos').delete().eq('Id', pgto.id);
+      if (!mounted) return;
+      await _recarregar();
+    } catch (_) {
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        useRootNavigator: true,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (ctx) => MensagemWidget(
+          texto: 'Nao consegui excluir esta cobranca.',
+          tipo: '2',
+          fechasozinho: true,
+          mostrabotoes: false,
+          action: () async {},
+        ),
+      );
+    }
+  }
+
   Future<void> _carregarKpis() async {
     try {
       final r = await SupaFlow.client.rpc(
@@ -74,12 +160,14 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   /// onde valor em aberto e sempre leitura ruim.
   int _sinal(dynamic v) => (v is num && v > 0) ? 1 : 0;
 
-  String _moeda(num? v) => formatNumber(
-        (v ?? 0).toDouble(),
-        formatType: FormatType.decimal,
-        decimalType: DecimalType.periodDecimal,
-        currency: 'R\$ ',
-      );
+  /// Moeda no formato brasileiro: R$ 1.000,00.
+  ///
+  /// `formatNumber` do FlutterFlow usa a convencao do ingles — ponto no
+  /// decimal e virgula no milhar — e sai "R$ 1,000.00". O `NumberFormat` com
+  /// locale pt_BR e quem sabe a ordem certa.
+  String _moeda(num? v) =>
+      NumberFormat.currency(locale: 'pt_BR', symbol: r'R$ ')
+          .format((v ?? 0).toDouble());
 
   @override
   void dispose() {
@@ -482,7 +570,14 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                   children:
                                       List.generate(pgtos.length, (pgtosIndex) {
                                     final pgtosItem = pgtos[pgtosIndex];
-                                    return InkWell(
+                                    return _CardPagamentoDeslizavel(
+                                      aoEditar: () => _editarPagamento(
+                                          pgtosItem),
+                                      aoBloquear: () => _bloquearAcesso(
+                                          pgtosItem),
+                                      aoExcluir: () => _excluirPagamento(
+                                          pgtosItem),
+                                      child: InkWell(
                                       splashColor: Colors.transparent,
                                       focusColor: Colors.transparent,
                                       hoverColor: Colors.transparent,
@@ -802,16 +897,8 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                 text:
                                                                     valueOrDefault<
                                                                         String>(
-                                                                  formatNumber(
-                                                                    pgtosItem
-                                                                        .valor,
-                                                                    formatType:
-                                                                        FormatType
-                                                                            .decimal,
-                                                                    decimalType:
-                                                                        DecimalType
-                                                                            .commaDecimal,
-                                                                  ),
+                                                                  _moeda(pgtosItem
+                                                                      .valor),
                                                                   '0',
                                                                 ),
                                                                 style:
@@ -922,6 +1009,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                           ),
                                         ],
                                       ),
+                                      ),
                                     );
                                   })
                                           .divide(SizedBox(height: 16.0))
@@ -1030,7 +1118,16 @@ class _CardKpi extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 12.0),
+          // Separa o numero de destaque das linhas que o detalham: sem o
+          // traco os dois blocos se liam como uma lista so.
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 8.0),
+            child: Divider(
+              height: 1.0,
+              thickness: 1.0,
+              color: tema.alternate,
+            ),
+          ),
           for (final l in linhas)
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
@@ -1063,6 +1160,154 @@ class _CardKpi extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+
+/// Card de cobranca com acoes de deslizar dos dois lados.
+///
+/// Direita revela o que mexe no aluno (bloquear) e o que e destrutivo
+/// (excluir); esquerda revela editar. Separar por lado mantem o destrutivo
+/// longe do corriqueiro, como na lista de alunos.
+class _CardPagamentoDeslizavel extends StatefulWidget {
+  const _CardPagamentoDeslizavel({
+    required this.child,
+    required this.aoEditar,
+    required this.aoBloquear,
+    required this.aoExcluir,
+  });
+
+  final Widget child;
+  final VoidCallback aoEditar;
+  final VoidCallback aoBloquear;
+  final VoidCallback aoExcluir;
+
+  @override
+  State<_CardPagamentoDeslizavel> createState() =>
+      _CardPagamentoDeslizavelState();
+}
+
+class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
+  static const double _larguraAcao = 88.0;
+
+  double _deslocamento = 0.0;
+
+  double get _limiteEsquerda => _larguraAcao * 2;
+
+  void _arrastando(DragUpdateDetails d) {
+    setState(() {
+      _deslocamento = (_deslocamento + d.delta.dx)
+          .clamp(-_limiteEsquerda, _larguraAcao)
+          .toDouble();
+    });
+  }
+
+  void _soltou(DragEndDetails d) {
+    setState(() {
+      if (_deslocamento < -_limiteEsquerda / 2) {
+        _deslocamento = -_limiteEsquerda;
+      } else if (_deslocamento > _larguraAcao / 2) {
+        _deslocamento = _larguraAcao;
+      } else {
+        _deslocamento = 0.0;
+      }
+    });
+  }
+
+  void _fechar() => setState(() => _deslocamento = 0.0);
+
+  Widget _acao({
+    required Color fundo,
+    required IconData icone,
+    required String rotulo,
+    required VoidCallback aoTocar,
+  }) {
+    return SizedBox(
+      width: _larguraAcao,
+      child: GestureDetector(
+        onTap: () {
+          _fechar();
+          aoTocar();
+        },
+        child: Container(
+          color: fundo,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icone, color: Colors.white, size: 22.0),
+              const SizedBox(height: 4.0),
+              Text(
+                rotulo,
+                textAlign: TextAlign.center,
+                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      color: Colors.white,
+                      fontSize: 11.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return GestureDetector(
+      onHorizontalDragUpdate: _arrastando,
+      onHorizontalDragEnd: _soltou,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.0),
+        child: Stack(
+          children: [
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: Row(
+                children: [
+                  _acao(
+                    fundo: tema.secondaryText,
+                    icone: Icons.lock_outline_rounded,
+                    rotulo: 'Bloquear',
+                    aoTocar: widget.aoBloquear,
+                  ),
+                  _acao(
+                    fundo: tema.error,
+                    icone: Icons.delete_outline_rounded,
+                    rotulo: 'Excluir',
+                    aoTocar: widget.aoExcluir,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: _acao(
+                fundo: tema.primary,
+                icone: Icons.edit_outlined,
+                rotulo: 'Editar',
+                aoTocar: widget.aoEditar,
+              ),
+            ),
+            Transform.translate(
+              offset: Offset(_deslocamento, 0.0),
+              child: Container(
+                color: tema.secondaryBackground,
+                child: widget.child,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
