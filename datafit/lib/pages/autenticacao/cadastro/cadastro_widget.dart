@@ -991,6 +991,37 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                   }
 
                                   try {
+                                    // Checagem antes do signUp.
+                                    //
+                                    // Alunos convidados pelo personal sao
+                                    // criados pela Admin API, entao existem em
+                                    // auth.users mas NAO tem linha em
+                                    // auth.identities. O GoTrue decide se o
+                                    // e-mail esta livre olhando identities:
+                                    // sem ela, ele acha que da para criar,
+                                    // tenta inserir e bate no indice unico de
+                                    // e-mail. O erro que chegava aqui era um
+                                    // 500 cru ("Database error saving new
+                                    // user"), que nao dizia nada ao usuario e
+                                    // nem casava com o teste de
+                                    // 'already registered' abaixo.
+                                    final checagem = await SupaFlow.client.rpc(
+                                      'verificar_usuario_por_email',
+                                      params: {'p_email': email},
+                                    );
+                                    if (checagem is Map &&
+                                        checagem['existeNaAuth'] == true) {
+                                      await SupaFlow.client.auth
+                                          .resetPasswordForEmail(email);
+                                      await _mostrarMensagem(
+                                          'Este e-mail já tem cadastro. Enviamos um link para você definir sua senha e entrar.');
+                                      if (!context.mounted) {
+                                        return;
+                                      }
+                                      context.goNamed(LoginWidget.routeName);
+                                      return;
+                                    }
+
                                     final res =
                                         await SupaFlow.client.auth.signUp(
                                       email: email,
@@ -1017,8 +1048,12 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                     context.goNamedAuth(LoadingWidget.routeName,
                                         context.mounted);
                                   } on AuthException catch (e) {
+                                    final duplicado = e.message
+                                            .contains('already registered') ||
+                                        e.message.contains(
+                                            'Database error saving new user');
                                     await _mostrarMensagem(
-                                      e.message.contains('already registered')
+                                      duplicado
                                           ? 'Este e-mail já está cadastrado. Faça login ou use "Esqueci minha senha".'
                                           : 'Não foi possível criar a conta: ${e.message}',
                                     );

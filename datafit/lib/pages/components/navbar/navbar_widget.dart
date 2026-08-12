@@ -222,6 +222,9 @@ class _NavbarWidgetState extends State<NavbarWidget>
       ),
     );
 
+    // `Material` nao e enfeite: sem ele o Flutter desenha o sublinhado duplo
+    // de "texto sem estilo" sob o rotulo, e o InkWell perde o respingo. A
+    // barra e irma da pagina no ShellRoute, entao nao herda o Scaffold dela.
     return Padding(
       // A barra flutua: respira nas laterais e fica acima do indicador do
       // iPhone em vez de encostar na borda.
@@ -233,17 +236,20 @@ class _NavbarWidgetState extends State<NavbarWidget>
       ),
       child: Align(
         alignment: AlignmentDirectional(0.0, 1.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(999.0),
-          // O desfoque do que passa por trás só existe no iPhone. É uma
-          // aproximação do vidro do sistema, não o efeito nativo: o Flutter
-          // 3.44 não expõe a API de Liquid Glass do iOS 26.
-          child: isiOS
-              ? BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
-                  child: barra,
-                )
-              : barra,
+        child: Material(
+          type: MaterialType.transparency,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(999.0),
+            // O desfoque do que passa por trás só existe no iPhone. É uma
+            // aproximação do vidro do sistema, não o efeito nativo: o Flutter
+            // 3.44 não expõe a API de Liquid Glass do iOS 26.
+            child: isiOS
+                ? BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+                    child: barra,
+                  )
+                : barra,
+          ),
         ),
       ),
     ).animateOnPageLoad(animationsMap['barOnPageLoadAnimation']!);
@@ -277,8 +283,10 @@ class _ItemNavbar extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(999.0),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 240),
-        curve: Curves.easeOutCubic,
+        duration: Duration(milliseconds: 380),
+        // easeOutBack passa um pouco do alvo e volta. E o que da a sensacao
+        // de massa: a pilula assenta em vez de parar seco.
+        curve: Curves.easeOutBack,
         height: 44.0,
         padding: EdgeInsetsDirectional.fromSTEB(
           selecionada ? 16.0 : 14.0,
@@ -299,23 +307,37 @@ class _ItemNavbar extends StatelessWidget {
               color: selecionada ? Colors.white : tema.secondaryText,
               size: 20.0,
             ),
-            // O rótulo só existe na aba ativa. Mostrar os quatro deixaria a
-            // barra cheia demais e tiraria justamente o contraste que faz a
-            // pílula funcionar.
-            if (selecionada)
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
-                child: Text(
-                  aba.rotulo,
-                  style: tema.bodyMedium.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                    color: Colors.white,
-                    fontSize: 13.0,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+            // O rótulo só existe na aba ativa — mostrar os quatro encheria a
+            // barra e tiraria o contraste que faz a pílula funcionar.
+            //
+            // O `AnimatedSize` é o que faz a troca parecer contínua: antes o
+            // texto aparecia de estalo enquanto só a pílula animava, e era
+            // isso que dava a sensação de corte. Agora ele nasce com largura
+            // zero e cresce junto, dentro de um `ClipRect` para não vazar
+            // enquanto não cabe.
+            ClipRect(
+              child: AnimatedSize(
+                duration: Duration(milliseconds: 380),
+                curve: Curves.easeOutCubic,
+                child: !selecionada
+                    ? SizedBox(height: 20.0)
+                    : Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                        child: Text(
+                          aba.rotulo,
+                          style: tema.bodyMedium.override(
+                            font:
+                                GoogleFonts.inter(fontWeight: FontWeight.w600),
+                            color: Colors.white,
+                            fontSize: 13.0,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
               ),
+            ),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+import '/components/campo_busca.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
@@ -181,7 +182,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                   // ── HEADER ───────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                        16.0, 16.0, 16.0, 8.0),
+                        16.0, 16.0, 16.0, 0.0),
                     child: Stack(
                       alignment: AlignmentDirectional.center,
                       children: [
@@ -210,76 +211,11 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                   // ── BUSCA ────────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                        16.0, 0.0, 16.0, 8.0),
-                    child: TextFormField(
+                        16.0, 12.0, 16.0, 12.0),
+                    child: CampoBusca(
                       controller: _model.txtBuscaController,
                       focusNode: _model.txtBuscaFocusNode,
                       onChanged: (_) => safeSetState(() {}),
-                      autofocus: false,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: 'Pesquisar...',
-                        hintStyle:
-                            FlutterFlowTheme.of(context).labelMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontStyle,
-                                  ),
-                                  letterSpacing: 0.0,
-                                ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0x00000000),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0x00000000),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        filled: true,
-                        fillColor:
-                            FlutterFlowTheme.of(context).primaryBackground,
-                        prefixIcon: Icon(
-                          FFIcons.kproperty1FiRrSearch,
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          size: 16.0,
-                        ),
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                            letterSpacing: 0.0,
-                          ),
                     ),
                   ),
 
@@ -383,7 +319,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                 titulo: 'Novo treino',
                 descricao: 'Monte um grupo e adicione exercícios',
                 rotulo: 'Criar',
-                icone: Icons.add_rounded,
+                icone: Icons.playlist_add_rounded,
                 onTap: _abrirNovoTreino,
               ),
             ),
@@ -701,27 +637,33 @@ class _CardAtalho extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      titulo,
-                      style: tema.bodyMedium.override(
-                        font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                        color: tema.primaryText,
-                        fontSize: 14.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    icone,
-                    color: tema.primary,
-                    size: 20.0,
-                  ),
-                ],
+              // O icone ganha um quadrado de azul claro e vai para cima do
+              // titulo. Ao lado dele competia com o texto pela mesma linha e
+              // lia como enfeite; em cima, ele apresenta o card.
+              Container(
+                width: 38.0,
+                height: 38.0,
+                decoration: BoxDecoration(
+                  color: tema.accent1,
+                  borderRadius: BorderRadius.circular(11.0),
+                ),
+                alignment: const AlignmentDirectional(0.0, 0.0),
+                child: Icon(
+                  icone,
+                  color: tema.primary,
+                  size: 20.0,
+                ),
+              ),
+              const SizedBox(height: 12.0),
+              Text(
+                titulo,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  color: tema.primaryText,
+                  fontSize: 14.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 4.0),
               Text(
