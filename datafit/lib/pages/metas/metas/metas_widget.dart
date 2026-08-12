@@ -1663,7 +1663,8 @@ class _MetasWidgetState extends State<MetasWidget> {
                               context,
                               titulo: 'Onde você quer chegar',
                               descricao:
-                                  'Você cria e edita estas. Use o + para adicionar.',
+                                  'Estas são suas: você cria, edita e acompanha do seu jeito.\n'
+                                  'Use o + para adicionar uma nova.',
                               onAdicionar: () async {
                                 await showModalBottomSheet(
                                   useRootNavigator: true,
@@ -1722,7 +1723,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                     }(),
                                     0.0,
                                   ),
-                                  0.0,
+                                  20.0,
                                   valueOrDefault<double>(
                                     () {
                                       if (MediaQuery.sizeOf(context).width <

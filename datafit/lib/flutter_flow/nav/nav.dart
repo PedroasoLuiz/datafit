@@ -330,6 +330,9 @@ const _indicePorRota = <String, int>{
   '/treinosPersonal': 5,
 };
 
+/// Navigator interno do shell. So as abas vivem nele.
+final _navegadorDasAbas = GlobalKey<NavigatorState>();
+
 /// Separa as rotas de aba do resto e envolve as de aba num `ShellRoute`.
 ///
 /// Antes cada pagina montava a propria `NavbarWidget` dentro do seu `Stack`.
@@ -346,12 +349,22 @@ List<RouteBase> _montaRotas(
   final resto = <RouteBase>[];
 
   for (final r in rotas) {
-    final destino = _rotasDeAba.contains(r.path) ? abas : resto;
-    destino.add(r.toRoute(appStateNotifier));
+    if (_rotasDeAba.contains(r.path)) {
+      abas.add(r.toRoute(appStateNotifier));
+    } else {
+      // Fora do shell na arvore de rotas nao basta: sem apontar o navigator
+      // raiz, um `push` vindo de uma aba monta a pagina dentro do shell.
+      // Ver o comentario em `FFRoute.toRoute`.
+      resto.add(r.toRoute(
+        appStateNotifier,
+        parentNavigatorKey: appNavigatorKey,
+      ));
+    }
   }
 
   return [
     ShellRoute(
+      navigatorKey: _navegadorDasAbas,
       builder: (context, state, child) => _CascaComNavbar(
         rota: state.matchedLocation,
         child: child,
@@ -558,9 +571,21 @@ class FFRoute {
   final Widget Function(BuildContext, FFParameters) builder;
   final List<GoRoute> routes;
 
-  GoRoute toRoute(AppStateNotifier appStateNotifier) => GoRoute(
+  /// [parentNavigatorKey] existe por causa de um detalhe do go_router.
+  ///
+  /// Um `push` NAO troca a lista de rotas: ele anexa a nova rota no fim da
+  /// lista atual. Estando em `/treinos` (dentro do shell), a lista vira
+  /// `[shell, /treinos, /treinosDetalhes]`, e o construtor de paginas segue
+  /// montando com o navigator do shell — a pagina nova nasce DENTRO do shell,
+  /// por baixo da navbar. Dizer o navigator de destino tira ela de la.
+  GoRoute toRoute(
+    AppStateNotifier appStateNotifier, {
+    GlobalKey<NavigatorState>? parentNavigatorKey,
+  }) =>
+      GoRoute(
         name: name,
         path: path,
+        parentNavigatorKey: parentNavigatorKey,
         redirect: (context, state) {
           if (appStateNotifier.shouldRedirect) {
             final redirectLocation = appStateNotifier.getRedirectLocation();

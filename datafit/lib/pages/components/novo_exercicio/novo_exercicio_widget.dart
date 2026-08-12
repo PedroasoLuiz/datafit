@@ -2,6 +2,7 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mensagem_widget.dart';
 import '/components/video_exercicio.dart';
+import '/custom_code/widgets/dashed_button.dart';
 import '/backend/supabase/storage/storage.dart';
 import '/flutter_flow/upload_data.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
@@ -424,58 +425,31 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                     Padding(
                       padding: const EdgeInsetsDirectional.fromSTEB(
                           0.0, 4.0, 0.0, 0.0),
-                      child: Material(
-                        color: FlutterFlowTheme.of(context).accent1,
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12.0),
-                          onTap: _enviandoVideo ? null : _enviarVideo,
-                          child: Container(
-                            width: double.infinity,
-                            height: 46.0,
-                            alignment: const AlignmentDirectional(0.0, 0.0),
-                            child: _enviandoVideo
-                                ? SizedBox(
-                                    width: 20.0,
-                                    height: 20.0,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          FlutterFlowTheme.of(context).primary),
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.videocam_rounded,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        size: 18.0,
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Text(
-                                        ehVideoDaPlataforma(_model
-                                                .txtLinkTextController?.text)
-                                            ? 'Trocar vídeo'
-                                            : 'Enviar vídeo',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              fontSize: 14.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                        ),
+                      // Borda tracejada: e o desenho que o app usa para "aqui
+                      // ainda nao tem nada, toque para colocar". Um botao
+                      // solido leria como acao ja resolvida.
+                      child: DashedButton(
+                        width: double.infinity,
+                        height: 46.0,
+                        label: _enviandoVideo
+                            ? 'Enviando…'
+                            : (ehVideoDaPlataforma(
+                                    _model.txtLinkTextController?.text)
+                                ? 'Trocar vídeo'
+                                : 'Enviar vídeo'),
+                        labelSize: 14.0,
+                        labelColor: FlutterFlowTheme.of(context).primary,
+                        fontWeight: 'semibold',
+                        icon: Icon(_enviandoVideo
+                            ? Icons.cloud_upload_rounded
+                            : Icons.videocam_rounded),
+                        iconSize: 18.0,
+                        borderColor: FlutterFlowTheme.of(context).primary,
+                        borderRadius: 12.0,
+                        backgroundColor: FlutterFlowTheme.of(context).accent1,
+                        // Durante o envio o toque nao faz nada: sem isso dava
+                        // para abrir a folha de midia por cima do upload.
+                        onPressed: _enviandoVideo ? null : _enviarVideo,
                       ),
                     ),
                     if (ehVideoDaPlataforma(_model.txtLinkTextController?.text))

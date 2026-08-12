@@ -663,7 +663,10 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ListView(
-                                padding: EdgeInsets.zero,
+                                // O baralho tem sombra e cartas assomando dos
+                                // lados; encostado no card do personal os dois
+                                // blocos se liam como um so.
+                                padding: const EdgeInsets.only(top: 16.0),
                                 primary: false,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,

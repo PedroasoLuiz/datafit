@@ -1502,8 +1502,11 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                     ),
                                   if (_model.select == 0)
                                     Padding(
+                                      // O respiro em cima separa o rotulo do
+                                      // bloco anterior: sem ele "Exercício"
+                                      // colava no que vem acima.
                                       padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 0.0, 8.0),
+                                          0.0, 16.0, 0.0, 8.0),
                                       child: Text(
                                         'Exercício',
                                         style: FlutterFlowTheme.of(context)

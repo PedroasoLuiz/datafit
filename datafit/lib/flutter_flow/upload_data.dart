@@ -29,79 +29,155 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
   bool includeDimensions = false,
   bool includeBlurHash = false,
 }) async {
-  final createUploadMediaListTile =
-      (String label, MediaSource mediaSource) => ListTile(
-            title: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.getFont(
-                pickerFontFamily,
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 20,
-              ),
-            ),
-            tileColor: backgroundColor,
-            dense: false,
-            onTap: () => Navigator.pop(
-              context,
-              mediaSource,
-            ),
-          );
+  // A folha padrao do FlutterFlow vinha em ingles, com titulo centralizado,
+  // `Divider` entre cada item e cantos retos — nao parecia parte do app.
+  // Aqui ela segue o mesmo desenho das outras folhas: cantos arredondados,
+  // pegador em cima, e cada origem como uma linha com icone e explicacao.
   final mediaSource = await showModalBottomSheet<MediaSource>(
       context: context,
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.transparent,
+      // A folha precisa nascer acima da navbar, que vive no shell de rotas.
+      useRootNavigator: true,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!kIsWeb) ...[
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
-                child: ListTile(
-                  title: Text(
-                    'Choose Source',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.getFont(
-                      pickerFontFamily,
-                      color: textColor.applyAlpha(0.65),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                    ),
+        final tema = FlutterFlowTheme.of(context);
+
+        Widget opcao({
+          required IconData icone,
+          required String titulo,
+          required String apoio,
+          required MediaSource origem,
+        }) =>
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12.0),
+                onTap: () => Navigator.pop(context, origem),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      12.0, 12.0, 12.0, 12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40.0,
+                        height: 40.0,
+                        decoration: BoxDecoration(
+                          color: tema.accent1,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Icon(icone, color: tema.primary, size: 20.0),
+                      ),
+                      const SizedBox(width: 12.0),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              titulo,
+                              style: tema.bodyMedium.override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600),
+                                color: tema.primaryText,
+                                fontSize: 14.5,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              apoio,
+                              style: tema.bodyMedium.override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w400),
+                                color: tema.secondaryText,
+                                fontSize: 12.0,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: tema.secondaryText,
+                        size: 20.0,
+                      ),
+                    ],
                   ),
-                  tileColor: backgroundColor,
-                  dense: false,
                 ),
               ),
-              const Divider(),
-            ],
-            if (allowPhoto && allowVideo) ...[
-              createUploadMediaListTile(
-                'Gallery (Photo)',
-                MediaSource.photoGallery,
+            );
+
+        return Container(
+          decoration: BoxDecoration(
+            color: tema.primaryBackground,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(20.0),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 12.0, 12.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36.0,
+                      height: 4.0,
+                      decoration: BoxDecoration(
+                        color: tema.alternate,
+                        borderRadius: BorderRadius.circular(999.0),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        12.0, 16.0, 12.0, 8.0),
+                    child: Text(
+                      allowVideo && !allowPhoto
+                          ? 'De onde vem o vídeo?'
+                          : 'De onde vem a mídia?',
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                        color: tema.primaryText,
+                        fontSize: 16.0,
+                        letterSpacing: -0.2,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (allowPhoto)
+                    opcao(
+                      icone: Icons.photo_library_rounded,
+                      titulo: 'Galeria',
+                      apoio: 'Escolher uma foto já salva',
+                      origem: MediaSource.photoGallery,
+                    ),
+                  if (allowVideo)
+                    opcao(
+                      icone: Icons.video_library_rounded,
+                      titulo: allowPhoto ? 'Galeria (vídeo)' : 'Galeria',
+                      apoio: 'Escolher um vídeo já salvo',
+                      origem: MediaSource.videoGallery,
+                    ),
+                  // Na web nao existe camera para o `image_picker` abrir.
+                  if (!kIsWeb)
+                    opcao(
+                      icone: Icons.photo_camera_rounded,
+                      titulo: 'Câmera',
+                      apoio: allowVideo && !allowPhoto
+                          ? 'Gravar agora'
+                          : 'Tirar agora',
+                      origem: MediaSource.camera,
+                    ),
+                ],
               ),
-              const Divider(),
-              createUploadMediaListTile(
-                'Gallery (Video)',
-                MediaSource.videoGallery,
-              ),
-            ] else if (allowPhoto)
-              createUploadMediaListTile(
-                'Gallery',
-                MediaSource.photoGallery,
-              )
-            else
-              createUploadMediaListTile(
-                'Gallery',
-                MediaSource.videoGallery,
-              ),
-            if (!kIsWeb) ...[
-              const Divider(),
-              createUploadMediaListTile('Camera', MediaSource.camera),
-              const Divider(),
-            ],
-            const SizedBox(height: 10),
-          ],
+            ),
+          ),
         );
       });
   if (mediaSource == null) {
