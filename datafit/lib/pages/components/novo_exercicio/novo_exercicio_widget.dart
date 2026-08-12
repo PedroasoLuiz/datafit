@@ -1,6 +1,9 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mensagem_widget.dart';
+import '/components/video_exercicio.dart';
+import '/backend/supabase/storage/storage.dart';
+import '/flutter_flow/upload_data.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -38,6 +41,67 @@ class NovoExercicioWidget extends StatefulWidget {
 class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
     with TickerProviderStateMixin {
   late NovoExercicioModel _model;
+
+  /// Envio do video do exercicio para o bucket `Videos`.
+  ///
+  /// O caminho comeca com o uid porque a politica de storage exige isso: sem
+  /// a pasta do dono, um personal poderia sobrescrever o video de outro.
+  bool _enviandoVideo = false;
+
+  Future<void> _enviarVideo() async {
+    if (_enviandoVideo) return;
+
+    final selecionados = await selectMediaWithSourceBottomSheet(
+      context: context,
+      storageFolderPath: currentUserUid,
+      allowPhoto: false,
+      allowVideo: true,
+      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      textColor: FlutterFlowTheme.of(context).primaryText,
+    );
+    if (selecionados == null || selecionados.isEmpty) return;
+
+    safeSetState(() => _enviandoVideo = true);
+    try {
+      final urls = await uploadSupabaseStorageFiles(
+        bucketName: 'Videos',
+        selectedFiles: selecionados,
+      );
+      final url = urls.firstOrNull;
+      if (!mounted) return;
+      safeSetState(() {
+        _enviandoVideo = false;
+        if (url != null && url.isNotEmpty) {
+          _model.txtLinkTextController?.text = url;
+        }
+      });
+      if (url == null || url.isEmpty) {
+        await _avisar('Nao consegui enviar o video. Tente outro arquivo.');
+      }
+    } catch (_) {
+      if (!mounted) return;
+      safeSetState(() => _enviandoVideo = false);
+      // O limite do bucket e 100 MB; acima disso o storage recusa.
+      await _avisar(
+          'Nao consegui enviar o video. Veja se ele tem menos de 100 MB.');
+    }
+  }
+
+  Future<void> _avisar(String texto) async {
+    await showModalBottomSheet(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (context) => MensagemWidget(
+        texto: texto,
+        tipo: '2',
+        action: () async {},
+        fechasozinho: true,
+        mostrabotoes: false,
+      ),
+    );
+  }
 
   var hasContainerTriggered = false;
   var hasIconButtonTriggered1 = false;
@@ -352,8 +416,82 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       ),
                     ),
 
+                    // ── VIDEO ─────────────────────────────────────
+                    // Enviar pelo app e o caminho principal. O campo de link
+                    // continua abaixo porque 22 exercicios ja apontam para o
+                    // YouTube e seguem validos.
+                    _buildLabel(context, 'Vídeo de demonstração (opcional)'),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                          0.0, 4.0, 0.0, 0.0),
+                      child: Material(
+                        color: FlutterFlowTheme.of(context).accent1,
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.0),
+                          onTap: _enviandoVideo ? null : _enviarVideo,
+                          child: Container(
+                            width: double.infinity,
+                            height: 46.0,
+                            alignment: const AlignmentDirectional(0.0, 0.0),
+                            child: _enviandoVideo
+                                ? SizedBox(
+                                    width: 20.0,
+                                    height: 20.0,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          FlutterFlowTheme.of(context).primary),
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.videocam_rounded,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primary,
+                                        size: 18.0,
+                                      ),
+                                      const SizedBox(width: 8.0),
+                                      Text(
+                                        ehVideoDaPlataforma(_model
+                                                .txtLinkTextController?.text)
+                                            ? 'Trocar vídeo'
+                                            : 'Enviar vídeo',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.w600),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              fontSize: 14.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (ehVideoDaPlataforma(_model.txtLinkTextController?.text))
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            0.0, 8.0, 0.0, 0.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: PlayerVideoPlataforma(
+                            url: _model.txtLinkTextController!.text,
+                          ),
+                        ),
+                      ),
+
                     // ── LINK ──────────────────────────────────────
-                    _buildLabel(context, 'Link de instrução (opcional)'),
+                    _buildLabel(context, 'ou link do YouTube (opcional)'),
                     _buildTextField(
                       context,
                       controller: _model.txtLinkTextController!,

@@ -3,6 +3,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/flutter_flow_youtube_player.dart';
+import '/components/video_exercicio.dart';
 import '/pages/components/calendar_picker/calendar_picker_widget.dart';
 import 'dart:math';
 import 'dart:ui';
@@ -414,15 +415,26 @@ class _VideoplayWidgetState extends State<VideoplayWidget>
                           ),
                       ],
                     ),
-                    FlutterFlowYoutubePlayer(
-                      url: FFAppState().exercicioTemp.linkInstrucao,
-                      autoPlay: false,
-                      looping: true,
-                      mute: false,
-                      showControls: true,
-                      showFullScreen: true,
-                      strictRelatedVideos: true,
-                    ),
+                    // Video enviado pelo personal toca aqui mesmo; link
+                    // antigo do YouTube continua no player dele.
+                    if (ehVideoDaPlataforma(
+                        FFAppState().exercicioTemp.linkInstrucao))
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: PlayerVideoPlataforma(
+                          url: FFAppState().exercicioTemp.linkInstrucao,
+                        ),
+                      )
+                    else
+                      FlutterFlowYoutubePlayer(
+                        url: FFAppState().exercicioTemp.linkInstrucao,
+                        autoPlay: false,
+                        looping: true,
+                        mute: false,
+                        showControls: true,
+                        showFullScreen: true,
+                        strictRelatedVideos: true,
+                      ),
                   ],
                 ),
               ),

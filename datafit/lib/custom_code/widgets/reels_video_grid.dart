@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:url_launcher/url_launcher.dart';
+import '/components/video_exercicio.dart';
 
 class ReelsVideoGrid extends StatelessWidget {
   const ReelsVideoGrid({
@@ -74,7 +75,11 @@ class ReelsVideoGrid extends StatelessWidget {
       itemCount: urls.length,
       itemBuilder: (context, index) {
         final url = urls[index];
-        final videoId = _extractVideoId(url);
+        // Video da plataforma nao tem thumbnail publica como a do YouTube.
+        // Em vez de gerar quadro (que exigiria pacote nativo de thumbnail ou
+        // um player por celula do grid), a celula mostra a marca de video.
+        final daPlataforma = ehVideoDaPlataforma(url);
+        final videoId = daPlataforma ? null : _extractVideoId(url);
         final thumbUrl = videoId != null
             ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
             : null;
