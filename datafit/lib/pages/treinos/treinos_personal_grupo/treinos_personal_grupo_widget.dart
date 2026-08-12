@@ -78,6 +78,7 @@ class _TreinosPersonalGrupoWidgetState
 
   Future<void> _abrirModalNome({int? id, String? nomeAtual}) async {
     final criou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -100,6 +101,7 @@ class _TreinosPersonalGrupoWidgetState
 
   Future<void> _confirmarExcluir(int id, String nome) async {
     final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

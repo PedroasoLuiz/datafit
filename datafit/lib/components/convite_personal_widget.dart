@@ -162,7 +162,8 @@ class _ConvitePersonalWidgetState extends State<ConvitePersonalWidget>
         children: [
           Flexible(
             child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
                 child: Container(
@@ -195,8 +196,7 @@ class _ConvitePersonalWidgetState extends State<ConvitePersonalWidget>
                                   style: theme.bodyMedium.override(
                                     font: GoogleFonts.inter(
                                       fontWeight: FontWeight.bold,
-                                      fontStyle:
-                                          theme.bodyMedium.fontStyle,
+                                      fontStyle: theme.bodyMedium.fontStyle,
                                     ),
                                     color: theme.primaryText,
                                     fontSize: 18.0,
@@ -266,8 +266,8 @@ class _ConvitePersonalWidgetState extends State<ConvitePersonalWidget>
               Align(
                 alignment: const AlignmentDirectional(0.0, 1.0),
                 child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                      4.0, 0.0, 0.0, 0.0),
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
                   child: FlutterFlowIconButton(
                     borderRadius: 20.0,
                     buttonSize: 56.0,

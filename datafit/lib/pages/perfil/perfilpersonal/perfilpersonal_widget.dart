@@ -122,6 +122,7 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
               onTap: () async {
                 await Clipboard.setData(ClipboardData(text: chave));
                 await showModalBottomSheet(
+                  useRootNavigator: true,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   enableDrag: false,
@@ -1338,6 +1339,8 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                                                             'aguardando'
                                                     ? () async {
                                                         await showModalBottomSheet(
+                                                          useRootNavigator:
+                                                              true,
                                                           isScrollControlled:
                                                               true,
                                                           backgroundColor:

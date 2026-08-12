@@ -57,6 +57,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   /// Bottom sheet de aviso, mesmo padrão do resto do app.
   Future<void> _mostrarMensagem(String texto) async {
     await showModalBottomSheet(
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       enableDrag: false,
@@ -534,6 +535,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       );
                                     } else {
                                       await showModalBottomSheet(
+                                        useRootNavigator: true,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         enableDrag: false,

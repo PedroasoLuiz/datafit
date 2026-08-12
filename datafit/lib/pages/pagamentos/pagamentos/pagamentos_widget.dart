@@ -203,6 +203,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                             highlightColor: Colors.transparent,
                                             onTap: () async {
                                               await showModalBottomSheet(
+                                                useRootNavigator: true,
                                                 isScrollControlled: true,
                                                 backgroundColor:
                                                     Colors.transparent,
@@ -373,6 +374,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                       highlightColor: Colors.transparent,
                                       onTap: () async {
                                         await showModalBottomSheet(
+                                          useRootNavigator: true,
                                           isScrollControlled: true,
                                           backgroundColor: Colors.transparent,
                                           enableDrag: false,

@@ -32,7 +32,8 @@ String get rotuloUnidade => usaLibras ? 'lb' : 'kg';
 double kgParaExibicao(double kg) => usaLibras ? kg * _kLibrasPorKg : kg;
 
 /// Converte o que o usuário digitou para kg, que é como será gravado.
-double exibicaoParaKg(double valor) => usaLibras ? valor / _kLibrasPorKg : valor;
+double exibicaoParaKg(double valor) =>
+    usaLibras ? valor / _kLibrasPorKg : valor;
 
 /// Versões que não consultam o perfil: a tela de execução tem um seletor
 /// próprio de kg/lb ao lado do campo, e é ele que manda ali.

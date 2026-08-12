@@ -963,6 +963,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                     ),
                                     onPressed: () async {
                                       await showModalBottomSheet(
+                                        useRootNavigator: true,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         isDismissible: false,
@@ -2228,6 +2229,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                                                                                                           highlightColor: Colors.transparent,
                                                                                                                           onTap: () async {
                                                                                                                             await showModalBottomSheet(
+                                                                                                                              useRootNavigator: true,
                                                                                                                               isScrollControlled: true,
                                                                                                                               backgroundColor: Colors.transparent,
                                                                                                                               enableDrag: false,
@@ -2307,6 +2309,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                                                                               dashGap: 4.0,
                                                                                               onPressed: () async {
                                                                                                 await showModalBottomSheet(
+                                                                                                  useRootNavigator: true,
                                                                                                   isScrollControlled: true,
                                                                                                   backgroundColor: Colors.transparent,
                                                                                                   enableDrag: false,
@@ -2890,6 +2893,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                                   dashGap: 4.0,
                                                   onPressed: () async {
                                                     await showModalBottomSheet(
+                                                      useRootNavigator: true,
                                                       isScrollControlled: true,
                                                       backgroundColor:
                                                           Colors.transparent,
@@ -2979,6 +2983,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                                       Colors.transparent,
                                                   onTap: () async {
                                                     await showModalBottomSheet(
+                                                      useRootNavigator: true,
                                                       isScrollControlled: true,
                                                       backgroundColor:
                                                           Colors.transparent,

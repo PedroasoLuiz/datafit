@@ -114,6 +114,7 @@ class _TreinosPersonalDetalheWidgetState
     final nextOrdem =
         _model.grupos.fold<int>(0, (sum, g) => sum + g.exercicios.length) + 1;
     final criou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -135,6 +136,7 @@ class _TreinosPersonalDetalheWidgetState
 
   Future<void> _abrirEditarExercicio(ExercicioDetalhePersonal ex) async {
     final editou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -163,6 +165,7 @@ class _TreinosPersonalDetalheWidgetState
 
   Future<void> _confirmarExcluirExercicio(int etId, String nome) async {
     final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

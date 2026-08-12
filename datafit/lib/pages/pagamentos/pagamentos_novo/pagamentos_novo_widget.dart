@@ -928,6 +928,7 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                               highlightColor: Colors.transparent,
                               onTap: () async {
                                 await showModalBottomSheet(
+                                  useRootNavigator: true,
                                   isScrollControlled: true,
                                   backgroundColor: Colors.transparent,
                                   enableDrag: false,
@@ -1033,6 +1034,7 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                     );
 
                     await showModalBottomSheet(
+                      useRootNavigator: true,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       enableDrag: false,
@@ -1090,6 +1092,7 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                     Navigator.pop(context, true);
                   } else {
                     await showDialog(
+                      useRootNavigator: true,
                       context: context,
                       builder: (alertDialogContext) {
                         return WebViewAware(

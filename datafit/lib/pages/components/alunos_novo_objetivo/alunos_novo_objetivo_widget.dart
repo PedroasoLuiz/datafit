@@ -580,6 +580,7 @@ class _AlunosNovoObjetivoWidgetState extends State<AlunosNovoObjetivoWidget>
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
                                           await showModalBottomSheet(
+                                            useRootNavigator: true,
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
                                             enableDrag: false,

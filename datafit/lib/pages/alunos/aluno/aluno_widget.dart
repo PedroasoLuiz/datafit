@@ -83,6 +83,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
     if (digitos.isEmpty) {
       if (!mounted) return;
       await showModalBottomSheet(
+        useRootNavigator: true,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         context: context,
@@ -475,6 +476,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                                                   await action_blocks.pagamentos(context, uuidpersonal: currentUserUid);
                                                                                   safeSetState(() {});
                                                                                   await showModalBottomSheet(
+                                                                                    useRootNavigator: true,
                                                                                     isScrollControlled: true,
                                                                                     backgroundColor: Colors.transparent,
                                                                                     context: context,
@@ -482,6 +484,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                                                   );
                                                                                 } else {
                                                                                   await showModalBottomSheet(
+                                                                                    useRootNavigator: true,
                                                                                     isScrollControlled: true,
                                                                                     backgroundColor: Colors.transparent,
                                                                                     context: context,
@@ -862,6 +865,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                             highlightColor: Colors.transparent,
                                             onTap: () async {
                                               await showModalBottomSheet(
+                                                useRootNavigator: true,
                                                 isScrollControlled: true,
                                                 backgroundColor:
                                                     Colors.transparent,
@@ -1146,6 +1150,8 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                           alunosItem.status ==
                                                               'recusado') {
                                                         await showModalBottomSheet(
+                                                          useRootNavigator:
+                                                              true,
                                                           isScrollControlled:
                                                               true,
                                                           backgroundColor:

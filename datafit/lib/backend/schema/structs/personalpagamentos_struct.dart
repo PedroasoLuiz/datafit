@@ -17,7 +17,7 @@ class PersonalpagamentosStruct extends BaseStruct {
     String? dataPagamento,
     String? createdAt,
     String? alunoUuid,
-  bool? alunoAtivo,
+    bool? alunoAtivo,
   })  : _id = id,
         _descricao = descricao,
         _nome = nome,

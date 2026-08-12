@@ -1176,6 +1176,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                             highlightColor: Colors.transparent,
                                                                                             onTap: () async {
                                                                                               final String? nomeSubstituto = await showModalBottomSheet<String>(
+                                                                                                useRootNavigator: true,
                                                                                                 isScrollControlled: true,
                                                                                                 backgroundColor: Colors.transparent,
                                                                                                 enableDrag: false,
@@ -1229,6 +1230,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                           onTap: () async {
                                                                                             if (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId != exerciciosItem.execucaoId) : false) {
                                                                                               await showModalBottomSheet(
+                                                                                                useRootNavigator: true,
                                                                                                 isScrollControlled: true,
                                                                                                 backgroundColor: Colors.transparent,
                                                                                                 enableDrag: false,
@@ -1679,6 +1681,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                           _model.opAtv = true;
                                                                                           safeSetState(() {});
                                                                                           await showModalBottomSheet(
+                                                                                            useRootNavigator: true,
                                                                                             isScrollControlled: true,
                                                                                             backgroundColor: Colors.transparent,
                                                                                             enableDrag: false,
@@ -1711,6 +1714,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                         );
                                                                                                         await action_blocks.getTreinosAluno(context);
                                                                                                         await showModalBottomSheet(
+                                                                                                          useRootNavigator: true,
                                                                                                           isScrollControlled: true,
                                                                                                           backgroundColor: Colors.transparent,
                                                                                                           enableDrag: false,
@@ -1784,6 +1788,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                         _model.opAtv = true;
                                                                                         safeSetState(() {});
                                                                                         await showModalBottomSheet(
+                                                                                          useRootNavigator: true,
                                                                                           isScrollControlled: true,
                                                                                           backgroundColor: Colors.transparent,
                                                                                           enableDrag: false,
@@ -1821,6 +1826,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                           await action_blocks.getTreinosAluno(context);
                                                                                           safeSetState(() {});
                                                                                           await showModalBottomSheet(
+                                                                                            useRootNavigator: true,
                                                                                             isScrollControlled: true,
                                                                                             backgroundColor: Colors.transparent,
                                                                                             enableDrag: false,
@@ -1966,6 +1972,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                           dashGap: 4.0,
                                                           onPressed: () async {
                                                             await showModalBottomSheet(
+                                                              useRootNavigator:
+                                                                  true,
                                                               isScrollControlled:
                                                                   true,
                                                               backgroundColor:
@@ -2023,6 +2031,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                               if (!mounted)
                                                                 return;
                                                               await showModalBottomSheet(
+                                                                useRootNavigator:
+                                                                    true,
                                                                 isScrollControlled:
                                                                     true,
                                                                 backgroundColor:
@@ -2311,6 +2321,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     );
                                                     safeSetState(() {});
                                                     await showModalBottomSheet(
+                                                      useRootNavigator: true,
                                                       isScrollControlled: true,
                                                       backgroundColor:
                                                           Colors.transparent,
@@ -2356,6 +2367,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                         safeSetState(() {}));
                                                   } else {
                                                     await showDialog(
+                                                      useRootNavigator: true,
                                                       context: context,
                                                       builder:
                                                           (alertDialogContext) {
@@ -2695,6 +2707,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     .getTreinosAluno(context);
                                                 safeSetState(() {});
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -2733,6 +2746,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     safeSetState(() {}));
                                               } else {
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -2784,6 +2798,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                       ?.succeeded ??
                                                                   true)) {
                                                                 await showModalBottomSheet(
+                                                                  useRootNavigator:
+                                                                      true,
                                                                   isScrollControlled:
                                                                       true,
                                                                   backgroundColor:
@@ -2835,6 +2851,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                         () {}));
                                                               } else {
                                                                 await showModalBottomSheet(
+                                                                  useRootNavigator:
+                                                                      true,
                                                                   isScrollControlled:
                                                                       true,
                                                                   backgroundColor:
@@ -2884,6 +2902,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
 
                                                                               if ((_model.subResult?.succeeded ?? true)) {
                                                                                 await showModalBottomSheet(
+                                                                                  useRootNavigator: true,
                                                                                   isScrollControlled: true,
                                                                                   backgroundColor: Colors.transparent,
                                                                                   enableDrag: false,
@@ -2913,6 +2932,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                 ).then((value) => safeSetState(() {}));
                                                                               } else {
                                                                                 await showModalBottomSheet(
+                                                                                  useRootNavigator: true,
                                                                                   isScrollControlled: true,
                                                                                   backgroundColor: Colors.transparent,
                                                                                   enableDrag: false,
@@ -2942,6 +2962,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
 
                                                                                               if ((_model.apiResult7yeCopy?.succeeded ?? true)) {
                                                                                                 await showModalBottomSheet(
+                                                                                                  useRootNavigator: true,
                                                                                                   isScrollControlled: true,
                                                                                                   backgroundColor: Colors.transparent,
                                                                                                   enableDrag: false,
@@ -2971,6 +2992,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                 ).then((value) => safeSetState(() {}));
                                                                                               } else {
                                                                                                 await showModalBottomSheet(
+                                                                                                  useRootNavigator: true,
                                                                                                   isScrollControlled: true,
                                                                                                   backgroundColor: Colors.transparent,
                                                                                                   enableDrag: false,
@@ -3147,6 +3169,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     .getTreinosAluno(context);
                                                 safeSetState(() {});
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -3185,6 +3208,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     safeSetState(() {}));
                                               } else {
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -3236,6 +3260,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                       ?.succeeded ??
                                                                   true)) {
                                                                 await showModalBottomSheet(
+                                                                  useRootNavigator:
+                                                                      true,
                                                                   isScrollControlled:
                                                                       true,
                                                                   backgroundColor:
@@ -3287,6 +3313,8 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                         () {}));
                                                               } else {
                                                                 await showModalBottomSheet(
+                                                                  useRootNavigator:
+                                                                      true,
                                                                   isScrollControlled:
                                                                       true,
                                                                   backgroundColor:
@@ -3336,6 +3364,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
 
                                                                               if ((_model.apiResult7yeCopy2?.succeeded ?? true)) {
                                                                                 await showModalBottomSheet(
+                                                                                  useRootNavigator: true,
                                                                                   isScrollControlled: true,
                                                                                   backgroundColor: Colors.transparent,
                                                                                   enableDrag: false,
@@ -3365,6 +3394,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                 ).then((value) => safeSetState(() {}));
                                                                               } else {
                                                                                 await showModalBottomSheet(
+                                                                                  useRootNavigator: true,
                                                                                   isScrollControlled: true,
                                                                                   backgroundColor: Colors.transparent,
                                                                                   enableDrag: false,

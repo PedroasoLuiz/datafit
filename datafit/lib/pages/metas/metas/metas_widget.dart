@@ -890,6 +890,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
                                             await showModalBottomSheet(
+                                              useRootNavigator: true,
                                               isScrollControlled: true,
                                               backgroundColor:
                                                   Colors.transparent,
@@ -1065,6 +1066,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
                                             await showModalBottomSheet(
+                                              useRootNavigator: true,
                                               isScrollControlled: true,
                                               backgroundColor:
                                                   Colors.transparent,
@@ -1320,6 +1322,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                                         Colors.transparent,
                                                     onTap: () async {
                                                       await showModalBottomSheet(
+                                                        useRootNavigator: true,
                                                         isScrollControlled:
                                                             true,
                                                         backgroundColor:
@@ -1627,6 +1630,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                     ),
                                     onPressed: () async {
                                       await showModalBottomSheet(
+                                        useRootNavigator: true,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         enableDrag: false,
@@ -1744,6 +1748,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
                                             await showModalBottomSheet(
+                                              useRootNavigator: true,
                                               isScrollControlled: true,
                                               backgroundColor:
                                                   Colors.transparent,

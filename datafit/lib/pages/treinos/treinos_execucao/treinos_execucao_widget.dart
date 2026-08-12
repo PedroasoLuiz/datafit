@@ -1471,6 +1471,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                           FFButtonWidget(
                                             onPressed: () async {
                                               await showModalBottomSheet(
+                                                useRootNavigator: true,
                                                 isScrollControlled: true,
                                                 backgroundColor:
                                                     Colors.transparent,
@@ -1889,6 +1890,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                     .getTreinosAluno(context);
                                                 safeSetState(() {});
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -2156,6 +2158,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                   await action_blocks
                                                       .getTreinosAluno(context);
                                                   await showModalBottomSheet(
+                                                    useRootNavigator: true,
                                                     isScrollControlled: true,
                                                     backgroundColor:
                                                         Colors.transparent,

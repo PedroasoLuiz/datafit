@@ -60,6 +60,7 @@ class _CadastroWidgetState extends State<CadastroWidget> {
   /// Bottom sheet de aviso, mesmo padrão usado na tela de login.
   Future<void> _mostrarMensagem(String texto) async {
     await showModalBottomSheet(
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       enableDrag: false,

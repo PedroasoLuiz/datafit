@@ -322,6 +322,7 @@ class _NotificacaoalunosWidgetState extends State<NotificacaoalunosWidget>
 
                           if ((_model.mandou?.succeeded ?? true)) {
                             await showModalBottomSheet(
+                              useRootNavigator: true,
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
                               enableDrag: false,
@@ -458,6 +459,7 @@ class _NotificacaoalunosWidgetState extends State<NotificacaoalunosWidget>
                       highlightColor: Colors.transparent,
                       onTap: () async {
                         await showModalBottomSheet(
+                          useRootNavigator: true,
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
                           enableDrag: false,
@@ -735,6 +737,7 @@ class _NotificacaoalunosWidgetState extends State<NotificacaoalunosWidget>
                       highlightColor: Colors.transparent,
                       onTap: () async {
                         await showModalBottomSheet(
+                          useRootNavigator: true,
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
                           enableDrag: false,
@@ -757,6 +760,7 @@ class _NotificacaoalunosWidgetState extends State<NotificacaoalunosWidget>
 
                                     if ((_model.resu?.succeeded ?? true)) {
                                       await showModalBottomSheet(
+                                        useRootNavigator: true,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         enableDrag: false,

@@ -591,6 +591,7 @@ class _AlunosEditarObjetivoWidgetState extends State<AlunosEditarObjetivoWidget>
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
                                           await showModalBottomSheet(
+                                            useRootNavigator: true,
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
                                             enableDrag: false,
@@ -881,6 +882,7 @@ class _AlunosEditarObjetivoWidgetState extends State<AlunosEditarObjetivoWidget>
                               child: FFButtonWidget(
                                 onPressed: () async {
                                   await showModalBottomSheet(
+                                    useRootNavigator: true,
                                     isScrollControlled: true,
                                     backgroundColor: Colors.transparent,
                                     enableDrag: false,

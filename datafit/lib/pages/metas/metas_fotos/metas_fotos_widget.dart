@@ -1191,6 +1191,7 @@ class _MetasFotosWidgetState extends State<MetasFotosWidget>
                                               ),
                                               onPressed: () async {
                                                 await showModalBottomSheet(
+                                                  useRootNavigator: true,
                                                   isScrollControlled: true,
                                                   backgroundColor:
                                                       Colors.transparent,

@@ -227,8 +227,17 @@ class NotificacoesStruct extends BaseStruct {
   }
 
   @override
-  int get hashCode => const ListEquality()
-      .hash([id, titulo, descricao, tag, lida, criadoEm, remetente, remetenteId, referenciaId]);
+  int get hashCode => const ListEquality().hash([
+        id,
+        titulo,
+        descricao,
+        tag,
+        lida,
+        criadoEm,
+        remetente,
+        remetenteId,
+        referenciaId
+      ]);
 }
 
 NotificacoesStruct createNotificacoesStruct({

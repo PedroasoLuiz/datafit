@@ -60,6 +60,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
       if (!mounted) return;
       final convite = FFAppState().convitesPendentes.first;
       await showModalBottomSheet(
+        useRootNavigator: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -502,6 +503,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                               );
                                             } else {
                                               await showDialog(
+                                                useRootNavigator: true,
                                                 context: context,
                                                 builder: (alertDialogContext) {
                                                   return WebViewAware(

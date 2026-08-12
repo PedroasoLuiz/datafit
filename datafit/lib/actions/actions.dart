@@ -86,6 +86,7 @@ Future treinoalunos(
 
   if ((apiResultcct?.succeeded ?? true)) {
     await showDialog(
+      useRootNavigator: true,
       context: context,
       builder: (alertDialogContext) {
         return WebViewAware(
@@ -332,6 +333,7 @@ Future getTreinosAluno(BuildContext context) async {
     FFAppState().update(() {});
   } else {
     await showDialog(
+      useRootNavigator: true,
       context: context,
       builder: (alertDialogContext) {
         return WebViewAware(

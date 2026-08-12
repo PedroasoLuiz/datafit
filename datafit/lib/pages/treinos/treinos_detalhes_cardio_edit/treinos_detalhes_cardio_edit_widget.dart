@@ -1077,6 +1077,7 @@ class _TreinosDetalhesCardioEditWidgetState
                                             highlightColor: Colors.transparent,
                                             onTap: () async {
                                               await showModalBottomSheet<bool>(
+                                                  useRootNavigator: true,
                                                   context: context,
                                                   builder: (context) {
                                                     final _datePicked2CupertinoTheme =

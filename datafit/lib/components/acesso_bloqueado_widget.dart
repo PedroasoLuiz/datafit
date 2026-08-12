@@ -99,7 +99,8 @@ class AcessoBloqueadoWidget extends StatelessWidget {
                       GoRouter.of(context).prepareAuthEvent();
                       await authManager.signOut();
                       GoRouter.of(context).clearRedirectLocation();
-                      context.goNamedAuth(StartWidget.routeName, context.mounted);
+                      context.goNamedAuth(
+                          StartWidget.routeName, context.mounted);
                     },
                     child: Text(
                       'Sair da conta',

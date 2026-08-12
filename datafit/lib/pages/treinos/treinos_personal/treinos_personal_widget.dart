@@ -82,6 +82,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
 
   Future<void> _abrirEditarGrupo(int id, String nome) async {
     final editou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -101,6 +102,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
 
   Future<void> _confirmarExcluirGrupo(int id, String nome) async {
     final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -138,6 +140,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
   /// card de atalho poder chamar a mesma coisa.
   Future<void> _abrirNovoTreino() async {
     final criou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       enableDrag: false,

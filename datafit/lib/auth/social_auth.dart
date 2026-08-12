@@ -121,7 +121,8 @@ Future<bool> entrarComApple() async {
 
     final idToken = credencial.identityToken;
     if (idToken == null) {
-      throw SocialAuthException('A Apple não devolveu o token de identificação.');
+      throw SocialAuthException(
+          'A Apple não devolveu o token de identificação.');
     }
 
     final res = await SupaFlow.client.auth.signInWithIdToken(
@@ -135,7 +136,8 @@ Future<bool> entrarComApple() async {
     if (e.code == AuthorizationErrorCode.canceled) {
       return false;
     }
-    throw SocialAuthException('Não foi possível entrar com a Apple: ${e.message}');
+    throw SocialAuthException(
+        'Não foi possível entrar com a Apple: ${e.message}');
   }
 }
 

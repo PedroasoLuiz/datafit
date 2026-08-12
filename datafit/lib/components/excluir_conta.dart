@@ -135,6 +135,7 @@ Future<void> _dialogoAviso(
     BuildContext context, String titulo, String mensagem) {
   final theme = FlutterFlowTheme.of(context);
   return showDialog(
+    useRootNavigator: true,
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: theme.primaryBackground,
@@ -174,6 +175,7 @@ Future<void> _dialogoAviso(
 
 void _mostrarCarregando(BuildContext context) {
   showDialog(
+    useRootNavigator: true,
     context: context,
     barrierDismissible: false,
     builder: (_) => Center(

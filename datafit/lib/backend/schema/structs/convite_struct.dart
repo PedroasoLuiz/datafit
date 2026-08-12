@@ -118,8 +118,8 @@ class ConviteStruct extends BaseStruct {
   }
 
   @override
-  int get hashCode => const ListEquality().hash(
-      [personalUuid, personalNome, personalFoto, dataVinculo]);
+  int get hashCode => const ListEquality()
+      .hash([personalUuid, personalNome, personalFoto, dataVinculo]);
 }
 
 ConviteStruct createConviteStruct({

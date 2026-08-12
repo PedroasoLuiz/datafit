@@ -3612,6 +3612,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                       ?.succeeded ??
                                                   true)) {
                                                 await showDialog(
+                                                  useRootNavigator: true,
                                                   context: context,
                                                   builder:
                                                       (alertDialogContext) {
@@ -3727,6 +3728,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                             context.safePop();
                                           } else {
                                             await showDialog(
+                                              useRootNavigator: true,
                                               context: context,
                                               builder: (alertDialogContext) {
                                                 return WebViewAware(
@@ -3749,6 +3751,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                           }
                                         } else {
                                           await showDialog(
+                                            useRootNavigator: true,
                                             context: context,
                                             builder: (alertDialogContext) {
                                               return WebViewAware(
@@ -3770,6 +3773,7 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                         }
                                       } else {
                                         await showDialog(
+                                          useRootNavigator: true,
                                           context: context,
                                           builder: (alertDialogContext) {
                                             return WebViewAware(

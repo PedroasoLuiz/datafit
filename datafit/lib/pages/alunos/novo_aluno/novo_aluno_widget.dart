@@ -807,6 +807,7 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget>
 
                   if (!context.mounted) return;
                   await showModalBottomSheet(
+                    useRootNavigator: true,
                     context: context,
                     backgroundColor: Colors.transparent,
                     enableDrag: false,

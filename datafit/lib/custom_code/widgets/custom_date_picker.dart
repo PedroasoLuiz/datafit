@@ -282,8 +282,7 @@ class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
       children: [
         Flexible(
           child: Padding(
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20.0),
               child: Container(
@@ -350,8 +349,7 @@ class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,
@@ -363,16 +361,14 @@ class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
                   color: Colors.white,
                   size: 24.0,
                 ),
-                onPressed:
-                    _selected == null ? null : () => _fechar(_selected),
+                onPressed: _selected == null ? null : () => _fechar(_selected),
               ).animateOnActionTrigger(
                 animationsMap['btn1OnActionTriggerAnimation']!,
                 hasBeenTriggered: hasBtn1Triggered,
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
               child: FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 56.0,

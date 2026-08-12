@@ -246,6 +246,7 @@ class _VideoplayWidgetState extends State<VideoplayWidget>
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
                                           await showModalBottomSheet(
+                                            useRootNavigator: true,
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
                                             enableDrag: false,

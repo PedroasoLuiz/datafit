@@ -109,6 +109,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
 
   Future<void> _abrirModal({ExercicioGestaoRow? ex}) async {
     final salvou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -130,6 +131,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
 
   Future<void> _confirmarExcluir(ExercicioGestaoRow ex) async {
     final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
