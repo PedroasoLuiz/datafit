@@ -909,10 +909,15 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                               Divider(
                                                 height: 1.0,
                                                 thickness: 1.0,
-                                                // 54 da foto + 16 do vao:
-                                                // o traco comeca onde o nome
-                                                // do aluno comeca.
-                                                indent: 70.0,
+                                                // 16 do padding do cartao +
+                                                // 54 da foto + 16 do vao: o
+                                                // traco comeca exatamente
+                                                // onde o nome comeca. Faltava
+                                                // contar o padding, que entrou
+                                                // quando a margem virou
+                                                // padding para o fundo das
+                                                // acoes chegar na borda.
+                                                indent: 86.0,
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .alternate,

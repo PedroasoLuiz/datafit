@@ -120,7 +120,17 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        # O binario sobe e fica disponivel para os testadores INTERNOS na
+        # hora, sem revisao da Apple — que e o que a gente usa hoje.
+        #
+        # `submit_to_testflight: true` ficou desligado porque ele submete para
+        # o teste EXTERNO, que exige revisao e a ficha de "Test Information"
+        # preenchida. Sem ela o passo falha e o build inteiro e marcado como
+        # vermelho, mesmo com o binario ja processado e instalavel.
+        #
+        # Ligar de novo quando for abrir para testadores de fora, com a ficha
+        # em https://appstoreconnect.apple.com/apps/6798420221/testflight/test-info
+        submit_to_testflight: false
         # Deixar em false ate a ficha da loja estar completa e o IAP decidido.
         submit_to_app_store: false
       email:

@@ -655,11 +655,11 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                       }(),
                                                       0.0,
                                                     ),
-                                                    // Mesmo respiro em cima e
-                                                    // embaixo: com 0 no topo o
-                                                    // conteudo colava na borda
-                                                    // do cartao.
-                                                    8.0,
+                                                    // 16 em cima e embaixo:
+                                                    // sem vao entre as linhas,
+                                                    // e o padding que separa
+                                                    // uma cobranca da outra.
+                                                    16.0,
                                                     valueOrDefault<double>(
                                                       () {
                                                         if (MediaQuery.sizeOf(
@@ -685,7 +685,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                       }(),
                                                       0.0,
                                                     ),
-                                                    8.0),
+                                                    16.0),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
@@ -1016,7 +1016,11 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                       ),
                                     );
                                   })
-                                          .divide(SizedBox(height: 16.0))
+                                          // Sem vao entre as linhas: o
+                                          // respiro virou padding DENTRO do
+                                          // cartao, para o fundo branco de uma
+                                          // linha encostar no da seguinte.
+                                          .divide(SizedBox(height: 0.0))
                                           .addToStart(SizedBox(height: 32.0))
                                           .addToEnd(SizedBox(height: 120.0)),
                                 ),
@@ -1267,8 +1271,10 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
     return GestureDetector(
       onHorizontalDragUpdate: _arrastando,
       onHorizontalDragEnd: _soltou,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.0),
+      // ClipRect e nao ClipRRect: a lista de cobrancas e uma lista continua,
+      // sem vao entre as linhas — com canto arredondado cada linha viraria um
+      // bloco solto e a leitura de cima para baixo se perderia.
+      child: ClipRect(
         child: Stack(
           children: [
             Positioned(
@@ -1309,11 +1315,9 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
                 // Superficie propria, e nao a cor da pagina: sem ela a linha
                 // nao lia como cartao, e o arredondamento do ClipRRect nao
                 // aparecia contra um fundo da mesma cor.
-                decoration: BoxDecoration(
-                  color: tema.primaryBackground,
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [tema.designToken.shadow.sm],
-                ),
+                // Superficie branca sem raio e sem sombra: o que separa uma
+                // linha da outra e o divisor, nao o contorno de um cartao.
+                color: tema.primaryBackground,
                 child: widget.child,
               ),
             ),

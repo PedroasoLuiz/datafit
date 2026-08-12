@@ -1102,7 +1102,9 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
     final paraDireita = camada.isOdd;
     final desloc = daFrente
         ? _arraste
-        : (paraDireita ? 1 : -1) * _passoLateral * camadaEfetiva;
+        // Passo fixo por lado, como o giro: multiplicado pela camada, a
+        // terceira carta ia ao dobro da distancia e ficava jogada no canto.
+        : (paraDireita ? 1 : -1) * _passoLateral;
 
     // Frente: gira conforme o arraste. Fundo: giro fixo, alternando o lado.
     final giro = daFrente

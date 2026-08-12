@@ -43,6 +43,11 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
   /// Dia (yyyy-MM-dd) -> lista de treinos concluídos naquele dia.
   Map<String, List<dynamic>> _porDia = {};
 
+  /// Soma dos treinos do mes. Nao e o mesmo que a quantidade de dias: um dia
+  /// pode ter A e C feitos em seguida.
+  int get _totalTreinos =>
+      _porDia.values.fold<int>(0, (soma, l) => soma + l.length);
+
   @override
   void initState() {
     super.initState();
@@ -201,29 +206,46 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
         ),
 
         // ── Resumo do mês ────────────────────────────────────────────
+        // Duas leituras: quantos dias houve treino e quantos treinos ao todo.
+        // Um dia pode ter mais de um treino, entao os dois numeros dizem
+        // coisas diferentes e vale mostrar os dois.
         if (!_carregando)
           Padding(
             padding:
-                const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 0.0),
+                const EdgeInsetsDirectional.fromSTEB(16.0, 14.0, 16.0, 0.0),
             child: Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    color: tema.success, size: 16.0),
-                const SizedBox(width: 6.0),
-                Text(
-                  _porDia.isEmpty
-                      ? 'Nenhum treino neste mês'
-                      : '${_porDia.length} '
-                          '${_porDia.length == 1 ? "dia treinado" : "dias treinados"}',
-                  style: tema.bodyMedium.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                    color: tema.secondaryText,
-                    fontSize: 12.5,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: _Resumo(
+                    numero: '${_porDia.length}',
+                    rotulo: _porDia.length == 1 ? 'dia treinado' : 'dias treinados',
+                    cor: tema.primary,
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                Expanded(
+                  child: _Resumo(
+                    numero: '$_totalTreinos',
+                    rotulo: _totalTreinos == 1 ? 'treino feito' : 'treinos feitos',
+                    cor: tema.success,
                   ),
                 ),
               ],
+            ),
+          ),
+        if (!_carregando && _porDia.isEmpty)
+          Padding(
+            padding:
+                const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 0.0),
+            child: Text(
+              'Nenhum treino neste mês. Use as setas para ver outro.',
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 12.5,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
       ],
@@ -327,8 +349,8 @@ class _Celula extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 26.0,
-              height: 26.0,
+              width: 28.0,
+              height: 28.0,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 // Dia treinado ganha fundo cheio; hoje ganha só o contorno.
@@ -337,6 +359,15 @@ class _Celula extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: ehHoje && !treinou
                     ? Border.all(color: tema.primary, width: 1.5)
+                    : null,
+                boxShadow: treinou
+                    ? [
+                        BoxShadow(
+                          color: tema.primary.withValues(alpha: 0.30),
+                          blurRadius: 6.0,
+                          offset: const Offset(0.0, 2.0),
+                        )
+                      ]
                     : null,
               ),
               child: Text(
@@ -622,6 +653,63 @@ class _LinhaCardio extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Número grande com rótulo, para o resumo do mês.
+///
+/// Os dois cartões lado a lado respondem perguntas diferentes: em quantos
+/// dias houve treino, e quantos treinos foram feitos. Um dia com A e C
+/// concluídos conta como 1 dia e 2 treinos.
+class _Resumo extends StatelessWidget {
+  const _Resumo({
+    required this.numero,
+    required this.rotulo,
+    required this.cor,
+  });
+
+  final String numero;
+  final String rotulo;
+  final Color cor;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: tema.primaryBackground,
+        borderRadius: BorderRadius.circular(14.0),
+        boxShadow: [tema.designToken.shadow.sm],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            numero,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              color: cor,
+              fontSize: 22.0,
+              letterSpacing: -0.6,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            rotulo,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              color: tema.secondaryText,
+              fontSize: 11.5,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
