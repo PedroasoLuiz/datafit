@@ -1,0 +1,109 @@
+/// Notificações push: permissão, token e reação ao toque.
+///
+/// Todo o serviço é tolerante a não estar configurado. Sem as credenciais em
+/// [ConfigPush], `iniciar()` sai em silêncio e o resto do app segue igual —
+/// é o que permite subir o código antes de o Firebase existir.
+///
+/// O envio acontece no servidor: o gatilho `trg_envia_push` chama a Edge
+/// Function `enviar-push` sempre que uma linha entra em `Notificacoes`. Aqui
+/// só cuidamos de ter um token válido registrado.
+library;
+
+import 'dart:io' show Platform;
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+
+import '/backend/supabase/supabase.dart';
+import 'config_push.dart';
+
+/// Handler de mensagem com o app fechado.
+///
+/// Precisa ser função de topo e anotada: o Flutter roda isto num isolate
+/// separado, sem acesso ao estado do app. Aqui não fazemos nada — o sistema
+/// já mostra a notificação sozinho — mas o registro é obrigatório para o
+/// plugin não reclamar.
+@pragma('vm:entry-point')
+Future<void> _mensagemEmSegundoPlano(RemoteMessage mensagem) async {}
+
+class ServicoPush {
+  const ServicoPush._();
+
+  static bool _iniciado = false;
+  static String? _tokenAtual;
+
+  /// Sobe o Firebase e pede permissão. Seguro chamar mais de uma vez.
+  static Future<void> iniciar() async {
+    if (_iniciado || kIsWeb || !ConfigPush.configurado) return;
+
+    try {
+      await Firebase.initializeApp(options: ConfigPush.opcoes);
+      FirebaseMessaging.onBackgroundMessage(_mensagemEmSegundoPlano);
+      _iniciado = true;
+    } catch (e) {
+      // Credencial errada não pode derrubar o app inteiro na abertura.
+      debugPrint('Push desligado: $e');
+    }
+  }
+
+  /// Pede permissão e registra o token para o usuário logado.
+  ///
+  /// Chamado depois do login, não na abertura: pedir permissão de notificação
+  /// antes de a pessoa entrar na conta é pedir sem contexto, e o iOS só
+  /// permite perguntar uma vez.
+  static Future<void> registrarUsuario() async {
+    if (!_iniciado) return;
+
+    try {
+      final permissao = await FirebaseMessaging.instance.requestPermission();
+      if (permissao.authorizationStatus == AuthorizationStatus.denied) return;
+
+      // No iOS o token só existe depois que o APNs responde; sem esta espera
+      // o `getToken` volta nulo na primeira execução após instalar.
+      if (Platform.isIOS) {
+        await FirebaseMessaging.instance.getAPNSToken();
+      }
+
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null || token.isEmpty) return;
+
+      await _salvar(token);
+
+      // O token é rotacionado pelo próprio Firebase de tempos em tempos; sem
+      // ouvir isso, o aparelho pararia de receber sem aviso.
+      FirebaseMessaging.instance.onTokenRefresh.listen(_salvar);
+    } catch (e) {
+      debugPrint('Não consegui registrar o token de push: $e');
+    }
+  }
+
+  static Future<void> _salvar(String token) async {
+    _tokenAtual = token;
+    try {
+      await SupaFlow.client.rpc('registrar_token_push', params: {
+        'p_token': token,
+        'p_plataforma': Platform.isIOS ? 'ios' : 'android',
+      });
+    } catch (e) {
+      debugPrint('Não consegui salvar o token de push: $e');
+    }
+  }
+
+  /// Descadastra o aparelho ao sair da conta.
+  ///
+  /// Sem isto, quem desloga continuaria recebendo notificação de uma conta que
+  /// não está mais aberta ali — e num aparelho compartilhado isso vaza dado de
+  /// outra pessoa.
+  static Future<void> encerrarSessao() async {
+    final token = _tokenAtual;
+    if (token == null) return;
+    try {
+      await SupaFlow.client
+          .rpc('remover_token_push', params: {'p_token': token});
+    } catch (_) {
+      // Falhar aqui não impede o logout.
+    }
+    _tokenAtual = null;
+  }
+}

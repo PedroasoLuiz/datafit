@@ -15,7 +15,10 @@
 /// chave correspondente no disco.
 library;
 
+import 'dart:async';
+
 import '/components/lista_notificacoes.dart';
+import '/backend/push/servico_push.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -94,4 +97,8 @@ void limparEstadoLocalDoUsuario() {
 
   // Sem isto o proximo login herdaria o "ja mostrei as novidades" deste.
   limparAvisoDeSessao();
+
+  // O aparelho para de receber push desta conta. Num celular compartilhado,
+  // sem isto a notificacao de uma pessoa apareceria para a seguinte.
+  unawaited(ServicoPush.encerrarSessao());
 }

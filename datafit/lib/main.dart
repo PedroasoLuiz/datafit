@@ -9,6 +9,7 @@ import 'auth/supabase_auth/supabase_user_provider.dart';
 import 'auth/supabase_auth/auth_util.dart';
 
 import '/backend/supabase/supabase.dart';
+import '/backend/push/servico_push.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
@@ -25,6 +26,10 @@ void main() async {
   usePathUrlStrategy();
 
   await SupaFlow.initialize();
+
+  // Sai em silencio se as credenciais do Firebase nao estiverem preenchidas
+  // — o app roda igual sem push. Ver `lib/backend/push/config_push.dart`.
+  await ServicoPush.iniciar();
 
   final appState = FFAppState(); // Initialize FFAppState
   await appState.initializePersistedState();

@@ -71,5 +71,14 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 
+	<!--
+	  `remote-notification` permite ao app acordar com a notificacao e tratar o
+	  conteudo antes de exibir. Sem isso, so a notificacao simples chega, e
+	  qualquer push com `content-available` e ignorado pelo sistema.
+	-->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -15,5 +15,18 @@
 	<array>
 		<string>Default</string>
 	</array>
+
+	<!--
+	  Push notifications. `development` aqui e `production` no build de
+	  distribuicao — o Xcode troca sozinho ao arquivar, entao deixar
+	  `development` nao impede o TestFlight.
+
+	  A capability Push Notifications tambem precisa estar habilitada no App ID
+	  (com.virtus.datafit) no Apple Developer Portal, e a APNs Key (.p8) tem
+	  que estar carregada no Firebase. Sem os dois, o token do aparelho nunca
+	  chega e o push some em silencio.
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>

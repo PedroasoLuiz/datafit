@@ -1,3 +1,4 @@
+import '/backend/push/servico_push.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -115,6 +116,11 @@ class _LoadingWidgetState extends State<LoadingWidget> {
       // Sem perfil o papel vem 0 e a pessoa caía no `else` abaixo, indo parar
       // na lista de alunos do personal. Acontece com quem se cadastra sozinho:
       // nada além do `criar_ou_vincular_aluno` criava o registro em Perfis.
+      // Depois do login, nao na abertura: pedir permissao de notificacao
+      // antes de a pessoa entrar na conta e pedir sem contexto, e o iOS so
+      // deixa perguntar uma vez.
+      await ServicoPush.registrarUsuario();
+
       if (FFAppState().perfil.tipoPerfilId == 0) {
         context.goNamed(EscolherPapelWidget.routeName);
         return;
