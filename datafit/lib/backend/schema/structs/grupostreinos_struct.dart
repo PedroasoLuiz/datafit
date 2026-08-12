@@ -14,13 +14,15 @@ class GrupostreinosStruct extends BaseStruct {
     bool? ativo,
     String? personalUuid,
     String? personalFotoUrl,
+    String? personalNome,
   })  : _grupoTreinoId = grupoTreinoId,
         _nome = nome,
         _dataValidade = dataValidade,
         _subagrupamentos = subagrupamentos,
         _ativo = ativo,
         _personalUuid = personalUuid,
-        _personalFotoUrl = personalFotoUrl;
+        _personalFotoUrl = personalFotoUrl,
+        _personalNome = personalNome;
 
   // "grupoTreinoId" field.
   int? _grupoTreinoId;
@@ -78,6 +80,13 @@ class GrupostreinosStruct extends BaseStruct {
 
   bool hasPersonalFotoUrl() => _personalFotoUrl != null;
 
+  // "personalNome" field.
+  String? _personalNome;
+  String get personalNome => _personalNome ?? '';
+  set personalNome(String? val) => _personalNome = val;
+
+  bool hasPersonalNome() => _personalNome != null;
+
   static GrupostreinosStruct fromMap(Map<String, dynamic> data) =>
       GrupostreinosStruct(
         grupoTreinoId: castToType<int>(data['grupoTreinoId']),
@@ -90,6 +99,7 @@ class GrupostreinosStruct extends BaseStruct {
         ativo: data['ativo'] as bool?,
         personalUuid: data['personalUuid'] as String?,
         personalFotoUrl: data['personalFotoUrl'] as String?,
+        personalNome: data['personalNome'] as String?,
       );
 
   static GrupostreinosStruct? maybeFromMap(dynamic data) => data is Map
@@ -104,6 +114,7 @@ class GrupostreinosStruct extends BaseStruct {
         'ativo': _ativo,
         'personalUuid': _personalUuid,
         'personalFotoUrl': _personalFotoUrl,
+        'personalNome': _personalNome,
       }.withoutNulls;
 
   @override
@@ -135,6 +146,10 @@ class GrupostreinosStruct extends BaseStruct {
         ),
         'personalFotoUrl': serializeParam(
           _personalFotoUrl,
+          ParamType.String,
+        ),
+        'personalNome': serializeParam(
+          _personalNome,
           ParamType.String,
         ),
       }.withoutNulls;
@@ -177,6 +192,11 @@ class GrupostreinosStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        personalNome: deserializeParam(
+          data['personalNome'],
+          ParamType.String,
+          false,
+        ),
       );
 
   @override
@@ -192,7 +212,8 @@ class GrupostreinosStruct extends BaseStruct {
         listEquality.equals(subagrupamentos, other.subagrupamentos) &&
         ativo == other.ativo &&
         personalUuid == other.personalUuid &&
-        personalFotoUrl == other.personalFotoUrl;
+        personalFotoUrl == other.personalFotoUrl &&
+        personalNome == other.personalNome;
   }
 
   @override
@@ -204,6 +225,7 @@ class GrupostreinosStruct extends BaseStruct {
         ativo,
         personalUuid,
         personalFotoUrl,
+        personalNome,
       ]);
 }
 
@@ -214,6 +236,7 @@ GrupostreinosStruct createGrupostreinosStruct({
   bool? ativo,
   String? personalUuid,
   String? personalFotoUrl,
+  String? personalNome,
 }) =>
     GrupostreinosStruct(
       grupoTreinoId: grupoTreinoId,
@@ -222,4 +245,5 @@ GrupostreinosStruct createGrupostreinosStruct({
       ativo: ativo,
       personalUuid: personalUuid,
       personalFotoUrl: personalFotoUrl,
+      personalNome: personalNome,
     );

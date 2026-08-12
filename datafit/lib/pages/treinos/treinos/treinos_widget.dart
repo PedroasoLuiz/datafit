@@ -401,104 +401,70 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                               ),
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 0.0, 12.0, 0.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              FFAppState().treinosTemp.nome,
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
-                                                    fontSize: 16.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
+                                    Text(
+                                      FFAppState().treinosTemp.nome,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            Text(
-                                              'Validade: ${valueOrDefault<String>(
-                                                dateTimeFormat(
-                                                  "dd/MM/yyyy",
-                                                  functions.formataData(
-                                                      FFAppState()
-                                                          .treinosTemp
-                                                          .dataValidade),
-                                                  locale: FFLocalizations.of(
-                                                          context)
-                                                      .languageCode,
-                                                ),
-                                                '-',
-                                              )}',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryText,
-                                                    fontSize: 12.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            fontSize: 16.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 4.0, 0.0, 0.0),
+                                      child: Text(
+                                        'Validade: ${valueOrDefault<String>(
+                                          dateTimeFormat(
+                                            "dd/MM/yyyy",
+                                            functions.formataData(FFAppState()
+                                                .treinosTemp
+                                                .dataValidade),
+                                            locale: FFLocalizations.of(context)
+                                                .languageCode,
+                                          ),
+                                          '-',
+                                        )}',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              fontSize: 12.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w500,
                                             ),
-                                          ].divide(SizedBox(height: 8.0)),
-                                        ),
                                       ),
                                     ),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          focusColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
+                                    // Faixa do personal. O fundo e o chevron
+                                    // sao o que faltava: com a foto solta,
+                                    // nada indicava que dava para tocar.
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 14.0, 0.0, 0.0),
+                                      child: Material(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryBackground
+                                            .withValues(alpha: 0.85),
+                                        borderRadius:
+                                            BorderRadius.circular(14.0),
+                                        child: InkWell(
+                                          borderRadius:
+                                              BorderRadius.circular(14.0),
                                           onTap: () async {
                                             _model.result = await AlunoGroup
                                                 .getPerfilPersonalCall
@@ -561,42 +527,127 @@ class _TreinosWidgetState extends State<TreinosWidget> {
 
                                             safeSetState(() {});
                                           },
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100.0),
-                                            child: FFAppState()
-                                                        .treinosTemp
-                                                        .hasPersonalFotoUrl() &&
-                                                    FFAppState()
-                                                        .treinosTemp
-                                                        .personalFotoUrl
-                                                        .isNotEmpty
-                                                ? Image.network(
-                                                    FFAppState()
-                                                        .treinosTemp
-                                                        .personalFotoUrl,
-                                                    width: 42.0,
-                                                    height: 42.0,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context,
-                                                            error,
-                                                            stackTrace) =>
-                                                        Image.asset(
-                                                      'assets/images/Profile_Image.png',
-                                                      width: 42.0,
-                                                      height: 42.0,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  )
-                                                : Image.asset(
-                                                    'assets/images/Profile_Image.png',
-                                                    width: 42.0,
-                                                    height: 42.0,
-                                                    fit: BoxFit.cover,
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    8.0, 8.0, 12.0, 8.0),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          100.0),
+                                                  child: FFAppState()
+                                                              .treinosTemp
+                                                              .hasPersonalFotoUrl() &&
+                                                          FFAppState()
+                                                              .treinosTemp
+                                                              .personalFotoUrl
+                                                              .isNotEmpty
+                                                      ? Image.network(
+                                                          FFAppState()
+                                                              .treinosTemp
+                                                              .personalFotoUrl,
+                                                          width: 38.0,
+                                                          height: 38.0,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder: (context,
+                                                                  error,
+                                                                  stackTrace) =>
+                                                              Image.asset(
+                                                            'assets/images/Profile_Image.png',
+                                                            width: 38.0,
+                                                            height: 38.0,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        )
+                                                      : Image.asset(
+                                                          'assets/images/Profile_Image.png',
+                                                          width: 38.0,
+                                                          height: 38.0,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                          10.0, 0.0, 8.0, 0.0),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'Seu personal',
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              font: GoogleFonts
+                                                                  .inter(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .secondaryText,
+                                                              fontSize: 10.5,
+                                                              letterSpacing:
+                                                                  0.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                      ),
+                                                      Text(
+                                                        FFAppState()
+                                                                .treinosTemp
+                                                                .personalNome
+                                                                .isNotEmpty
+                                                            ? FFAppState()
+                                                                .treinosTemp
+                                                                .personalNome
+                                                            : 'Ver perfil',
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              font: GoogleFonts
+                                                                  .inter(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 13.0,
+                                                              letterSpacing:
+                                                                  0.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                      ),
+                                                    ],
                                                   ),
+                                                ),
+                                                Icon(
+                                                  Icons.chevron_right_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  size: 18.0,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ],
                                 ),
