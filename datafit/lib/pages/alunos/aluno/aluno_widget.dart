@@ -998,8 +998,6 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                               },
                             ),
                           ),
-                          // Some sozinho se o plano não for free (e no iOS).
-                          const AvisoPlanoFree(),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 0.0, 8.0),
@@ -1040,6 +1038,11 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                               ],
                             ),
                           ),
+                          // Abaixo dos chips: o aviso fala do limite da
+                          // conta, nao da lista, entao nao precisa vir
+                          // antes do filtro. Some sozinho se o plano nao
+                          // for free (e no iOS).
+                          const AvisoPlanoFree(),
                           SingleChildScrollView(
                             primary: false,
                             controller: _model.columnController2,

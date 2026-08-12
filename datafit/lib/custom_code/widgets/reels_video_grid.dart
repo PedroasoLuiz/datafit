@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '/components/video_exercicio.dart';
 
@@ -45,7 +46,41 @@ class ReelsVideoGrid extends StatelessWidget {
     return null;
   }
 
-  Future<void> _openUrl(String url) async {
+  /// YouTube sai para o app/navegador; video nosso toca aqui dentro.
+  ///
+  /// Mandar o video da plataforma para o `launchUrl` abria o arquivo cru no
+  /// navegador — sem controle, sem voltar. O player proprio ja existe em
+  /// `video_exercicio.dart` e e o mesmo usado na execucao do treino.
+  Future<void> _abrir(BuildContext context, String url) async {
+    if (ehVideoDaPlataforma(url)) {
+      await showDialog(
+        context: context,
+        useRootNavigator: true,
+        barrierColor: Colors.black87,
+        builder: (dialogContext) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: PlayerVideoPlataforma(url: url, autoPlay: true),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: IconButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  icon: const Icon(Icons.close_rounded, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
     try {
       final uri = Uri.parse(url);
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -85,7 +120,7 @@ class ReelsVideoGrid extends StatelessWidget {
             : null;
 
         return GestureDetector(
-          onTap: () => _openUrl(url),
+          onTap: () => _abrir(context, url),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -96,11 +131,48 @@ class ReelsVideoGrid extends StatelessWidget {
                       errorBuilder: (_, __, ___) => const _Placeholder(),
                     )
                   : const _Placeholder(),
-              const Center(
-                child: Icon(
-                  Icons.play_circle_outline_rounded,
-                  color: Colors.white70,
-                  size: 36,
+              // Antes era um play grande no meio da celula: tapava a
+              // imagem justo onde ela e mais legivel. No canto ele marca
+              // "isto e video" sem competir com a miniatura.
+              //
+              // O degrade existe porque a miniatura pode ser clara: sem ele
+              // o icone branco sumia em video de fundo branco.
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.center,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.35),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 6,
+                bottom: 6,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!daPlataforma) ...[
+                      // FaIcon, nao Icon: o glifo do FontAwesome e um
+                      // `FaIconData`, que o `Icon` do Material nao aceita.
+                      const FaIcon(
+                        FontAwesomeIcons.youtube,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    const Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
                 ),
               ),
             ],
