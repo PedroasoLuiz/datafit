@@ -1,3 +1,4 @@
+import '/components/chip_filtro.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
@@ -487,178 +488,41 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                     0.0,
                                   ),
                                   16.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    valueOrDefault<String>(
-                                      FFAppState()
-                                          .treinosTemp
-                                          .subagrupamentos
-                                          .elementAtOrNull(_model.index)
-                                          ?.nome,
-                                      '-',
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight: FontWeight.bold,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          fontSize: 18.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      borderRadius: BorderRadius.circular(12.0),
-                                    ),
-                                    child: Align(
-                                      alignment: AlignmentDirectional(0.0, 0.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onTap: () async {
-                                              if (_model.index == 0) {
-                                                _model.index =
-                                                    valueOrDefault<int>(
-                                                  FFAppState()
-                                                          .treinosTemp
-                                                          .subagrupamentos
-                                                          .length -
-                                                      1,
-                                                  0,
-                                                );
-                                                safeSetState(() {});
-                                              } else {
-                                                _model.index =
-                                                    _model.index + -1;
-                                                safeSetState(() {});
-                                              }
-
-                                              safeSetState(() {
-                                                _model.txtFeedbackTextController
-                                                        ?.text =
-                                                    FFAppState()
-                                                        .treinosTemp
-                                                        .subagrupamentos
-                                                        .elementAtOrNull(
-                                                            _model.index)!
-                                                        .feedback;
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 32.0,
-                                              height: 32.0,
-                                              decoration: BoxDecoration(),
-                                              child: Align(
-                                                alignment: AlignmentDirectional(
-                                                    0.0, 0.0),
-                                                child: Icon(
-                                                  FFIcons
-                                                      .kproperty1FiRrAngleSmallLeft,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 18.0,
-                                                ).animateOnActionTrigger(
-                                                  animationsMap[
-                                                      'iconOnActionTriggerAnimation1']!,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 26.0,
-                                            child: VerticalDivider(
-                                              width: 24.0,
-                                              thickness: 1.0,
-                                              indent: 5.0,
-                                              endIndent: 5.0,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                            ),
-                                          ),
-                                          InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onTap: () async {
-                                              if (_model.index >=
-                                                  valueOrDefault<int>(
-                                                    FFAppState()
-                                                            .treinosTemp
-                                                            .subagrupamentos
-                                                            .length -
-                                                        1,
-                                                    0,
-                                                  )) {
-                                                _model.index = 0;
-                                                safeSetState(() {});
-                                              } else {
-                                                _model.index = _model.index + 1;
-                                                safeSetState(() {});
-                                              }
-
-                                              safeSetState(() {
-                                                _model.txtFeedbackTextController
-                                                        ?.text =
-                                                    FFAppState()
-                                                        .treinosTemp
-                                                        .subagrupamentos
-                                                        .elementAtOrNull(
-                                                            _model.index)!
-                                                        .feedback;
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 32.0,
-                                              height: 32.0,
-                                              decoration: BoxDecoration(),
-                                              child: Align(
-                                                alignment: AlignmentDirectional(
-                                                    0.0, 0.0),
-                                                child: Icon(
-                                                  FFIcons
-                                                      .kproperty1FiRrAngleSmallRight,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 18.0,
-                                                ).animateOnActionTrigger(
-                                                  animationsMap[
-                                                      'iconOnActionTriggerAnimation2']!,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ].divide(SizedBox(width: 8.0)),
+                              // Chips no lugar do par de setas: assim se
+                              // ve quantos treinos existem e em qual se
+                              // esta, sem precisar clicar para descobrir.
+                              child: LinhaChipsFiltro(
+                                paddingHorizontal: 0.0,
+                                chips: [
+                                  for (var i = 0;
+                                      i <
+                                          FFAppState()
+                                              .treinosTemp
+                                              .subagrupamentos
+                                              .length;
+                                      i++)
+                                    ChipFiltro(
+                                      texto: valueOrDefault<String>(
+                                        FFAppState()
+                                            .treinosTemp
+                                            .subagrupamentos
+                                            .elementAtOrNull(i)
+                                            ?.nome,
+                                        '-',
                                       ),
+                                      selecionado: _model.index == i,
+                                      onTap: () {
+                                        _model.index = i;
+                                        _model.txtFeedbackTextController?.text =
+                                            FFAppState()
+                                                    .treinosTemp
+                                                    .subagrupamentos
+                                                    .elementAtOrNull(i)
+                                                    ?.feedback ??
+                                                '';
+                                        safeSetState(() {});
+                                      },
                                     ),
-                                  ),
                                 ],
                               ),
                             ),

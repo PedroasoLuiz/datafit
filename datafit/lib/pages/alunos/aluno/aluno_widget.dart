@@ -794,12 +794,20 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                             width: 36.0,
                                             height: 36.0,
                                             decoration: BoxDecoration(
+                                              // Branco com sombra, como o
+                                              // resto do kit.
                                               color:
                                                   FlutterFlowTheme.of(context)
-                                                      .accent1,
+                                                      .primaryBackground,
                                               borderRadius:
                                                   BorderRadius.circular(12.0),
                                               shape: BoxShape.rectangle,
+                                              boxShadow: [
+                                                FlutterFlowTheme.of(context)
+                                                    .designToken
+                                                    .shadow
+                                                    .sm
+                                              ],
                                             ),
                                             child: Align(
                                               alignment: AlignmentDirectional(
@@ -825,7 +833,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
                                                 child: Text(
-                                                  'Seus alunos',
+                                                  'Meus alunos',
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .bodyMedium
@@ -918,10 +926,16 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                               decoration: BoxDecoration(
                                                 color:
                                                     FlutterFlowTheme.of(context)
-                                                        .accent1,
+                                                        .primaryBackground,
                                                 borderRadius:
                                                     BorderRadius.circular(12.0),
                                                 shape: BoxShape.rectangle,
+                                                boxShadow: [
+                                                  FlutterFlowTheme.of(context)
+                                                      .designToken
+                                                      .shadow
+                                                      .sm
+                                                ],
                                               ),
                                               child: Align(
                                                 alignment: AlignmentDirectional(
@@ -955,8 +969,10 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           Padding(
+                            // Respiro menor embaixo: os chips vem logo em
+                            // seguida e estavam soltos demais da busca.
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                16.0, 12.0, 16.0, 12.0),
+                                16.0, 12.0, 16.0, 4.0),
                             child: CampoBusca(
                               controller: _model.textController,
                               focusNode: _model.textFieldFocusNode,
@@ -981,7 +997,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                           const AvisoPlanoFree(),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 4.0),
+                                0.0, 0.0, 0.0, 8.0),
                             child: LinhaChipsFiltro(
                               chips: [
                                 ChipFiltro(

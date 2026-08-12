@@ -32,13 +32,21 @@ class CampoBusca extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
-    final borda = OutlineInputBorder(
-      borderSide: BorderSide(color: tema.alternate, width: 1.0),
+    // Kit do app: superficie branca com sombra, sem contorno. Quem desenha o
+    // fundo e a sombra e o Container; o campo por dentro fica sem borda e sem
+    // preenchimento proprio, senao apareceriam dois retangulos sobrepostos.
+    final semBorda = OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.transparent, width: 0.0),
       borderRadius: BorderRadius.circular(12.0),
     );
 
-    return SizedBox(
+    return Container(
       height: 40.0,
+      decoration: BoxDecoration(
+        color: tema.primaryBackground,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [tema.designToken.shadow.sm],
+      ),
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
@@ -67,8 +75,7 @@ class CampoBusca extends StatelessWidget {
             letterSpacing: 0.0,
             fontWeight: FontWeight.w400,
           ),
-          filled: true,
-          fillColor: tema.primaryBackground,
+          filled: false,
           prefixIcon: Icon(
             FFIcons.kproperty1FiRrSearch,
             color: tema.secondaryText,
@@ -76,13 +83,13 @@ class CampoBusca extends StatelessWidget {
           ),
           prefixIconConstraints:
               BoxConstraints(minWidth: 38.0, minHeight: 38.0),
-          enabledBorder: borda,
+          enabledBorder: semBorda,
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: tema.primary, width: 1.0),
             borderRadius: BorderRadius.circular(12.0),
           ),
-          errorBorder: borda,
-          focusedErrorBorder: borda,
+          errorBorder: semBorda,
+          focusedErrorBorder: semBorda,
         ),
       ),
     );

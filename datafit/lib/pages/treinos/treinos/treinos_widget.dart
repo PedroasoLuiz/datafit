@@ -83,8 +83,9 @@ class _TreinosWidgetState extends State<TreinosWidget> {
 
       if (!temPersonal) {
         if (!mounted) return;
-        await Navigator.push(
-          context,
+        // Navigator raiz: dentro do ShellRoute o padrao e o navegador do
+        // shell, e a navbar ficaria por cima do aviso.
+        await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) =>
                 const AcessoBloqueadoWidget(tipo: TipoBloqueio.semPersonal),
@@ -94,8 +95,9 @@ class _TreinosWidgetState extends State<TreinosWidget> {
       }
       if (!assinaturaValida) {
         if (!mounted) return;
-        await Navigator.push(
-          context,
+        // Navigator raiz: dentro do ShellRoute o padrao e o navegador do
+        // shell, e a navbar ficaria por cima do aviso.
+        await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) => const AcessoBloqueadoWidget(
                 tipo: TipoBloqueio.assinaturaVencida),
@@ -105,8 +107,9 @@ class _TreinosWidgetState extends State<TreinosWidget> {
       }
       if (!alunoAtivo) {
         if (!mounted) return;
-        await Navigator.push(
-          context,
+        // Navigator raiz: dentro do ShellRoute o padrao e o navegador do
+        // shell, e a navbar ficaria por cima do aviso.
+        await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) =>
                 const AcessoBloqueadoWidget(tipo: TipoBloqueio.alunoInativo),
@@ -752,252 +755,47 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                                           16.0),
                                                 ),
                                                 clipBehavior: Clip.antiAlias,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
+                                                child: Material(
+                                                  color: Colors.transparent,
+                                                  child: InkWell(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            14.0),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      16.0,
-                                                                      16.0,
-                                                                      0.0,
-                                                                      0.0),
-                                                          child: InkWell(
-                                                            splashColor: Colors
-                                                                .transparent,
-                                                            focusColor: Colors
-                                                                .transparent,
-                                                            hoverColor: Colors
-                                                                .transparent,
-                                                            highlightColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            onTap: () async {
-                                                              context.pushNamed(
-                                                                TreinosDetalhesWidget
-                                                                    .routeName,
-                                                                queryParameters:
-                                                                    {
-                                                                  'indexGrupo':
-                                                                      serializeParam(
-                                                                    treinosIndex,
-                                                                    ParamType
-                                                                        .int,
-                                                                  ),
-                                                                }.withoutNulls,
-                                                                extra: <String,
-                                                                    dynamic>{
-                                                                  '__transition_info__':
-                                                                      TransitionInfo(
-                                                                    hasTransition:
-                                                                        true,
-                                                                    transitionType:
-                                                                        PageTransitionType
-                                                                            .fade,
-                                                                    duration: Duration(
-                                                                        milliseconds:
-                                                                            0),
-                                                                  ),
-                                                                },
-                                                              );
-                                                            },
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          16.0,
-                                                                          8.0),
-                                                                  child: Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .max,
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child:
-                                                                            RichText(
-                                                                          textScaler:
-                                                                              MediaQuery.of(context).textScaler,
-                                                                          text:
-                                                                              TextSpan(
-                                                                            children: [
-                                                                              TextSpan(
-                                                                                text: treinosItem.nome,
-                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FontWeight.w500,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                      color: valueOrDefault<Color>(
-                                                                                        treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primaryText : FlutterFlowTheme.of(context).secondaryText,
-                                                                                        FlutterFlowTheme.of(context).primaryText,
-                                                                                      ),
-                                                                                      fontSize: 14.0,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FontWeight.w500,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              TextSpan(
-                                                                                text: ' ',
-                                                                                style: TextStyle(),
-                                                                              ),
-                                                                              TextSpan(
-                                                                                text: () {
-                                                                                  if (treinosItem.status == 'em_andamento') {
-                                                                                    return ' Executando';
-                                                                                  } else if (treinosItem.ordem == 1) {
-                                                                                    return ' Próximo';
-                                                                                  } else {
-                                                                                    return '';
-                                                                                  }
-                                                                                }(),
-                                                                                style: GoogleFonts.interTight(
-                                                                                  color: FlutterFlowTheme.of(context).primary,
-                                                                                  fontWeight: FontWeight.w600,
-                                                                                  fontSize: 12.0,
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.w500,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  color: FlutterFlowTheme.of(context).primaryText,
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.w500,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          16.0),
-                                                                  child:
-                                                                      Builder(
-                                                                    builder:
-                                                                        (context) {
-                                                                      final grupos = treinosItem
-                                                                          .grupos
-                                                                          .map((e) =>
-                                                                              e)
-                                                                          .toList();
-
-                                                                      return Wrap(
-                                                                        spacing:
-                                                                            4.0,
-                                                                        runSpacing:
-                                                                            4.0,
-                                                                        alignment:
-                                                                            WrapAlignment.start,
-                                                                        crossAxisAlignment:
-                                                                            WrapCrossAlignment.start,
-                                                                        direction:
-                                                                            Axis.horizontal,
-                                                                        runAlignment:
-                                                                            WrapAlignment.start,
-                                                                        verticalDirection:
-                                                                            VerticalDirection.down,
-                                                                        clipBehavior:
-                                                                            Clip.none,
-                                                                        children: List.generate(
-                                                                            grupos.length,
-                                                                            (gruposIndex) {
-                                                                          final gruposItem =
-                                                                              grupos[gruposIndex];
-                                                                          return Container(
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              color: valueOrDefault<Color>(
-                                                                                treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                FlutterFlowTheme.of(context).secondaryBackground,
-                                                                              ),
-                                                                              borderRadius: BorderRadius.circular(12.0),
-                                                                              border: Border.all(
-                                                                                color: FlutterFlowTheme.of(context).alternate,
-                                                                              ),
-                                                                            ),
-                                                                            child:
-                                                                                Padding(
-                                                                              padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                              child: Row(
-                                                                                mainAxisSize: MainAxisSize.min,
-                                                                                children: [
-                                                                                  Text(
-                                                                                    gruposItem.subcategoria,
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          color: valueOrDefault<Color>(
-                                                                                            treinosItem.ordem == 1 ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
-                                                                                            FlutterFlowTheme.of(context).secondaryText,
-                                                                                          ),
-                                                                                          fontSize: 12.0,
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          );
-                                                                        }),
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
+                                                            16.0),
+                                                    onTap: () async {
+                                                      context.pushNamed(
+                                                        TreinosDetalhesWidget
+                                                            .routeName,
+                                                        queryParameters: {
+                                                          'indexGrupo':
+                                                              serializeParam(
+                                                            treinosIndex,
+                                                            ParamType.int,
                                                           ),
-                                                        ),
+                                                        }.withoutNulls,
+                                                        extra: <String,
+                                                            dynamic>{
+                                                          '__transition_info__':
+                                                              TransitionInfo(
+                                                            hasTransition: true,
+                                                            transitionType:
+                                                                PageTransitionType
+                                                                    .fade,
+                                                            duration: Duration(
+                                                                milliseconds:
+                                                                    0),
+                                                          ),
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              16.0),
+                                                      child:
+                                                          _ConteudoCardTreino(
+                                                        treino: treinosItem,
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    0.0,
-                                                                    16.0,
-                                                                    0.0),
-                                                        child: Icon(
-                                                          FFIcons
-                                                              .kproperty1FiRrAngleSmallRight,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          size: 18.0,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
                                                 ),
                                               );
@@ -1104,12 +902,15 @@ class _TreinosWidgetState extends State<TreinosWidget> {
   }
 }
 
-/// Carrossel em leque dos treinos do dia.
+/// Baralho dos treinos do dia.
 ///
-/// O card do centro fica inteiro; os vizinhos descem, inclinam e encolhem em
-/// funcao da distancia ate ele — e isso que desenha o arco. Os tres efeitos
-/// saem do mesmo numero (`d`), entao o movimento fica coerente em vez de
-/// parecer tres animacoes separadas.
+/// A versao anterior era um leque: os vizinhos ficavam ao lado, inclinados.
+/// Aqui eles ficam ATRAS do card da frente, com as pontas assomando dos dois
+/// lados, como uma pilha de cartas.
+///
+/// Arrastar para qualquer um dos lados manda a carta da frente para o fim da
+/// pilha. Nao existe descartar: e uma fila circular, entao a mesma carta
+/// sempre volta depois de dar a volta.
 class _CarrosselLeque extends StatefulWidget {
   const _CarrosselLeque({
     required this.quantidade,
@@ -1123,75 +924,362 @@ class _CarrosselLeque extends StatefulWidget {
   State<_CarrosselLeque> createState() => _CarrosselLequeState();
 }
 
-class _CarrosselLequeState extends State<_CarrosselLeque> {
-  /// Sobra dos lados que deixa os vizinhos aparecerem.
-  static const double _fracaoVisivel = 0.82;
-
-  /// Altura da area. O PageView precisa de altura limitada, e o card do
-  /// centro nao pode encostar nas bordas quando os vizinhos descem.
+class _CarrosselLequeState extends State<_CarrosselLeque>
+    with SingleTickerProviderStateMixin {
   static const double _altura = 250.0;
 
-  late final PageController _controle;
-  double _pagina = 0.0;
+  /// Quanto cada carta de tras assoma para o lado, e quanto ela encolhe.
+  static const double _passoLateral = 26.0;
+  static const double _passoEscala = 0.06;
+
+  /// Giro das cartas de tras, em radianos (~30 graus). A da esquerda gira
+  /// para um lado e a da direita para o outro, abrindo o leque.
+  static const double _giroFundo = 0.52;
+
+  /// A carta da frente nao ocupa a largura toda: e a sobra que deixa as
+  /// pontas das de tras aparecerem sem precisar empurra-las para fora.
+  static const double _larguraFrente = 0.86;
+
+  /// Cartas de tras visiveis. Acima disso a pilha vira sujeira visual.
+  static const int _visiveis = 2;
+
+  /// Indice da carta que esta na frente.
+  int _topo = 0;
+
+  /// Deslocamento horizontal do arraste em andamento.
+  double _arraste = 0.0;
+
+  late final AnimationController _controle;
 
   @override
   void initState() {
     super.initState();
-    _controle = PageController(viewportFraction: _fracaoVisivel);
-    _controle.addListener(_aoRolar);
-  }
-
-  void _aoRolar() {
-    if (!mounted) return;
-    setState(() => _pagina = _controle.page ?? 0.0);
+    _controle = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    )..addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _controle.removeListener(_aoRolar);
     _controle.dispose();
     super.dispose();
+  }
+
+  void _aoArrastar(DragUpdateDetails d) {
+    if (widget.quantidade < 2) return;
+    setState(() => _arraste += d.delta.dx);
+  }
+
+  void _aoSoltar(DragEndDetails d, double largura) {
+    if (widget.quantidade < 2) {
+      _animarAte(0.0);
+      return;
+    }
+
+    // Passou de um terco da largura, ou saiu com velocidade: vai para o fim.
+    final velocidade = d.velocity.pixelsPerSecond.dx;
+    final passou = _arraste.abs() > largura / 3 || velocidade.abs() > 700;
+
+    if (!passou) {
+      _animarAte(0.0, curva: Curves.easeOutBack);
+      return;
+    }
+
+    final destino = _arraste.isNegative ? -largura * 1.3 : largura * 1.3;
+    _animarAte(destino, aoTerminar: () {
+      setState(() {
+        _topo = (_topo + 1) % widget.quantidade;
+        _arraste = 0.0;
+      });
+    });
+  }
+
+  void _animarAte(
+    double destino, {
+    Curve curva = Curves.easeOut,
+    VoidCallback? aoTerminar,
+  }) {
+    final anim = Tween<double>(begin: _arraste, end: destino).animate(
+      CurvedAnimation(parent: _controle, curve: curva),
+    );
+    void ouvir() => _arraste = anim.value;
+
+    _controle.reset();
+    _controle.addListener(ouvir);
+    _controle.forward().whenComplete(() {
+      _controle.removeListener(ouvir);
+      if (aoTerminar != null) {
+        aoTerminar();
+      } else {
+        _arraste = destino;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.quantidade == 0) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
-    return SizedBox(
-      height: _altura,
-      child: PageView.builder(
-        controller: _controle,
-        itemCount: widget.quantidade,
-        clipBehavior: Clip.none,
-        itemBuilder: (context, indice) {
-          // Distancia ate o centro. Limitada porque, com muitos cards, os das
-          // pontas ficariam deitados e invisiveis.
-          final double d = (indice - _pagina).clamp(-1.4, 1.4).toDouble();
-          final double dist = d.abs();
+    return LayoutBuilder(
+      builder: (context, restricoes) {
+        final largura = restricoes.maxWidth;
 
-          return Center(
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
-              child: Transform.translate(
-                // Vizinhos descem: e o que curva a fileira.
-                offset: Offset(0.0, dist * 22.0),
-                child: Transform.rotate(
-                  angle: d * 0.055,
-                  child: Transform.scale(
-                    scale: 1.0 - dist * 0.07,
-                    child: Opacity(
-                      opacity: (1.0 - dist * 0.35).clamp(0.0, 1.0).toDouble(),
-                      child: widget.construir(context, indice),
-                    ),
-                  ),
+        // A da frente mais as de tras visiveis, nunca mais do que existem.
+        final qtd = widget.quantidade < _visiveis + 1
+            ? widget.quantidade
+            : _visiveis + 1;
+
+        final cartas = <Widget>[];
+        // De tras para frente, para a da frente terminar por cima na Stack.
+        for (var camada = qtd - 1; camada >= 0; camada--) {
+          final indice = (_topo + camada) % widget.quantidade;
+          cartas.add(_carta(context, camada, indice, largura));
+        }
+
+        return SizedBox(
+          height: _altura,
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: cartas,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _carta(BuildContext context, int camada, int indice, double largura) {
+    final daFrente = camada == 0;
+
+    // Enquanto a da frente e arrastada, as de tras se adiantam. Sem isso so a
+    // de cima se mexeria e a pilha pareceria congelada.
+    final progresso =
+        largura == 0 ? 0.0 : (_arraste.abs() / largura).clamp(0.0, 1.0);
+    final camadaEfetiva = daFrente ? 0.0 : camada - progresso;
+
+    final escala = 1.0 - (_passoEscala * camadaEfetiva);
+
+    // As de tras alternam de lado: uma ponta na esquerda, a outra na direita.
+    final paraDireita = camada.isOdd;
+    final desloc = daFrente
+        ? _arraste
+        : (paraDireita ? 1 : -1) * _passoLateral * camadaEfetiva;
+
+    // Frente: gira conforme o arraste. Fundo: giro fixo, alternando o lado.
+    final giro = daFrente
+        ? (largura > 0 ? (_arraste / largura) * 0.22 : 0.0)
+        : (paraDireita ? 1 : -1) * _giroFundo * camadaEfetiva;
+
+    final carta = Transform.translate(
+      offset: Offset(desloc, 0.0),
+      child: Transform.rotate(
+        angle: giro,
+        child: Transform.scale(
+          scale: escala,
+          child: Opacity(
+            opacity: daFrente ? 1.0 : (1.0 - 0.2 * camadaEfetiva),
+            child: FractionallySizedBox(
+              widthFactor: _larguraFrente,
+              child: widget.construir(context, indice),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // So a da frente responde ao gesto.
+    if (!daFrente) {
+      return IgnorePointer(child: carta);
+    }
+
+    return GestureDetector(
+      onHorizontalDragUpdate: _aoArrastar,
+      onHorizontalDragEnd: (d) => _aoSoltar(d, largura),
+      child: carta,
+    );
+  }
+}
+
+/// Conteudo do card de treino no baralho.
+///
+/// Antes o card trazia so o nome e a lista de subcategorias. Faltava o que a
+/// pessoa precisa para decidir se abre: em que pe esta o treino, quanto falta
+/// e qual e o proximo exercicio.
+class _ConteudoCardTreino extends StatelessWidget {
+  const _ConteudoCardTreino({required this.treino});
+
+  final GruposStruct treino;
+
+  /// Todos os exercicios do treino, achatados das subcategorias.
+  List<ExerciciosStruct> get _exercicios =>
+      treino.grupos.expand((g) => g.exercicios).toList();
+
+  /// Proximo a fazer: o primeiro que nao foi concluido nem pulado, na ordem.
+  /// `null` quando nao sobrou nenhum.
+  ExerciciosStruct? get _proximo {
+    final pendentes = _exercicios
+        .where((e) => !e.isConcluido && !e.isPulado)
+        .toList()
+      ..sort((a, b) => a.ordem.compareTo(b.ordem));
+    return pendentes.isEmpty ? null : pendentes.first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    final exercicios = _exercicios;
+    final total = exercicios.length;
+    final feitos = exercicios.where((e) => e.isConcluido || e.isPulado).length;
+    final proximo = _proximo;
+
+    final subcategorias =
+        treino.grupos.map((g) => g.subcategoria).where((s) => s.isNotEmpty);
+
+    // Rotulo e cor do estado, derivados do status que a RPC ja devolve.
+    late String rotulo;
+    late Color corEstado;
+    if (treino.status == 'concluido') {
+      rotulo = 'Concluído';
+      corEstado = tema.success;
+    } else if (treino.status == 'em_andamento') {
+      rotulo = 'Em andamento';
+      corEstado = tema.primary;
+    } else if (treino.status == 'pulado') {
+      rotulo = 'Pulado';
+      corEstado = tema.secondaryText;
+    } else {
+      rotulo = 'A fazer';
+      corEstado = tema.secondaryText;
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                treino.nome,
+                overflow: TextOverflow.ellipsis,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                  color: tema.primaryText,
+                  fontSize: 20.0,
+                  letterSpacing: -0.4,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          );
-        },
-      ),
+            Container(
+              padding: const EdgeInsetsDirectional.fromSTEB(8.0, 3.0, 8.0, 3.0),
+              decoration: BoxDecoration(
+                color: corEstado.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(999.0),
+              ),
+              child: Text(
+                rotulo,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  color: corEstado,
+                  fontSize: 10.5,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (subcategorias.isNotEmpty)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+            child: Text(
+              subcategorias.join(' · '),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 13.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        const Spacer(),
+        // O proximo exercicio e a informacao que responde "e agora?".
+        if (proximo != null)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsetsDirectional.fromSTEB(10.0, 8.0, 10.0, 8.0),
+            decoration: BoxDecoration(
+              color: tema.accent1,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.play_arrow_rounded,
+                  color: tema.primary,
+                  size: 16.0,
+                ),
+                const SizedBox(width: 6.0),
+                Expanded(
+                  child: Text(
+                    proximo.nome,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                      color: tema.primary,
+                      fontSize: 12.5,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (total > 0)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999.0),
+                  child: LinearProgressIndicator(
+                    value: feitos / total,
+                    minHeight: 5.0,
+                    backgroundColor: tema.alternate,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      treino.status == 'concluido'
+                          ? tema.success
+                          : tema.primary,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
+                  child: Text(
+                    '$feitos de $total exercícios',
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      color: tema.secondaryText,
+                      fontSize: 11.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

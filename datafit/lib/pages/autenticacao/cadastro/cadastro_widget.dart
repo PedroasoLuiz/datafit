@@ -1013,7 +1013,15 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                     if (checagem is Map &&
                                         checagem['existeNaAuth'] == true) {
                                       await SupaFlow.client.auth
-                                          .resetPasswordForEmail(email);
+                                          .resetPasswordForEmail(
+                                        email,
+                                        // Sem isto o link do e-mail vai para
+                                        // a Site URL do projeto em vez de
+                                        // abrir o app. O mesmo destino usado
+                                        // em recuperarsenha_widget.
+                                        redirectTo:
+                                            'com.virtus.datafit://reset-password',
+                                      );
                                       await _mostrarMensagem(
                                           'Este e-mail já tem cadastro. Enviamos um link para você definir sua senha e entrar.');
                                       if (!context.mounted) {
@@ -1027,6 +1035,12 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                         await SupaFlow.client.auth.signUp(
                                       email: email,
                                       password: senha,
+                                      // Sem emailRedirectTo o link de
+                                      // confirmacao usa a Site URL do
+                                      // projeto — e por isso ele estava
+                                      // caindo em localhost:3000.
+                                      emailRedirectTo:
+                                          'com.virtus.datafit://login-callback',
                                     );
 
                                     // O projeto exige confirmação de e-mail, então

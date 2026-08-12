@@ -214,7 +214,7 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                   // ── BUSCA ────────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                        16.0, 12.0, 16.0, 12.0),
+                        16.0, 12.0, 16.0, 4.0),
                     child: CampoBusca(
                       controller: _model.txtBuscaController,
                       focusNode: _model.txtBuscaFocusNode,
@@ -312,7 +312,8 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
   // icone de cada um e o mesmo do botao antigo, para quem ja usava reconhecer.
   Widget _buildAtalhos(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 4.0, 16.0, 8.0),
+      // 12 em cima para o vao ate a busca ficar igual ao vao ate a lista.
+      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 8.0),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -537,8 +538,11 @@ class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
                           width: 40.0,
                           height: 40.0,
                           decoration: BoxDecoration(
-                            color: theme.accent1,
+                            // Branco, nao accent1: contra o fundo azulado o
+                            // azul claro sumia dentro da propria tela.
+                            color: theme.primaryBackground,
                             borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [theme.designToken.shadow.sm],
                           ),
                           child: Align(
                             alignment: const AlignmentDirectional(0.0, 0.0),
@@ -634,7 +638,10 @@ class _CardAtalho extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14.0),
           decoration: BoxDecoration(
+            // Kit do app: superficie branca com sombra, sem contorno.
+            color: tema.primaryBackground,
             borderRadius: BorderRadius.circular(14.0),
+            boxShadow: [tema.designToken.shadow.lg],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.max,

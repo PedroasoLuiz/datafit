@@ -374,12 +374,21 @@ class _CascaComNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A barra so aparece nas rotas que ela sabe alcancar. Antes o `?? 0`
+    // fazia qualquer rota que caisse dentro do shell mostrar a barra com
+    // "Treino" marcado — inclusive telas sem destino nenhum, como o aviso de
+    // aguardando convite.
+    final indice = _indicePorRota[rota];
+    if (indice == null) {
+      return child;
+    }
+
     return Stack(
       children: [
         child,
         Align(
           alignment: AlignmentDirectional(0.0, 1.0),
-          child: NavbarWidget(index: _indicePorRota[rota] ?? 0),
+          child: NavbarWidget(index: indice),
         ),
       ],
     );

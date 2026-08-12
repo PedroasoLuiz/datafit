@@ -1,3 +1,4 @@
+import '/components/campo_busca.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mensagem_widget.dart';
@@ -186,7 +187,7 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
               // ── HEADER ─────────────────────────────────────────────
               Padding(
                 padding:
-                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 8.0),
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Stack(
                   alignment: AlignmentDirectional.center,
                   children: [
@@ -266,69 +267,11 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
               // ── BUSCA ──────────────────────────────────────────────
               Padding(
                 padding:
-                    const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 4.0),
-                child: TextFormField(
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 4.0),
+                child: CampoBusca(
                   controller: _searchController,
-                  focusNode: _searchFocusNode,
-                  obscureText: false,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsetsDirectional.fromSTEB(
-                        12.0, 12.0, 12.0, 12.0),
-                    hintText: 'Buscar exercício...',
-                    hintStyle:
-                        FlutterFlowTheme.of(context).labelMedium.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                              fontSize: 14.0,
-                              letterSpacing: 0.0,
-                            ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      size: 18.0,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              _searchFocusNode.unfocus();
-                            },
-                            child: Icon(
-                              Icons.close_rounded,
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                              size: 18.0,
-                            ),
-                          )
-                        : null,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    filled: true,
-                    fillColor: FlutterFlowTheme.of(context).primaryBackground,
-                  ),
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        font: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                        ),
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                  cursorColor: FlutterFlowTheme.of(context).primaryText,
+                  hintText: 'Buscar exercício...',
+                  onChanged: (_) => safeSetState(() {}),
                 ),
               ),
 

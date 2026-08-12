@@ -76,52 +76,75 @@ class _MetasWidgetState extends State<MetasWidget> {
     BuildContext context, {
     required String titulo,
     required String descricao,
-    Widget? acao,
+    VoidCallback? onAdicionar,
   }) {
     final tema = FlutterFlowTheme.of(context);
 
     return Padding(
-      padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // Respiro maior em cima: o titulo estava colado na linha de chips.
+      // Os 3 da esquerda alinham o texto com o inicio dos chips.
+      padding: EdgeInsetsDirectional.fromSTEB(19.0, 10.0, 16.0, 12.0),
+      // `stretch` nao e enfeite: sem ele a Column encolhe ate o conteudo e a
+      // Column da pagina, que centraliza por padrao, joga tudo para o meio.
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
                   titulo,
                   style: tema.bodyMedium.override(
                     font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     color: tema.primaryText,
-                    fontSize: 14.0,
-                    letterSpacing: 0.0,
+                    fontSize: 16.0,
+                    letterSpacing: -0.2,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
+              // O botao anda junto do titulo, nao na borda da tela: assim
+              // fica claro a que lista ele adiciona.
+              if (onAdicionar != null)
                 Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 3.0, 0.0, 0.0),
-                  child: Text(
-                    descricao,
-                    style: tema.bodyMedium.override(
-                      font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                      color: tema.secondaryText,
-                      fontSize: 12.0,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w400,
-                      lineHeight: 1.35,
+                  padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                  child: Material(
+                    color: tema.primary,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: onAdicionar,
+                      child: SizedBox(
+                        width: 24.0,
+                        height: 24.0,
+                        child: Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 16.0,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ],
+            ],
+          ),
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
+            child: Text(
+              descricao,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 12.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+                lineHeight: 1.35,
+              ),
             ),
           ),
-          if (acao != null)
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-              child: acao,
-            ),
         ],
       ),
     );
@@ -1285,9 +1308,9 @@ class _MetasWidgetState extends State<MetasWidget> {
                           if (_aba == 0)
                             _cabecalhoSecao(
                               context,
-                              titulo: 'Definidos pelo seu personal',
+                              titulo: 'O que seu personal espera',
                               descricao:
-                                  'Metas que seu personal criou para você. Acompanhe o progresso de cada uma.',
+                                  'Acompanhe o progresso de cada uma. Quem edita é o seu personal.',
                             ),
                           if (_aba == 0)
                             Padding(
@@ -1638,54 +1661,44 @@ class _MetasWidgetState extends State<MetasWidget> {
                           if (_aba == 1)
                             _cabecalhoSecao(
                               context,
-                              titulo: 'Seus objetivos',
+                              titulo: 'Onde você quer chegar',
                               descricao:
-                                  'Metas que você mesmo definiu. Toque no + para criar uma nova.',
-                              acao: FlutterFlowIconButton(
-                                borderRadius: 12.0,
-                                buttonSize: 36.0,
-                                fillColor: FlutterFlowTheme.of(context).accent1,
-                                icon: Icon(
-                                  FFIcons.kproperty1FiRrPlusSmall,
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 16.0,
-                                ),
-                                onPressed: () async {
-                                  await showModalBottomSheet(
-                                    useRootNavigator: true,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    enableDrag: false,
-                                    context: context,
-                                    builder: (context) {
-                                      return WebViewAware(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            FocusScope.of(context).unfocus();
-                                            FocusManager.instance.primaryFocus
-                                                ?.unfocus();
-                                          },
-                                          child: Padding(
-                                            padding: MediaQuery.viewInsetsOf(
-                                                context),
-                                            child: AlunosNovoObjetivoWidget(
-                                              pessoal: true,
-                                            ),
+                                  'Você cria e edita estas. Use o + para adicionar.',
+                              onAdicionar: () async {
+                                await showModalBottomSheet(
+                                  useRootNavigator: true,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return WebViewAware(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          FocusScope.of(context).unfocus();
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                        },
+                                        child: Padding(
+                                          padding:
+                                              MediaQuery.viewInsetsOf(context),
+                                          child: AlunosNovoObjetivoWidget(
+                                            pessoal: true,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ).then((value) =>
-                                      safeSetState(() => _model.add = value));
+                                      ),
+                                    );
+                                  },
+                                ).then((value) =>
+                                    safeSetState(() => _model.add = value));
 
-                                  if (_model.add!) {
-                                    await action_blocks.metasAluno(context);
-                                    safeSetState(() {});
-                                  }
-
+                                if (_model.add!) {
+                                  await action_blocks.metasAluno(context);
                                   safeSetState(() {});
-                                },
-                              ),
+                                }
+
+                                safeSetState(() {});
+                              },
                             ),
                           if (_aba == 1)
                             Padding(

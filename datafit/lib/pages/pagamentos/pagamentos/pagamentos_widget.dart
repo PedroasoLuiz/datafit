@@ -68,6 +68,12 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     }
   }
 
+  /// 1 quando entrou dinheiro, 0 quando o mes fechou zerado.
+  ///
+  /// Receita nunca fica negativa, mas o -1 existe para as linhas de pendencia,
+  /// onde valor em aberto e sempre leitura ruim.
+  int _sinal(dynamic v) => (v is num && v > 0) ? 1 : 0;
+
   String _moeda(num? v) => formatNumber(
         (v ?? 0).toDouble(),
         formatType: FormatType.decimal,
@@ -324,16 +330,29 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                 children: [
                                   Expanded(
                                     child: _CardKpi(
-                                      titulo: 'Receita deste mês',
-                                      valor: _moeda(_kpis!['recebidoMes']),
-                                      destaque: FlutterFlowTheme.of(context)
-                                          .primaryText,
+                                      titulo: 'Receita',
+                                      rotuloDestaque: 'Este mês',
+                                      valorDestaque:
+                                          _moeda(_kpis!['recebidoMes']),
                                       linhas: [
-                                        'Mês anterior: ' +
-                                            _moeda(_kpis!['recebidoAnterior']),
-                                        _kpis!['variacaoPercent'] == null
-                                            ? 'Sem base de comparação'
-                                            : '${(_kpis!['variacaoPercent'] as num) >= 0 ? '+' : ''}${_kpis!['variacaoPercent']}% vs. mês anterior',
+                                        _LinhaKpi(
+                                          rotulo: _kpis!['anterior1Nome']
+                                                  ?.toString() ??
+                                              '',
+                                          valor:
+                                              _moeda(_kpis!['anterior1Valor']),
+                                          sinal:
+                                              _sinal(_kpis!['anterior1Valor']),
+                                        ),
+                                        _LinhaKpi(
+                                          rotulo: _kpis!['anterior2Nome']
+                                                  ?.toString() ??
+                                              '',
+                                          valor:
+                                              _moeda(_kpis!['anterior2Valor']),
+                                          sinal:
+                                              _sinal(_kpis!['anterior2Valor']),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -341,16 +360,29 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                   Expanded(
                                     child: _CardKpi(
                                       titulo: 'Pendências',
-                                      valor: _moeda(_kpis!['atrasadoValor']),
-                                      destaque: (_kpis!['atrasadoQtd'] as num) >
-                                              0
-                                          ? FlutterFlowTheme.of(context).error
-                                          : FlutterFlowTheme.of(context)
-                                              .primaryText,
+                                      rotuloDestaque: 'Total',
+                                      valorDestaque:
+                                          _moeda(_kpis!['pendenteTotal']),
+                                      corDestaque:
+                                          (_kpis!['pendenteTotal'] as num) > 0
+                                              ? FlutterFlowTheme.of(context)
+                                                  .error
+                                              : null,
                                       linhas: [
-                                        '${_kpis!['atrasadoQtd']} cobrança${(_kpis!['atrasadoQtd'] as num) == 1 ? '' : 's'} atrasada${(_kpis!['atrasadoQtd'] as num) == 1 ? '' : 's'}',
-                                        'A vencer: ' +
-                                            _moeda(_kpis!['abertoValor']),
+                                        _LinhaKpi(
+                                          rotulo: 'Atrasadas',
+                                          valor:
+                                              _moeda(_kpis!['atrasadoValor']),
+                                          sinal:
+                                              (_kpis!['atrasadoValor'] as num) >
+                                                      0
+                                                  ? -1
+                                                  : 0,
+                                        ),
+                                        _LinhaKpi(
+                                          rotulo: 'A vencer',
+                                          valor: _moeda(_kpis!['abertoValor']),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -905,31 +937,55 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   }
 }
 
-/// Card de numero do topo de Pagamentos: titulo, valor grande e duas linhas
-/// pequenas de contexto. Um numero sozinho nao diz se e bom ou ruim — as
-/// linhas de baixo e que dao a referencia.
+/// Uma linha de detalhe do card de KPI: rotulo a esquerda, valor na direita.
+///
+/// [sinal] pinta o valor: 1 verde, -1 vermelho, 0 cinza. Zero fica neutro de
+/// proposito — mes sem receita nao e erro, e so mes sem receita.
+class _LinhaKpi {
+  const _LinhaKpi({
+    required this.rotulo,
+    required this.valor,
+    this.sinal = 0,
+  });
+
+  final String rotulo;
+  final String valor;
+  final int sinal;
+}
+
+/// Card de numero do topo de Pagamentos.
+///
+/// Um valor grande em cima responde a pergunta principal; as linhas embaixo
+/// mostram de que ele se compoe ou com o que se compara. Alinhados a direita,
+/// os valores podem ser lidos em coluna.
 class _CardKpi extends StatelessWidget {
   const _CardKpi({
     required this.titulo,
-    required this.valor,
+    required this.rotuloDestaque,
+    required this.valorDestaque,
     required this.linhas,
-    required this.destaque,
+    this.corDestaque,
   });
 
   final String titulo;
-  final String valor;
-  final List<String> linhas;
-  final Color destaque;
+  final String rotuloDestaque;
+  final String valorDestaque;
+  final List<_LinhaKpi> linhas;
+  final Color? corDestaque;
 
   @override
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
+
+    Color corDoSinal(int s) =>
+        s > 0 ? tema.success : (s < 0 ? tema.error : tema.secondaryText);
 
     return Container(
       padding: EdgeInsets.all(14.0),
       decoration: BoxDecoration(
         color: tema.primaryBackground,
         borderRadius: BorderRadius.circular(14.0),
+        boxShadow: [tema.designToken.shadow.lg],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -938,37 +994,64 @@ class _CardKpi extends StatelessWidget {
           Text(
             titulo,
             style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              font: GoogleFonts.inter(fontWeight: FontWeight.w600),
               color: tema.secondaryText,
               fontSize: 11.5,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 12.0),
+          Text(
+            rotuloDestaque,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              color: tema.secondaryText,
+              fontSize: 11.0,
               letterSpacing: 0.0,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 6.0),
           Text(
-            valor,
+            valorDestaque,
             style: tema.bodyMedium.override(
               font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-              color: destaque,
+              color: corDestaque ?? tema.primaryText,
               fontSize: 20.0,
               letterSpacing: -0.5,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8.0),
+          SizedBox(height: 12.0),
           for (final l in linhas)
             Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
-              child: Text(
-                l,
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                  color: tema.secondaryText,
-                  fontSize: 10.5,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w400,
-                ),
+              padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l.rotulo,
+                      overflow: TextOverflow.ellipsis,
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                        color: tema.secondaryText,
+                        fontSize: 11.5,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    l.valor,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                      color: corDoSinal(l.sinal),
+                      fontSize: 12.0,
+                      letterSpacing: -0.2,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
