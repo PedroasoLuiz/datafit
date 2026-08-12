@@ -13,6 +13,8 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '/backend/supabase/supabase.dart';
@@ -33,6 +35,22 @@ class ServicoPush {
   static bool _iniciado = false;
   static String? _tokenAtual;
 
+  /// Conta ao servidor em que ponto o registro parou.
+  ///
+  /// Sem isto, descobrir por que o token nao chegou custa um ciclo inteiro de
+  /// build, TestFlight e instalacao por hipotese testada — e no fim so se sabe
+  /// que continua sem token, nunca o motivo.
+  static Future<void> _anotar(String etapa, [String? detalhe]) async {
+    try {
+      await SupaFlow.client.rpc('registrar_diagnostico_push', params: {
+        'p_etapa': etapa,
+        'p_detalhe': detalhe,
+      });
+    } catch (_) {
+      // Diagnostico nunca pode atrapalhar o que esta diagnosticando.
+    }
+  }
+
   /// Sobe o Firebase e pede permissão. Seguro chamar mais de uma vez.
   static Future<void> iniciar() async {
     if (_iniciado || kIsWeb || !ConfigPush.configurado) return;
@@ -44,6 +62,7 @@ class ServicoPush {
     } catch (e) {
       // Credencial errada não pode derrubar o app inteiro na abertura.
       debugPrint('Push desligado: $e');
+      unawaited(_anotar('firebase_falhou', '$e'));
     }
   }
 
@@ -57,16 +76,31 @@ class ServicoPush {
 
     try {
       final permissao = await FirebaseMessaging.instance.requestPermission();
+      await _anotar('permissao', permissao.authorizationStatus.name);
       if (permissao.authorizationStatus == AuthorizationStatus.denied) return;
 
-      // No iOS o token só existe depois que o APNs responde; sem esta espera
-      // o `getToken` volta nulo na primeira execução após instalar.
-      if (Platform.isIOS) {
-        await FirebaseMessaging.instance.getAPNSToken();
+      // No iOS o token do FCM só existe depois que o APNs responde, e o APNs
+      // demora alguns segundos na primeira execução após instalar. Uma
+      // tentativa só devolvia nulo e o aparelho ficava sem registro até a
+      // próxima abertura — que também podia falhar do mesmo jeito.
+      String? token;
+      for (var tentativa = 1; tentativa <= 5; tentativa++) {
+        if (Platform.isIOS) {
+          final apns = await FirebaseMessaging.instance.getAPNSToken();
+          if (apns == null) {
+            await Future.delayed(const Duration(seconds: 3));
+            continue;
+          }
+        }
+        token = await FirebaseMessaging.instance.getToken();
+        if (token != null && token.isNotEmpty) break;
+        await Future.delayed(const Duration(seconds: 3));
       }
 
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token == null || token.isEmpty) return;
+      if (token == null || token.isEmpty) {
+        await _anotar('sem_token', 'apns ou fcm nao respondeu em 5 tentativas');
+        return;
+      }
 
       await _salvar(token);
 
@@ -75,6 +109,7 @@ class ServicoPush {
       FirebaseMessaging.instance.onTokenRefresh.listen(_salvar);
     } catch (e) {
       debugPrint('Não consegui registrar o token de push: $e');
+      await _anotar('erro_registro', '$e');
     }
   }
 
@@ -87,6 +122,7 @@ class ServicoPush {
       });
     } catch (e) {
       debugPrint('Não consegui salvar o token de push: $e');
+      await _anotar('erro_salvar', '$e');
     }
   }
 
