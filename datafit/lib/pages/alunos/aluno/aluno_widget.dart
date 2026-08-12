@@ -19,6 +19,7 @@ import 'package:cupertino_time_picker_hiuzb7/app_state.dart'
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
@@ -1205,8 +1206,12 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                       shrinkWrap: true,
                                       scrollDirection: Axis.vertical,
                                       itemCount: alunos.length,
+                                      // Sem espaco entre itens: o respiro
+                                      // agora e padding DENTRO do card, para
+                                      // ele preencher a faixa inteira ate a
+                                      // linha de cima.
                                       separatorBuilder: (_, __) =>
-                                          SizedBox(height: 16.0),
+                                          SizedBox.shrink(),
                                       itemBuilder: (context, alunosIndex) {
                                         final alunosItem = alunos[alunosIndex];
                                         return Padding(
@@ -1273,7 +1278,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                 child: Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(
-                                                          0.0, 0.0, 0.0, 8.0),
+                                                          0.0, 12.0, 0.0, 12.0),
                                                   child: InkWell(
                                                     splashColor:
                                                         Colors.transparent,
@@ -1659,10 +1664,10 @@ class _SwipeableWhatsAppState extends State<_SwipeableWhatsApp> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.chat_bubble_outline_rounded,
+                        FaIcon(
+                          FontAwesomeIcons.whatsapp,
                           color: Colors.white,
-                          size: 20.0,
+                          size: 22.0,
                         ),
                         const SizedBox(height: 4.0),
                         Text(

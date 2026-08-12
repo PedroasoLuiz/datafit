@@ -82,19 +82,30 @@ class LinhaChipsFiltro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsetsDirectional.fromSTEB(
-          paddingHorizontal, 0.0, paddingHorizontal, 0.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          for (var i = 0; i < chips.length; i++) ...[
-            if (i > 0) SizedBox(width: 8.0),
-            chips[i],
+    // `width: double.infinity` não é enfeite: um SingleChildScrollView
+    // horizontal encolhe até a largura do conteúdo, e como as telas montam
+    // isso dentro de uma Column (que centraliza por padrão), a linha de chips
+    // aparecia centralizada mesmo com `MainAxisAlignment.start`. Ocupando a
+    // largura toda, os chips encostam à esquerda de verdade.
+    //
+    // O respiro lateral é `padding` e não `margin` de propósito: assim os
+    // chips deslizam por baixo da borda quando a linha rola.
+    return SizedBox(
+      width: double.infinity,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsetsDirectional.fromSTEB(
+            paddingHorizontal, 0.0, paddingHorizontal, 0.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            for (var i = 0; i < chips.length; i++) ...[
+              if (i > 0) SizedBox(width: 8.0),
+              chips[i],
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
