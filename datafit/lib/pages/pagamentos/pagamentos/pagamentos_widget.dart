@@ -655,7 +655,11 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                       }(),
                                                       0.0,
                                                     ),
-                                                    0.0,
+                                                    // Mesmo respiro em cima e
+                                                    // embaixo: com 0 no topo o
+                                                    // conteudo colava na borda
+                                                    // do cartao.
+                                                    8.0,
                                                     valueOrDefault<double>(
                                                       () {
                                                         if (MediaQuery.sizeOf(
@@ -1302,7 +1306,14 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
             Transform.translate(
               offset: Offset(_deslocamento, 0.0),
               child: Container(
-                color: tema.secondaryBackground,
+                // Superficie propria, e nao a cor da pagina: sem ela a linha
+                // nao lia como cartao, e o arredondamento do ClipRRect nao
+                // aparecia contra um fundo da mesma cor.
+                decoration: BoxDecoration(
+                  color: tema.primaryBackground,
+                  borderRadius: BorderRadius.circular(16.0),
+                  boxShadow: [tema.designToken.shadow.sm],
+                ),
                 child: widget.child,
               ),
             ),

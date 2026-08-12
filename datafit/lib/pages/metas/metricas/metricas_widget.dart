@@ -344,39 +344,6 @@ class _MetricasWidgetState extends State<MetricasWidget>
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          // Tres assuntos diferentes na mesma tela: a
-                          // evolucao do corpo, o desempenho por exercicio e o
-                          // historico de dias treinados. Empilhados, a lista
-                          // de exercicios empurrava os graficos para fora da
-                          // primeira tela.
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 8.0, 0.0, 4.0),
-                            child: LinhaChipsFiltro(
-                              chips: [
-                                ChipFiltro(
-                                  texto: 'Métricas',
-                                  selecionado: _aba == 0,
-                                  onTap: () =>
-                                      safeSetState(() => _aba = 0),
-                                ),
-                                ChipFiltro(
-                                  texto: 'Exercícios',
-                                  selecionado: _aba == 1,
-                                  onTap: () =>
-                                      safeSetState(() => _aba = 1),
-                                ),
-                                ChipFiltro(
-                                  texto: 'Calendário',
-                                  selecionado: _aba == 2,
-                                  onTap: () =>
-                                      safeSetState(() => _aba = 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (_aba == 2) CalendarioTreinos(),
-                          if (_aba == 0) ...[
                           Align(
                             alignment: AlignmentDirectional(0.0, 0.0),
                             child: Padding(
@@ -1736,6 +1703,37 @@ class _MetricasWidgetState extends State<MetricasWidget>
                               ),
                             ),
                           ),
+                          // Graficos e filtros ficam acima e sempre
+                          // visiveis: eles governam a tela inteira. As
+                          // abas trocam so os indicadores abaixo.
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 16.0, 0.0, 4.0),
+                            child: LinhaChipsFiltro(
+                              chips: [
+                                ChipFiltro(
+                                  texto: 'Métricas',
+                                  selecionado: _aba == 0,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 0),
+                                ),
+                                ChipFiltro(
+                                  texto: 'Exercícios',
+                                  selecionado: _aba == 1,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 1),
+                                ),
+                                ChipFiltro(
+                                  texto: 'Calendário',
+                                  selecionado: _aba == 2,
+                                  onTap: () =>
+                                      safeSetState(() => _aba = 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_aba == 2) CalendarioTreinos(),
+                          if (_aba == 0) ...[
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 valueOrDefault<double>(
