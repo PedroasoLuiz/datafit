@@ -1,4 +1,5 @@
 import '/components/chip_filtro.dart';
+import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
@@ -41,8 +42,38 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     super.initState();
     _model = createModel(context, () => PagamentosModel());
 
+    _carregarKpis();
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
+
+  /// Numeros do topo da tela.
+  ///
+  /// Vem prontos do banco porque `PagamentosAlunos` nao tem coluna de status:
+  /// pago, atrasado e em aberto sao sempre derivados de DataPagamento x
+  /// DataVencimento, e refazer essa conta no cliente sairia diferente conforme
+  /// o fuso do aparelho.
+  Map<String, dynamic>? _kpis;
+
+  Future<void> _carregarKpis() async {
+    try {
+      final r = await SupaFlow.client.rpc(
+        'get_kpis_pagamentos_personal',
+        params: {'p_personal_uuid': currentUserUid},
+      );
+      if (!mounted || r is! Map) return;
+      safeSetState(() => _kpis = Map<String, dynamic>.from(r));
+    } catch (_) {
+      // O topo e acessorio: sem ele a lista continua funcionando.
+    }
+  }
+
+  String _moeda(num? v) => formatNumber(
+        (v ?? 0).toDouble(),
+        formatType: FormatType.decimal,
+        decimalType: DecimalType.periodDecimal,
+        currency: 'R\$ ',
+      );
 
   @override
   void dispose() {
@@ -283,6 +314,50 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
+                        if (_kpis != null)
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                16.0, 16.0, 16.0, 0.0),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: _CardKpi(
+                                      titulo: 'Receita deste mês',
+                                      valor: _moeda(_kpis!['recebidoMes']),
+                                      destaque: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      linhas: [
+                                        'Mês anterior: ' +
+                                            _moeda(_kpis!['recebidoAnterior']),
+                                        _kpis!['variacaoPercent'] == null
+                                            ? 'Sem base de comparação'
+                                            : '${(_kpis!['variacaoPercent'] as num) >= 0 ? '+' : ''}${_kpis!['variacaoPercent']}% vs. mês anterior',
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.0),
+                                  Expanded(
+                                    child: _CardKpi(
+                                      titulo: 'Pendências',
+                                      valor: _moeda(_kpis!['atrasadoValor']),
+                                      destaque: (_kpis!['atrasadoQtd'] as num) >
+                                              0
+                                          ? FlutterFlowTheme.of(context).error
+                                          : FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                      linhas: [
+                                        '${_kpis!['atrasadoQtd']} cobrança${(_kpis!['atrasadoQtd'] as num) == 1 ? '' : 's'} atrasada${(_kpis!['atrasadoQtd'] as num) == 1 ? '' : 's'}',
+                                        'A vencer: ' +
+                                            _moeda(_kpis!['abertoValor']),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               0.0, 16.0, 0.0, 0.0),
@@ -825,6 +900,78 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Card de numero do topo de Pagamentos: titulo, valor grande e duas linhas
+/// pequenas de contexto. Um numero sozinho nao diz se e bom ou ruim — as
+/// linhas de baixo e que dao a referencia.
+class _CardKpi extends StatelessWidget {
+  const _CardKpi({
+    required this.titulo,
+    required this.valor,
+    required this.linhas,
+    required this.destaque,
+  });
+
+  final String titulo;
+  final String valor;
+  final List<String> linhas;
+  final Color destaque;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Container(
+      padding: EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: tema.primaryBackground,
+        borderRadius: BorderRadius.circular(14.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titulo,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              color: tema.secondaryText,
+              fontSize: 11.5,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 6.0),
+          Text(
+            valor,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              color: destaque,
+              fontSize: 20.0,
+              letterSpacing: -0.5,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8.0),
+          for (final l in linhas)
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(0.0, 2.0, 0.0, 0.0),
+              child: Text(
+                l,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                  color: tema.secondaryText,
+                  fontSize: 10.5,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

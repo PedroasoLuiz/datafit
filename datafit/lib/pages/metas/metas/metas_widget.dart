@@ -67,6 +67,66 @@ class _MetasWidgetState extends State<MetasWidget> {
     super.dispose();
   }
 
+  /// Cabecalho de secao: titulo em negrito e uma linha de apoio em cinza.
+  ///
+  /// A aba diz qual lista esta aberta, mas nao explica de onde vem cada meta —
+  /// e a diferenca entre "o personal definiu" e "eu defini" muda o que a
+  /// pessoa espera poder editar. A descricao existe para isso.
+  Widget _cabecalhoSecao(
+    BuildContext context, {
+    required String titulo,
+    required String descricao,
+    Widget? acao,
+  }) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    color: tema.primaryText,
+                    fontSize: 14.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 3.0, 0.0, 0.0),
+                  child: Text(
+                    descricao,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                      color: tema.secondaryText,
+                      fontSize: 12.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w400,
+                      lineHeight: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (acao != null)
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
+              child: acao,
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
@@ -1206,7 +1266,7 @@ class _MetasWidgetState extends State<MetasWidget> {
                           // toda a lista do personal.
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 12.0),
+                                0.0, 22.0, 0.0, 14.0),
                             child: LinhaChipsFiltro(
                               chips: [
                                 ChipFiltro(
@@ -1222,6 +1282,13 @@ class _MetasWidgetState extends State<MetasWidget> {
                               ],
                             ),
                           ),
+                          if (_aba == 0)
+                            _cabecalhoSecao(
+                              context,
+                              titulo: 'Definidos pelo seu personal',
+                              descricao:
+                                  'Metas que seu personal criou para você. Acompanhe o progresso de cada uma.',
+                            ),
                           if (_aba == 0)
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
@@ -1569,105 +1636,55 @@ class _MetasWidgetState extends State<MetasWidget> {
                               ),
                             ),
                           if (_aba == 1)
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  valueOrDefault<double>(
-                                    () {
-                                      if (MediaQuery.sizeOf(context).width <
-                                          kBreakpointSmall) {
-                                        return 16.0;
-                                      } else if (MediaQuery.sizeOf(context)
-                                              .width <
-                                          kBreakpointMedium) {
-                                        return 16.0;
-                                      } else if (MediaQuery.sizeOf(context)
-                                              .width <
-                                          kBreakpointLarge) {
-                                        return 32.0;
-                                      } else {
-                                        return 32.0;
-                                      }
-                                    }(),
-                                    0.0,
-                                  ),
-                                  16.0,
-                                  valueOrDefault<double>(
-                                    () {
-                                      if (MediaQuery.sizeOf(context).width <
-                                          kBreakpointSmall) {
-                                        return 16.0;
-                                      } else if (MediaQuery.sizeOf(context)
-                                              .width <
-                                          kBreakpointMedium) {
-                                        return 16.0;
-                                      } else if (MediaQuery.sizeOf(context)
-                                              .width <
-                                          kBreakpointLarge) {
-                                        return 32.0;
-                                      } else {
-                                        return 32.0;
-                                      }
-                                    }(),
-                                    0.0,
-                                  ),
-                                  16.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox.shrink(),
-                                  FlutterFlowIconButton(
-                                    borderRadius: 12.0,
-                                    buttonSize: 36.0,
-                                    fillColor:
-                                        FlutterFlowTheme.of(context).accent1,
-                                    icon: Icon(
-                                      FFIcons.kproperty1FiRrPlusSmall,
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      size: 16.0,
-                                    ),
-                                    onPressed: () async {
-                                      await showModalBottomSheet(
-                                        useRootNavigator: true,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        enableDrag: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return WebViewAware(
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                                FocusManager
-                                                    .instance.primaryFocus
-                                                    ?.unfocus();
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    MediaQuery.viewInsetsOf(
-                                                        context),
-                                                child: AlunosNovoObjetivoWidget(
-                                                  pessoal: true,
-                                                ),
-                                              ),
+                            _cabecalhoSecao(
+                              context,
+                              titulo: 'Seus objetivos',
+                              descricao:
+                                  'Metas que você mesmo definiu. Toque no + para criar uma nova.',
+                              acao: FlutterFlowIconButton(
+                                borderRadius: 12.0,
+                                buttonSize: 36.0,
+                                fillColor: FlutterFlowTheme.of(context).accent1,
+                                icon: Icon(
+                                  FFIcons.kproperty1FiRrPlusSmall,
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  size: 16.0,
+                                ),
+                                onPressed: () async {
+                                  await showModalBottomSheet(
+                                    useRootNavigator: true,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    enableDrag: false,
+                                    context: context,
+                                    builder: (context) {
+                                      return WebViewAware(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            FocusScope.of(context).unfocus();
+                                            FocusManager.instance.primaryFocus
+                                                ?.unfocus();
+                                          },
+                                          child: Padding(
+                                            padding: MediaQuery.viewInsetsOf(
+                                                context),
+                                            child: AlunosNovoObjetivoWidget(
+                                              pessoal: true,
                                             ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(
-                                          () => _model.add = value));
-
-                                      if (_model.add!) {
-                                        await action_blocks.metasAluno(context);
-                                        safeSetState(() {});
-                                      }
-
-                                      safeSetState(() {});
+                                          ),
+                                        ),
+                                      );
                                     },
-                                  ),
-                                ],
+                                  ).then((value) =>
+                                      safeSetState(() => _model.add = value));
+
+                                  if (_model.add!) {
+                                    await action_blocks.metasAluno(context);
+                                    safeSetState(() {});
+                                  }
+
+                                  safeSetState(() {});
+                                },
                               ),
                             ),
                           if (_aba == 1)
