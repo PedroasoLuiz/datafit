@@ -323,7 +323,15 @@ Future getMetricasAluno(
   }
 }
 
-Future getTreinosAluno(BuildContext context) async {
+/// Recarrega os treinos do aluno em FFAppState().treinosTemp.
+///
+/// [silencioso] serve para a atualizacao de fundo ao abrir "Meus treinos":
+/// ali a tela ja mostra o que estava em cache, entao uma falha de rede nao
+/// deve virar um alerta no meio do caminho — so mantem o que ja havia.
+Future getTreinosAluno(
+  BuildContext context, {
+  bool silencioso = false,
+}) async {
   ApiCallResponse? apiResulthbj1;
 
   apiResulthbj1 = await AlunoGroup.getTreinosCall.call(
@@ -337,6 +345,8 @@ Future getTreinosAluno(BuildContext context) async {
         )) ??
         GrupostreinosStruct();
     FFAppState().update(() {});
+  } else if (silencioso) {
+    return;
   } else {
     await showDialog(
       useRootNavigator: true,

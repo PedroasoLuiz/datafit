@@ -15,6 +15,7 @@ class GrupostreinosStruct extends BaseStruct {
     String? personalUuid,
     String? personalFotoUrl,
     String? personalNome,
+    int? alunosVinculados,
   })  : _grupoTreinoId = grupoTreinoId,
         _nome = nome,
         _dataValidade = dataValidade,
@@ -22,7 +23,8 @@ class GrupostreinosStruct extends BaseStruct {
         _ativo = ativo,
         _personalUuid = personalUuid,
         _personalFotoUrl = personalFotoUrl,
-        _personalNome = personalNome;
+        _personalNome = personalNome,
+        _alunosVinculados = alunosVinculados;
 
   // "grupoTreinoId" field.
   int? _grupoTreinoId;
@@ -87,6 +89,16 @@ class GrupostreinosStruct extends BaseStruct {
 
   bool hasPersonalNome() => _personalNome != null;
 
+  // "alunosVinculados" field.
+  int? _alunosVinculados;
+  int get alunosVinculados => _alunosVinculados ?? 0;
+  set alunosVinculados(int? val) => _alunosVinculados = val;
+
+  void incrementAlunosVinculados(int amount) =>
+      alunosVinculados = alunosVinculados + amount;
+
+  bool hasAlunosVinculados() => _alunosVinculados != null;
+
   static GrupostreinosStruct fromMap(Map<String, dynamic> data) =>
       GrupostreinosStruct(
         grupoTreinoId: castToType<int>(data['grupoTreinoId']),
@@ -100,6 +112,7 @@ class GrupostreinosStruct extends BaseStruct {
         personalUuid: data['personalUuid'] as String?,
         personalFotoUrl: data['personalFotoUrl'] as String?,
         personalNome: data['personalNome'] as String?,
+        alunosVinculados: castToType<int>(data['alunosVinculados']),
       );
 
   static GrupostreinosStruct? maybeFromMap(dynamic data) => data is Map
@@ -115,6 +128,7 @@ class GrupostreinosStruct extends BaseStruct {
         'personalUuid': _personalUuid,
         'personalFotoUrl': _personalFotoUrl,
         'personalNome': _personalNome,
+        'alunosVinculados': _alunosVinculados,
       }.withoutNulls;
 
   @override
@@ -151,6 +165,10 @@ class GrupostreinosStruct extends BaseStruct {
         'personalNome': serializeParam(
           _personalNome,
           ParamType.String,
+        ),
+        'alunosVinculados': serializeParam(
+          _alunosVinculados,
+          ParamType.int,
         ),
       }.withoutNulls;
 
@@ -197,6 +215,11 @@ class GrupostreinosStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        alunosVinculados: deserializeParam(
+          data['alunosVinculados'],
+          ParamType.int,
+          false,
+        ),
       );
 
   @override
@@ -213,7 +236,8 @@ class GrupostreinosStruct extends BaseStruct {
         ativo == other.ativo &&
         personalUuid == other.personalUuid &&
         personalFotoUrl == other.personalFotoUrl &&
-        personalNome == other.personalNome;
+        personalNome == other.personalNome &&
+        alunosVinculados == other.alunosVinculados;
   }
 
   @override
@@ -226,6 +250,7 @@ class GrupostreinosStruct extends BaseStruct {
         personalUuid,
         personalFotoUrl,
         personalNome,
+        alunosVinculados,
       ]);
 }
 
@@ -237,6 +262,7 @@ GrupostreinosStruct createGrupostreinosStruct({
   String? personalUuid,
   String? personalFotoUrl,
   String? personalNome,
+  int? alunosVinculados,
 }) =>
     GrupostreinosStruct(
       grupoTreinoId: grupoTreinoId,
@@ -246,4 +272,5 @@ GrupostreinosStruct createGrupostreinosStruct({
       personalUuid: personalUuid,
       personalFotoUrl: personalFotoUrl,
       personalNome: personalNome,
+      alunosVinculados: alunosVinculados,
     );

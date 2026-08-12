@@ -4,6 +4,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
 import '/components/aviso_plano_free.dart';
+import '/components/lista_notificacoes.dart';
 import '/components/chip_filtro.dart';
 import '/components/empty_aluno_widget.dart';
 import '/components/mensagem_widget.dart';
@@ -58,6 +59,10 @@ class _AlunoWidgetState extends State<AlunoWidget> {
       safeSetState(() {});
       await action_blocks.loadingNotifica(context);
       safeSetState(() {});
+      // A folha das nao lidas so aparece depois de a lista chegar do
+      // servidor, senao ela abriria sempre vazia no primeiro acesso.
+      if (!mounted) return;
+      await mostrarNotificacoesNaoLidas(context);
     });
 
     _model.textController ??= TextEditingController();

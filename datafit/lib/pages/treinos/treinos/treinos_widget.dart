@@ -2,6 +2,7 @@ import '/actions/actions.dart' as action_blocks;
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
+import '/components/lista_notificacoes.dart';
 import '/components/acesso_bloqueado_widget.dart';
 import '/components/convite_personal_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -45,9 +46,18 @@ class _TreinosWidgetState extends State<TreinosWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      FFAppState().treinosTemp = FFAppState().treinosTemp;
+      // Antes esta linha era `treinosTemp = treinosTemp` — nao fazia nada.
+      // Como `treinosTemp` e persistido em disco e so era recarregado no
+      // /loading do login, o aluno seguia vendo o treino antigo depois de o
+      // personal editar: fechar e reabrir o app nao adiantava, so deslogar.
+      await action_blocks.getTreinosAluno(context, silencioso: true);
+      if (!mounted) return;
       safeSetState(() {});
       await _verificarConvitesEPerfil();
+      // Depois dos bloqueios: nao faz sentido mostrar novidades para quem
+      // acabou de cair na tela de "aguardando convite".
+      if (!mounted) return;
+      await mostrarNotificacoesNaoLidas(context);
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));

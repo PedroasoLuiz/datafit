@@ -3,6 +3,8 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
 import '/components/excluir_conta.dart';
+import '/components/lista_notificacoes.dart';
+import 'package:badges/badges.dart' as badges;
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/components/navbar/navbar_widget.dart';
@@ -121,15 +123,13 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                   0.0,
                 ),
                 16.0),
+            // Sem cartao: dentro da gaveta ele nao separava nada, so
+            // estreitava a tabela de planos.
             child: Container(
               width: MediaQuery.sizeOf(context).width * 1.0,
-              decoration: BoxDecoration(
-                color: FlutterFlowTheme.of(context).primaryBackground,
-                boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.lg],
-                borderRadius: BorderRadius.circular(16.0),
-              ),
+              decoration: BoxDecoration(),
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsetsDirectional.fromSTEB(4.0, 8.0, 4.0, 8.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,551 +457,159 @@ class _PerfilWidgetState extends State<PerfilWidget> {
               ),
             ),
           ),
-        Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(
-              valueOrDefault<double>(
-                () {
-                  if (MediaQuery.sizeOf(context).width < kBreakpointSmall) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointMedium) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointLarge) {
-                    return 32.0;
-                  } else {
-                    return 32.0;
-                  }
-                }(),
-                0.0,
-              ),
-              0.0,
-              valueOrDefault<double>(
-                () {
-                  if (MediaQuery.sizeOf(context).width < kBreakpointSmall) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointMedium) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointLarge) {
-                    return 32.0;
-                  } else {
-                    return 32.0;
-                  }
-                }(),
-                0.0,
-              ),
-              16.0),
-          child: Container(
-            width: MediaQuery.sizeOf(context).width * 1.0,
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).primaryBackground,
-              boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.lg],
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
-                    child: Text(
-                      'Geral',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(
-                        SegurancaeprivacidadeWidget.routeName,
-                        extra: <String, dynamic>{
-                          '__transition_info__': TransitionInfo(
-                            hasTransition: true,
-                            transitionType: PageTransitionType.fade,
-                            duration: Duration(milliseconds: 0),
-                          ),
-                        },
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 32.0,
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          child: Align(
-                            alignment: AlignmentDirectional(0.0, 0.0),
-                            child: Icon(
-                              FFIcons.kproperty1FiRrShield,
-                              color: FlutterFlowTheme.of(context).primary,
-                              size: 16.0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Segurança e privacidade',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      fontSize: 13.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(height: 4.0)),
-                          ),
-                        ),
-                        Icon(
-                          FFIcons.kproperty1FiRrAngleSmallRight,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                      ].divide(SizedBox(width: 16.0)),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    indent: 48.0,
-                    color: FlutterFlowTheme.of(context).alternate,
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(
-                        TermosdeusoWidget.routeName,
-                        extra: <String, dynamic>{
-                          '__transition_info__': TransitionInfo(
-                            hasTransition: true,
-                            transitionType: PageTransitionType.fade,
-                            duration: Duration(milliseconds: 0),
-                          ),
-                        },
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 32.0,
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          child: Icon(
-                            FFIcons.kproperty1FiRrBookAlt,
-                            color: FlutterFlowTheme.of(context).primary,
-                            size: 16.0,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Termos de uso',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      fontSize: 13.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(height: 4.0)),
-                          ),
-                        ),
-                        Icon(
-                          FFIcons.kproperty1FiRrAngleSmallRight,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                      ].divide(SizedBox(width: 16.0)),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    indent: 48.0,
-                    color: FlutterFlowTheme.of(context).alternate,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        width: 32.0,
-                        height: 32.0,
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).accent1,
-                          borderRadius: BorderRadius.circular(100.0),
-                        ),
-                        child: Icon(
-                          FFIcons.kproperty1FiRrCreditCard,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 16.0,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Formas de pagamento',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    fontSize: 13.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ].divide(SizedBox(height: 4.0)),
-                        ),
-                      ),
-                      Icon(
-                        FFIcons.kproperty1FiRrAngleSmallRight,
-                        color: FlutterFlowTheme.of(context).primary,
-                        size: 20.0,
-                      ),
-                    ].divide(SizedBox(width: 16.0)),
-                  ),
-                ].divide(SizedBox(height: 8.0)),
-              ),
+        _grupoConfig(context, 'Geral', [
+          _itemConfig(
+            context,
+            icone: FFIcons.kproperty1FiRrShield,
+            texto: 'Segurança e privacidade',
+            onTap: () => context.pushNamed(
+              SegurancaeprivacidadeWidget.routeName,
+              extra: <String, dynamic>{
+                '__transition_info__': TransitionInfo(
+                  hasTransition: true,
+                  transitionType: PageTransitionType.fade,
+                  duration: Duration(milliseconds: 0),
+                ),
+              },
             ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(
-              valueOrDefault<double>(
-                () {
-                  if (MediaQuery.sizeOf(context).width < kBreakpointSmall) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointMedium) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointLarge) {
-                    return 32.0;
-                  } else {
-                    return 32.0;
-                  }
-                }(),
-                0.0,
-              ),
-              0.0,
-              valueOrDefault<double>(
-                () {
-                  if (MediaQuery.sizeOf(context).width < kBreakpointSmall) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointMedium) {
-                    return 16.0;
-                  } else if (MediaQuery.sizeOf(context).width <
-                      kBreakpointLarge) {
-                    return 32.0;
-                  } else {
-                    return 32.0;
-                  }
-                }(),
-                0.0,
-              ),
-              16.0),
-          child: Container(
-            width: MediaQuery.sizeOf(context).width * 1.0,
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).primaryBackground,
-              boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.lg],
-              borderRadius: BorderRadius.circular(16.0),
+          _itemConfig(
+            context,
+            icone: FFIcons.kproperty1FiRrDocument,
+            texto: 'Termos de uso',
+            onTap: () => context.pushNamed(
+              TermosdeusoWidget.routeName,
+              extra: <String, dynamic>{
+                '__transition_info__': TransitionInfo(
+                  hasTransition: true,
+                  transitionType: PageTransitionType.fade,
+                  duration: Duration(milliseconds: 0),
+                ),
+              },
             ),
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
-                    child: Text(
-                      'Preferências',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(
-                        AjudaWidget.routeName,
-                        extra: <String, dynamic>{
-                          '__transition_info__': TransitionInfo(
-                            hasTransition: true,
-                            transitionType: PageTransitionType.fade,
-                            duration: Duration(milliseconds: 0),
-                          ),
-                        },
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 32.0,
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          child: Icon(
-                            FFIcons.kproperty1FiRrHeadphones,
-                            color: FlutterFlowTheme.of(context).primary,
-                            size: 16.0,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Ajuda',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      fontSize: 13.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(height: 3.0)),
-                          ),
-                        ),
-                        Icon(
-                          FFIcons.kproperty1FiRrAngleSmallRight,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                      ].divide(SizedBox(width: 16.0)),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    indent: 48.0,
-                    color: FlutterFlowTheme.of(context).alternate,
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      GoRouter.of(context).prepareAuthEvent();
-                      await authManager.signOut();
-                      GoRouter.of(context).clearRedirectLocation();
+          ),
+          _itemConfig(
+            context,
+            icone: FFIcons.kproperty1FiRrInterrogation,
+            texto: 'Ajuda',
+            onTap: () => context.pushNamed(
+              AjudaWidget.routeName,
+              extra: <String, dynamic>{
+                '__transition_info__': TransitionInfo(
+                  hasTransition: true,
+                  transitionType: PageTransitionType.fade,
+                  duration: Duration(milliseconds: 0),
+                ),
+              },
+            ),
+          ),
+        ]),
+        _grupoConfig(context, 'Conta', [
+          _itemConfig(
+            context,
+            icone: FFIcons.kproperty1FiRrSignOut,
+            texto: 'Sair do aplicativo',
+            destrutivo: true,
+            onTap: () async {
+              GoRouter.of(context).prepareAuthEvent();
+              await authManager.signOut();
+              GoRouter.of(context).clearRedirectLocation();
 
-                      context.goNamedAuth(
-                          StartWidget.routeName, context.mounted);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 32.0,
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFFDD0D2),
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          child: Icon(
-                            FFIcons.kproperty1FiRrSignOut,
-                            color: FlutterFlowTheme.of(context).error,
-                            size: 16.0,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Sair do aplicativo',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context).error,
-                                      fontSize: 13.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(height: 3.0)),
-                          ),
-                        ),
-                        Icon(
-                          FFIcons.kproperty1FiRrAngleSmallRight,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                      ].divide(SizedBox(width: 16.0)),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    indent: 48.0,
-                    color: FlutterFlowTheme.of(context).alternate,
-                  ),
-                  // Exclusao de conta — exigida pela Apple
-                  // (App Store Guideline 5.1.1(v)).
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      await confirmarExclusaoConta(context);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 32.0,
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFFDD0D2),
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          child: Icon(
-                            Icons.delete_outline,
-                            color: FlutterFlowTheme.of(context).error,
-                            size: 16.0,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            'Excluir minha conta',
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).error,
-                                  fontSize: 13.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        Icon(
-                          FFIcons.kproperty1FiRrAngleSmallRight,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                      ].divide(SizedBox(width: 16.0)),
-                    ),
-                  ),
-                ].divide(SizedBox(height: 8.0)),
+              context.goNamedAuth(StartWidget.routeName, context.mounted);
+            },
+          ),
+          // Exclusao de conta — exigida pela Apple
+          // (App Store Guideline 5.1.1(v)).
+          _itemConfig(
+            context,
+            icone: Icons.delete_outline,
+            texto: 'Excluir minha conta',
+            destrutivo: true,
+            onTap: () => confirmarExclusaoConta(context),
+          ),
+        ]),
+      ],
+    );
+  }
+
+  /// Um grupo de opcoes: rotulo pequeno em cinza e as linhas embaixo.
+  ///
+  /// O rotulo faz o papel que o cartao branco fazia — dizer onde um assunto
+  /// comeca e o outro termina — sem gastar a largura da gaveta com margem.
+  Widget _grupoConfig(BuildContext context, String titulo, List<Widget> itens) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 6.0),
+            child: Text(
+              titulo.toUpperCase(),
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                color: tema.secondaryText,
+                fontSize: 11.0,
+                letterSpacing: 0.6,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
+          ...itens,
+        ],
+      ),
+    );
+  }
+
+  /// Uma linha da gaveta: icone, texto e nada mais.
+  ///
+  /// Sem chevron de proposito — numa gaveta que ocupa a tela toda, a seta so
+  /// repete o que o toque ja resolve. [destrutivo] pinta em vermelho.
+  Widget _itemConfig(
+    BuildContext context, {
+    required IconData icone,
+    required String texto,
+    required Future<dynamic> Function() onTap,
+    bool destrutivo = false,
+  }) {
+    final tema = FlutterFlowTheme.of(context);
+    final cor = destrutivo ? tema.error : tema.primaryText;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () async => onTap(),
+        child: Padding(
+          padding:
+              const EdgeInsetsDirectional.fromSTEB(20.0, 14.0, 20.0, 14.0),
+          child: Row(
+            children: [
+              Icon(
+                icone,
+                color: destrutivo ? tema.error : tema.primaryText,
+                size: 20.0,
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  texto,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    color: cor,
+                    fontSize: 14.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
@@ -1018,7 +626,47 @@ class _PerfilWidgetState extends State<PerfilWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        // As notificacoes moram aqui agora, no lugar de um sino por tela.
+        // Uma so lista, um so desenho — ver `lista_notificacoes.dart`.
+        drawer: Drawer(
+          elevation: 16.0,
+          width: MediaQuery.of(context).size.width * 0.88,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding:
+                      EdgeInsetsDirectional.fromSTEB(20.0, 16.0, 20.0, 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Notificações',
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold),
+                                fontSize: 18.0,
+                                letterSpacing: -0.3,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(child: ListaNotificacoes()),
+              ],
+            ),
+          ),
+        ),
+        // A largura de 0.88 e a mesma da gaveta de notificacoes: a gaveta
+        // padrao do Material para em 304 e deixava as linhas espremidas.
         endDrawer: Drawer(
+          elevation: 16.0,
+          width: MediaQuery.of(context).size.width * 0.88,
           backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           child: SafeArea(
             child: SingleChildScrollView(
@@ -1082,9 +730,81 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                     ),
                                   ].divide(SizedBox(height: 4.0)),
                                 ),
+                                // O sino anda junto do nickname, na esquerda:
+                                // as notificacoes agora sao uma so, e moram
+                                // no perfil. O contador some quando nao ha
+                                // nada por ler.
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      10.0, 0.0, 0.0, 0.0),
+                                  child: badges.Badge(
+                                    badgeContent: Text(
+                                      FFAppState()
+                                          .notificacoes
+                                          .where((e) => !e.lida)
+                                          .length
+                                          .toString(),
+                                      style: FlutterFlowTheme.of(context)
+                                          .titleSmall
+                                          .override(
+                                            font: GoogleFonts.inter(),
+                                            color: Colors.white,
+                                            fontSize: 11.0,
+                                            letterSpacing: 0.0,
+                                          ),
+                                    ),
+                                    showBadge: FFAppState()
+                                        .notificacoes
+                                        .any((e) => !e.lida),
+                                    shape: badges.BadgeShape.circle,
+                                    badgeColor:
+                                        FlutterFlowTheme.of(context).primary,
+                                    elevation: 4.0,
+                                    padding: EdgeInsets.all(5.0),
+                                    position:
+                                        badges.BadgePosition.topEnd(),
+                                    animationType:
+                                        badges.BadgeAnimationType.scale,
+                                    child: InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        scaffoldKey.currentState?.openDrawer();
+                                      },
+                                      child: Container(
+                                        width: 32.0,
+                                        height: 32.0,
+                                        decoration: BoxDecoration(
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryBackground,
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          boxShadow: [
+                                            FlutterFlowTheme.of(context)
+                                                .designToken
+                                                .shadow
+                                                .sm
+                                          ],
+                                        ),
+                                        child: Align(
+                                          alignment:
+                                              AlignmentDirectional(0.0, 0.0),
+                                          child: Icon(
+                                            FFIcons.kproperty1FiRrBell,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            size: 16.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Spacer(),
                                 // Abre as configuracoes no drawer lateral, no
                                 // lugar da lista solta que ficava abaixo.
-                                // Mesmo botao do sino de notificacoes.
                                 InkWell(
                                   splashColor: Colors.transparent,
                                   focusColor: Colors.transparent,
@@ -1096,10 +816,19 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                   child: Container(
                                     width: 36.0,
                                     height: 36.0,
+                                    // Superficie branca com sombra, como os
+                                    // demais botoes de icone do app. O azul
+                                    // claro do accent1 nao levantava do fundo.
                                     decoration: BoxDecoration(
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryBackground,
                                       borderRadius: BorderRadius.circular(12.0),
+                                      boxShadow: [
+                                        FlutterFlowTheme.of(context)
+                                            .designToken
+                                            .shadow
+                                            .sm
+                                      ],
                                       shape: BoxShape.rectangle,
                                     ),
                                     child: Align(
@@ -1167,21 +896,20 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                     0.0,
                                   ),
                                   16.0),
+                              // Sem cartao branco: foto, nome, idade e peso
+                              // sao a identidade da pagina, nao um bloco de
+                              // conteudo dentro dela. E como o aluno ve o
+                              // perfil do personal e vice-versa — aqui era a
+                              // unica tela de perfil que destoava.
                               child: Container(
                                 width: MediaQuery.sizeOf(context).width * 1.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
-                                  boxShadow: [
-                                    FlutterFlowTheme.of(context)
-                                        .designToken
-                                        .shadow
-                                        .lg
-                                  ],
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
+                                decoration: BoxDecoration(),
                                 child: Padding(
-                                  padding: EdgeInsets.all(16.0),
+                                  // So respiro vertical: o horizontal ja vem
+                                  // do Padding de fora, que antes era a
+                                  // margem do cartao.
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 8.0, 0.0, 8.0),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
                                     crossAxisAlignment:

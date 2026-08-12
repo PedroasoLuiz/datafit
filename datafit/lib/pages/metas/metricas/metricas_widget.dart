@@ -716,14 +716,16 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
+                                    // Os 16 da esquerda repetem a margem
+                                    // interna do dropdown logo abaixo: sem
+                                    // eles o rotulo nascia colado na borda do
+                                    // cartao e o valor comecava mais adiante.
+                                    //
+                                    // O respiro de cima era condicional e
+                                    // sumia na aba de fisico, onde o rotulo
+                                    // encostava no topo do cartao.
                                     padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0,
-                                        valueOrDefault<double>(
-                                          _model.select == 0 ? 16.0 : 0.0,
-                                          0.0,
-                                        ),
-                                        0.0,
-                                        0.0),
+                                        16.0, 16.0, 0.0, 0.0),
                                     child: Text(
                                       'Tempo em análise:',
                                       style: FlutterFlowTheme.of(context)
@@ -1502,11 +1504,12 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                     ),
                                   if (_model.select == 0)
                                     Padding(
-                                      // O respiro em cima separa o rotulo do
-                                      // bloco anterior: sem ele "Exercício"
-                                      // colava no que vem acima.
+                                      // Mesma logica do "Tempo em análise":
+                                      // 16 a esquerda para bater com o texto
+                                      // do dropdown, e respiro em cima para o
+                                      // rotulo nao colar no bloco anterior.
                                       padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 16.0, 0.0, 8.0),
+                                          16.0, 16.0, 0.0, 8.0),
                                       child: Text(
                                         'Exercício',
                                         style: FlutterFlowTheme.of(context)

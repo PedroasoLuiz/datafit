@@ -183,15 +183,22 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   // ── HEADER ───────────────────────────────────────────
+                  // Os 36 de altura e os 8 embaixo nao sao arbitrarios: sao a
+                  // medida do cabecalho das outras abas, onde a faixa e alta
+                  // por causa do botao de sino. Aqui, que so tem titulo, ela
+                  // media 17 — o titulo nascia mais alto e, junto com ele, o
+                  // campo de busca. Trocar de aba fazia os dois pularem.
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                        16.0, 16.0, 16.0, 0.0),
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: [
-                        Center(
-                          child: Text(
-                            'Meus Treinos',
+                        16.0, 16.0, 16.0, 8.0),
+                    child: SizedBox(
+                      height: 36.0,
+                      child: Stack(
+                        alignment: AlignmentDirectional.center,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Meus Treinos',
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
@@ -201,13 +208,14 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                                         .bodyMedium
                                         .fontStyle,
                                   ),
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
 
@@ -252,14 +260,11 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
                                       top: 8.0, bottom: 120.0),
                                   sliver: SliverList.separated(
                                     itemCount: _model.treinosFiltrados.length,
-                                    separatorBuilder: (_, __) => Divider(
-                                      height: 1.0,
-                                      thickness: 1.0,
-                                      indent: 68.0,
-                                      endIndent: 16.0,
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                    ),
+                                    // Sem linha divisoria: cada treino agora
+                                    // e um cartao, e a separacao vem do vao
+                                    // entre eles.
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox.shrink(),
                                     itemBuilder: (_, index) {
                                       final grupo =
                                           _model.treinosFiltrados[index];
@@ -426,179 +431,195 @@ class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
     final grupo = widget.grupo;
-    final count = grupo.subagrupamentos.length;
+    final treinos = grupo.subagrupamentos.length;
+    final alunos = grupo.alunosVinculados;
     final displayName = grupo.nome.isNotEmpty ? grupo.nome : 'Treino sem nome';
 
-    return GestureDetector(
-      onHorizontalDragUpdate: _onDragUpdate,
-      onHorizontalDragEnd: _onDragEnd,
-      child: ClipRect(
-        child: Stack(
-          children: [
-            // ── ACTION BUTTONS (behind) ──────────────────────────────
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: SizedBox(
-                width: _actionWidth,
-                child: Row(
-                  children: [
-                    // Edit
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          _close();
-                          widget.onEdit();
-                        },
-                        child: Container(
-                          color: theme.accent1,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.edit_outlined,
-                                color: theme.primary,
-                                size: 20.0,
-                              ),
-                              const SizedBox(height: 4.0),
-                              Text(
-                                'Editar',
-                                style: theme.bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: theme.bodyMedium.fontStyle,
-                                  ),
-                                  color: theme.primary,
-                                  fontSize: 11.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Delete
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          _close();
-                          widget.onDelete();
-                        },
-                        child: Container(
-                          color: theme.error,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.delete_outline_rounded,
-                                color: Colors.white,
-                                size: 20.0,
-                              ),
-                              const SizedBox(height: 4.0),
-                              Text(
-                                'Excluir',
-                                style: theme.bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: theme.bodyMedium.fontStyle,
-                                  ),
-                                  color: Colors.white,
-                                  fontSize: 11.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+    // "2 treinos · 4 alunos". Sem aluno vinculado a segunda metade some, em
+    // vez de anunciar um zero: treino recem-criado ainda nao foi atribuido a
+    // ninguem, e isso e o estado normal, nao um problema.
+    final partes = <String>[
+      if (treinos > 0) '$treinos treino${treinos > 1 ? 's' : ''}',
+      if (alunos > 0) '$alunos aluno${alunos > 1 ? 's' : ''}',
+    ];
 
-            // ── MAIN CONTENT (foreground) ────────────────────────────
-            Transform.translate(
-              offset: Offset(_offset, 0),
-              child: Material(
-                color: theme.secondaryBackground,
-                child: InkWell(
-                  onTap: _offset == 0.0 ? widget.onTap : _close,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 14.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          width: 40.0,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                            // Branco, nao accent1: contra o fundo azulado o
-                            // azul claro sumia dentro da propria tela.
-                            color: theme.primaryBackground,
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [theme.designToken.shadow.sm],
-                          ),
-                          child: Align(
-                            alignment: const AlignmentDirectional(0.0, 0.0),
-                            child: Icon(
-                              FFIcons.kproperty1FiRrGym,
-                              color: theme.primary,
-                              size: 20.0,
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 4.0, 16.0, 4.0),
+      child: GestureDetector(
+        onHorizontalDragUpdate: _onDragUpdate,
+        onHorizontalDragEnd: _onDragEnd,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14.0),
+          child: Stack(
+            children: [
+              // ── ACOES (atras) ────────────────────────────────────────
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: SizedBox(
+                  width: _actionWidth,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            _close();
+                            widget.onEdit();
+                          },
+                          child: Container(
+                            color: theme.accent1,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.edit_outlined,
+                                  color: theme.primary,
+                                  size: 20.0,
+                                ),
+                                const SizedBox(height: 4.0),
+                                Text(
+                                  'Editar',
+                                  style: theme.bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w500),
+                                    color: theme.primary,
+                                    fontSize: 11.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12.0),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                displayName,
-                                style: theme.bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                    fontStyle: theme.bodyMedium.fontStyle,
-                                  ),
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            _close();
+                            widget.onDelete();
+                          },
+                          child: Container(
+                            color: theme.error,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.white,
+                                  size: 20.0,
                                 ),
-                              ),
-                              if (count > 0)
+                                const SizedBox(height: 4.0),
                                 Text(
-                                  '$count treino${count > 1 ? 's' : ''}',
+                                  'Excluir',
                                   style: theme.bodyMedium.override(
                                     font: GoogleFonts.inter(
-                                      fontWeight: theme.bodyMedium.fontWeight,
-                                      fontStyle: theme.bodyMedium.fontStyle,
-                                    ),
-                                    color: theme.secondaryText,
-                                    fontSize: 12.0,
+                                        fontWeight: FontWeight.w500),
+                                    color: Colors.white,
+                                    fontSize: 11.0,
                                     letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                            ].divide(const SizedBox(height: 2.0)),
+                              ],
+                            ),
                           ),
                         ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: theme.secondaryText,
-                          size: 18.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── CARTAO (frente) ──────────────────────────────────────
+              Transform.translate(
+                offset: Offset(_offset, 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.primaryBackground,
+                    borderRadius: BorderRadius.circular(14.0),
+                    boxShadow: [theme.designToken.shadow.sm],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14.0),
+                      onTap: _offset == 0.0 ? widget.onTap : _close,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14.0, vertical: 14.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                              width: 42.0,
+                              height: 42.0,
+                              decoration: BoxDecoration(
+                                color: theme.accent1,
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Align(
+                                alignment: const AlignmentDirectional(0.0, 0.0),
+                                child: Icon(
+                                  FFIcons.kproperty1FiRrGym,
+                                  color: theme.primary,
+                                  size: 20.0,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12.0),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    displayName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.bodyMedium.override(
+                                      font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600),
+                                      fontSize: 15.0,
+                                      letterSpacing: -0.2,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (partes.isNotEmpty)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              0.0, 3.0, 0.0, 0.0),
+                                      child: Text(
+                                        partes.join(' · '),
+                                        style: theme.bodyMedium.override(
+                                          font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.w500),
+                                          color: theme.secondaryText,
+                                          fontSize: 12.5,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: theme.secondaryText,
+                              size: 20.0,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

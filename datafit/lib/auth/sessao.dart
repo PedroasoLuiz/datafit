@@ -15,6 +15,8 @@
 /// chave correspondente no disco.
 library;
 
+import '/components/lista_notificacoes.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/app_state.dart';
@@ -89,4 +91,7 @@ void limparEstadoLocalDoUsuario() {
 
     estado.updatingvariable = 0;
   });
+
+  // Sem isto o proximo login herdaria o "ja mostrei as novidades" deste.
+  limparAvisoDeSessao();
 }

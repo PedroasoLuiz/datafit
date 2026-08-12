@@ -194,8 +194,12 @@ class _NavbarWidgetState extends State<NavbarWidget>
         // No iPhone o fundo é translúcido para o conteúdo aparecer por trás
         // do desfoque; nas outras plataformas fica sólido, já que sem o
         // BackdropFilter a transparência só mostraria o fundo cru.
+        //
+        // 0.58 em vez de 0.72: com o desfoque de 18 por trás, o conteúdo
+        // continua ilegível através da barra, então dá para deixá-la mais
+        // aberta sem perder o contraste dos ícones.
         color: isiOS
-            ? tema.primaryBackground.withValues(alpha: 0.72)
+            ? tema.primaryBackground.withValues(alpha: 0.58)
             : tema.primaryBackground,
         borderRadius: BorderRadius.circular(999.0),
         border: Border.all(

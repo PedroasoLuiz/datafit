@@ -277,11 +277,22 @@ class _MetasWidgetState extends State<MetasWidget> {
                                             }
                                           }
                                         },
-                                        child: Column(
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  top: 10.0, bottom: 10.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(14.0),
+                                            boxShadow: [
+                                              FlutterFlowTheme.of(context)
+                                                  .designToken
+                                                  .shadow
+                                                  .sm
+                                            ],
+                                          ),
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.all(12.0),
                                               child: Row(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
@@ -602,16 +613,8 @@ class _MetasWidgetState extends State<MetasWidget> {
                                                 ],
                                               ),
                                             ),
-                                            Divider(
-                                                height: 1.0,
-                                                thickness: 1.0,
-                                                indent: 52.0,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate),
-                                          ],
+                                          ),
                                         ),
-                                      ),
                                     );
                                   }),
                                   SizedBox(height: 120.0),
