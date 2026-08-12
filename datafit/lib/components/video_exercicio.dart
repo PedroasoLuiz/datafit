@@ -35,10 +35,19 @@ class PlayerVideoPlataforma extends StatefulWidget {
     super.key,
     required this.url,
     this.autoPlay = false,
+    this.alturaMaxima,
   });
 
   final String url;
   final bool autoPlay;
+
+  /// Teto de altura para a previa.
+  ///
+  /// O player se dimensiona pela proporcao do proprio video. Video gravado
+  /// de pe (9:16) num Column de largura cheia fica quase duas telas de
+  /// altura — foi o que empurrou o botao de concluir para fora em
+  /// "novo exercicio". Com o teto, o video encolhe mantendo a proporcao.
+  final double? alturaMaxima;
 
   @override
   State<PlayerVideoPlataforma> createState() => _PlayerVideoPlataformaState();
@@ -87,7 +96,16 @@ class _PlayerVideoPlataformaState extends State<PlayerVideoPlataforma> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => widget.alturaMaxima == null
+      ? _conteudo(context)
+      : Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: widget.alturaMaxima!),
+            child: _conteudo(context),
+          ),
+        );
+
+  Widget _conteudo(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
     if (_falhou) {

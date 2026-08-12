@@ -1,4 +1,5 @@
 import '/backend/schema/structs/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -362,11 +363,12 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(100.0),
-                                child: Image.network(
-                                  valueOrDefault<String>(
+                                child: Image(
+                                  image: CachedNetworkImageProvider(
+                                      valueOrDefault<String>(
                                     widget!.perosnal?.fotoUrl,
                                     'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/datafit-yuopjj/assets/b1so7onglxu0/123.png',
-                                  ),
+                                  )),
                                   width: 70.0,
                                   height: 70.0,
                                   fit: BoxFit.cover,

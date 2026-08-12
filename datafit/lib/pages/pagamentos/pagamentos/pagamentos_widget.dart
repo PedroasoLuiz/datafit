@@ -283,19 +283,27 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                             child: Container(
                                               width: 36.0,
                                               height: 36.0,
+                                              // Branco com sombra, como os
+                                              // demais botoes de icone do kit.
                                               decoration: BoxDecoration(
                                                 color:
                                                     FlutterFlowTheme.of(context)
-                                                        .accent1,
+                                                        .primaryBackground,
                                                 borderRadius:
                                                     BorderRadius.circular(12.0),
+                                                boxShadow: [
+                                                  FlutterFlowTheme.of(context)
+                                                      .designToken
+                                                      .shadow
+                                                      .sm
+                                                ],
                                                 shape: BoxShape.rectangle,
                                               ),
                                               child: Align(
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
                                                 child: Icon(
-                                                  Icons.add_sharp,
+                                                  Icons.add_rounded,
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,

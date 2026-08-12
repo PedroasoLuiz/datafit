@@ -709,8 +709,13 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                       .lg
                                 ],
                               ),
+                              // Sem respiro lateral proprio: quem afasta da
+                              // borda sao os 16 do rotulo e a margem interna
+                              // do dropdown, os mesmos 16 da secao de baixo.
+                              // Com os 12 daqui o texto caia em 28 e os dois
+                              // blocos nao batiam.
                               padding: EdgeInsetsDirectional.fromSTEB(
-                                  12.0, 4.0, 12.0, 12.0),
+                                  0.0, 4.0, 0.0, 12.0),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -882,8 +887,13 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                 ],
                                 borderRadius: BorderRadius.circular(16.0),
                               ),
+                              // Sem `start` a Column centraliza: os rotulos
+                              // encolhem ate o texto e iam parar no meio do
+                              // cartao, por mais padding a esquerda que
+                              // tivessem.
                               child: Column(
                                 mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (_model.select == 1)
                                     Padding(

@@ -1,5 +1,6 @@
 // Automatic FlutterFlow imports
 import '/backend/schema/structs/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/supabase/supabase.dart';
 import '/actions/actions.dart' as action_blocks;
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
@@ -118,8 +119,8 @@ class _YoutubeVideoCardState extends State<YoutubeVideoCard> {
                     children: [
                       // Imagem de thumbnail
                       thumbUrl != null
-                          ? Image.network(
-                              thumbUrl,
+                          ? Image(
+                              image: CachedNetworkImageProvider(thumbUrl),
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => _PlaceholderThumb(),
                             )

@@ -1,4 +1,5 @@
 import '/components/chip_filtro.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -227,11 +228,12 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                     ClipRRect(
                                       borderRadius:
                                           BorderRadius.circular(100.0),
-                                      child: Image.network(
-                                        valueOrDefault<String>(
+                                      child: Image(
+                                        image: CachedNetworkImageProvider(
+                                            valueOrDefault<String>(
                                           FFAppState().alunotemp.fotoUrl,
                                           'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
-                                        ),
+                                        )),
                                         width: 70.0,
                                         height: 70.0,
                                         fit: BoxFit.cover,

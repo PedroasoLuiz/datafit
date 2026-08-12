@@ -1,5 +1,6 @@
 // Automatic FlutterFlow imports
 import '/backend/schema/structs/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/supabase/supabase.dart';
 import '/actions/actions.dart' as action_blocks;
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
@@ -65,7 +66,12 @@ class ReelsVideoGrid extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16.0),
-                child: PlayerVideoPlataforma(url: url, autoPlay: true),
+                child: PlayerVideoPlataforma(
+                  url: url,
+                  autoPlay: true,
+                  // Video de pe encheria a tela inteira e esconderia o X.
+                  alturaMaxima: MediaQuery.sizeOf(context).height * 0.7,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 12.0),
@@ -125,8 +131,8 @@ class ReelsVideoGrid extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               thumbUrl != null
-                  ? Image.network(
-                      thumbUrl,
+                  ? Image(
+                      image: CachedNetworkImageProvider(thumbUrl),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => const _Placeholder(),
                     )
@@ -154,26 +160,23 @@ class ReelsVideoGrid extends StatelessWidget {
               Positioned(
                 right: 6,
                 bottom: 6,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!daPlataforma) ...[
-                      // FaIcon, nao Icon: o glifo do FontAwesome e um
-                      // `FaIconData`, que o `Icon` do Material nao aceita.
-                      const FaIcon(
+                // Um icone so por celula: o play e para video nosso, a
+                // marca do YouTube para os de la. Mostrar os dois juntos
+                // fazia parecer que havia duas acoes.
+                //
+                // FaIcon, nao Icon: o glifo do FontAwesome e um `FaIconData`,
+                // que o `Icon` do Material nao aceita.
+                child: daPlataforma
+                    ? const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                    : const FaIcon(
                         FontAwesomeIcons.youtube,
                         color: Colors.white,
-                        size: 14,
+                        size: 16,
                       ),
-                      const SizedBox(width: 6),
-                    ],
-                    const Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ],
-                ),
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import '/actions/actions.dart' as action_blocks;
+import 'package:cached_network_image/cached_network_image.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
@@ -560,10 +561,11 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                                               .treinosTemp
                                                               .personalFotoUrl
                                                               .isNotEmpty
-                                                      ? Image.network(
-                                                          FFAppState()
-                                                              .treinosTemp
-                                                              .personalFotoUrl,
+                                                      ? Image(
+                                                          image: CachedNetworkImageProvider(
+                                                              FFAppState()
+                                                                  .treinosTemp
+                                                                  .personalFotoUrl),
                                                           width: 38.0,
                                                           height: 38.0,
                                                           fit: BoxFit.cover,
@@ -747,11 +749,29 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                                   desc: false)
                                               .toList();
 
+                                          // "Proximo" e o primeiro que ainda
+                                          // nao foi feito. Se algum estiver em
+                                          // andamento, ele manda: nao existe
+                                          // "proximo" enquanto ha um aberto.
+                                          final emAndamento = treinos.indexWhere(
+                                              (e) => e.status == 'em_andamento');
+                                          final proximo = emAndamento >= 0
+                                              ? -1
+                                              : treinos.indexWhere((e) =>
+                                                  e.status != 'concluido' &&
+                                                  e.status != 'pulado');
+
                                           return _CarrosselLeque(
                                             quantidade: treinos.length,
                                             construir: (context, treinosIndex) {
                                               final treinosItem =
                                                   treinos[treinosIndex];
+                                              final bandeira = treinosIndex ==
+                                                      emAndamento
+                                                  ? 'Executando'
+                                                  : (treinosIndex == proximo
+                                                      ? 'Próximo treino'
+                                                      : null);
                                               return Container(
                                                 decoration: BoxDecoration(
                                                   color: FlutterFlowTheme.of(
@@ -807,6 +827,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                                       child:
                                                           _ConteudoCardTreino(
                                                         treino: treinosItem,
+                                                        bandeira: bandeira,
                                                       ),
                                                     ),
                                                   ),
@@ -1124,9 +1145,14 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
 /// pessoa precisa para decidir se abre: em que pe esta o treino, quanto falta
 /// e qual e o proximo exercicio.
 class _ConteudoCardTreino extends StatelessWidget {
-  const _ConteudoCardTreino({required this.treino});
+  const _ConteudoCardTreino({required this.treino, this.bandeira});
 
   final GruposStruct treino;
+
+  /// "Executando" ou "Próximo treino", quando este e o card em questao.
+  ///
+  /// Nulo nos demais: se toda carta tivesse bandeira, nenhuma se destacaria.
+  final String? bandeira;
 
   /// Todos os exercicios do treino, achatados das subcategorias.
   List<ExerciciosStruct> get _exercicios =>
@@ -1175,6 +1201,46 @@ class _ConteudoCardTreino extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Bandeira flutuante: sombra e cor cheia para ela ler como uma
+        // etiqueta colada por cima do card, nao como mais uma linha dele.
+        if (bandeira != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
+            child: Container(
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(10.0, 5.0, 10.0, 5.0),
+              decoration: BoxDecoration(
+                color: treino.status == 'em_andamento'
+                    ? tema.primary
+                    : tema.primaryText,
+                borderRadius: BorderRadius.circular(999.0),
+                boxShadow: [tema.designToken.shadow.sm],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    treino.status == 'em_andamento'
+                        ? Icons.bolt_rounded
+                        : Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 13.0,
+                  ),
+                  const SizedBox(width: 5.0),
+                  Text(
+                    bandeira!,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                      color: Colors.white,
+                      fontSize: 10.5,
+                      letterSpacing: 0.2,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         Row(
           children: [
             Expanded(

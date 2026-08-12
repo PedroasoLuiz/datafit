@@ -1,10 +1,12 @@
 import '/components/campo_busca.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
 import '/components/aviso_plano_free.dart';
 import '/components/lista_notificacoes.dart';
+import '/components/foto_tela_cheia.dart';
 import '/components/chip_filtro.dart';
 import '/components/empty_aluno_widget.dart';
 import '/components/mensagem_widget.dart';
@@ -83,7 +85,10 @@ class _AlunoWidgetState extends State<AlunoWidget> {
   /// A RPC ja devolve o telefone marcado como WhatsApp na frente
   /// (ORDER BY "IsWhatsApp" DESC), entao aqui basta normalizar. O wa.me exige
   /// so digitos com DDI; numero salvo sem o 55 recebe o prefixo.
-  Future<void> _abrirWhatsApp(PersonalalunosStruct aluno) async {
+  Future<void> _abrirWhatsApp(
+    PersonalalunosStruct aluno, {
+    String? mensagem,
+  }) async {
     final digitos = aluno.telefone.replaceAll(RegExp(r'\D'), '');
     if (digitos.isEmpty) {
       if (!mounted) return;
@@ -102,10 +107,48 @@ class _AlunoWidgetState extends State<AlunoWidget> {
       return;
     }
     final numero = digitos.startsWith('55') ? digitos : '55$digitos';
+    final url = mensagem == null
+        ? 'https://wa.me/$numero'
+        : 'https://wa.me/$numero?text=$mensagem';
     await launchUrl(
-      Uri.parse('https://wa.me/$numero'),
+      Uri.parse(url),
       mode: LaunchMode.externalApplication,
     );
+  }
+
+  /// Abre o WhatsApp com a cobranca ja escrita.
+  ///
+  /// Cobrar e falar: o que muda e o texto. Deixar a mensagem pronta evita que
+  /// o personal tenha de redigir a mesma coisa toda vez — e evita que ele
+  /// deixe de cobrar por constrangimento de escrever.
+  Future<void> _cobrarAluno(PersonalalunosStruct aluno) async {
+    final primeiroNome = aluno.nome.split(' ').first;
+    final texto = Uri.encodeComponent(
+      'Oi, $primeiroNome! Passando para lembrar da mensalidade que está em '
+      'aberto. Qualquer dúvida é só me chamar.',
+    );
+    await _abrirWhatsApp(aluno, mensagem: texto);
+  }
+
+  /// Ativa ou inativa o vinculo com o aluno.
+  ///
+  /// A RPC devolve o estado novo; a lista local e atualizada com ele em vez de
+  /// assumir o oposto do atual, para a tela nao divergir do banco se a
+  /// chamada falhar no meio.
+  Future<void> _alternarAtivo(PersonalalunosStruct aluno) async {
+    final novoEstado = await action_blocks.toggleAlunoAtivo(
+      context,
+      personalUuid: currentUserUid,
+      alunoUuid: aluno.alunoUuid,
+    );
+    if (novoEstado == null || !mounted) return;
+
+    final i = _model.alunospersonal
+        .indexWhere((e) => e.alunoUuid == aluno.alunoUuid);
+    if (i >= 0) {
+      _model.alunospersonal[i].ativo = novoEstado;
+    }
+    safeSetState(() {});
   }
 
   /// Texto do ultimo treino concluido, para a segunda linha do card.
@@ -140,551 +183,48 @@ class _AlunoWidgetState extends State<AlunoWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        // A lista e a mesma do perfil e a de Metas: ver
+        // `lista_notificacoes.dart`. Antes cada tela tinha a propria copia do
+        // cartao, e elas foram se afastando com o tempo.
         drawer: Drawer(
           elevation: 16.0,
           width: MediaQuery.of(context).size.width * 0.88,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           child: WebViewAware(
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            16.0, 60.0, 16.0, 0.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Text(
-                                    'Notificações',
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Icon(
-                              FFIcons.kproperty1FiRrBell,
-                              color: FlutterFlowTheme.of(context).primary,
-                              size: 16.0,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 12.0),
-                      Expanded(
-                        child: Builder(
-                          builder: (context) {
-                            final notis = FFAppState()
-                                .notificacoes
-                                .map((e) => e)
-                                .toList();
-                            if (notis.isEmpty) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 40.0),
-                                child: Center(
-                                  child: Text(
-                                    'Sem notificações',
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(),
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          letterSpacing: 0.0,
-                                        ),
-                                  ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(20.0, 16.0, 20.0, 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Notificações',
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold),
+                                  fontSize: 18.0,
+                                  letterSpacing: -0.3,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            }
-                            return SingleChildScrollView(
-                              controller: _model.columnController2,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children:
-                                    List.generate(notis.length, (notisIndex) {
-                                  final notisItem = notis[notisIndex];
-                                  return Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 2.0, 16.0, 2.0),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        if (!notisItem.lida &&
-                                            notisItem.tag != 'pagamento') {
-                                          final res = await PerfilGroup
-                                              .marcarNotiComoLidaCall
-                                              .call(
-                                            notificacaoId: notisItem.id,
-                                            user: currentUserUid,
-                                          );
-                                          if (res?.succeeded ?? false) {
-                                            FFAppState()
-                                                .updateNotificacoesAtIndex(
-                                              notisIndex,
-                                              (e) => e
-                                                ..lida = getJsonField(
-                                                    (res?.jsonBody ?? ''),
-                                                    r'''$.lida'''),
-                                            );
-                                            safeSetState(() {});
-                                          }
-                                        }
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10.0, bottom: 10.0),
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 42.0,
-                                                  height: 42.0,
-                                                  decoration: BoxDecoration(
-                                                    color: notisItem.tag ==
-                                                            'pagamento'
-                                                        ? FlutterFlowTheme.of(
-                                                                context)
-                                                            .accent1
-                                                        : notisItem.tag ==
-                                                                'convite'
-                                                            ? FlutterFlowTheme
-                                                                    .of(context)
-                                                                .accent1
-                                                            : notisItem.tag ==
-                                                                    'treino'
-                                                                ? Color(
-                                                                    0xFFE8F5E9)
-                                                                : notisItem.tag ==
-                                                                        'meta'
-                                                                    ? FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .accent2
-                                                                    : Color(
-                                                                        0xFFF3E5F5),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Icon(
-                                                    notisItem.tag == 'pagamento'
-                                                        ? Icons.payments_rounded
-                                                        : notisItem.tag ==
-                                                                'convite'
-                                                            ? Icons
-                                                                .person_add_rounded
-                                                            : notisItem.tag ==
-                                                                    'treino'
-                                                                ? Icons
-                                                                    .fitness_center_rounded
-                                                                : notisItem.tag ==
-                                                                        'meta'
-                                                                    ? Icons
-                                                                        .flag_rounded
-                                                                    : FFIcons
-                                                                        .kproperty1FiRrBell,
-                                                    color: notisItem.tag ==
-                                                            'pagamento'
-                                                        ? FlutterFlowTheme.of(
-                                                                context)
-                                                            .primary
-                                                        : notisItem.tag ==
-                                                                'convite'
-                                                            ? FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primary
-                                                            : notisItem.tag ==
-                                                                    'treino'
-                                                                ? FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .success
-                                                                : notisItem.tag ==
-                                                                        'meta'
-                                                                    ? FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondary
-                                                                    : Color(
-                                                                        0xFF7C3AED),
-                                                    size: 18.0,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 10.0),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Text(
-                                                              notisItem.titulo,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts.inter(
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                    color: notisItem.lida
-                                                                        ? FlutterFlowTheme.of(context)
-                                                                            .primaryText
-                                                                        : FlutterFlowTheme.of(context)
-                                                                            .primary,
-                                                                    fontSize:
-                                                                        13.0,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: 6.0),
-                                                          Text(
-                                                            valueOrDefault<
-                                                                String>(
-                                                              dateTimeFormat(
-                                                                "relative",
-                                                                functions.formataData(
-                                                                    notisItem
-                                                                        .criadoEm),
-                                                                locale: FFLocalizations.of(
-                                                                            context)
-                                                                        .languageShortCode ??
-                                                                    FFLocalizations.of(
-                                                                            context)
-                                                                        .languageCode,
-                                                              ),
-                                                              '',
-                                                            ),
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodySmall
-                                                                .override(
-                                                                  font: GoogleFonts
-                                                                      .inter(),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryText,
-                                                                  fontSize:
-                                                                      11.0,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                ),
-                                                          ),
-                                                          if (!notisItem
-                                                              .lida) ...[
-                                                            SizedBox(
-                                                                width: 6.0),
-                                                            Container(
-                                                              width: 8.0,
-                                                              height: 8.0,
-                                                              margin: EdgeInsets
-                                                                  .only(
-                                                                      top: 3.0),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primary,
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ],
-                                                      ),
-                                                      if (notisItem.descricao
-                                                          .isNotEmpty) ...[
-                                                        SizedBox(height: 4.0),
-                                                        Text(
-                                                          notisItem.descricao,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodySmall
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .inter(),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryText,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                      if (notisItem.tag ==
-                                                              'pagamento' &&
-                                                          !notisItem.lida &&
-                                                          notisItem
-                                                                  .referenciaId >
-                                                              0) ...[
-                                                        SizedBox(height: 10.0),
-                                                        Builder(
-                                                          builder: (context) {
-                                                            bool _confirming =
-                                                                false;
-                                                            return StatefulBuilder(
-                                                              builder: (context,
-                                                                  setLocalState) {
-                                                                return SizedBox(
-                                                                  width: double
-                                                                      .infinity,
-                                                                  child:
-                                                                      ElevatedButton(
-                                                                    onPressed:
-                                                                        _confirming
-                                                                            ? null
-                                                                            : () async {
-                                                                                setLocalState(() => _confirming = true);
-                                                                                final res = await PersonalGroup.confirmarPagamentoCall.call(
-                                                                                  pPagamentoId: notisItem.referenciaId,
-                                                                                  pPersonalUuid: currentUserUid,
-                                                                                );
-                                                                                if (!mounted) return;
-                                                                                setLocalState(() => _confirming = false);
-                                                                                if (res.succeeded) {
-                                                                                  FFAppState().updateNotificacoesAtIndex(notisIndex, (e) => e..lida = true);
-                                                                                  await action_blocks.pagamentos(context, uuidpersonal: currentUserUid);
-                                                                                  safeSetState(() {});
-                                                                                  await showModalBottomSheet(
-                                                                                    useRootNavigator: true,
-                                                                                    isScrollControlled: true,
-                                                                                    backgroundColor: Colors.transparent,
-                                                                                    context: context,
-                                                                                    builder: (context) => MensagemWidget(texto: 'Pagamento confirmado como recebido!', tipo: '1', action: () async {}, fechasozinho: true, mostrabotoes: false),
-                                                                                  );
-                                                                                } else {
-                                                                                  await showModalBottomSheet(
-                                                                                    useRootNavigator: true,
-                                                                                    isScrollControlled: true,
-                                                                                    backgroundColor: Colors.transparent,
-                                                                                    context: context,
-                                                                                    builder: (context) => MensagemWidget(texto: 'Não foi possível confirmar. Tente novamente.', tipo: '2', action: () async {}, fechasozinho: true, mostrabotoes: false),
-                                                                                  );
-                                                                                }
-                                                                              },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .primary,
-                                                                      foregroundColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      shape: RoundedRectangleBorder(
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(8.0)),
-                                                                      padding: EdgeInsets.symmetric(
-                                                                          vertical:
-                                                                              8.0),
-                                                                    ),
-                                                                    child: _confirming
-                                                                        ? SizedBox(
-                                                                            width:
-                                                                                16.0,
-                                                                            height:
-                                                                                16.0,
-                                                                            child: CircularProgressIndicator(
-                                                                                strokeWidth:
-                                                                                    2.0,
-                                                                                color: Colors
-                                                                                    .white))
-                                                                        : Text(
-                                                                            'Confirmar recebimento',
-                                                                            style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                                                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                                                                                color: Colors.white,
-                                                                                letterSpacing: 0.0)),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            );
-                                                          },
-                                                        ),
-                                                      ],
-                                                      if (notisItem.tag ==
-                                                              'convite' &&
-                                                          !notisItem.lida) ...[
-                                                        SizedBox(height: 10.0),
-                                                        Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child:
-                                                                  OutlinedButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  final convite = FFAppState()
-                                                                      .convitesPendentes
-                                                                      .where((c) =>
-                                                                          c.personalNome ==
-                                                                          notisItem
-                                                                              .remetente)
-                                                                      .firstOrNull;
-                                                                  if (convite !=
-                                                                      null) {
-                                                                    await action_blocks.responderConvite(
-                                                                        context,
-                                                                        personalUuid:
-                                                                            convite
-                                                                                .personalUuid,
-                                                                        aceitar:
-                                                                            false);
-                                                                    safeSetState(
-                                                                        () {});
-                                                                  }
-                                                                },
-                                                                style: OutlinedButton
-                                                                    .styleFrom(
-                                                                  foregroundColor:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .error,
-                                                                  side: BorderSide(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .error),
-                                                                  shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8.0)),
-                                                                  padding: EdgeInsets
-                                                                      .symmetric(
-                                                                          vertical:
-                                                                              8.0),
-                                                                ),
-                                                                child: Text(
-                                                                    'Recusar',
-                                                                    style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                                        font: GoogleFonts.inter(
-                                                                            fontWeight: FontWeight
-                                                                                .w600),
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .error,
-                                                                        letterSpacing:
-                                                                            0.0)),
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                width: 8.0),
-                                                            Expanded(
-                                                              child:
-                                                                  ElevatedButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  final convite = FFAppState()
-                                                                      .convitesPendentes
-                                                                      .where((c) =>
-                                                                          c.personalNome ==
-                                                                          notisItem
-                                                                              .remetente)
-                                                                      .firstOrNull;
-                                                                  if (convite !=
-                                                                      null) {
-                                                                    await action_blocks.responderConvite(
-                                                                        context,
-                                                                        personalUuid:
-                                                                            convite
-                                                                                .personalUuid,
-                                                                        aceitar:
-                                                                            true);
-                                                                    safeSetState(
-                                                                        () {});
-                                                                  }
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primary,
-                                                                  foregroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8.0)),
-                                                                  padding: EdgeInsets
-                                                                      .symmetric(
-                                                                          vertical:
-                                                                              8.0),
-                                                                ),
-                                                                child: Text(
-                                                                    'Aceitar',
-                                                                    style: FlutterFlowTheme.of(context).bodySmall.override(
-                                                                        font: GoogleFonts.inter(
-                                                                            fontWeight: FontWeight
-                                                                                .w600),
-                                                                        color: Colors
-                                                                            .white,
-                                                                        letterSpacing:
-                                                                            0.0)),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(
-                                              height: 1.0,
-                                              thickness: 1.0,
-                                              indent: 52.0,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .alternate),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            );
-                          },
+                          ),
                         ),
-                      ),
-                    ],
+                        Icon(
+                          FFIcons.kproperty1FiRrBell,
+                          color: FlutterFlowTheme.of(context).primary,
+                          size: 18.0,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  Expanded(child: ListaNotificacoes()),
+                ],
+              ),
             ),
           ),
         ),
@@ -1095,66 +635,25 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                       itemBuilder: (context, alunosIndex) {
                                         final alunosItem = alunos[alunosIndex];
                                         return Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  0.0,
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  0.0),
+                                          // Sem respiro lateral aqui: ele
+                                          // virou padding DENTRO do card,
+                                          // para o fundo das acoes de
+                                          // deslizar chegar ate a borda
+                                          // da tela.
+                                          padding: EdgeInsets.zero,
                                           child: Column(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              _SwipeableWhatsApp(
+                                              _CardAlunoDeslizavel(
+                                                ativo: alunosItem.ativo,
                                                 onWhatsApp: () =>
                                                     _abrirWhatsApp(alunosItem),
+                                                onCobrar: alunosItem.atrasado
+                                                    ? () => _cobrarAluno(
+                                                        alunosItem)
+                                                    : null,
+                                                onToggleAtivo: () =>
+                                                    _alternarAtivo(alunosItem),
                                                 child: Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(
@@ -1241,22 +740,47 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        100.0),
-                                                            child:
-                                                                Image.network(
-                                                              valueOrDefault<
-                                                                  String>(
-                                                                alunosItem
-                                                                    .fotoUrl,
-                                                                'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
+                                                          // Tocar na foto
+                                                          // abre ela em
+                                                          // tela cheia, como
+                                                          // no WhatsApp. So
+                                                          // quando existe
+                                                          // foto: abrir o
+                                                          // avatar generico
+                                                          // em tamanho
+                                                          // grande nao mostra
+                                                          // nada a mais.
+                                                          GestureDetector(
+                                                            onTap: alunosItem
+                                                                    .fotoUrl
+                                                                    .isEmpty
+                                                                ? null
+                                                                : () => mostrarFotoEmTelaCheia(
+                                                                      context,
+                                                                      url: alunosItem
+                                                                          .fotoUrl,
+                                                                      titulo:
+                                                                          alunosItem
+                                                                              .nome,
+                                                                    ),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          100.0),
+                                                              child: Image(
+                                                                image: CachedNetworkImageProvider(
+                                                                    valueOrDefault<
+                                                                        String>(
+                                                                  alunosItem
+                                                                      .fotoUrl,
+                                                                  'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
+                                                                )),
+                                                                width: 54.0,
+                                                                height: 54.0,
+                                                                fit: BoxFit
+                                                                    .cover,
                                                               ),
-                                                              width: 46.0,
-                                                              height: 46.0,
-                                                              fit: BoxFit.cover,
                                                             ),
                                                           ),
                                                           Column(
@@ -1471,25 +995,37 @@ class _AlunoWidgetState extends State<AlunoWidget> {
   }
 }
 
-/// Card que desliza para a esquerda revelando o atalho do WhatsApp.
+/// Card do aluno com acoes de deslizar dos dois lados.
 ///
-/// Mesmo desenho de `_SwipeableGrupoRow` na tela de treinos: o deslocamento e
-/// controlado na mao com GestureDetector, sem pacote de slidable, para o gesto
-/// ficar igual ao que o app ja faz nas outras listas.
-class _SwipeableWhatsApp extends StatefulWidget {
-  const _SwipeableWhatsApp({
+/// Esquerda revela o que se faz COM o aluno (falar, cobrar); direita revela o
+/// que se faz SOBRE o vinculo (ativar, inativar). Separar por lado evita a
+/// fila de quatro botoes de um lado so, onde o destrutivo fica a um dedo de
+/// distancia do corriqueiro.
+///
+/// O gesto e controlado na mao, sem pacote de slidable, para ficar igual ao
+/// que o app ja faz em `_SwipeableGrupoRow` na tela de treinos.
+class _CardAlunoDeslizavel extends StatefulWidget {
+  const _CardAlunoDeslizavel({
     required this.child,
     required this.onWhatsApp,
+    required this.onToggleAtivo,
+    required this.ativo,
+    this.onCobrar,
   });
 
   final Widget child;
   final VoidCallback onWhatsApp;
+  final VoidCallback onToggleAtivo;
+  final bool ativo;
+
+  /// Nulo quando o aluno esta em dia: sem divida, nao ha o que cobrar.
+  final VoidCallback? onCobrar;
 
   @override
-  State<_SwipeableWhatsApp> createState() => _SwipeableWhatsAppState();
+  State<_CardAlunoDeslizavel> createState() => _CardAlunoDeslizavelState();
 }
 
-class _SwipeableWhatsAppState extends State<_SwipeableWhatsApp> {
+class _CardAlunoDeslizavelState extends State<_CardAlunoDeslizavel> {
   static const double _larguraAcao = 88.0;
 
   /// Verde oficial do WhatsApp — nao sai do tema porque a cor e da marca.
@@ -1497,75 +1033,139 @@ class _SwipeableWhatsAppState extends State<_SwipeableWhatsApp> {
 
   double _deslocamento = 0.0;
 
+  double get _limiteEsquerda =>
+      _larguraAcao * (widget.onCobrar != null ? 2 : 1);
+
   void _arrastando(DragUpdateDetails d) {
     setState(() {
-      _deslocamento =
-          (_deslocamento + d.delta.dx).clamp(-_larguraAcao, 0.0).toDouble();
+      _deslocamento = (_deslocamento + d.delta.dx)
+          .clamp(-_limiteEsquerda, _larguraAcao)
+          .toDouble();
     });
   }
 
   void _soltou(DragEndDetails d) {
     setState(() {
-      _deslocamento = _deslocamento < -_larguraAcao / 2 ? -_larguraAcao : 0.0;
+      if (_deslocamento < -_limiteEsquerda / 2) {
+        _deslocamento = -_limiteEsquerda;
+      } else if (_deslocamento > _larguraAcao / 2) {
+        _deslocamento = _larguraAcao;
+      } else {
+        _deslocamento = 0.0;
+      }
     });
   }
 
   void _fechar() => setState(() => _deslocamento = 0.0);
 
+  Widget _acao({
+    required Color fundo,
+    required Widget icone,
+    required String rotulo,
+    required VoidCallback aoTocar,
+  }) {
+    return SizedBox(
+      width: _larguraAcao,
+      child: GestureDetector(
+        onTap: () {
+          _fechar();
+          aoTocar();
+        },
+        child: Container(
+          color: fundo,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icone,
+              const SizedBox(height: 4.0),
+              Text(
+                rotulo,
+                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      color: Colors.white,
+                      fontSize: 11.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
     return GestureDetector(
       onHorizontalDragUpdate: _arrastando,
       onHorizontalDragEnd: _soltou,
       child: ClipRect(
         child: Stack(
           children: [
+            // Acoes da direita, reveladas ao puxar o card para a esquerda.
             Positioned(
               right: 0,
               top: 0,
               bottom: 0,
-              child: SizedBox(
-                width: _larguraAcao,
-                child: GestureDetector(
-                  onTap: () {
-                    _fechar();
-                    widget.onWhatsApp();
-                  },
-                  child: Container(
-                    color: _verdeWhatsApp,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FaIcon(
-                          FontAwesomeIcons.whatsapp,
-                          color: Colors.white,
-                          size: 22.0,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text(
-                          'WhatsApp',
-                          style:
-                              FlutterFlowTheme.of(context).bodyMedium.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    color: Colors.white,
-                                    fontSize: 11.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                        ),
-                      ],
+              child: Row(
+                children: [
+                  if (widget.onCobrar != null)
+                    _acao(
+                      fundo: tema.error,
+                      icone: const Icon(
+                        Icons.notifications_active_rounded,
+                        color: Colors.white,
+                        size: 22.0,
+                      ),
+                      rotulo: 'Cobrar',
+                      aoTocar: widget.onCobrar!,
                     ),
+                  _acao(
+                    fundo: _verdeWhatsApp,
+                    icone: const FaIcon(
+                      FontAwesomeIcons.whatsapp,
+                      color: Colors.white,
+                      size: 22.0,
+                    ),
+                    rotulo: 'WhatsApp',
+                    aoTocar: widget.onWhatsApp,
                   ),
+                ],
+              ),
+            ),
+            // Acao da esquerda, revelada ao puxar o card para a direita.
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: _acao(
+                fundo: widget.ativo ? tema.secondaryText : tema.success,
+                icone: Icon(
+                  widget.ativo
+                      ? Icons.person_off_rounded
+                      : Icons.person_rounded,
+                  color: Colors.white,
+                  size: 22.0,
                 ),
+                rotulo: widget.ativo ? 'Inativar' : 'Ativar',
+                aoTocar: widget.onToggleAtivo,
               ),
             ),
             Transform.translate(
               offset: Offset(_deslocamento, 0.0),
               child: Container(
-                color: FlutterFlowTheme.of(context).secondaryBackground,
-                child: widget.child,
+                color: tema.secondaryBackground,
+                // Os 16 laterais eram margem do card. Como margem, o fundo
+                // colorido das acoes parava antes da borda da tela; como
+                // padding, o conteudo continua recuado e a cor vai ate o fim.
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: widget.child,
+                ),
               ),
             ),
           ],

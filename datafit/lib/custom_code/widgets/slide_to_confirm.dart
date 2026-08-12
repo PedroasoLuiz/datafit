@@ -7,6 +7,8 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import '/custom_code/actions/index.dart'; // Imports custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
@@ -21,6 +23,7 @@ class SlideToConfirm extends StatefulWidget {
     this.thumbColor,
     this.text,
     this.textColor,
+    this.vidro = false,
   }) : super(key: key);
 
   final double? width;
@@ -30,6 +33,14 @@ class SlideToConfirm extends StatefulWidget {
   final Color? thumbColor; // cor do thumb (bolinha)
   final Color? textColor;
   final String? text;
+
+  /// Trilha de vidro, no lugar da faixa colorida.
+  ///
+  /// E o desenho do "deslize para desligar" do iPhone: a trilha nao tem cor
+  /// propria, ela desfoca e clareia o que esta atras. Fica para o gesto de
+  /// INICIAR, que acontece sobre o conteudo do treino; o de concluir segue
+  /// solido, porque ali o botao e o assunto da tela.
+  final bool vidro;
 
   @override
   _SlideToConfirmState createState() => _SlideToConfirmState();
@@ -126,12 +137,31 @@ class _SlideToConfirmState extends State<SlideToConfirm>
           children: [
             // ── Trilha ────────────────────────────────────────────────────
             Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(h / 2),
-                ),
-              ),
+              child: widget.vidro
+                  ? ClipRRect(
+                      // O ClipRRect nao e decorativo: sem ele o BackdropFilter
+                      // desfoca a tela inteira, nao so o retangulo da trilha.
+                      borderRadius: BorderRadius.circular(h / 2),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.22),
+                            borderRadius: BorderRadius.circular(h / 2),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.45),
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(h / 2),
+                      ),
+                    ),
             ),
 
             // ── Preenchimento atrás do thumb ──────────────────────────────
@@ -181,7 +211,9 @@ class _SlideToConfirmState extends State<SlideToConfirm>
                   width: thumbD,
                   height: thumbD,
                   decoration: BoxDecoration(
-                    color: thumbColor,
+                    // No vidro o thumb e a unica peca opaca: e ele que da o
+                    // ponto de apoio visual para o dedo.
+                    color: widget.vidro ? Colors.white : thumbColor,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -200,7 +232,10 @@ class _SlideToConfirmState extends State<SlideToConfirm>
                             color: Colors.white.withOpacity(0.9),
                           ),
                         )
-                      : _SlideArrow(progress: progress),
+                      : _SlideArrow(
+                          progress: progress,
+                          cor: widget.vidro ? thumbColor : Colors.white,
+                        ),
                 ),
               ),
             ),
@@ -213,8 +248,9 @@ class _SlideToConfirmState extends State<SlideToConfirm>
 
 // Seta que some conforme o thumb avança — igual ao botão de atender chamada
 class _SlideArrow extends StatelessWidget {
-  const _SlideArrow({required this.progress});
+  const _SlideArrow({required this.progress, this.cor = Colors.white});
   final double progress;
+  final Color cor;
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +258,9 @@ class _SlideArrow extends StatelessWidget {
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
         opacity: (1.0 - progress * 1.8).clamp(0.0, 1.0),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_forward_rounded,
-          color: Colors.white,
+          color: cor,
           size: 22,
         ),
       ),

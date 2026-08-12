@@ -2536,10 +2536,10 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     .width *
                                                 1.0,
                                             height: 100.0,
-                                            backgroundColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .accent1,
-                                            text: 'Desliza para iniciar',
+                                            // Vidro, como o "deslize para
+                                            // desligar" do iPhone.
+                                            vidro: true,
+                                            text: 'Deslize para iniciar',
                                             thumbColor:
                                                 FlutterFlowTheme.of(context)
                                                     .primary,
@@ -2999,12 +2999,17 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     .width *
                                                 1.0,
                                             height: 100.0,
-                                            backgroundColor: Color(0xFFC8F4E8),
+                                            // Azul do app, nao verde: verde aqui
+                                            // lia como "ja concluido", quando
+                                            // o gesto ainda esta por fazer.
+                                            backgroundColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .accent1,
                                             text:
                                                 'Deslize para concluir esse treino',
                                             thumbColor:
                                                 FlutterFlowTheme.of(context)
-                                                    .success,
+                                                    .primary,
                                             textColor:
                                                 FlutterFlowTheme.of(context)
                                                     .primaryText,

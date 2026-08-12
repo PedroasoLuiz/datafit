@@ -1,4 +1,5 @@
 import '/auth/supabase_auth/auth_util.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -364,11 +365,12 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                     ClipRRect(
                                       borderRadius:
                                           BorderRadius.circular(1000.0),
-                                      child: Image.network(
-                                        valueOrDefault<String>(
+                                      child: Image(
+                                        image: CachedNetworkImageProvider(
+                                            valueOrDefault<String>(
                                           FFAppState().perfil.fotoUrl,
                                           'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
-                                        ),
+                                        )),
                                         width: 200.0,
                                         height: 200.0,
                                         fit: BoxFit.cover,

@@ -1,4 +1,5 @@
 import '/auth/supabase_auth/auth_util.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
@@ -532,8 +533,11 @@ class _MetasFotosWidgetState extends State<MetasFotosWidget>
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               16.0),
-                                                      child: Image.network(
-                                                        valueOrDefault<String>(
+                                                      child: Image(
+                                                        image:
+                                                            CachedNetworkImageProvider(
+                                                                valueOrDefault<
+                                                                    String>(
                                                           FFAppState()
                                                               .metasTemp
                                                               .acompanhamentoMensal
@@ -558,7 +562,7 @@ class _MetasFotosWidgetState extends State<MetasFotosWidget>
                                                               .firstOrNull
                                                               ?.urlImg,
                                                           'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/datafit-yuopjj/assets/b1so7onglxu0/123.png',
-                                                        ),
+                                                        )),
                                                         width:
                                                             MediaQuery.sizeOf(
                                                                         context)

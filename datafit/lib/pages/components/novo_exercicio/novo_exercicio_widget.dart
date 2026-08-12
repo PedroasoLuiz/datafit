@@ -460,6 +460,9 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                           borderRadius: BorderRadius.circular(12.0),
                           child: PlayerVideoPlataforma(
                             url: _model.txtLinkTextController!.text,
+                            // Sem o teto, video gravado de pe empurrava o
+                            // botao de concluir para fora da folha.
+                            alturaMaxima: 220.0,
                           ),
                         ),
                       ),

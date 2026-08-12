@@ -180,19 +180,27 @@ class _CardNotificacaoState extends State<CardNotificacao> {
     final visual = _visualDaTag(context, noti.tag);
     final ehConvitePendente = noti.tag == 'convite' && !noti.lida;
 
-    return Material(
-      color: tema.primaryBackground,
-      borderRadius: BorderRadius.circular(14.0),
-      child: InkWell(
+    // A cor e a sombra moram no mesmo BoxDecoration de propósito.
+    //
+    // Antes o branco estava no `Material` e a sombra num `Container` filho
+    // sem cor: sem preenchimento para tapá-la, a sombra era desenhada por
+    // cima do branco e o borrão cinza tomava o cartão inteiro. É por isso
+    // que os cartões saíam cinza em vez de brancos.
+    return Container(
+      decoration: BoxDecoration(
+        color: tema.primaryBackground,
         borderRadius: BorderRadius.circular(14.0),
-        onTap: _marcarLida,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14.0),
-            boxShadow: [tema.designToken.shadow.sm],
-          ),
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
+        boxShadow: [tema.designToken.shadow.sm],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14.0),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14.0),
+          onTap: _marcarLida,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
@@ -329,6 +337,7 @@ class _CardNotificacaoState extends State<CardNotificacao> {
             ],
           ),
         ),
+          ),
       ),
     );
   }
