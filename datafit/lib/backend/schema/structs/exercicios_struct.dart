@@ -23,6 +23,7 @@ class ExerciciosStruct extends BaseStruct {
     int? seriesFeitas,
     int? serieAquecimento,
     String? subcategoria,
+    bool? temSubstitutos,
   })  : _execucaoId = execucaoId,
         _nome = nome,
         _linkInstrucao = linkInstrucao,
@@ -38,7 +39,8 @@ class ExerciciosStruct extends BaseStruct {
         _isPulado = isPulado,
         _seriesFeitas = seriesFeitas,
         _serieAquecimento = serieAquecimento,
-        _subcategoria = subcategoria;
+        _subcategoria = subcategoria,
+        _temSubstitutos = temSubstitutos;
 
   // "execucaoId" field.
   int? _execucaoId;
@@ -175,6 +177,16 @@ class ExerciciosStruct extends BaseStruct {
 
   bool hasSubcategoria() => _subcategoria != null;
 
+  // "temSubstitutos" field.
+  //
+  // Se ha exercicio cadastrado para trocar por este. Vem do banco junto com o
+  // exercicio: o botao de substituir so aparece onde ha para onde ir.
+  bool? _temSubstitutos;
+  bool get temSubstitutos => _temSubstitutos ?? false;
+  set temSubstitutos(bool? val) => _temSubstitutos = val;
+
+  bool hasTemSubstitutos() => _temSubstitutos != null;
+
   static ExerciciosStruct fromMap(Map<String, dynamic> data) =>
       ExerciciosStruct(
         execucaoId: castToType<int>(data['execucaoId']),
@@ -193,6 +205,7 @@ class ExerciciosStruct extends BaseStruct {
         seriesFeitas: castToType<int>(data['seriesFeitas']),
         serieAquecimento: castToType<int>(data['serieAquecimento']),
         subcategoria: data['subcategoria'] as String?,
+        temSubstitutos: data['temSubstitutos'] as bool?,
       );
 
   static ExerciciosStruct? maybeFromMap(dynamic data) => data is Map
@@ -216,6 +229,7 @@ class ExerciciosStruct extends BaseStruct {
         'seriesFeitas': _seriesFeitas,
         'serieAquecimento': _serieAquecimento,
         'subcategoria': _subcategoria,
+        'temSubstitutos': _temSubstitutos,
       }.withoutNulls;
 
   @override
@@ -283,6 +297,10 @@ class ExerciciosStruct extends BaseStruct {
         'subcategoria': serializeParam(
           _subcategoria,
           ParamType.String,
+        ),
+        'temSubstitutos': serializeParam(
+          _temSubstitutos,
+          ParamType.bool,
         ),
       }.withoutNulls;
 
@@ -368,6 +386,11 @@ class ExerciciosStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        temSubstitutos: deserializeParam(
+          data['temSubstitutos'],
+          ParamType.bool,
+          false,
+        ),
       );
 
   @override
@@ -391,7 +414,8 @@ class ExerciciosStruct extends BaseStruct {
         isPulado == other.isPulado &&
         seriesFeitas == other.seriesFeitas &&
         serieAquecimento == other.serieAquecimento &&
-        subcategoria == other.subcategoria;
+        subcategoria == other.subcategoria &&
+        temSubstitutos == other.temSubstitutos;
   }
 
   @override
@@ -411,7 +435,8 @@ class ExerciciosStruct extends BaseStruct {
         isPulado,
         seriesFeitas,
         serieAquecimento,
-        subcategoria
+        subcategoria,
+        temSubstitutos
       ]);
 }
 
@@ -430,6 +455,7 @@ ExerciciosStruct createExerciciosStruct({
   int? seriesFeitas,
   int? serieAquecimento,
   String? subcategoria,
+  bool? temSubstitutos,
 }) =>
     ExerciciosStruct(
       execucaoId: execucaoId,
@@ -446,4 +472,5 @@ ExerciciosStruct createExerciciosStruct({
       seriesFeitas: seriesFeitas,
       serieAquecimento: serieAquecimento,
       subcategoria: subcategoria,
+      temSubstitutos: temSubstitutos,
     );

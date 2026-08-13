@@ -383,10 +383,19 @@ class _TreinosNovoSubTreinoWidgetState extends State<TreinosNovoSubTreinoWidget>
                         .from('Treinos')
                         .update({'Descricao': nome}).eq('Id', widget.treinoId!);
                   } else {
+                    // `Ativo` e `IsDeleted` explicitos: sem eles a linha
+                    // nascia com null, e a atribuicao ao aluno filtrava por
+                    // `Ativo = true` — que em SQL nao casa com null. O treino
+                    // era criado, aparecia na tela do personal e nunca chegava
+                    // a aluno nenhum. A coluna ganhou default no banco, e aqui
+                    // fica escrito para quem ler o insert saber o que a linha
+                    // precisa ter.
                     await SupaFlow.client.from('Treinos').insert({
                       'Descricao': nome,
                       'GruposTreinoId': widget.grupoTreinoId,
                       'CriadorPerfisId': currentUserUid,
+                      'Ativo': true,
+                      'IsDeleted': false,
                     });
                   }
 

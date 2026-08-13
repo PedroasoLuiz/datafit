@@ -124,7 +124,11 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 0.0),
+          // Zero no topo: quem afasta o calendario da linha de abas e o
+          // padding dela. Com os 8 daqui somando, o calendario descia mais
+          // que o painel e o grafico, e as abas pareciam ter alturas
+          // diferentes.
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: Container(
             decoration: BoxDecoration(
               color: tema.primaryBackground,

@@ -21,6 +21,9 @@ class PerfilStruct extends BaseStruct {
     String? bio,
     String? cref,
     String? unidade,
+    bool? pushTreino,
+    bool? pushCobranca,
+    bool? pushConvite,
     double? pesoAtual,
     double? altura,
     String? tipoPerfil,
@@ -43,6 +46,9 @@ class PerfilStruct extends BaseStruct {
         _bio = bio,
         _cref = cref,
         _unidade = unidade,
+        _pushTreino = pushTreino,
+        _pushCobranca = pushCobranca,
+        _pushConvite = pushConvite,
         _pesoAtual = pesoAtual,
         _altura = altura,
         _tipoPerfil = tipoPerfil,
@@ -228,6 +234,37 @@ class PerfilStruct extends BaseStruct {
 
   bool hasTipoPix() => _tipoPix != null && _tipoPix!.isNotEmpty;
 
+
+  /// Recebe aviso no celular de treino novo e lembrete.
+  ///
+  /// Padrao `true`: quem nunca mexeu continua recebendo tudo, como antes de a
+  /// preferencia existir.
+  bool? _pushTreino;
+  bool get pushTreino => _pushTreino ?? true;
+  set pushTreino(bool? val) => _pushTreino = val;
+
+  bool hasPushTreino() => _pushTreino != null;
+
+  /// Recebe aviso de cobrança e confirmação de pagamento.
+  ///
+  /// Padrao `true`: quem nunca mexeu continua recebendo tudo, como antes de a
+  /// preferencia existir.
+  bool? _pushCobranca;
+  bool get pushCobranca => _pushCobranca ?? true;
+  set pushCobranca(bool? val) => _pushCobranca = val;
+
+  bool hasPushCobranca() => _pushCobranca != null;
+
+  /// Recebe aviso de convite de personal.
+  ///
+  /// Padrao `true`: quem nunca mexeu continua recebendo tudo, como antes de a
+  /// preferencia existir.
+  bool? _pushConvite;
+  bool get pushConvite => _pushConvite ?? true;
+  set pushConvite(bool? val) => _pushConvite = val;
+
+  bool hasPushConvite() => _pushConvite != null;
+
   static PerfilStruct fromMap(Map<String, dynamic> data) => PerfilStruct(
         id: data['id'] as String?,
         createdAt: data['createdAt'] as String?,
@@ -246,6 +283,9 @@ class PerfilStruct extends BaseStruct {
         bio: data['bio'] as String?,
         cref: data['cref'] as String?,
         unidade: data['unidade'] as String?,
+        pushTreino: data['pushTreino'] as bool?,
+        pushCobranca: data['pushCobranca'] as bool?,
+        pushConvite: data['pushConvite'] as bool?,
         pesoAtual: castToType<double>(data['pesoAtual']),
         altura: castToType<double>(data['altura']),
         tipoPerfil: data['tipoPerfil'] as String?,
@@ -276,6 +316,9 @@ class PerfilStruct extends BaseStruct {
         'bio': _bio,
         'cref': _cref,
         'unidade': _unidade,
+        'pushTreino': _pushTreino,
+        'pushCobranca': _pushCobranca,
+        'pushConvite': _pushConvite,
         'pesoAtual': _pesoAtual,
         'altura': _altura,
         'tipoPerfil': _tipoPerfil,
@@ -340,6 +383,18 @@ class PerfilStruct extends BaseStruct {
         'unidade': serializeParam(
           _unidade,
           ParamType.String,
+        ),
+        'pushTreino': serializeParam(
+          _pushTreino,
+          ParamType.bool,
+        ),
+        'pushCobranca': serializeParam(
+          _pushCobranca,
+          ParamType.bool,
+        ),
+        'pushConvite': serializeParam(
+          _pushConvite,
+          ParamType.bool,
         ),
         'cref': serializeParam(
           _cref,
@@ -445,6 +500,21 @@ class PerfilStruct extends BaseStruct {
         unidade: deserializeParam(
           data['unidade'],
           ParamType.String,
+          false,
+        ),
+        pushTreino: deserializeParam(
+          data['pushTreino'],
+          ParamType.bool,
+          false,
+        ),
+        pushCobranca: deserializeParam(
+          data['pushCobranca'],
+          ParamType.bool,
+          false,
+        ),
+        pushConvite: deserializeParam(
+          data['pushConvite'],
+          ParamType.bool,
           false,
         ),
         cref: deserializeParam(

@@ -319,14 +319,13 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
     return Padding(
       // 12 em cima para o vao ate a busca ficar igual ao vao ate a lista.
       padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 8.0),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      // Sem IntrinsicHeight: os dois cards agora tem altura fixa, e medir os
+      // filhos para igualar alturas ja iguais so custa um passo de layout.
+      child: Row(
           children: [
             Expanded(
               child: _CardAtalho(
                 titulo: 'Novo treino',
-                descricao: 'Monte um grupo e adicione exercícios',
                 rotulo: 'Criar',
                 icone: Icons.playlist_add_rounded,
                 onTap: _abrirNovoTreino,
@@ -336,7 +335,6 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
             Expanded(
               child: _CardAtalho(
                 titulo: 'Exercícios',
-                descricao: 'Seu catálogo para montar os treinos',
                 rotulo: 'Gerenciar',
                 icone: Icons.fitness_center_rounded,
                 onTap: () => context.pushNamed(
@@ -353,7 +351,6 @@ class _TreinosPersonalWidgetState extends State<TreinosPersonalWidget> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -634,15 +631,17 @@ class _SwipeableGrupoRowState extends State<_SwipeableGrupoRow> {
 class _CardAtalho extends StatelessWidget {
   const _CardAtalho({
     required this.titulo,
-    required this.descricao,
     required this.rotulo,
     required this.icone,
     required this.onTap,
   });
 
   final String titulo;
-  final String descricao;
+
+  /// O verbo do card — "Criar", "Gerenciar". Fica de rótulo semântico: quem
+  /// enxerga lê o título, e o que a ação faz está no próprio título.
   final String rotulo;
+
   final IconData icone;
   final VoidCallback onTap;
 
@@ -650,92 +649,51 @@ class _CardAtalho extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
-    return Material(
-      color: tema.primaryBackground,
-      borderRadius: BorderRadius.circular(14.0),
-      child: InkWell(
-        onTap: onTap,
+    // Azul cheio e baixo, no lugar do cartão branco alto com legenda: eram
+    // dois blocos grandes ocupando a primeira dobra da tela para dizer o que
+    // o título já dizia. Sem a descrição e sem o verbo repetido embaixo, o
+    // card cabe numa linha e a lista de treinos — que é o assunto da tela —
+    // sobe junto.
+    return Semantics(
+      button: true,
+      label: '$rotulo: $titulo',
+      child: Material(
+        color: tema.primary,
         borderRadius: BorderRadius.circular(14.0),
-        child: Container(
-          padding: const EdgeInsets.all(14.0),
-          decoration: BoxDecoration(
-            // Kit do app: superficie branca com sombra, sem contorno.
-            color: tema.primaryBackground,
-            borderRadius: BorderRadius.circular(14.0),
-            boxShadow: [tema.designToken.shadow.lg],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // O icone ganha um quadrado de azul claro e vai para cima do
-              // titulo. Ao lado dele competia com o texto pela mesma linha e
-              // lia como enfeite; em cima, ele apresenta o card.
-              Container(
-                width: 38.0,
-                height: 38.0,
-                decoration: BoxDecoration(
-                  color: tema.accent1,
-                  borderRadius: BorderRadius.circular(11.0),
-                ),
-                alignment: const AlignmentDirectional(0.0, 0.0),
-                child: Icon(
-                  icone,
-                  color: tema.primary,
-                  size: 20.0,
-                ),
-              ),
-              const SizedBox(height: 12.0),
-              Text(
-                titulo,
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                  color: tema.primaryText,
-                  fontSize: 14.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4.0),
-              Text(
-                descricao,
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                  color: tema.secondaryText,
-                  fontSize: 11.5,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w400,
-                  lineHeight: 1.35,
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              // Empurra a chamada para o rodape para os dois cards alinharem
-              // a linha azul na mesma altura, mesmo com descricoes de tamanhos
-              // diferentes.
-              const Spacer(),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    rotulo,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14.0),
+          child: Container(
+            height: 48.0,
+            padding: const EdgeInsetsDirectional.fromSTEB(14.0, 0.0, 14.0, 0.0),
+            decoration: BoxDecoration(
+              color: tema.primary,
+              borderRadius: BorderRadius.circular(14.0),
+              boxShadow: [tema.designToken.shadow.lg],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                // À esquerda do título, como era antes de ele subir para cima:
+                // num card desta altura não há linha de sobra para empilhar.
+                Icon(icone, color: Colors.white, size: 18.0),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: Text(
+                    titulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: tema.bodyMedium.override(
                       font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                      color: tema.primary,
-                      fontSize: 12.0,
+                      color: Colors.white,
+                      fontSize: 13.5,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
                     ),
                   ),
-                  const SizedBox(width: 4.0),
-                  Icon(
-                    Icons.arrow_outward,
-                    color: tema.primary,
-                    size: 14.0,
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -237,7 +237,14 @@ class _SelecionarTreinoAlunoWidgetState
       });
       if (!mounted) return;
       final resultData = (raw is List && raw.isNotEmpty) ? raw.first : raw;
-      final sucesso = resultData is Map && resultData['sucesso'] == true;
+      // Zero treinos criados nao e sucesso: a funcao chegou a devolver
+      // `sucesso: true` com nenhuma execucao criada, e a folha fechava como se
+      // o aluno tivesse recebido o treino.
+      final criados = resultData is Map
+          ? ((resultData['treinosCriados'] as num?)?.toInt() ?? 0)
+          : 0;
+      final sucesso =
+          resultData is Map && resultData['sucesso'] == true && criados > 0;
       if (sucesso) {
         Navigator.pop(context, true);
       } else {

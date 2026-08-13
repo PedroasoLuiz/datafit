@@ -329,6 +329,17 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
     final maxPesoSafe = maxPeso > 0 ? maxPeso : 1.0;
     final ratios = pesos.map((p) => (p / maxPesoSafe).clamp(0.0, 1.0)).toList();
 
+    // Volume: peso vezes repetições. É o que separa progresso de estagnação
+    // quando a carga não muda — sair de 3x10 para 3x12 com os mesmos 20 kg
+    // aparecia como linha reta, porque a barra só media o peso.
+    final volumes = slots
+        .map((sl) => (sl['peso'] as double) * (sl['qtd'] as int))
+        .toList();
+    final maxVolume = volumes.fold(0.0, (prev, v) => v > prev ? v : prev);
+    final maxVolumeSafe = maxVolume > 0 ? maxVolume : 1.0;
+    final ratiosVolume =
+        volumes.map((v) => (v / maxVolumeSafe).clamp(0.0, 1.0)).toList();
+
     final pesosComDado = pesos.where((p) => p > 0).toList();
     final delta = pesosComDado.length >= 2
         ? ((pesosComDado.first - pesosComDado.last) / pesosComDado.last * 100)
@@ -367,6 +378,25 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
     final mesGroups =
         _isDias ? _buildMesGroups(slots) : <Map<String, dynamic>>[];
     final footerInfo = _footerInfo(slots);
+
+    // Sem nenhum registro no periodo, o grafico desenhava a fileira de barras
+    // de 3 pixels no zero — que le como "seu esforco foi quase nada", e nao
+    // como "nao ha o que mostrar". Duas leituras opostas com o mesmo desenho.
+    if (pesosComDado.isEmpty) {
+      return SizedBox(
+        width: totalW,
+        height: alturaTotal,
+        child: _Vazio(
+          cor: cor,
+          titulo: widget.exercicioSelecionado.trim().isEmpty
+              ? 'Escolha um exercício'
+              : 'Nenhum registro no período',
+          detalhe: widget.exercicioSelecionado.trim().isEmpty
+              ? 'A evolução aparece assim que você escolher um exercício da lista.'
+              : 'Registre a carga ao concluir as séries e a evolução aparece aqui.',
+        ),
+      );
+    }
 
     return SizedBox(
       width: totalW,
@@ -414,6 +444,7 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
                       child: _buildConteudo(
                         slots: slots,
                         ratios: ratios,
+                        ratiosVolume: ratiosVolume,
                         barAreaH: barAreaH,
                         mesGroups: mesGroups,
                         cor: cor,
@@ -429,6 +460,7 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
                     child: _buildConteudo(
                       slots: slots,
                       ratios: ratios,
+                      ratiosVolume: ratiosVolume,
                       barAreaH: barAreaH,
                       mesGroups: mesGroups,
                       cor: cor,
@@ -508,6 +540,7 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
   Widget _buildConteudo({
     required List<Map<String, dynamic>> slots,
     required List<double> ratios,
+    required List<double> ratiosVolume,
     required double barAreaH,
     required List<Map<String, dynamic>> mesGroups,
     required Color cor,
@@ -576,6 +609,35 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
                                           Colors.grey.shade400.withOpacity(0),
                                         ],
                                         stops: const [0.0, 0.5, 1.0],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              // Volume por trás, em traço claro: a barra
+                              // cheia continua sendo o peso — que é o que a
+                              // pessoa reconhece —, e o fantasma atrás mostra
+                              // o esforço total daquele dia. Quando os dois
+                              // sobem juntos é ganho de carga; quando só o de
+                              // trás sobe, é ganho de repetição.
+                              if (temDado)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 1,
+                                    right: separadorDireita && _isDias ? 3 : 1,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: (barAreaH *
+                                              ratiosVolume[i] *
+                                              progress)
+                                          .clamp(2.0, barAreaH),
+                                      decoration: BoxDecoration(
+                                        color: cor.withOpacity(0.10),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
                                       ),
                                     ),
                                   ),
@@ -807,6 +869,64 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
           ),
         );
       }),
+    );
+  }
+}
+
+/// O que o gráfico mostra quando não há o que mostrar.
+///
+/// Um gráfico vazio desenhado com valores zerados mente: barras rentes ao
+/// eixo leem como esforço mínimo, não como ausência de dado. Melhor dizer em
+/// palavras e explicar o que faz o dado aparecer.
+class _Vazio extends StatelessWidget {
+  const _Vazio({required this.cor, required this.titulo, required this.detalhe});
+
+  final Color cor;
+  final String titulo;
+  final String detalhe;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: cor.withOpacity(0.10),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(Icons.show_chart_rounded, color: cor, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              titulo,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              detalhe,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                height: 1.4,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

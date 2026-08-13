@@ -141,7 +141,12 @@ class _NavbarWidgetState extends State<NavbarWidget>
         _Aba(
           indice: 3,
           rota: MetricasWidget.routeName,
-          icone: FFIcons.kproperty1FiRrDashboard,
+          // Barras, e em contorno: os outros ícones da barra são todos de
+          // traço, e um preenchido no meio deles puxa o olho como se
+          // estivesse selecionado. O velocímetro que havia antes dizia a
+          // coisa errada — ponteiro é medida instantânea, e a aba mostra
+          // evolução ao longo de um período.
+          icone: Icons.bar_chart_outlined,
           rotulo: 'Métricas',
         ),
         _Aba(

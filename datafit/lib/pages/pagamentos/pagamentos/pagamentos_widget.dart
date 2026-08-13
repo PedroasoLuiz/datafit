@@ -1,4 +1,5 @@
 import '/components/chip_filtro.dart';
+import '/components/comemoracao.dart';
 import '/components/confirmar_recebimento.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/supabase/supabase.dart';
@@ -92,6 +93,19 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   /// Fecha o ciclo do "Pagamento aguardando aprovacao": ate agora o aluno
   /// informava e nunca recebia resposta, e a unica forma de quitar era abrir a
   /// edicao e digitar a data — que nao avisava ninguem.
+  /// Uma chave por cobranca, para a comemoracao nascer do cartao que foi
+  /// confirmado em vez do meio da tela.
+  final Map<int, GlobalKey> _chavesCartao = {};
+
+  GlobalKey _chaveDo(int id) => _chavesCartao.putIfAbsent(id, () => GlobalKey());
+
+  Offset? _centroDoCartao(int id) {
+    final caixa =
+        _chavesCartao[id]?.currentContext?.findRenderObject() as RenderBox?;
+    if (caixa == null || !caixa.hasSize) return null;
+    return caixa.localToGlobal(caixa.size.center(Offset.zero));
+  }
+
   Future<void> _confirmarRecebimento(PersonalpagamentosStruct pgto) async {
     final forma = await confirmarRecebimento(
       context,
@@ -118,6 +132,16 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
         getJsonField(corpo, r'$.sucesso') == true;
 
     if (confirmou) {
+      // Mesma comemoracao do fim do exercicio, no verde de sucesso: confirmar
+      // que o dinheiro entrou e o desfecho de uma espera, e a lista apenas
+      // recarregando nao dizia que algo tinha acontecido.
+      await mostrarComemoracao(
+        context,
+        titulo: 'Pagamento confirmado!',
+        subtitulo: '${pgto.nome} · ${_moeda(pgto.valor)}',
+        origem: _centroDoCartao(pgto.id),
+      );
+      if (!mounted) return;
       await _recarregar();
       return;
     }
@@ -663,11 +687,17 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                           pgtosItem),
                                       aoExcluir: () => _excluirPagamento(
                                           pgtosItem),
-                                      child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      focusColor: Colors.transparent,
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
+                                      // GestureDetector opaco, e nao InkWell:
+                                      // dentro do cartao deslizavel o toque
+                                      // precisava atravessar a Stack e o
+                                      // Transform do arraste, e o InkWell —
+                                      // que depende de um Material acima dele
+                                      // para receber o gesto — deixava de
+                                      // responder. Opaco, o alvo e a linha
+                                      // inteira, inclusive os vaos entre os
+                                      // textos.
+                                      child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
                                       onTap: () async {
                                         await showModalBottomSheet(
                                           useRootNavigator: true,
@@ -700,7 +730,10 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                         ).then((value) => safeSetState(
                                             () => _model.sim = value));
 
-                                        if (_model.sim!) {
+                                        // Sem `!`: fechada pelo arraste, a
+                                        // folha devolve null e o bang
+                                        // estourava dentro do proprio toque.
+                                        if (_model.sim == true) {
                                           await action_blocks.pagamentos(
                                             context,
                                             uuidpersonal: currentUserUid,
@@ -1096,10 +1129,13 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                           // o personal recebia a notificacao e
                                           // nao tinha onde confirmar.
                                           if (pgtosItem.aguardandoConfirmacao)
-                                            _FaixaConfirmar(
-                                              onConfirmar: () =>
-                                                  _confirmarRecebimento(
-                                                      pgtosItem),
+                                            Container(
+                                              key: _chaveDo(pgtosItem.id),
+                                              child: _FaixaConfirmar(
+                                                onConfirmar: () =>
+                                                    _confirmarRecebimento(
+                                                        pgtosItem),
+                                              ),
                                             ),
                                           Divider(
                                             height: 1.0,

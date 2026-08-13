@@ -278,26 +278,41 @@ class _CapaVideoPlataformaState extends State<CapaVideoPlataforma> {
 /// [urls] é a lista inteira e [inicial] diz por qual começar: rolar para cima
 /// e para baixo passa pelos outros, como no Instagram. Mostrar só o vídeo
 /// tocado obrigaria a voltar para a grade a cada troca.
+/// [autoPlay] falso abre parado no primeiro quadro, com o play grande no
+/// meio esperando o toque. É o certo quando o vídeo foi aberto no meio de um
+/// treino: a pessoa pode ter tocado sem querer, e som e movimento começando
+/// sozinhos assustam mais do que ajudam. Na grade do personal, que existe
+/// para folhear vídeo, o padrão continua sendo tocar na hora.
 Future<void> mostrarVideoEmTelaCheia(
   BuildContext context, {
   required String url,
   List<String>? urls,
   int inicial = 0,
+  bool autoPlay = true,
 }) async {
   final lista = (urls == null || urls.isEmpty) ? <String>[url] : urls;
   await Navigator.of(context, rootNavigator: true).push(
     MaterialPageRoute(
       fullscreenDialog: true,
-      builder: (_) => _ReelsTelaCheia(urls: lista, inicial: inicial),
+      builder: (_) => _ReelsTelaCheia(
+        urls: lista,
+        inicial: inicial,
+        autoPlay: autoPlay,
+      ),
     ),
   );
 }
 
 class _ReelsTelaCheia extends StatefulWidget {
-  const _ReelsTelaCheia({required this.urls, required this.inicial});
+  const _ReelsTelaCheia({
+    required this.urls,
+    required this.inicial,
+    this.autoPlay = true,
+  });
 
   final List<String> urls;
   final int inicial;
+  final bool autoPlay;
 
   @override
   State<_ReelsTelaCheia> createState() => _ReelsTelaCheiaState();
@@ -325,6 +340,10 @@ class _ReelsTelaCheiaState extends State<_ReelsTelaCheia> {
             itemCount: widget.urls.length,
             itemBuilder: (context, i) => _PaginaReels(
               url: widget.urls[i],
+              // Só a página de entrada respeita o `autoPlay`: quem rolou até
+              // a seguinte foi atrás dela, e parar cada uma exigiria um toque
+              // a mais por vídeo.
+              autoPlay: widget.autoPlay || i != widget.inicial,
               // A chave amarra o player à URL: sem ela, o PageView reaproveita
               // o State ao rolar e o vídeo novo abriria mostrando o anterior.
               key: ValueKey(widget.urls[i]),
@@ -346,9 +365,10 @@ class _ReelsTelaCheiaState extends State<_ReelsTelaCheia> {
 }
 
 class _PaginaReels extends StatefulWidget {
-  const _PaginaReels({super.key, required this.url});
+  const _PaginaReels({super.key, required this.url, this.autoPlay = true});
 
   final String url;
+  final bool autoPlay;
 
   @override
   State<_PaginaReels> createState() => _PaginaReelsState();
@@ -371,7 +391,7 @@ class _PaginaReelsState extends State<_PaginaReels> {
     try {
       await c.initialize();
       await c.setLooping(true);
-      await c.play();
+      if (widget.autoPlay) await c.play();
       if (!mounted) return;
       setState(() => _pronto = true);
     } catch (_) {

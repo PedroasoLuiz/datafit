@@ -136,7 +136,17 @@ class _SlideToConfirmState extends State<SlideToConfirm>
         child: Stack(
           children: [
             // ── Trilha ────────────────────────────────────────────────────
-            Positioned.fill(
+            //
+            // Comeca onde o thumb esta, e nao na borda: o trecho ja percorrido
+            // some conforme o dedo avanca e volta a aparecer se o dedo recuar,
+            // como no "deslize para desligar" do iPhone. A trilha deixa de ser
+            // um fundo parado e passa a ser o quanto falta — o gesto vira uma
+            // medida em vez de um enfeite.
+            Positioned(
+              left: _drag,
+              top: 0,
+              bottom: 0,
+              right: 0,
               child: widget.vidro
                   ? ClipRRect(
                       // O ClipRRect nao e decorativo: sem ele o BackdropFilter
@@ -164,19 +174,8 @@ class _SlideToConfirmState extends State<SlideToConfirm>
                     ),
             ),
 
-            // ── Preenchimento atrás do thumb ──────────────────────────────
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: _drag + thumbD / 2 + kPad,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: thumbColor.withOpacity(0.12 * progress),
-                  borderRadius: BorderRadius.circular(h / 2),
-                ),
-              ),
-            ),
+            // O realce que ficava atrás do thumb saiu junto: ele pintava
+            // justamente o trecho que agora tem de sumir.
 
             // ── Texto central ─────────────────────────────────────────────
             Positioned.fill(
@@ -246,7 +245,13 @@ class _SlideToConfirmState extends State<SlideToConfirm>
   }
 }
 
-// Seta que some conforme o thumb avança — igual ao botão de atender chamada
+/// Seta dentro do thumb.
+///
+/// Ela desbotava conforme o dedo avançava e chegava ao fim invisível: o
+/// thumb terminava o gesto como um disco vazio, e o botão parecia ter se
+/// apagado justo no instante em que a ação acontece. Agora ela só perde um
+/// pouco de força — o suficiente para não competir com o movimento — e
+/// continua legível do começo ao fim.
 class _SlideArrow extends StatelessWidget {
   const _SlideArrow({required this.progress, this.cor = Colors.white});
   final double progress;
@@ -257,7 +262,7 @@ class _SlideArrow extends StatelessWidget {
     return Center(
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
-        opacity: (1.0 - progress * 1.8).clamp(0.0, 1.0),
+        opacity: 1.0 - 0.25 * progress.clamp(0.0, 1.0),
         child: Icon(
           Icons.arrow_forward_rounded,
           color: cor,

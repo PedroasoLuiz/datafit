@@ -9,6 +9,8 @@ import '/custom_code/actions/index.dart'; // Imports custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
 import '/flutter_flow/unidade_carga.dart';
 import 'package:flutter/material.dart';
+
+import '/components/chip_filtro.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
@@ -495,6 +497,24 @@ class _GraficoEvolucaoPesoState extends State<GraficoEvolucaoPeso>
     // chartH já é descontado de kLabelsH — o SizedBox engloba ambos
     final chartH = (totalH - kFixed).clamp(60.0, totalH);
 
+    // Sem nenhuma pesagem, a linha era desenhada rente ao eixo com todos os
+    // pontos em zero — o que le como "voce pesa zero", nao como "nao ha
+    // medicao". Aqui a tela diz o que falta e como resolver.
+    if (valoresComDado.isEmpty) {
+      return SizedBox(
+        width: totalW,
+        height: totalH,
+        child: _VazioPeso(
+          cor: corPeso,
+          titulo: _mostrarGordura
+              ? 'Nenhuma medição de gordura'
+              : 'Nenhuma pesagem no período',
+          detalhe:
+              'Atualize seu peso no perfil e a evolução aparece aqui, período a período.',
+        ),
+      );
+    }
+
     return SizedBox(
       width: totalW,
       height: totalH,
@@ -533,27 +553,30 @@ class _GraficoEvolucaoPesoState extends State<GraficoEvolucaoPeso>
             ),
 
             // Toggle
+            // Os chips do kit, e nao um seletor proprio: este era o unico
+            // lugar do app com um toggle de fundo cinza e pilulas brancas
+            // por dentro, herdado do widget quando ele foi escrito de fora.
+            // Como sao dois entre poucos, ficam alinhados a esquerda em vez
+            // de esticados.
+            // Respiro acima: os chips ficavam colados no cabecalho do
+            // cartao, como se fossem parte dele em vez de um controle.
+            const SizedBox(height: 10.0),
             SizedBox(
               height: kToggleH,
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  children: [
-                    _ToggleBtn(
-                        label: 'Peso',
-                        ativo: !_mostrarGordura,
-                        cor: corPeso,
-                        onTap: () => _trocarTipo(false)),
-                    _ToggleBtn(
-                        label: 'Gordura',
-                        ativo: _mostrarGordura,
-                        cor: corGordura,
-                        onTap: () => _trocarTipo(true)),
-                  ],
-                ),
+              child: Row(
+                children: [
+                  ChipFiltro(
+                    texto: 'Peso',
+                    selecionado: !_mostrarGordura,
+                    onTap: () => _trocarTipo(false),
+                  ),
+                  const SizedBox(width: 8.0),
+                  ChipFiltro(
+                    texto: 'Gordura',
+                    selecionado: _mostrarGordura,
+                    onTap: () => _trocarTipo(true),
+                  ),
+                ],
               ),
             ),
 
@@ -761,49 +784,6 @@ class _GraficoEvolucaoPesoState extends State<GraficoEvolucaoPeso>
 }
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
-class _ToggleBtn extends StatelessWidget {
-  const _ToggleBtn(
-      {required this.label,
-      required this.ativo,
-      required this.cor,
-      required this.onTap});
-  final String label;
-  final bool ativo;
-  final Color cor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: ativo ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: ativo
-                ? [
-                    BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1))
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: Text(label,
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: ativo ? cor : Colors.grey.shade400)),
-        ),
-      ),
-    );
-  }
-}
 
 // ── LineChart ─────────────────────────────────────────────────────────────────
 class _LineChart extends StatelessWidget {
@@ -1039,4 +1019,59 @@ class _LinePainter extends CustomPainter {
   @override
   bool shouldRepaint(_LinePainter old) =>
       old.progress != progress || old.points != points || old.cor != cor;
+}
+
+/// O que o gráfico de corpo mostra quando não há medição.
+class _VazioPeso extends StatelessWidget {
+  const _VazioPeso(
+      {required this.cor, required this.titulo, required this.detalhe});
+
+  final Color cor;
+  final String titulo;
+  final String detalhe;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: cor.withOpacity(0.10),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(Icons.monitor_weight_outlined, color: cor, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              titulo,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              detalhe,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                height: 1.4,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

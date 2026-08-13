@@ -28,37 +28,28 @@ import '/flutter_flow/flutter_flow_util.dart';
   String tag,
 ) {
   final tema = FlutterFlowTheme.of(context);
+
+  // Todas as tags seguem a mesma fórmula: a cor vem do tema e o fundo é ela
+  // própria a 12% de opacidade. Antes duas usavam `accent1`/`accent2` e duas
+  // traziam hexadecimais soltos (um verde-claro e um roxo) que não existem em
+  // lugar nenhum do app — o resultado é que "treino" e "outros" pareciam de
+  // outro produto, e trocar a cor da marca deixaria as duas para trás.
+  ({IconData icone, Color fundo, Color cor}) daCor(IconData i, Color c) =>
+      (icone: i, fundo: c.withValues(alpha: 0.12), cor: c);
+
   switch (tag) {
     case 'pagamento':
-      return (
-        icone: Icons.payments_rounded,
-        fundo: tema.accent1,
-        cor: tema.primary
-      );
+      return daCor(Icons.payments_rounded, tema.primary);
     case 'convite':
-      return (
-        icone: Icons.person_add_rounded,
-        fundo: tema.accent1,
-        cor: tema.primary
-      );
+      return daCor(Icons.person_add_rounded, tema.primary);
     case 'treino':
-      return (
-        icone: Icons.fitness_center_rounded,
-        fundo: const Color(0xFFE8F5E9),
-        cor: tema.success
-      );
+      return daCor(Icons.fitness_center_rounded, tema.success);
     case 'meta':
-      return (
-        icone: Icons.flag_rounded,
-        fundo: tema.accent2,
-        cor: tema.secondary
-      );
+      return daCor(Icons.flag_rounded, tema.secondary);
     default:
-      return (
-        icone: FFIcons.kproperty1FiRrBell,
-        fundo: const Color(0xFFF3E5F5),
-        cor: const Color(0xFF7C3AED)
-      );
+      // Sem tag conhecida, o sino no azul da marca: o roxo de antes era a
+      // única cor do app que não vinha do tema.
+      return daCor(FFIcons.kproperty1FiRrBell, tema.primary);
   }
 }
 
@@ -111,7 +102,7 @@ class _ListaNotificacoesState extends State<ListaNotificacoes> {
       shrinkWrap: true,
       itemCount: notis.length,
       itemBuilder: (context, i) => Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
+        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 6.0),
         child: CardNotificacao(noti: notis[i], indice: i),
       ),
     );
@@ -441,7 +432,10 @@ class _BaralhoNotificacoesState extends State<_BaralhoNotificacoes> {
                   final camadas = restantes < 2 ? restantes : 2;
 
                   return SizedBox(
-                    height: 150.0,
+                    // 118: com 150 sobrava um vao de ar sob o texto do
+                    // cartao, e a folha inteira ficava mais alta do que o
+                    // conteudo pedia.
+                    height: 118.0,
                     child: Stack(
                       alignment: AlignmentDirectional.center,
                       children: [
@@ -484,12 +478,22 @@ class _BaralhoNotificacoesState extends State<_BaralhoNotificacoes> {
     final item = widget.naoLidas[_topo + camada];
     final daFrente = camada == 0;
 
+    // Quanto do gesto ja foi feito, de 0 a 1. E o que transforma a troca em
+    // movimento: antes a carta de tras ficava parada em 0.94 e pulava para
+    // 1.0 no ultimo quadro, entao o baralho trocava de carta sem que nada
+    // tivesse se mexido — o mesmo defeito que o baralho de treinos tinha.
+    final avanco = (_arraste.abs() / largura).clamp(0.0, 1.0);
+
     final carta = Transform.translate(
-      offset: Offset(daFrente ? _arraste : 0.0, daFrente ? 0.0 : 10.0),
+      offset: Offset(
+        daFrente ? _arraste : 0.0,
+        daFrente ? 0.0 : 10.0 * (1 - avanco),
+      ),
       child: Transform.scale(
-        scale: daFrente ? 1.0 : 0.94,
+        // A da frente encolhe saindo; a de tras cresce entrando.
+        scale: daFrente ? 1.0 - 0.06 * avanco : 0.94 + 0.06 * avanco,
         child: Opacity(
-          opacity: daFrente ? 1.0 : 0.6,
+          opacity: daFrente ? 1.0 - 0.45 * avanco : 0.6 + 0.4 * avanco,
           child: CardNotificacao(noti: item.noti, indice: item.indice),
         ),
       ),

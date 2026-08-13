@@ -3,6 +3,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
 import '/components/excluir_conta.dart';
+import '/components/preferencias_app.dart';
 import '/components/lista_notificacoes.dart';
 import 'package:badges/badges.dart' as badges;
 import '/flutter_flow/flutter_flow_util.dart';
@@ -458,6 +459,14 @@ class _PerfilWidgetState extends State<PerfilWidget> {
             ),
           ),
         _grupoConfig(context, 'Geral', [
+          // Primeiro item do grupo: e a unica entrada que muda como o app se
+          // comporta no dia a dia — as outras abrem texto ou levam para fora.
+          _itemConfig(
+            context,
+            icone: Icons.tune_rounded,
+            texto: 'Preferências',
+            onTap: () => abrirPreferencias(context),
+          ),
           _itemConfig(
             context,
             icone: FFIcons.kproperty1FiRrShield,
@@ -744,14 +753,19 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                       onTap: () async {
                                         scaffoldKey.currentState?.openDrawer();
                                       },
+                                      // 36 e raio 12, iguais ao botao de
+                                      // configuracoes do outro lado: eram 32
+                                      // e raio 10, e a diferenca de quatro
+                                      // pixels aparecia justamente por
+                                      // estarem lado a lado.
                                       child: Container(
-                                        width: 32.0,
-                                        height: 32.0,
+                                        width: 36.0,
+                                        height: 36.0,
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .primaryBackground,
                                           borderRadius:
-                                              BorderRadius.circular(10.0),
+                                              BorderRadius.circular(12.0),
                                           boxShadow: [
                                             FlutterFlowTheme.of(context)
                                                 .designToken
@@ -766,7 +780,7 @@ class _PerfilWidgetState extends State<PerfilWidget> {
                                             FFIcons.kproperty1FiRrBell,
                                             color: FlutterFlowTheme.of(context)
                                                 .primary,
-                                            size: 16.0,
+                                            size: 18.0,
                                           ),
                                         ),
                                       ),

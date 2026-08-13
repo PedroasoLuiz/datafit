@@ -98,6 +98,42 @@ class _VideoplayWidgetState extends State<VideoplayWidget>
       this,
     );
 
+    // Dispara a entrada.
+    //
+    // As duas animacoes tem `applyInitialState: true` e comecam com um
+    // `VisibilityEffect`: o estado inicial e INVISIVEL, e so o `forward`
+    // torna visivel. Ninguem chamava o forward, entao a folha abria e ficava
+    // invisivel para sempre — o botao de fechar ja fazia o `reverse`, mas o
+    // par dele nunca existiu.
+    //
+    // Passou tanto tempo despercebido porque o player do YouTube e uma view
+    // nativa: ela desenha por fora da camada de opacidade do Flutter e
+    // aparecia mesmo com o cartao invisivel. O video da plataforma e textura
+    // do proprio Flutter, obedece a opacidade — e por isso tocava sem
+    // aparecer, com o codec rodando no log e a tela em branco.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await Future.wait([
+        Future(() async {
+          if (animationsMap['containerOnActionTriggerAnimation'] != null) {
+            safeSetState(() => hasContainerTriggered = true);
+            SchedulerBinding.instance.addPostFrameCallback((_) async =>
+                await animationsMap['containerOnActionTriggerAnimation']!
+                    .controller
+                    .forward(from: 0.0));
+          }
+        }),
+        Future(() async {
+          if (animationsMap['iconButtonOnActionTriggerAnimation'] != null) {
+            safeSetState(() => hasIconButtonTriggered = true);
+            SchedulerBinding.instance.addPostFrameCallback((_) async =>
+                await animationsMap['iconButtonOnActionTriggerAnimation']!
+                    .controller
+                    .forward(from: 0.0));
+          }
+        }),
+      ]);
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -128,8 +164,13 @@ class _VideoplayWidgetState extends State<VideoplayWidget>
               ),
               child: SingleChildScrollView(
                 controller: _model.columnController,
+                // `min`, nunca `max`: dentro de um scroll a altura chega sem
+                // limite, e pedir o maximo tenta ocupar infinito. Em debug
+                // vira assercao; em release as assercoes somem e o conteudo
+                // simplesmente nao pinta — a folha abria vazia e o video
+                // tocava sem aparecer.
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -169,11 +210,22 @@ class _VideoplayWidgetState extends State<VideoplayWidget>
                                     ),
                               ),
                             ),
-                            FaIcon(
-                              FontAwesomeIcons.youtube,
-                              color: FlutterFlowTheme.of(context).primary,
-                              size: 18.0,
-                            ),
+                            // A marca do YouTube era fixa no cabecalho, e
+                            // aparecia tambem sobre video que nunca passou
+                            // por la.
+                            if (ehVideoDaPlataforma(
+                                FFAppState().exercicioTemp.linkInstrucao))
+                              Icon(
+                                Icons.play_circle_fill_rounded,
+                                color: FlutterFlowTheme.of(context).primary,
+                                size: 20.0,
+                              )
+                            else
+                              FaIcon(
+                                FontAwesomeIcons.youtube,
+                                color: FlutterFlowTheme.of(context).primary,
+                                size: 18.0,
+                              ),
                           ].divide(SizedBox(width: 8.0)),
                         ),
                       ),

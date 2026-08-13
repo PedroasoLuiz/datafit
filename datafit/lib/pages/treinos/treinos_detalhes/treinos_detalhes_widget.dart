@@ -3,6 +3,8 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
+import '/components/comemoracao.dart';
+import '/components/folha_feedback_treino.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -59,6 +61,9 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
   /// ordem em que eles chegam — que e a ordem de execucao, garantida pela RPC.
   /// Nulo quando nao sobrou nenhum.
   int? get _proximoExecucaoId {
+    // Só no treino que está acontecendo: num treino que ainda não começou (ou
+    // que já foi fechado e voltou para a fila) não há "agora".
+    if (_treinoAtual?.status != 'em_andamento') return null;
     final grupos = FFAppState()
             .treinosTemp
             .subagrupamentos
@@ -73,6 +78,80 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
     return null;
   }
 
+
+  /// Acende o deslizador que deve estar à mostra.
+  ///
+  /// Os dois — iniciar e concluir — nascem **invisíveis**: a animação deles
+  /// tem `applyInitialState` com um `VisibilityEffect`, então só aparecem
+  /// depois que alguém dispara o `forward`. Isso acontecia uma única vez, no
+  /// carregamento da tela, escolhendo um dos dois pela situação daquele
+  /// instante.
+  ///
+  /// Quem começava ou concluía o treino com a tela aberta trocava a situação,
+  /// mas ninguém acendia o deslizador novo: ele passava a existir na árvore e
+  /// continuava invisível. Só saindo e voltando — porque aí o `initState`
+  /// rodava de novo — é que ele aparecia. Agora isso é uma chamada, feita
+  /// também depois de iniciar e de concluir.
+  void _mostrarDeslizadorCerto() {
+    final emAndamento = FFAppState()
+        .treinosTemp
+        .subagrupamentos
+        .where((e) => e.status == 'em_andamento')
+        .isNotEmpty;
+
+    final animacao = animationsMap[emAndamento
+        ? 'containerOnActionTriggerAnimation2'
+        : 'containerOnActionTriggerAnimation1'];
+    if (animacao == null) return;
+
+    safeSetState(() {
+      if (emAndamento) {
+        hasContainerTriggered2 = true;
+      } else {
+        hasContainerTriggered1 = true;
+      }
+    });
+    SchedulerBinding.instance.addPostFrameCallback(
+        (_) async => await animacao.controller.forward(from: 0.0));
+  }
+
+  /// O treino mostrado nesta tela.
+  GruposStruct? get _treinoAtual => FFAppState()
+      .treinosTemp
+      .subagrupamentos
+      .elementAtOrNull(_model.index);
+
+  /// Este treino já foi fechado no ciclo corrente.
+  ///
+  /// Ele continua na lista — vai para o fim da fila e espera o ciclo virar —,
+  /// mas a partir daqui é um treino a fazer, não um treino feito.
+  bool get _jaFeitoNesteCiclo =>
+      _treinoAtual?.status == 'concluido' || _treinoAtual?.status == 'pulado';
+
+  /// A execução anterior, apagada da exibição.
+  ///
+  /// Depois de concluído, o treino volta para o fim da fila "como novo": os
+  /// vistos, as séries feitas e o feedback são do dia que passou, e mostrá-los
+  /// faria a próxima volta começar já parecendo meio andada. O dado continua
+  /// no banco — é histórico —, o que muda é só o que esta tela pinta.
+  List<GrupossubcategoriasStruct> _semExecucaoAnterior(
+    List<GrupossubcategoriasStruct> grupos,
+  ) =>
+      grupos
+          .map((g) => GrupossubcategoriasStruct(
+                subcategoria: g.subcategoria,
+                subcategoriaId: g.subcategoriaId,
+                exercicios: g.exercicios
+                    .map((e) => ExerciciosStruct.fromMap({
+                          ...e.toMap(),
+                          'isConcluido': false,
+                          'isPulado': false,
+                          'seriesFeitas': 0,
+                        }))
+                    .toList(),
+              ))
+          .toList();
+
   /// A lista como o servidor mandou.
   ///
   /// NAO ordenar aqui. A navegacao para a tela de execucao passa a POSICAO do
@@ -81,8 +160,165 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
   /// — foi assim que a tela de execucao passou a abrir vazia. A ordem correta
   /// vem pronta de `get_treino_ativo_aluno`.
   List<GrupossubcategoriasStruct> _gruposEmOrdem(
-          Iterable<GrupossubcategoriasStruct>? grupos) =>
-      (grupos ?? const <GrupossubcategoriasStruct>[]).toList();
+      Iterable<GrupossubcategoriasStruct>? grupos) {
+    final lista = (grupos ?? const <GrupossubcategoriasStruct>[]).toList();
+    return _jaFeitoNesteCiclo ? _semExecucaoAnterior(lista) : lista;
+  }
+
+  /// A pílula de concluir, para o resumo nascer de onde o dedo terminou.
+  final GlobalKey _chaveConcluir = GlobalKey();
+
+  /// Números do treino que acabou de ser fechado.
+  ///
+  /// Lido do estado antes de finalizar: o recarregamento que vem em seguida
+  /// troca o treino ativo, e nesse ponto já não há de onde tirar o que foi
+  /// feito hoje.
+  List<ItemResumo> _resumoDoTreino() {
+    final sub = FFAppState()
+        .treinosTemp
+        .subagrupamentos
+        .elementAtOrNull(_model.index);
+    final exercicios = _gruposEmOrdem(sub?.grupos)
+        .expand((g) => g.exercicios)
+        .toList();
+
+    // Pulado não conta como feito: o número grande tem que querer dizer que o
+    // treino foi cumprido, e não que ele terminou.
+    final feitos = exercicios.where((e) => e.isConcluido && !e.isPulado).length;
+    final pulados = exercicios.where((e) => e.isPulado).length;
+
+    final cardios = sub?.cardios ?? const <CardioStruct>[];
+    final minutosCardio =
+        cardios.fold<int>(0, (soma, c) => soma + c.duracaoMinutos);
+
+    // Duração pelo início gravado no banco, e não por cronômetro de tela: se
+    // a pessoa fechou o app no meio, o cronômetro parou e o relógio não.
+    final inicio = DateTime.tryParse(sub?.dataInicio ?? '');
+    final minutos =
+        inicio == null ? null : DateTime.now().difference(inicio).inMinutes;
+
+    return [
+      ItemResumo(
+        icone: Icons.check_rounded,
+        valor: '$feitos/${exercicios.length}',
+        rotulo: exercicios.length == 1 ? 'exercício' : 'exercícios',
+      ),
+      // Zero pulos não vira cartão: um "0" ali chamaria atenção para o que
+      // não aconteceu.
+      if (pulados > 0)
+        ItemResumo(
+          icone: Icons.redo_rounded,
+          valor: '$pulados',
+          rotulo: pulados == 1 ? 'pulado' : 'pulados',
+        ),
+      if (minutos != null && minutos > 0)
+        ItemResumo(
+          icone: Icons.schedule_rounded,
+          valor: minutos >= 60
+              ? '${minutos ~/ 60}h${(minutos % 60).toString().padLeft(2, '0')}'
+              : '${minutos}min',
+          rotulo: 'de treino',
+        ),
+      if (minutosCardio > 0)
+        ItemResumo(
+          icone: Icons.directions_run_rounded,
+          valor: '${minutosCardio}min',
+          rotulo: 'de cárdio',
+        ),
+    ];
+  }
+
+
+  /// Folha de feedback do treino.
+  ///
+  /// O campo vivia numa seção própria no fim da tela, depois da lista inteira
+  /// de exercícios — para escrever era preciso rolar por tudo, e o convite
+  /// nunca era visto. Agora o cartão azul convida e a folha recebe o texto,
+  /// já preenchido com o que houver: editar é o caso comum, não escrever do
+  /// zero.
+  Future<void> _abrirFeedback() async {
+    final sub = FFAppState()
+        .treinosTemp
+        .subagrupamentos
+        .elementAtOrNull(_model.index);
+    _model.txtFeedbackTextController?.text = sub?.feedback ?? '';
+
+    final salvou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (ctx) => WebViewAware(
+        child: Padding(
+          padding: MediaQuery.viewInsetsOf(ctx),
+          child: FolhaFeedbackTreino(
+            controlador: _model.txtFeedbackTextController!,
+            aoSalvar: (texto) async {
+              final r = await AlunoGroup.salvarFeedbackCall.call(
+                pAlunoUuid: currentUserUid,
+                pTreinoExecucaoId: sub?.treinoExecucaoId,
+                pFeedback: texto,
+              );
+              if (!(r.succeeded)) return false;
+              // Espelha no estado local para o cartao mostrar o texto novo
+              // sem esperar uma recarga inteira do treino.
+              FFAppState().updateTreinosTempStruct(
+                (t) => t
+                  ..updateSubagrupamentos(
+                    (s) => s[_model.index].feedback = texto,
+                  ),
+              );
+              return true;
+            },
+          ),
+        ),
+      ),
+    );
+
+    if (salvou == true && mounted) safeSetState(() {});
+  }
+
+  /// Codigo do erro para o rodape da tela de falha.
+  ///
+  /// Status HTTP e o corpo cortado: o corpo inteiro do Postgres passa de mil
+  /// caracteres e nao cabe em tela nenhuma, mas as primeiras linhas trazem o
+  /// que identifica o problema.
+  String? _codigoDoErro(ApiCallResponse? r) {
+    if (r == null) return null;
+    final corpo = (r.jsonBody ?? '').toString().trim();
+    final curto = corpo.length > 160 ? '${corpo.substring(0, 160)}…' : corpo;
+    return curto.isEmpty
+        ? 'HTTP ${r.statusCode}'
+        : 'HTTP ${r.statusCode} · $curto';
+  }
+
+  /// Centro de um widget na tela, para a animacao nascer de onde o dedo
+  /// estava. Nulo quando ele nao esta montado ou ainda nao foi medido.
+  Offset? _centroDaAcao(GlobalKey chave) {
+    final caixa = chave.currentContext?.findRenderObject() as RenderBox?;
+    if (caixa == null || !caixa.hasSize) return null;
+    return caixa.localToGlobal(caixa.size.center(Offset.zero));
+  }
+
+  Future<void> _mostrarResumoDoTreino(
+    BuildContext context,
+    List<ItemResumo> itens,
+  ) async {
+    final origem = _centroDaAcao(_chaveConcluir);
+
+    await mostrarResumoTreino(
+      context,
+      titulo: 'Treino concluído!',
+      subtitulo: FFAppState()
+          .treinosTemp
+          .subagrupamentos
+          .elementAtOrNull(_model.index)
+          ?.nome,
+      itens: itens,
+      origem: origem,
+    );
+  }
+
 
   @override
   void initState() {
@@ -100,29 +336,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
             .elementAtOrNull(_model.index)!
             .feedback;
       });
-      if (FFAppState()
-              .treinosTemp
-              .subagrupamentos
-              .where((e) => e.status == 'em_andamento')
-              .toList()
-              .length ==
-          0) {
-        if (animationsMap['containerOnActionTriggerAnimation1'] != null) {
-          safeSetState(() => hasContainerTriggered1 = true);
-          SchedulerBinding.instance.addPostFrameCallback((_) async =>
-              await animationsMap['containerOnActionTriggerAnimation1']!
-                  .controller
-                  .forward(from: 0.0));
-        }
-      } else {
-        if (animationsMap['containerOnActionTriggerAnimation2'] != null) {
-          safeSetState(() => hasContainerTriggered2 = true);
-          SchedulerBinding.instance.addPostFrameCallback((_) async =>
-              await animationsMap['containerOnActionTriggerAnimation2']!
-                  .controller
-                  .forward(from: 0.0));
-        }
-      }
+      _mostrarDeslizadorCerto();
     });
 
     _model.txtFeedbackTextController ??= TextEditingController();
@@ -345,16 +559,29 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                 onTap: () async {
                                                   context.safePop();
                                                 },
+                                                // Branco com sombra, como os
+                                                // cartoes da tela: em cinza
+                                                // chapado ele lia como parte do
+                                                // fundo, e o unico jeito de
+                                                // voltar ficava sendo o gesto
+                                                // do sistema.
                                                 child: Container(
                                                   width: 36.0,
                                                   height: 36.0,
                                                   decoration: BoxDecoration(
                                                     color: FlutterFlowTheme.of(
                                                             context)
-                                                        .alternate,
+                                                        .primaryBackground,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12.0),
+                                                    boxShadow: [
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .designToken
+                                                          .shadow
+                                                          .lg
+                                                    ],
                                                     shape: BoxShape.rectangle,
                                                   ),
                                                   child: Align(
@@ -634,6 +861,21 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                 .subagrupamentos
                                                 .elementAtOrNull(_model.index)
                                                 ?.grupos),
+                                            feedback: _jaFeitoNesteCiclo
+                                                ? null
+                                                : _treinoAtual?.feedback,
+                                            // So no treino em andamento: em
+                                            // treino que nao comecou nao ha o
+                                            // que comentar.
+                                            aoTocarFeedback: (FFAppState()
+                                                        .treinosTemp
+                                                        .subagrupamentos
+                                                        .elementAtOrNull(
+                                                            _model.index)
+                                                        ?.status ==
+                                                    'em_andamento')
+                                                ? _abrirFeedback
+                                                : null,
                                           ),
                                           Builder(
                                             builder: (context) {
@@ -664,44 +906,19 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     (subGruposIndex) {
                                                   final subGruposItem =
                                                       subGrupos[subGruposIndex];
-                                                  return Container(
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .primaryBackground,
-                                                      boxShadow: [
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .designToken
-                                                            .shadow
-                                                            .lg
-                                                      ],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16.0),
-                                                    ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      16.0,
-                                                                      16.0,
-                                                                      16.0,
-                                                                      0.0),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              Align(
-                                                                alignment:
-                                                                    AlignmentDirectional(
-                                                                        -1.0,
-                                                                        0.0),
+                                                  // O rotulo do grupo saiu de dentro do cartao: dentro, ele lia como
+                                                  // titulo de uma secao do cartao, quando na verdade nomeia o cartao
+                                                  // inteiro. Fora e acima, vira etiqueta — o mesmo papel que um
+                                                  // cabecalho de lista tem.
+                                                  return Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Padding(
+                                                        // 2 a mais que o cartao de cada lado, para o rotulo nao
+                                                        // nascer exatamente na quina.
+                                                        padding: const EdgeInsetsDirectional.fromSTEB(
+                                                            2.0, 8.0, 2.0, 8.0),
                                                                 child: Text(
                                                                   valueOrDefault<
                                                                       String>(
@@ -722,9 +939,9 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                               .fontStyle,
                                                                         ),
                                                                         color: FlutterFlowTheme.of(context)
-                                                                            .secondaryText,
+                                                                            .primaryText,
                                                                         fontSize:
-                                                                            14.0,
+                                                                            18.0,
                                                                         letterSpacing:
                                                                             0.0,
                                                                         fontWeight:
@@ -734,10 +951,27 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                             .fontStyle,
                                                                       ),
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
+                                                      ),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
+                                                      boxShadow: [
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .designToken
+                                                            .shadow
+                                                            .lg
+                                                      ],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16.0),
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
                                                         Builder(
                                                           builder: (context) {
                                                             final exercicios =
@@ -777,7 +1011,11 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                               padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
                                                                               child: Row(
                                                                                 mainAxisSize: MainAxisSize.max,
-                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                // Centro, e nao topo: sem observacao o nome do exercicio e uma
+                                                                                // linha so, e alinhado pelo topo ele ficava acima da metade dos
+                                                                                // botoes de 32 dos dois lados. Com observacao o bloco cresce e
+                                                                                // segue centrado, que e como uma linha de lista se le.
+                                                                                crossAxisAlignment: CrossAxisAlignment.center,
                                                                                 children: [
                                                                                   Column(
                                                                                     mainAxisSize: MainAxisSize.min,
@@ -789,48 +1027,51 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                           if (exerciciosItem.isConcluido && !exerciciosItem.isPulado)
                                                                                             Padding(
                                                                                               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                              child: Icon(
+                                                                                              // Caixa de 32, igual a do botao
+                                                                                              // de play do outro lado da linha:
+                                                                                              // marcador de 20 num lado e botao
+                                                                                              // de 32 no outro nunca encontram a
+                                                                                              // mesma linha de centro, e cada
+                                                                                              // linha da lista ficava torta para
+                                                                                              // um lado.
+                                                                                              child: SizedBox(
+                                                                                                width: 32.0,
+                                                                                                height: 32.0,
+                                                                                                child: Icon(
                                                                                                 Icons.check_circle,
-                                                                                                color: FlutterFlowTheme.of(context).primary,
-                                                                                                size: 20.0,
+                                                                                                // Verde de sucesso, o mesmo da
+                                                                                                // comemoracao ao finalizar: o azul
+                                                                                                // e a cor de acao do app, e um
+                                                                                                // exercicio feito nao pede acao
+                                                                                                // nenhuma.
+                                                                                                color: FlutterFlowTheme.of(context).success,
+                                                                                                size: 22.0,
+                                                                                              ),
                                                                                               ),
                                                                                             ),
                                                                                           if (!exerciciosItem.isConcluido && !exerciciosItem.isPulado)
                                                                                             Padding(
                                                                                               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                              child: Container(
-                                                                                                height: 20.0,
-                                                                                                constraints: BoxConstraints(
-                                                                                                  minWidth: 20.0,
-                                                                                                ),
-                                                                                                decoration: BoxDecoration(
-                                                                                                  borderRadius: BorderRadius.circular(30.0),
-                                                                                                  shape: BoxShape.rectangle,
-                                                                                                  border: Border.all(
-                                                                                                    color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                    width: 2.1,
-                                                                                                  ),
-                                                                                                ),
-                                                                                                child: Align(
-                                                                                                  alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                  child: Padding(
-                                                                                                    padding: EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
-                                                                                                    child: Text(
-                                                                                                      valueOrDefault<String>(
-                                                                                                        (exerciciosIndex + 1).toString(),
-                                                                                                        '0',
+                                                                                              // Circulo vazio, sem o numero da
+                                                                                              // posicao: a ordem ja esta na
+                                                                                              // propria sequencia da lista, e o
+                                                                                              // numero repetia isso ocupando o
+                                                                                              // lugar onde o concluido mostra o
+                                                                                              // visto — o par so precisa dizer
+                                                                                              // feito ou nao feito.
+                                                                                              child: SizedBox(
+                                                                                                width: 32.0,
+                                                                                                height: 32.0,
+                                                                                                child: Center(
+                                                                                                  child: Container(
+                                                                                                    height: 22.0,
+                                                                                                    width: 22.0,
+                                                                                                    decoration: BoxDecoration(
+                                                                                                      shape: BoxShape.circle,
+                                                                                                      border: Border.all(
+                                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                        width: 2.1,
                                                                                                       ),
-                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                            font: GoogleFonts.inter(
-                                                                                                              fontWeight: FontWeight.w500,
-                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                            ),
-                                                                                                            color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                            fontSize: 11.0,
-                                                                                                            letterSpacing: 0.0,
-                                                                                                            fontWeight: FontWeight.w500,
-                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                          ),
                                                                                                     ),
                                                                                                   ),
                                                                                                 ),
@@ -839,10 +1080,14 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                           if (exerciciosItem.isPulado)
                                                                                             Padding(
                                                                                               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                                              child: Icon(
-                                                                                                Icons.snooze_rounded,
-                                                                                                color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                size: 20.0,
+                                                                                              child: SizedBox(
+                                                                                                width: 32.0,
+                                                                                                height: 32.0,
+                                                                                                child: Icon(
+                                                                                                  Icons.snooze_rounded,
+                                                                                                  color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                                  size: 22.0,
+                                                                                                ),
                                                                                               ),
                                                                                             ),
                                                                                         ],
@@ -862,31 +1107,6 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                   mainAxisSize: MainAxisSize.min,
                                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                                   children: [
-                                                                                                    // "Agora" no primeiro que ainda
-                                                                                                    // falta: sem isso, a pessoa
-                                                                                                    // abria o treino e tinha que
-                                                                                                    // procurar onde retomar.
-                                                                                                    if (exerciciosItem.execucaoId == _proximoExecucaoId)
-                                                                                                      Padding(
-                                                                                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
-                                                                                                        child: Container(
-                                                                                                          padding: const EdgeInsetsDirectional.fromSTEB(7.0, 2.0, 7.0, 2.0),
-                                                                                                          decoration: BoxDecoration(
-                                                                                                            color: FlutterFlowTheme.of(context).primary,
-                                                                                                            borderRadius: BorderRadius.circular(999.0),
-                                                                                                          ),
-                                                                                                          child: Text(
-                                                                                                            'Agora',
-                                                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                                                                                                                  color: Colors.white,
-                                                                                                                  fontSize: 10.0,
-                                                                                                                  letterSpacing: 0.2,
-                                                                                                                  fontWeight: FontWeight.w600,
-                                                                                                                ),
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ),
                                                                                                     RichText(
                                                                                                       textScaler: MediaQuery.of(context).textScaler,
                                                                                                       text: TextSpan(
@@ -908,7 +1128,29 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                                                   decoration: _model.substitutos.containsKey(exerciciosItem.execucaoId) ? TextDecoration.lineThrough : null,
                                                                                                                 ),
-                                                                                                          )
+                                                                                                          ),
+                                                          // "Próximo" no primeiro que ainda
+                                                          // falta: sem isso, a pessoa abria
+                                                          // o treino e tinha que procurar
+                                                          // onde retomar.
+                                                          //
+                                                          // Texto azul, e não mais pílula
+                                                          // preenchida: o botão de play do
+                                                          // mesmo exercício ja vem cheio de
+                                                          // cor, e dois destaques na mesma
+                                                          // linha disputavam o olho. Aqui a
+                                                          // palavra informa e o botao chama.
+                                                          if (exerciciosItem.execucaoId == _proximoExecucaoId)
+                                                            TextSpan(
+                                                              text: '  Próximo',
+                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                                                    color: FlutterFlowTheme.of(context).primary,
+                                                                    fontSize: 12.0,
+                                                                    letterSpacing: 0.0,
+                                                                    fontWeight: FontWeight.w600,
+                                                                  ),
+                                                            ),
                                                                                                         ],
                                                                                                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                                                                                                               font: GoogleFonts.inter(
@@ -1037,7 +1279,12 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                     mainAxisSize: MainAxisSize.max,
                                                                                     crossAxisAlignment: CrossAxisAlignment.center,
                                                                                     children: [
-                                                                                      if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
+                                                                                      // So onde ha substituto cadastrado: o botao
+                                                                                      // aparecia em todo exercicio e a folha
+                                                                                      // abria vazia na maioria deles. Quem sabe
+                                                                                      // se ha para onde trocar e o banco, e a
+                                                                                      // resposta ja vem no exercicio.
+                                                                                      if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido && exerciciosItem.temSubstitutos)
                                                                                         Padding(
                                                                                           padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
                                                                                           child: InkWell(
@@ -1074,22 +1321,27 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                 _model.substitutos[exerciciosItem.execucaoId] = nomeSubstituto;
                                                                                               });
                                                                                             },
-                                                                                            child: Container(
-                                                                                              width: 32.0,
-                                                                                              height: 32.0,
-                                                                                              decoration: BoxDecoration(
-                                                                                                color: FlutterFlowTheme.of(context).accent1,
-                                                                                                borderRadius: BorderRadius.circular(12.0),
-                                                                                              ),
-                                                                                              child: Align(
-                                                                                                alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                child: Icon(
-                                                                                                  FFIcons.kproperty1FiRrRefresh,
-                                                                                                  color: FlutterFlowTheme.of(context).primary,
-                                                                                                  size: 14.0,
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
+                                              // Redondo e de 24, igual ao + do
+                                              // cardio: sao todos botoes de acao de
+                                              // linha, e cada um com forma propria
+                                              // fazia a lista parecer montada por
+                                              // pessoas diferentes.
+                                              child: Container(
+                                                width: 24.0,
+                                                height: 24.0,
+                                                decoration: BoxDecoration(
+                                                  color: FlutterFlowTheme.of(context).accent1,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Align(
+                                                  alignment: AlignmentDirectional(0.0, 0.0),
+                                                  child: Icon(
+                                                    FFIcons.kproperty1FiRrRefresh,
+                                                    color: FlutterFlowTheme.of(context).primary,
+                                                    size: 12.0,
+                                                  ),
+                                                ),
+                                              ),
                                                                                           ),
                                                                                         ),
                                                                                       if ((FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.status == 'em_andamento') && !exerciciosItem.isConcluido)
@@ -1173,28 +1425,67 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                               );
                                                                                             }
                                                                                           },
-                                                                                          child: Container(
-                                                                                            width: 32.0,
-                                                                                            height: 32.0,
-                                                                                            decoration: BoxDecoration(
-                                                                                              color: valueOrDefault<Color>(
-                                                                                                (FFAppState().exercicioEmAndamento == true ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).accent1 : FlutterFlowTheme.of(context).alternate,
-                                                                                                FlutterFlowTheme.of(context).accent1,
-                                                                                              ),
-                                                                                              borderRadius: BorderRadius.circular(12.0),
-                                                                                            ),
-                                                                                            child: Align(
-                                                                                              alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                              child: Icon(
-                                                                                                FFIcons.kproperty1FiRrPlay,
-                                                                                                color: valueOrDefault<Color>(
-                                                                                                  (FFAppState().exercicioEmAndamento ? (FFAppState().exercicioTemp.execucaoId == exerciciosItem.execucaoId) : true) ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText,
-                                                                                                  FlutterFlowTheme.of(context).primary,
-                                                                                                ),
-                                                                                                size: 14.0,
-                                                                                              ),
-                                                                                            ),
-                                                                                          ),
+                                          // Redondo e de 24, igual ao + do cardio.
+                                          //
+                                          // Tres estados, nesta ordem:
+                                          //
+                                          // 1. Ha outro exercicio em andamento e
+                                          //    este nao e ele: cinza. Nao da para
+                                          //    comecar dois ao mesmo tempo, e o
+                                          //    botao tem que dizer isso antes do
+                                          //    toque.
+                                          // 2. E o proximo da fila: azul cheio com
+                                          //    icone branco — e por onde continuar.
+                                          // 3. Os demais: azul claro com icone
+                                          //    azul.
+                                          //
+                                          // O cinza vem primeiro de proposito: um
+                                          // exercicio pode ser "o proximo" e ainda
+                                          // assim estar bloqueado porque outro
+                                          // esta rolando.
+                                          child: Builder(builder: (context) {
+                                            final tema =
+                                                FlutterFlowTheme.of(context);
+                                            final liberado = FFAppState()
+                                                    .exercicioEmAndamento
+                                                ? FFAppState()
+                                                        .exercicioTemp
+                                                        .execucaoId ==
+                                                    exerciciosItem.execucaoId
+                                                : true;
+                                            final ehProximo =
+                                                exerciciosItem.execucaoId ==
+                                                    _proximoExecucaoId;
+
+                                            final fundo = !liberado
+                                                ? tema.alternate
+                                                : (ehProximo
+                                                    ? tema.primary
+                                                    : tema.accent1);
+                                            final corIcone = !liberado
+                                                ? tema.secondaryText
+                                                : (ehProximo
+                                                    ? Colors.white
+                                                    : tema.primary);
+
+                                            return Container(
+                                              width: 24.0,
+                                              height: 24.0,
+                                              decoration: BoxDecoration(
+                                                color: fundo,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Align(
+                                                alignment:
+                                                    AlignmentDirectional(0.0, 0.0),
+                                                child: Icon(
+                                                  FFIcons.kproperty1FiRrPlay,
+                                                  color: corIcone,
+                                                  size: 12.0,
+                                                ),
+                                              ),
+                                            );
+                                          }),
                                                                                         ),
                                                                                     ].addToStart(SizedBox(width: 16.0)).addToEnd(SizedBox(width: 16.0)),
                                                                                   ),
@@ -1226,41 +1517,19 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                         ),
                                                       ],
                                                     ),
+                                                    ),
+                                                    ],
                                                   );
                                                 }).divide(
                                                     SizedBox(height: 16.0)),
                                               );
                                             },
                                           ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryBackground,
-                                              boxShadow: [
-                                                FlutterFlowTheme.of(context)
-                                                    .designToken
-                                                    .shadow
-                                                    .lg
-                                              ],
-                                              borderRadius:
-                                                  BorderRadius.circular(16.0),
-                                            ),
-                                            child: SingleChildScrollView(
-                                              primary: false,
-                                              controller:
-                                                  _model.columnController2,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
+                                                  // Mesma etiqueta das outras (Peitoral, Triceps...): fora do
+                                                  // cartao, com o mesmo peso e o mesmo respiro. Cardio e mais um
+                                                  // grupo da lista, e nada justificava um titulo proprio.
                                                   Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                16.0,
-                                                                16.0,
-                                                                16.0,
-                                                                0.0),
+                                                    padding: const EdgeInsetsDirectional.fromSTEB(2.0, 8.0, 2.0, 8.0),
                                                     child: Row(
                                                       mainAxisSize:
                                                           MainAxisSize.max,
@@ -1288,9 +1557,9 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                   ),
                                                                   color: FlutterFlowTheme.of(
                                                                           context)
-                                                                      .secondaryText,
+                                                                      .primaryText,
                                                                   fontSize:
-                                                                      14.0,
+                                                                      18.0,
                                                                   letterSpacing:
                                                                       0.0,
                                                                   fontWeight:
@@ -1303,9 +1572,187 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                 ),
                                                           ),
                                                         ),
+                                                        // O botao anda junto do titulo, como nas metas: ali fica claro a
+                                                        // que lista ele adiciona. Dentro do cartao, o botao tracejado de
+                                                        // largura cheia competia com os proprios registros de cardio e
+                                                        // empurrava o cartao para baixo mesmo sem haver nada para somar.
+                                                        // Só no treino em execução, como era antes: em treino que ainda não
+                                                        // começou não há o que registrar, e o botão convidava para uma folha
+                                                        // que gravaria cárdio num treino que não estava acontecendo.
+                                                        if (FFAppState()
+                                                                .treinosTemp
+                                                                .subagrupamentos
+                                                                .elementAtOrNull(_model.index)
+                                                                ?.status ==
+                                                            'em_andamento')
+                                                        Padding(
+                                                          padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                                                          child: Material(
+                                                            color: FlutterFlowTheme.of(context).primary,
+                                                            shape: const CircleBorder(),
+                                                            child: InkWell(
+                                                              customBorder: const CircleBorder(),
+                                                              onTap: () async {
+                                                    await showModalBottomSheet(
+                                                      useRootNavigator:
+                                                          true,
+                                                      isScrollControlled:
+                                                          true,
+                                                      backgroundColor:
+                                                          Colors
+                                                              .transparent,
+                                                      enableDrag: false,
+                                                      context: context,
+                                                      builder:
+                                                          (context) {
+                                                        return WebViewAware(
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .unfocus();
+                                                              FocusManager
+                                                                  .instance
+                                                                  .primaryFocus
+                                                                  ?.unfocus();
+                                                            },
+                                                            child:
+                                                                Padding(
+                                                              padding: MediaQuery
+                                                                  .viewInsetsOf(
+                                                                      context),
+                                                              child:
+                                                                  TreinosDetalhesCardioNovoWidget(
+                                                                index: _model
+                                                                    .index,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ).then((value) =>
+                                                        safeSetState(() =>
+                                                            _model.add =
+                                                                value));
+
+                                                    if (_model.add ==
+                                                        true) {
+                                                      await Future
+                                                          .delayed(
+                                                        Duration(
+                                                          milliseconds:
+                                                              1000,
+                                                        ),
+                                                      );
+                                                      if (!mounted)
+                                                        return;
+                                                      await action_blocks
+                                                          .getTreinosAluno(
+                                                              context);
+                                                      if (!mounted)
+                                                        return;
+                                                      await showModalBottomSheet(
+                                                        useRootNavigator:
+                                                            true,
+                                                        isScrollControlled:
+                                                            true,
+                                                        backgroundColor:
+                                                            Colors
+                                                                .transparent,
+                                                        enableDrag:
+                                                            false,
+                                                        context:
+                                                            context,
+                                                        builder:
+                                                            (context) {
+                                                          return WebViewAware(
+                                                            child:
+                                                                GestureDetector(
+                                                              onTap:
+                                                                  () {
+                                                                FocusScope.of(context)
+                                                                    .unfocus();
+                                                                FocusManager
+                                                                    .instance
+                                                                    .primaryFocus
+                                                                    ?.unfocus();
+                                                              },
+                                                              child:
+                                                                  Padding(
+                                                                padding:
+                                                                    MediaQuery.viewInsetsOf(context),
+                                                                child:
+                                                                    MensagemWidget(
+                                                                  texto:
+                                                                      'Cárdio adicionado!',
+                                                                  tipo:
+                                                                      '1',
+                                                                  fechasozinho:
+                                                                      true,
+                                                                  mostrabotoes:
+                                                                      false,
+                                                                  action:
+                                                                      () async {
+                                                                    safeSetState(() {});
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ).then((value) =>
+                                                          safeSetState(
+                                                              () {}));
+                                                    }
+
+                                                    safeSetState(() {});
+                                                              },
+                                                              child: const SizedBox(
+                                                                width: 24.0,
+                                                                height: 24.0,
+                                                                child: Icon(
+                                                                  Icons.add_rounded,
+                                                                  color: Colors.white,
+                                                                  size: 16.0,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
                                                   ),
+                                          // O cartao branco so existe havendo cardio: vazio, ele era uma
+                                          // caixa em branco anunciando que nao havia nada dentro.
+                                          // Treino que ja voltou para a fila
+                                          // nao mostra o cardio da volta
+                                          // passada, pelo mesmo motivo dos
+                                          // vistos dos exercicios.
+                                          if (!_jaFeitoNesteCiclo &&
+                                              (_treinoAtual?.cardios.isNotEmpty ??
+                                                  false))
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryBackground,
+                                              boxShadow: [
+                                                FlutterFlowTheme.of(context)
+                                                    .designToken
+                                                    .shadow
+                                                    .lg
+                                              ],
+                                              borderRadius:
+                                                  BorderRadius.circular(16.0),
+                                            ),
+                                            child: SingleChildScrollView(
+                                              primary: false,
+                                              controller:
+                                                  _model.columnController2,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
                                                   Padding(
                                                     padding:
                                                         EdgeInsetsDirectional
@@ -1371,7 +1818,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
                                                                                   child: Icon(
                                                                                     Icons.check_circle,
-                                                                                    color: FlutterFlowTheme.of(context).primary,
+                                                                                    color: FlutterFlowTheme.of(context).success,
                                                                                     size: 20.0,
                                                                                   ),
                                                                                 ),
@@ -1784,657 +2231,24 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                       },
                                                     ),
                                                   ),
-                                                  if (FFAppState()
-                                                          .treinosTemp
-                                                          .subagrupamentos
-                                                          .elementAtOrNull(
-                                                              _model.index)
-                                                          ?.status ==
-                                                      'em_andamento')
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  16.0,
-                                                                  0.0,
-                                                                  16.0,
-                                                                  16.0),
-                                                      child: Container(
-                                                        width:
-                                                            MediaQuery.sizeOf(
-                                                                        context)
-                                                                    .width *
-                                                                1.0,
-                                                        height: 38.0,
-                                                        child: custom_widgets
-                                                            .DashedButton(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  1.0,
-                                                          height: 38.0,
-                                                          label:
-                                                              'Adicionar exercício',
-                                                          labelSize: 14.0,
-                                                          labelColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
-                                                          icon: Icon(
-                                                            Icons.add,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primary,
-                                                            size: 18.0,
-                                                          ),
-                                                          iconColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
-                                                          iconGap: 4.0,
-                                                          borderColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
-                                                          borderRadius: 10.0,
-                                                          borderWidth: 1.0,
-                                                          dashWidth: 4.0,
-                                                          dashGap: 4.0,
-                                                          onPressed: () async {
-                                                            await showModalBottomSheet(
-                                                              useRootNavigator:
-                                                                  true,
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          TreinosDetalhesCardioNovoWidget(
-                                                                        index: _model
-                                                                            .index,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(() =>
-                                                                    _model.add =
-                                                                        value));
-
-                                                            if (_model.add ==
-                                                                true) {
-                                                              await Future
-                                                                  .delayed(
-                                                                Duration(
-                                                                  milliseconds:
-                                                                      1000,
-                                                                ),
-                                                              );
-                                                              if (!mounted)
-                                                                return;
-                                                              await action_blocks
-                                                                  .getTreinosAluno(
-                                                                      context);
-                                                              if (!mounted)
-                                                                return;
-                                                              await showModalBottomSheet(
-                                                                useRootNavigator:
-                                                                    true,
-                                                                isScrollControlled:
-                                                                    true,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .transparent,
-                                                                enableDrag:
-                                                                    false,
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return WebViewAware(
-                                                                    child:
-                                                                        GestureDetector(
-                                                                      onTap:
-                                                                          () {
-                                                                        FocusScope.of(context)
-                                                                            .unfocus();
-                                                                        FocusManager
-                                                                            .instance
-                                                                            .primaryFocus
-                                                                            ?.unfocus();
-                                                                      },
-                                                                      child:
-                                                                          Padding(
-                                                                        padding:
-                                                                            MediaQuery.viewInsetsOf(context),
-                                                                        child:
-                                                                            MensagemWidget(
-                                                                          texto:
-                                                                              'Cárdio adicionado!',
-                                                                          tipo:
-                                                                              '1',
-                                                                          fechasozinho:
-                                                                              true,
-                                                                          mostrabotoes:
-                                                                              false,
-                                                                          action:
-                                                                              () async {
-                                                                            safeSetState(() {});
-                                                                          },
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ).then((value) =>
-                                                                  safeSetState(
-                                                                      () {}));
-                                                            }
-
-                                                            safeSetState(() {});
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
                                                 ],
                                               ),
                                             ),
                                           ),
-                                        ].divide(SizedBox(height: 16.0)),
+                                        ]
+                                            .divide(SizedBox(height: 16.0))
+                                            // Espaco morto no fim da rolagem:
+                                            // a barra de deslizar flutua sobre
+                                            // o conteudo, e sem folga o ultimo
+                                            // item — hoje a etiqueta do cardio
+                                            // — parava atras dela e nao havia
+                                            // como rolar para ve-lo.
+                                            .addToEnd(
+                                                const SizedBox(height: 200.0)),
                                       ),
                                     ),
                                   ),
                                 ].divide(SizedBox(height: 16.0)),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 16.0, 0.0, 0.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        FlutterFlowTheme.of(context).alternate,
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      if (FFAppState()
-                                              .treinosTemp
-                                              .subagrupamentos
-                                              .elementAtOrNull(_model.index)
-                                              ?.status ==
-                                          'em_andamento')
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  16.0,
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  0.0),
-                                          child: Container(
-                                            width: MediaQuery.sizeOf(context)
-                                                    .width *
-                                                1.0,
-                                            decoration: BoxDecoration(),
-                                            child: Text(
-                                              'Feedback',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryText,
-                                                    fontSize: 13.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                      if (FFAppState()
-                                              .treinosTemp
-                                              .subagrupamentos
-                                              .elementAtOrNull(_model.index)
-                                              ?.status ==
-                                          'em_andamento')
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  0.0,
-                                                  valueOrDefault<double>(
-                                                    () {
-                                                      if (MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width <
-                                                          kBreakpointSmall) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointMedium) {
-                                                        return 16.0;
-                                                      } else if (MediaQuery
-                                                                  .sizeOf(
-                                                                      context)
-                                                              .width <
-                                                          kBreakpointLarge) {
-                                                        return 32.0;
-                                                      } else {
-                                                        return 32.0;
-                                                      }
-                                                    }(),
-                                                    0.0,
-                                                  ),
-                                                  0.0),
-                                          child: Container(
-                                            width: MediaQuery.sizeOf(context)
-                                                    .width *
-                                                1.0,
-                                            decoration: BoxDecoration(
-                                              boxShadow: [
-                                                FlutterFlowTheme.of(context)
-                                                    .designToken
-                                                    .shadow
-                                                    .lg
-                                              ],
-                                            ),
-                                            child: Container(
-                                              width: 200.0,
-                                              child: TextFormField(
-                                                controller: _model
-                                                    .txtFeedbackTextController,
-                                                focusNode:
-                                                    _model.txtFeedbackFocusNode,
-                                                onFieldSubmitted: (_) async {
-                                                  _model.reultFeedback =
-                                                      await AlunoGroup
-                                                          .salvarFeedbackCall
-                                                          .call(
-                                                    pAlunoUuid: currentUserUid,
-                                                    pTreinoExecucaoId:
-                                                        FFAppState()
-                                                            .treinosTemp
-                                                            .subagrupamentos
-                                                            .elementAtOrNull(
-                                                                _model.index)
-                                                            ?.treinoExecucaoId,
-                                                    pFeedback: _model
-                                                        .txtFeedbackTextController
-                                                        .text
-                                                        .trim(),
-                                                  );
-
-                                                  if ((_model.reultFeedback
-                                                          ?.succeeded ??
-                                                      true)) {
-                                                    FFAppState()
-                                                        .updateTreinosTempStruct(
-                                                      (e) => e
-                                                        ..updateSubagrupamentos(
-                                                          (e) => e[_model.index]
-                                                            ..feedback = _model
-                                                                .txtFeedbackTextController
-                                                                .text
-                                                                .trim(),
-                                                        ),
-                                                    );
-                                                    safeSetState(() {});
-                                                    await showModalBottomSheet(
-                                                      useRootNavigator: true,
-                                                      isScrollControlled: true,
-                                                      backgroundColor:
-                                                          Colors.transparent,
-                                                      enableDrag: false,
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return WebViewAware(
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () {
-                                                              FocusScope.of(
-                                                                      context)
-                                                                  .unfocus();
-                                                              FocusManager
-                                                                  .instance
-                                                                  .primaryFocus
-                                                                  ?.unfocus();
-                                                            },
-                                                            child: Padding(
-                                                              padding: MediaQuery
-                                                                  .viewInsetsOf(
-                                                                      context),
-                                                              child:
-                                                                  MensagemWidget(
-                                                                texto:
-                                                                    'Feedback salvo com sucesso!',
-                                                                tipo: '1',
-                                                                fechasozinho:
-                                                                    true,
-                                                                mostrabotoes:
-                                                                    false,
-                                                                action:
-                                                                    () async {
-                                                                  safeSetState(
-                                                                      () {});
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                    ).then((value) =>
-                                                        safeSetState(() {}));
-                                                  } else {
-                                                    await showDialog(
-                                                      useRootNavigator: true,
-                                                      context: context,
-                                                      builder:
-                                                          (alertDialogContext) {
-                                                        return WebViewAware(
-                                                          child: AlertDialog(
-                                                            content: Text((_model
-                                                                        .reultFeedback
-                                                                        ?.jsonBody ??
-                                                                    '')
-                                                                .toString()),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () =>
-                                                                    Navigator.pop(
-                                                                        alertDialogContext),
-                                                                child:
-                                                                    Text('Ok'),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        );
-                                                      },
-                                                    );
-                                                  }
-
-                                                  safeSetState(() {});
-                                                },
-                                                autofocus: false,
-                                                enabled: true,
-                                                textInputAction:
-                                                    TextInputAction.go,
-                                                obscureText: false,
-                                                decoration: InputDecoration(
-                                                  isDense: true,
-                                                  labelStyle: FlutterFlowTheme
-                                                          .of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        fontSize: 12.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontStyle,
-                                                      ),
-                                                  hintText:
-                                                      'Deixe seu feedback sobre este treino....',
-                                                  hintStyle: FlutterFlowTheme
-                                                          .of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontStyle,
-                                                      ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Color(0x00000000),
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Color(0x00000000),
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0),
-                                                  ),
-                                                  errorBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .error,
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0),
-                                                  ),
-                                                  focusedErrorBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .error,
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0),
-                                                  ),
-                                                  filled: true,
-                                                  fillColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primaryBackground,
-                                                  contentPadding:
-                                                      EdgeInsets.all(16.0),
-                                                ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                      fontSize: 14.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                maxLines: 5,
-                                                cursorColor:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryText,
-                                                enableInteractiveSelection:
-                                                    true,
-                                                validator: _model
-                                                    .txtFeedbackTextControllerValidator
-                                                    .asValidator(context),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ]
-                                        .divide(SizedBox(height: 16.0))
-                                        .addToEnd(SizedBox(height: 140.0)),
-                                  ),
-                                ),
                               ),
                             ].divide(SizedBox(height: 16.0)),
                           ),
@@ -2467,6 +2281,13 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // Duas condicoes, e nao uma: nenhum outro treino
+                            // em andamento (nao da para tocar dois ao mesmo
+                            // tempo) E este aqui ainda pendente. Sem a
+                            // segunda, treino ja feito no ciclo aparecia com
+                            // "deslize para iniciar" e podia ser refeito,
+                            // gravando execucao em cima do que ja estava
+                            // fechado.
                             if ((FFAppState()
                                         .treinosTemp
                                         .subagrupamentos
@@ -2475,6 +2296,12 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                         .toList()
                                         .length ==
                                     0) &&
+                                (FFAppState()
+                                        .treinosTemp
+                                        .subagrupamentos
+                                        .elementAtOrNull(_model.index)
+                                        ?.status ==
+                                    'pendente') &&
                                 !_model.opAtv)
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
@@ -2577,6 +2404,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                 await action_blocks
                                                     .getTreinosAluno(context);
                                                 safeSetState(() {});
+                                                _mostrarDeslizadorCerto();
                                                 await showModalBottomSheet(
                                                   useRootNavigator: true,
                                                   isScrollControlled: true,
@@ -2616,308 +2444,12 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                 ).then((value) =>
                                                     safeSetState(() {}));
                                               } else {
-                                                await showModalBottomSheet(
-                                                  useRootNavigator: true,
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  enableDrag: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return WebViewAware(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          FocusScope.of(context)
-                                                              .unfocus();
-                                                          FocusManager.instance
-                                                              .primaryFocus
-                                                              ?.unfocus();
-                                                        },
-                                                        child: Padding(
-                                                          padding: MediaQuery
-                                                              .viewInsetsOf(
-                                                                  context),
-                                                          child: MensagemWidget(
-                                                            texto:
-                                                                'O sistema reportou o seguinte erro: ${(_model.apiResult7ye?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                            tipo: '2',
-                                                            fechasozinho: false,
-                                                            mostrabotoes: true,
-                                                            action: () async {
-                                                              _model.subserult =
-                                                                  await AlunoGroup
-                                                                      .iniciarTreinoCall
-                                                                      .call(
-                                                                pAlunoUuid:
-                                                                    currentUserUid,
-                                                                pTreinoExecucao:
-                                                                    valueOrDefault<
-                                                                        int>(
-                                                                  FFAppState()
-                                                                      .treinosTemp
-                                                                      .subagrupamentos
-                                                                      .elementAtOrNull(
-                                                                          _model
-                                                                              .index)
-                                                                      ?.treinoExecucaoId,
-                                                                  0,
-                                                                ),
-                                                              );
-
-                                                              if ((_model
-                                                                      .subserult
-                                                                      ?.succeeded ??
-                                                                  true)) {
-                                                                await showModalBottomSheet(
-                                                                  useRootNavigator:
-                                                                      true,
-                                                                  isScrollControlled:
-                                                                      true,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  enableDrag:
-                                                                      false,
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return WebViewAware(
-                                                                      child:
-                                                                          GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                          FocusManager
-                                                                              .instance
-                                                                              .primaryFocus
-                                                                              ?.unfocus();
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              MediaQuery.viewInsetsOf(context),
-                                                                          child:
-                                                                              MensagemWidget(
-                                                                            texto:
-                                                                                'Treino iniciado com sucesso!',
-                                                                            tipo:
-                                                                                '1',
-                                                                            fechasozinho:
-                                                                                true,
-                                                                            mostrabotoes:
-                                                                                false,
-                                                                            action:
-                                                                                () async {
-                                                                              safeSetState(() {});
-                                                                            },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ).then((value) =>
-                                                                    safeSetState(
-                                                                        () {}));
-                                                              } else {
-                                                                await showModalBottomSheet(
-                                                                  useRootNavigator:
-                                                                      true,
-                                                                  isScrollControlled:
-                                                                      true,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  enableDrag:
-                                                                      false,
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return WebViewAware(
-                                                                      child:
-                                                                          GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                          FocusManager
-                                                                              .instance
-                                                                              .primaryFocus
-                                                                              ?.unfocus();
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              MediaQuery.viewInsetsOf(context),
-                                                                          child:
-                                                                              MensagemWidget(
-                                                                            texto:
-                                                                                'O sistema reportou o seguinte erro: ${(_model.subserult?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                                            tipo:
-                                                                                '2',
-                                                                            fechasozinho:
-                                                                                false,
-                                                                            mostrabotoes:
-                                                                                true,
-                                                                            action:
-                                                                                () async {
-                                                                              _model.subResult = await AlunoGroup.iniciarTreinoCall.call(
-                                                                                pAlunoUuid: currentUserUid,
-                                                                                pTreinoExecucao: valueOrDefault<int>(
-                                                                                  FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.treinoExecucaoId,
-                                                                                  0,
-                                                                                ),
-                                                                              );
-
-                                                                              if ((_model.subResult?.succeeded ?? true)) {
-                                                                                await showModalBottomSheet(
-                                                                                  useRootNavigator: true,
-                                                                                  isScrollControlled: true,
-                                                                                  backgroundColor: Colors.transparent,
-                                                                                  enableDrag: false,
-                                                                                  context: context,
-                                                                                  builder: (context) {
-                                                                                    return WebViewAware(
-                                                                                      child: GestureDetector(
-                                                                                        onTap: () {
-                                                                                          FocusScope.of(context).unfocus();
-                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                        },
-                                                                                        child: Padding(
-                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                          child: MensagemWidget(
-                                                                                            texto: 'Treino iniciado com sucesso!',
-                                                                                            tipo: '1',
-                                                                                            fechasozinho: true,
-                                                                                            mostrabotoes: false,
-                                                                                            action: () async {
-                                                                                              safeSetState(() {});
-                                                                                            },
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                ).then((value) => safeSetState(() {}));
-                                                                              } else {
-                                                                                await showModalBottomSheet(
-                                                                                  useRootNavigator: true,
-                                                                                  isScrollControlled: true,
-                                                                                  backgroundColor: Colors.transparent,
-                                                                                  enableDrag: false,
-                                                                                  context: context,
-                                                                                  builder: (context) {
-                                                                                    return WebViewAware(
-                                                                                      child: GestureDetector(
-                                                                                        onTap: () {
-                                                                                          FocusScope.of(context).unfocus();
-                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                        },
-                                                                                        child: Padding(
-                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                          child: MensagemWidget(
-                                                                                            texto: 'O sistema reportou o seguinte erro: ${(_model.subResult?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                                                            tipo: '2',
-                                                                                            fechasozinho: false,
-                                                                                            mostrabotoes: true,
-                                                                                            action: () async {
-                                                                                              _model.apiResult7yeCopy = await AlunoGroup.iniciarTreinoCall.call(
-                                                                                                pAlunoUuid: currentUserUid,
-                                                                                                pTreinoExecucao: valueOrDefault<int>(
-                                                                                                  FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.treinoExecucaoId,
-                                                                                                  0,
-                                                                                                ),
-                                                                                              );
-
-                                                                                              if ((_model.apiResult7yeCopy?.succeeded ?? true)) {
-                                                                                                await showModalBottomSheet(
-                                                                                                  useRootNavigator: true,
-                                                                                                  isScrollControlled: true,
-                                                                                                  backgroundColor: Colors.transparent,
-                                                                                                  enableDrag: false,
-                                                                                                  context: context,
-                                                                                                  builder: (context) {
-                                                                                                    return WebViewAware(
-                                                                                                      child: GestureDetector(
-                                                                                                        onTap: () {
-                                                                                                          FocusScope.of(context).unfocus();
-                                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                        },
-                                                                                                        child: Padding(
-                                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                                          child: MensagemWidget(
-                                                                                                            texto: 'Treino iniciado com sucesso!',
-                                                                                                            tipo: '1',
-                                                                                                            fechasozinho: true,
-                                                                                                            mostrabotoes: false,
-                                                                                                            action: () async {
-                                                                                                              safeSetState(() {});
-                                                                                                            },
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                    );
-                                                                                                  },
-                                                                                                ).then((value) => safeSetState(() {}));
-                                                                                              } else {
-                                                                                                await showModalBottomSheet(
-                                                                                                  useRootNavigator: true,
-                                                                                                  isScrollControlled: true,
-                                                                                                  backgroundColor: Colors.transparent,
-                                                                                                  enableDrag: false,
-                                                                                                  context: context,
-                                                                                                  builder: (context) {
-                                                                                                    return WebViewAware(
-                                                                                                      child: GestureDetector(
-                                                                                                        onTap: () {
-                                                                                                          FocusScope.of(context).unfocus();
-                                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                        },
-                                                                                                        child: Padding(
-                                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                                          child: MensagemWidget(
-                                                                                                            texto: 'O sistema reportou o seguinte erro: ${(_model.apiResult7yeCopy?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                                                                            tipo: '2',
-                                                                                                            fechasozinho: false,
-                                                                                                            mostrabotoes: true,
-                                                                                                            action: () async {
-                                                                                                              safeSetState(() {});
-                                                                                                            },
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                    );
-                                                                                                  },
-                                                                                                ).then((value) => safeSetState(() {}));
-                                                                                              }
-                                                                                            },
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                ).then((value) => safeSetState(() {}));
-                                                                              }
-                                                                            },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ).then((value) =>
-                                                                    safeSetState(
-                                                                        () {}));
-                                                              }
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
+                                              await mostrarFalha(
+                                                context,
+                                                subtitulo:
+                                                    'Nao consegui iniciar o treino agora.',
+                                                codigo: _codigoDoErro(_model.apiResult7ye),
+                                              );
                                               }
 
                                               safeSetState(() {});
@@ -2997,6 +2529,7 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                     children: [
                                       Expanded(
                                         child: Container(
+                                          key: _chaveConcluir,
                                           width:
                                               MediaQuery.sizeOf(context).width *
                                                   1.0,
@@ -3021,302 +2554,67 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                 FlutterFlowTheme.of(context)
                                                     .primaryText,
                                             onConfirm: () async {
-                                              _model.resultEnd =
-                                                  await AlunoGroup
-                                                      .finalizarTreinoCall
-                                                      .call(
+                                              // Medido antes de finalizar: o
+                                              // recarregamento que vem depois
+                                              // troca o treino ativo, e os
+                                              // numeros do que acabou de ser
+                                              // feito se perderiam.
+                                              final resumo = _resumoDoTreino();
+                                              final navRaiz =
+                                                  Navigator.of(context, rootNavigator: true);
+                                              
+                                              // O resumo entra na hora, e o banco
+                                              // trabalha por baixo dele. Antes eram duas
+                                              // idas a rede — finalizar e recarregar —
+                                              // com o dedo ja fora do deslizador e a tela
+                                              // parada: o gesto terminava e nada
+                                              // acontecia por um tempo que a pessoa nao
+                                              // sabia medir.
+                                              final finalizando =
+                                                  AlunoGroup.finalizarTreinoCall.call(
                                                 pAlunoUuid: currentUserUid,
                                                 pTreinoExecucaoId: FFAppState()
                                                     .treinosTemp
                                                     .subagrupamentos
-                                                    .elementAtOrNull(
-                                                        _model.index)
+                                                    .elementAtOrNull(_model.index)
                                                     ?.treinoExecucaoId,
                                                 pPulado: false,
-                                                pFeedback: _model
-                                                    .txtFeedbackTextController
-                                                    .text,
+                                                pFeedback:
+                                                    _model.txtFeedbackTextController.text,
                                               );
-
-                                              if ((_model
-                                                      .resultEnd?.succeeded ??
-                                                  true)) {
-                                                await action_blocks
-                                                    .getTreinosAluno(context);
-                                                safeSetState(() {});
-                                                await showModalBottomSheet(
-                                                  useRootNavigator: true,
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  enableDrag: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return WebViewAware(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          FocusScope.of(context)
-                                                              .unfocus();
-                                                          FocusManager.instance
-                                                              .primaryFocus
-                                                              ?.unfocus();
-                                                        },
-                                                        child: Padding(
-                                                          padding: MediaQuery
-                                                              .viewInsetsOf(
-                                                                  context),
-                                                          child: MensagemWidget(
-                                                            texto:
-                                                                'Treino concluído com sucesso!',
-                                                            tipo: '1',
-                                                            fechasozinho: true,
-                                                            mostrabotoes: false,
-                                                            action: () async {
-                                                              safeSetState(
-                                                                  () {});
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
+                                              final resumoNaTela =
+                                                  _mostrarResumoDoTreino(context, resumo);
+                                              
+                                              _model.resultEnd = await finalizando;
+                                              
+                                              if ((_model.resultEnd?.succeeded ?? true)) {
+                                                // Recarrega enquanto o resumo ainda cobre
+                                                // a tela: quando a pessoa fecha, a lista
+                                                // ja esta certa por tras.
+                                                await action_blocks.getTreinosAluno(context);
+                                                if (mounted) {
+                                                  safeSetState(() {});
+                                                  _mostrarDeslizadorCerto();
+                                                }
+                                                await resumoNaTela;
+                                                if (mounted) {
+                                                  safeSetState(() {});
+                                                }
                                               } else {
-                                                await showModalBottomSheet(
-                                                  useRootNavigator: true,
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  enableDrag: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return WebViewAware(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          FocusScope.of(context)
-                                                              .unfocus();
-                                                          FocusManager.instance
-                                                              .primaryFocus
-                                                              ?.unfocus();
-                                                        },
-                                                        child: Padding(
-                                                          padding: MediaQuery
-                                                              .viewInsetsOf(
-                                                                  context),
-                                                          child: MensagemWidget(
-                                                            texto:
-                                                                'O sistema reportou o seguinte erro: ${(_model.resultEnd?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                            tipo: '2',
-                                                            fechasozinho: false,
-                                                            mostrabotoes: true,
-                                                            action: () async {
-                                                              _model.subResult2 =
-                                                                  await AlunoGroup
-                                                                      .iniciarTreinoCall
-                                                                      .call(
-                                                                pAlunoUuid:
-                                                                    currentUserUid,
-                                                                pTreinoExecucao:
-                                                                    valueOrDefault<
-                                                                        int>(
-                                                                  FFAppState()
-                                                                      .treinosTemp
-                                                                      .subagrupamentos
-                                                                      .elementAtOrNull(
-                                                                          _model
-                                                                              .index)
-                                                                      ?.treinoExecucaoId,
-                                                                  0,
-                                                                ),
-                                                              );
-
-                                                              if ((_model
-                                                                      .subResult2
-                                                                      ?.succeeded ??
-                                                                  true)) {
-                                                                await showModalBottomSheet(
-                                                                  useRootNavigator:
-                                                                      true,
-                                                                  isScrollControlled:
-                                                                      true,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  enableDrag:
-                                                                      false,
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return WebViewAware(
-                                                                      child:
-                                                                          GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                          FocusManager
-                                                                              .instance
-                                                                              .primaryFocus
-                                                                              ?.unfocus();
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              MediaQuery.viewInsetsOf(context),
-                                                                          child:
-                                                                              MensagemWidget(
-                                                                            texto:
-                                                                                'Treino iniciado com sucesso!',
-                                                                            tipo:
-                                                                                '1',
-                                                                            fechasozinho:
-                                                                                true,
-                                                                            mostrabotoes:
-                                                                                false,
-                                                                            action:
-                                                                                () async {
-                                                                              safeSetState(() {});
-                                                                            },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ).then((value) =>
-                                                                    safeSetState(
-                                                                        () {}));
-                                                              } else {
-                                                                await showModalBottomSheet(
-                                                                  useRootNavigator:
-                                                                      true,
-                                                                  isScrollControlled:
-                                                                      true,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  enableDrag:
-                                                                      false,
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return WebViewAware(
-                                                                      child:
-                                                                          GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                          FocusManager
-                                                                              .instance
-                                                                              .primaryFocus
-                                                                              ?.unfocus();
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              MediaQuery.viewInsetsOf(context),
-                                                                          child:
-                                                                              MensagemWidget(
-                                                                            texto:
-                                                                                'O sistema reportou o seguinte erro: ${(_model.subResult2?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                                            tipo:
-                                                                                '2',
-                                                                            fechasozinho:
-                                                                                false,
-                                                                            mostrabotoes:
-                                                                                true,
-                                                                            action:
-                                                                                () async {
-                                                                              _model.apiResult7yeCopy2 = await AlunoGroup.iniciarTreinoCall.call(
-                                                                                pAlunoUuid: currentUserUid,
-                                                                                pTreinoExecucao: valueOrDefault<int>(
-                                                                                  FFAppState().treinosTemp.subagrupamentos.elementAtOrNull(_model.index)?.treinoExecucaoId,
-                                                                                  0,
-                                                                                ),
-                                                                              );
-
-                                                                              if ((_model.apiResult7yeCopy2?.succeeded ?? true)) {
-                                                                                await showModalBottomSheet(
-                                                                                  useRootNavigator: true,
-                                                                                  isScrollControlled: true,
-                                                                                  backgroundColor: Colors.transparent,
-                                                                                  enableDrag: false,
-                                                                                  context: context,
-                                                                                  builder: (context) {
-                                                                                    return WebViewAware(
-                                                                                      child: GestureDetector(
-                                                                                        onTap: () {
-                                                                                          FocusScope.of(context).unfocus();
-                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                        },
-                                                                                        child: Padding(
-                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                          child: MensagemWidget(
-                                                                                            texto: 'Treino iniciado com sucesso!',
-                                                                                            tipo: '1',
-                                                                                            fechasozinho: true,
-                                                                                            mostrabotoes: false,
-                                                                                            action: () async {
-                                                                                              safeSetState(() {});
-                                                                                            },
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                ).then((value) => safeSetState(() {}));
-                                                                              } else {
-                                                                                await showModalBottomSheet(
-                                                                                  useRootNavigator: true,
-                                                                                  isScrollControlled: true,
-                                                                                  backgroundColor: Colors.transparent,
-                                                                                  enableDrag: false,
-                                                                                  context: context,
-                                                                                  builder: (context) {
-                                                                                    return WebViewAware(
-                                                                                      child: GestureDetector(
-                                                                                        onTap: () {
-                                                                                          FocusScope.of(context).unfocus();
-                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                        },
-                                                                                        child: Padding(
-                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                          child: MensagemWidget(
-                                                                                            texto: 'O sistema reportou o seguinte erro: ${(_model.apiResult7yeCopy2?.jsonBody ?? '').toString()}. Deseja tentar novamente?',
-                                                                                            tipo: '2',
-                                                                                            fechasozinho: false,
-                                                                                            mostrabotoes: true,
-                                                                                            action: () async {
-                                                                                              safeSetState(() {});
-                                                                                            },
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                ).then((value) => safeSetState(() {}));
-                                                                              }
-                                                                            },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ).then((value) =>
-                                                                    safeSetState(
-                                                                        () {}));
-                                                              }
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
+                                              // Falha em tela cheia, no mesmo desenho do
+                                              // resumo: antes era uma folha cinza com o
+                                              // corpo da resposta HTTP no meio da frase,
+                                              // ilegivel para quem usa e inutil para quem
+                                              // vai reportar. O codigo agora fica no
+                                              // rodape. Para tentar de novo basta
+                                              // deslizar outra vez — o botao continua ali.
+                                              await mostrarFalha(
+                                                context,
+                                                subtitulo:
+                                                    'Nao consegui concluir o treino agora.',
+                                                codigo: _codigoDoErro(_model.resultEnd),
+                                                origem: _centroDaAcao(_chaveConcluir),
+                                              );
                                               }
 
                                               FFAppState()
@@ -3360,10 +2658,31 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
 /// o numero significa, a barra logo abaixo e, quando o treino tem mais de um
 /// grupo muscular, uma linha por grupo. O numero solto nao dizia se era muito
 /// ou pouco, feito ou por fazer.
+/// Clareia ([delta] positivo) ou escurece uma cor mantendo matiz e saturação.
+///
+/// Misturar com preto lava a cor: o azul vai virando cinza-escuro e deixa de
+/// ser o azul da marca. Mexer só na luminância do HSL fecha o tom sem trocar
+/// de cor.
+Color _tom(Color cor, double delta) {
+  final hsl = HSLColor.fromColor(cor);
+  return hsl.withLightness((hsl.lightness + delta).clamp(0.0, 1.0)).toColor();
+}
+
 class _ProgressoDoTreino extends StatelessWidget {
-  const _ProgressoDoTreino({required this.grupos});
+  const _ProgressoDoTreino({
+    required this.grupos,
+    this.feedback,
+    this.aoTocarFeedback,
+  });
 
   final List<GrupossubcategoriasStruct> grupos;
+
+  /// O que já foi escrito. Vazio ou nulo mostra o convite.
+  final String? feedback;
+
+  /// Nulo esconde a linha inteira — é o caso do treino que não está em
+  /// andamento, onde não há o que comentar ainda.
+  final Future<void> Function()? aoTocarFeedback;
 
   @override
   Widget build(BuildContext context) {
@@ -3380,13 +2699,17 @@ class _ProgressoDoTreino extends StatelessWidget {
 
     return Padding(
       // Vao curto: com 16 embaixo o cartao ficava descolado da lista que ele
-      // resume.
-      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
+      // resume, e mesmo com 8 ainda sobrava ar demais entre o resumo e o que
+      // ele esta resumindo.
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: tema.primary,
+          // Azul chapado, num tom mais fechado que o `primary`. Derivado dele
+          // por HSL e nao escrito em hexadecimal: trocando a cor da marca,
+          // este cartao acompanha em vez de descolar.
+          color: _tom(tema.primary, -0.20),
           borderRadius: BorderRadius.circular(16.0),
           boxShadow: [tema.designToken.shadow.lg],
         ),
@@ -3457,6 +2780,65 @@ class _ProgressoDoTreino extends StatelessWidget {
                     fontSize: 11.5,
                     letterSpacing: 0.0,
                     fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            // Convite ao feedback, dentro do cartao que ja resume o treino:
+            // ele morava numa secao propria la embaixo, depois da lista
+            // inteira, e ninguem rolava ate la. Aqui esta ao lado do numero
+            // que ele comenta.
+            if (aoTocarFeedback != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 14.0, 0.0, 0.0),
+                child: Material(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12.0),
+                    onTap: () => aoTocarFeedback!(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            (feedback ?? '').isEmpty
+                                ? Icons.chat_bubble_outline_rounded
+                                : Icons.edit_outlined,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            size: 16.0,
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              (feedback ?? '').isEmpty
+                                  ? 'Deixe seu feedback sobre este treino'
+                                  : feedback!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              // O que ja foi escrito vem em branco cheio e o
+                              // convite em branco rebaixado: assim da para
+                              // saber se ha texto sem precisar ler.
+                              style: tema.bodyMedium.override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500),
+                                color: (feedback ?? '').isEmpty
+                                    ? Colors.white.withValues(alpha: 0.8)
+                                    : Colors.white,
+                                fontSize: 12.5,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6.0),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white.withValues(alpha: 0.7),
+                            size: 18.0,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

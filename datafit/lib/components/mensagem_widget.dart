@@ -212,39 +212,47 @@ class _MensagemWidgetState extends State<MensagemWidget>
               decoration: BoxDecoration(
                 color: FlutterFlowTheme.of(context).primaryBackground,
                 boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.lg],
-                borderRadius: BorderRadius.circular(16.0),
+                borderRadius: BorderRadius.circular(20.0),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(12.0),
+                    // 16, nao 12: com o icone em circulo o bloco ficou mais
+                    // alto e o respiro de 12 encostava o texto na borda.
+                    padding: EdgeInsets.all(16.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (widget!.tipo == '1')
-                          Icon(
-                            Icons.check_rounded,
-                            color: FlutterFlowTheme.of(context).success,
-                            size: 24.0,
-                          ),
-                        if (widget!.tipo == '2')
-                          Icon(
-                            Icons.close_rounded,
-                            color: FlutterFlowTheme.of(context).error,
-                            size: 24.0,
-                          ),
-                        if (widget!.tipo == '3')
-                          Icon(
-                            Icons.info_outline,
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            size: 24.0,
-                          ),
+                        // O icone ganha um circulo da propria cor a 12%,
+                        // como os selos do resto do app. Solto sobre o branco
+                        // ele era um risco fino de 24px ao lado de um bloco
+                        // de texto — nao dava tempo de ler se aquilo era
+                        // sucesso, erro ou recado antes de ler a frase.
+                        Builder(builder: (context) {
+                          final tema = FlutterFlowTheme.of(context);
+                          final (IconData icone, Color cor) = switch (
+                              widget!.tipo) {
+                            '1' => (Icons.check_rounded, tema.success),
+                            '2' => (Icons.priority_high_rounded, tema.error),
+                            _ => (Icons.info_outline_rounded, tema.primary),
+                          };
+                          return Container(
+                            width: 34.0,
+                            height: 34.0,
+                            decoration: BoxDecoration(
+                              color: cor.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(icone, color: cor, size: 19.0),
+                          );
+                        }),
                         Expanded(
                           child: Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                8.0, 0.0, 0.0, 0.0),
+                                12.0, 0.0, 0.0, 0.0),
                             child: Text(
                               valueOrDefault<String>(
                                 widget!.texto,

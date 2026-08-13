@@ -80,52 +80,85 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
       children: [
         // Resumo em frase, e nao um numero solto: "44" sozinho nao dizia
         // se era muito, pouco, feito ou por fazer.
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 12.0),
+        // Cabecalho de secao no mesmo desenho dos cartoes do painel de cima:
+        // antes eram um numero grande solto e uma frase, sem moldura, e a
+        // lista comecava sem que nada dissesse que ali era outro assunto.
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 14.0),
+          padding: const EdgeInsets.all(14.0),
+          decoration: BoxDecoration(
+            color: tema.primaryBackground,
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [tema.designToken.shadow.lg],
+          ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                '$feitos',
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: tema.primaryText,
-                  fontSize: 26.0,
-                  letterSpacing: -0.8,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Exercícios do seu treino',
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                        color: tema.secondaryText,
+                        fontSize: 11.5,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 6.0),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '$feitos',
+                          style: tema.bodyMedium.override(
+                            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            color: tema.primaryText,
+                            fontSize: 26.0,
+                            letterSpacing: -0.8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 5.0),
+                        Flexible(
+                          child: Text(
+                            'de $total que o personal montou',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: tema.bodyMedium.override(
+                              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                              color: tema.secondaryText,
+                              fontSize: 12.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 6.0),
-              Padding(
-                padding:
-                    const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
-                child: Text(
-                  'de $total exercícios você já fez',
-                  style: tema.bodyMedium.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                    color: tema.secondaryText,
-                    fontSize: 13.0,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.w500,
-                  ),
+              const SizedBox(width: 10.0),
+              // O icone no lugar da terceira linha de texto: o bloco ja tinha
+              // rotulo, numero e frase, e a quarta informacao escrita so pesava.
+              Container(
+                width: 32.0,
+                height: 32.0,
+                decoration: BoxDecoration(
+                  color: tema.accent1,
+                  shape: BoxShape.circle,
                 ),
+                alignment: Alignment.center,
+                child: Icon(Icons.fitness_center_rounded,
+                    color: tema.primary, size: 16.0),
               ),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 2.0, 16.0, 14.0),
-          child: Text(
-            total - feitos == 0
-                ? 'Você passou por todos no período.'
-                : 'Faltam ${total - feitos} que ainda não apareceram.',
-            style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-              color: tema.secondaryText,
-              fontSize: 12.0,
-              letterSpacing: 0.0,
-              fontWeight: FontWeight.w400,
-            ),
           ),
         ),
 

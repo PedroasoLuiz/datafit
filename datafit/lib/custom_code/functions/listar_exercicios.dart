@@ -26,5 +26,23 @@ List<String> listarExercicios(DashMetricasStruct? metricas) {
       }
     }
   }
+
+  // Alfabética, e não na ordem em que os grupos vieram do banco: numa lista
+  // de dezenas de nomes, "onde está o supino?" só tem resposta rápida se a
+  // ordem for a que a pessoa já conhece. A comparação ignora acento e caixa,
+  // senão "Água" e "abdominal" caem em blocos separados.
+  nomes.sort((a, b) => _semAcento(a).compareTo(_semAcento(b)));
   return nomes;
+}
+
+/// Minúsculas e sem acento, só para ordenar.
+String _semAcento(String texto) {
+  const com = 'áàâãäéèêëíìîïóòôõöúùûüçÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ';
+  const sem = 'aaaaaeeeeiiiiooooouuuucAAAAAEEEEIIIIOOOOOUUUUC';
+  final b = StringBuffer();
+  for (final c in texto.toLowerCase().split('')) {
+    final i = com.indexOf(c);
+    b.write(i >= 0 ? sem[i] : c);
+  }
+  return b.toString();
 }

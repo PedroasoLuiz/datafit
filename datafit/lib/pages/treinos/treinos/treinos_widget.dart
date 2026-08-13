@@ -6,6 +6,7 @@ import '/backend/schema/structs/index.dart';
 import '/components/lista_notificacoes.dart';
 import '/components/acesso_bloqueado_widget.dart';
 import '/components/convite_personal_widget.dart';
+import '/components/esqueleto.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/components/navbar/navbar_widget.dart';
@@ -40,10 +41,18 @@ class _TreinosWidgetState extends State<TreinosWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// Verdadeiro só até a primeira carga voltar, e só quando não havia treino
+  /// guardado. Quem já usou o app tem o treino em disco: mostrar esqueleto
+  /// por cima de dado que existe seria esconder conteúdo para anunciar que
+  /// ele está sendo conferido.
+  bool _carregandoPrimeiraVez = false;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TreinosModel());
+    _carregandoPrimeiraVez =
+        FFAppState().treinosTemp.subagrupamentos.isEmpty;
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -53,6 +62,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
       // personal editar: fechar e reabrir o app nao adiantava, so deslogar.
       await action_blocks.getTreinosAluno(context, silencioso: true);
       if (!mounted) return;
+      _carregandoPrimeiraVez = false;
       safeSetState(() {});
       await _verificarConvitesEPerfil();
       // Depois dos bloqueios: nao faz sentido mostrar novidades para quem
@@ -359,6 +369,13 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                               ],
                             ),
                           ),
+                          // Esqueleto enquanto a primeira carga nao volta: antes a tela abria
+                          // vazia e quem esperava nao sabia se estava carregando ou travado.
+                          // So na primeira vez — havendo treino em cache, ele aparece na hora e
+                          // a atualizacao acontece por baixo.
+                          if (_carregandoPrimeiraVez)
+                            const EsqueletoTreinos()
+                          else ...[
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 valueOrDefault<double>(
@@ -871,6 +888,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                               ),
                             ].divide(SizedBox(height: 16.0)),
                           ),
+                          ],
                         ].addToEnd(SizedBox(height: 120.0)),
                       ),
                     ),
@@ -907,10 +925,15 @@ class _PilhaProgresso extends StatelessWidget {
     final feitos = treinos.where((e) => e.status == 'concluido').length;
     final completo = feitos == total;
 
-    // Altura fixa: a pilha acompanha o bloco de texto ao lado, entao ela nao
-    // pode crescer conforme o numero de treinos.
+    // Altura unica: a pilha ocupa sempre o mesmo espaco ao lado do texto, com
+    // qualquer numero de treinos. Quem cede e o vao, nunca o total — antes o
+    // degrau tinha um minimo e era o total que estourava, entao dois treinos e
+    // cinco treinos desenhavam pilhas de alturas diferentes.
     const alturaTotal = 44.0;
-    const vao = 3.0;
+    const degrauMinimo = 3.0;
+    final vao = total > 1
+        ? ((alturaTotal - degrauMinimo * total) / (total - 1)).clamp(0.0, 3.0)
+        : 0.0;
     final alturaDoDegrau = (alturaTotal - vao * (total - 1)) / total;
 
     return Column(
@@ -920,7 +943,7 @@ class _PilhaProgresso extends StatelessWidget {
         for (var i = 0; i < total; i++)
           Container(
             width: 6.0,
-            height: alturaDoDegrau < 3.0 ? 3.0 : alturaDoDegrau,
+            height: alturaDoDegrau,
             decoration: BoxDecoration(
               color: i < feitos
                   ? (completo ? tema.success : tema.primary)
@@ -928,16 +951,18 @@ class _PilhaProgresso extends StatelessWidget {
               borderRadius: BorderRadius.circular(3.0),
             ),
           ),
-      ].divide(const SizedBox(height: vao)),
+      ].divide(SizedBox(height: vao)),
     );
   }
 }
 
-/// Quanto do dia ja foi feito, no cabecalho.
+/// Validade do treino, sob o nome no cabecalho.
 ///
-/// Le a mesma lista que alimenta o baralho, entao os dois nunca discordam.
-/// A validade so aparece quando esta perto de vencer: todo dia ela ocupava uma
-/// linha para dizer algo que so importa uma vez por mes.
+/// Antes esta linha contava "x de x treinos hoje" e a validade so assomava na
+/// ultima semana. A contagem do dia ja esta na pilha ao lado — repetir em
+/// numero o que o desenho diz nao acrescenta —, entao a linha ficou so para a
+/// validade, que nao tem outro lugar onde aparecer e some justamente quando
+/// esta longe, que e quando da tempo de renovar sem correria.
 class _ResumoDoDia extends StatelessWidget {
   const _ResumoDoDia();
 
@@ -956,55 +981,32 @@ class _ResumoDoDia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
-    final treinos = FFAppState().treinosTemp.subagrupamentos;
-    final total = treinos.length;
-
-    // Pulado nao conta como feito: a barra cheia tem que querer dizer que o
-    // dia foi cumprido, nao que ele acabou.
-    final feitos = treinos.where((e) => e.status == 'concluido').length;
 
     final dias = _diasParaVencer();
-    final vencendo = dias != null && dias <= 7;
+    // Sem data de validade nao ha o que dizer, e uma linha vazia deslocaria o
+    // nome do treino para cima.
+    if (dias == null) return const SizedBox.shrink();
+
+    // Vencido e o unico estado que muda a frase: nao ha prazo para contar, o
+    // treino simplesmente acabou.
+    final expirado = dias <= 0;
+    final urgente = dias <= 7;
 
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (total > 0) ...[
-            Text(
-              feitos == total
-                  ? 'Tudo feito por hoje'
-                  : '$feitos de $total ${total == 1 ? 'treino' : 'treinos'} hoje',
-              style: tema.bodyMedium.override(
-                font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                color: tema.secondaryText,
-                fontSize: 12.0,
-                letterSpacing: 0.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-          if (vencendo)
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-              child: Text(
-                dias <= 0
-                    ? 'Seu plano venceu'
-                    : dias == 1
-                        ? 'Seu plano vence amanhã'
-                        : 'Seu plano vence em $dias dias',
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                  color: tema.error,
-                  fontSize: 11.5,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
+      child: Text(
+        expirado
+            ? 'Treino expirado'
+            : dias == 1
+                ? 'Seu treino expira amanhã'
+                : 'Seu treino expira em $dias dias',
+        style: tema.bodyMedium.override(
+          font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          color: urgente ? tema.error : tema.secondaryText,
+          fontSize: 11.5,
+          letterSpacing: 0.0,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
