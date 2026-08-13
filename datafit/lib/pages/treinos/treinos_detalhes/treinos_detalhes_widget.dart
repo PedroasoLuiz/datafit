@@ -53,6 +53,26 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
   var hasContainerTriggered2 = false;
   final animationsMap = <String, AnimationInfo>{};
 
+  /// O exercicio que a pessoa deve fazer agora.
+  ///
+  /// O primeiro que ainda nao foi concluido nem pulado, varrendo os grupos na
+  /// ordem em que eles chegam — que e a ordem de execucao, garantida pela RPC.
+  /// Nulo quando nao sobrou nenhum.
+  int? get _proximoExecucaoId {
+    final grupos = FFAppState()
+            .treinosTemp
+            .subagrupamentos
+            .elementAtOrNull(_model.index)
+            ?.grupos ??
+        const <GrupossubcategoriasStruct>[];
+    for (final grupo in grupos) {
+      for (final ex in grupo.exercicios) {
+        if (!ex.isConcluido && !ex.isPulado) return ex.execucaoId;
+      }
+    }
+    return null;
+  }
+
   /// A lista como o servidor mandou.
   ///
   /// NAO ordenar aqui. A navegacao para a tela de execucao passa a POSICAO do
@@ -842,6 +862,31 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                   mainAxisSize: MainAxisSize.min,
                                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                                   children: [
+                                                                                                    // "Agora" no primeiro que ainda
+                                                                                                    // falta: sem isso, a pessoa
+                                                                                                    // abria o treino e tinha que
+                                                                                                    // procurar onde retomar.
+                                                                                                    if (exerciciosItem.execucaoId == _proximoExecucaoId)
+                                                                                                      Padding(
+                                                                                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 4.0),
+                                                                                                        child: Container(
+                                                                                                          padding: const EdgeInsetsDirectional.fromSTEB(7.0, 2.0, 7.0, 2.0),
+                                                                                                          decoration: BoxDecoration(
+                                                                                                            color: FlutterFlowTheme.of(context).primary,
+                                                                                                            borderRadius: BorderRadius.circular(999.0),
+                                                                                                          ),
+                                                                                                          child: Text(
+                                                                                                            'Agora',
+                                                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                                                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                                                                                                  color: Colors.white,
+                                                                                                                  fontSize: 10.0,
+                                                                                                                  letterSpacing: 0.2,
+                                                                                                                  fontWeight: FontWeight.w600,
+                                                                                                                ),
+                                                                                                          ),
+                                                                                                        ),
+                                                                                                      ),
                                                                                                     RichText(
                                                                                                       textScaler: MediaQuery.of(context).textScaler,
                                                                                                       text: TextSpan(
@@ -1160,22 +1205,22 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    if (exerciciosIndex !=
-                                                                        (subGruposItem.exercicios.length -
-                                                                            1))
-                                                                      Divider(
-                                                                        height:
-                                                                            1.0,
-                                                                        thickness:
-                                                                            1.0,
-                                                                        indent:
-                                                                            46.0,
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .alternate,
-                                                                      ),
                                                                   ],
                                                                 );
-                                                              }),
+                                                                // Respiro no
+                                                                // fim da lista:
+                                                                // sem as linhas
+                                                                // divisoras, o
+                                                                // ultimo
+                                                                // exercicio
+                                                                // encostava na
+                                                                // borda do
+                                                                // cartao.
+                                                              })
+                                                                ..add(
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            12.0)),
                                                             );
                                                           },
                                                         ),

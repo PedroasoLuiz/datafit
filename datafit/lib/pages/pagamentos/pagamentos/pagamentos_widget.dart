@@ -110,17 +110,28 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     );
     if (!mounted) return;
 
-    if (resposta.succeeded) {
+    // O RPC responde HTTP 200 mesmo quando recusa — a negativa vem no corpo,
+    // em `sucesso`. Olhar so `succeeded` fazia a recusa passar por sucesso: a
+    // lista recarregava, nada mudava e nenhum aviso aparecia.
+    final corpo = resposta.jsonBody;
+    final confirmou = resposta.succeeded &&
+        getJsonField(corpo, r'$.sucesso') == true;
+
+    if (confirmou) {
       await _recarregar();
       return;
     }
+
+    final motivo = getJsonField(corpo, r'$.erro');
     await showModalBottomSheet<void>(
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       context: context,
       builder: (ctx) => MensagemWidget(
-        texto: 'Não consegui confirmar agora. Tente de novo.',
+        texto: motivo is String && motivo.isNotEmpty
+            ? motivo
+            : 'Não consegui confirmar agora. Tente de novo.',
         tipo: '2',
         action: () async {},
         fechasozinho: true,
@@ -129,12 +140,36 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     );
   }
 
-  /// Inativa (ou reativa) o vinculo com o aluno.
+  /// Corta (ou devolve) o acesso do aluno ao app.
   ///
-  /// E a mesma acao da lista de alunos: aqui ela existe porque cobranca em
-  /// aberto e justamente quando se pensa em cortar o acesso.
+  /// A acao e sobre a PESSOA, nao sobre a cobranca: ela inativa o vinculo em
+  /// `PersonalAlunos`, entao vale para o aluno inteiro e aparece em todos os
+  /// registros dele. Deslizando um pagamento isso nao era obvio — dai a
+  /// pergunta antes, dizendo de quem e o acesso que vai cair.
   Future<void> _bloquearAcesso(PersonalpagamentosStruct pgto) async {
     if (pgto.alunoUuid.isEmpty) return;
+
+    final bloqueando = pgto.alunoAtivo;
+    final confirmou = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (ctx) => MensagemWidget(
+        texto: bloqueando
+            ? 'Bloquear o acesso de ${pgto.nome} ao app?'
+            : 'Devolver o acesso de ${pgto.nome} ao app?',
+        textoauxiliar: bloqueando
+            ? 'Vale para a pessoa, não só para esta cobrança: ela perde o '
+                'acesso aos treinos até você reativar.'
+            : 'Ela volta a acessar os treinos normalmente.',
+        tipo: '2',
+        mostrabotoes: true,
+        action: () async => Navigator.pop(ctx, true),
+      ),
+    );
+    if (confirmou != true || !mounted) return;
+
     final novoEstado = await action_blocks.toggleAlunoAtivo(
       context,
       personalUuid: currentUserUid,
@@ -1404,10 +1439,14 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
               bottom: 0,
               child: Row(
                 children: [
+                  // "Bloquear aluno", e nao so "Bloquear": a acao corta o
+                  // acesso da pessoa ao app e vale para todas as cobrancas
+                  // dela. Deslizando um pagamento, "Bloquear" sozinho sugeria
+                  // que era aquele registro.
                   _acao(
                     fundo: tema.secondaryText,
-                    icone: Icons.lock_outline_rounded,
-                    rotulo: 'Bloquear',
+                    icone: Icons.person_off_outlined,
+                    rotulo: 'Bloquear\naluno',
                     aoTocar: widget.aoBloquear,
                   ),
                   _acao(

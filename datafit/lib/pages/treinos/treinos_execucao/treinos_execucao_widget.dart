@@ -370,8 +370,13 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
               Expanded(
                 child: SingleChildScrollView(
                   controller: _model.columnController,
+                  // `min`, e nao `max`: dentro de um scroll a altura chega sem
+                  // limite, e uma Column que pede o maximo tenta ocupar
+                  // infinito. Em debug isso vira asserção; em release as
+                  // asserções somem e o layout so nao pinta — sobrava o
+                  // cabecalho, que fica fora do scroll.
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(

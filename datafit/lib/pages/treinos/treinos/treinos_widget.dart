@@ -234,7 +234,11 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                           }(),
                                           0.0,
                                         ),
-                                        16.0),
+                                        // 8 embaixo: o cartao do personal vem
+                                        // logo em seguida e os dois se leem
+                                        // como um bloco so. O respiro maior
+                                        // fica entre ele e as cartas.
+                                        8.0),
                                     child: Container(
                                       constraints: BoxConstraints(
                                         maxWidth: 768.0,
@@ -482,16 +486,17 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                          // Faixa do personal, abaixo do baralho: dentro do
-                          // cabecalho ela disputava espaco com o nome do plano
-                          // e o progresso. Aqui ela e o que de fato e — um
-                          // atalho, e nao parte do resumo do dia.
+                          // Faixa do personal, entre o cabecalho e as cartas:
+                          // dentro do cabecalho ela disputava espaco com o
+                          // nome do plano e o progresso. Aqui ela e o que de
+                          // fato e — um atalho, e nao parte do resumo do dia.
                           //
-                          // Largura cheia, com a mesma margem lateral dos
-                          // outros blocos, para alinhar com as cartas acima.
+                          // Colada no cartao de cima (8) e afastada das cartas
+                          // (16, do padding da ListView): o agrupamento diz que
+                          // ela pertence ao cabecalho, nao ao baralho.
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                16.0, 16.0, 16.0, 0.0),
+                                16.0, 0.0, 16.0, 0.0),
                             child: Material(
                               color: FlutterFlowTheme.of(context)
                                   .primaryBackground,
