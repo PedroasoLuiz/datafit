@@ -16,6 +16,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 
 import '/backend/diagnostico.dart';
 import '/backend/supabase/supabase.dart';
@@ -42,6 +43,22 @@ class ServicoPush {
   /// video — ver [anotarDiagnostico].
   static Future<void> _anotar(String etapa, [String? detalhe]) =>
       anotarDiagnostico('push_$etapa', detalhe);
+
+  /// Canal so de diagnostico, atendido pelo `AppDelegate`.
+  static const MethodChannel _canalDiag = MethodChannel('datafit/push_diag');
+
+  /// O que o iOS respondeu ao recusar o registro no APNs.
+  ///
+  /// Nulo no Android, e nulo tambem quando o sistema nao chegou a recusar —
+  /// nesse caso o registro apenas nunca completou.
+  static Future<String?> _motivoRecusaApns() async {
+    if (!Platform.isIOS) return null;
+    try {
+      return await _canalDiag.invokeMethod<String>('ultimoErroApns');
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Sobe o Firebase e pede permissão. Seguro chamar mais de uma vez.
   static Future<void> iniciar() async {
@@ -109,9 +126,13 @@ class ServicoPush {
 
       if (token == null || token.isEmpty) {
         if (!apnsRespondeu) {
+          // O proprio iOS explica a recusa; o AppDelegate guarda a mensagem.
+          // O texto antigo aqui chutava "entitlement ausente", e o log do
+          // build provou que o entitlement estava presente — um palpite
+          // escrito como se fosse diagnostico atrapalha mais que a ausencia.
+          final motivo = await _motivoRecusaApns();
           await _anotar('sem_token_apns',
-              'o iOS nao registrou no APNs em 5 tentativas — '
-              'entitlement aps-environment ausente no binario');
+              motivo ?? 'o iOS nao registrou no APNs e nao informou o motivo');
         } else {
           await _anotar('sem_token_fcm',
               'APNs respondeu mas o FCM nao devolveu token'

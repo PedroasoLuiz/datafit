@@ -112,12 +112,21 @@ workflows:
       # `|| true` em tudo: e diagnostico, nao pode derrubar a publicacao.
       - name: Push chegou no provisioning profile?
         script: |
-          for p in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+          # `find` em vez de glob: a busca anterior nao encontrava nada e o
+          # shell devolvia o proprio padrao como se fosse um arquivo, fazendo
+          # a etapa imprimir "SEM aps-environment" para um perfil inexistente.
+          PERFIS=$(find ~/Library/MobileDevice -name "*.mobileprovision" 2>/dev/null)
+          if [ -z "$PERFIS" ]; then
+            echo "Nenhum .mobileprovision encontrado em ~/Library/MobileDevice"
+          fi
+          echo "$PERFIS" | while read -r p; do
+            [ -z "$p" ] && continue
             echo "--- $(basename "$p") ---"
             security cms -D -i "$p" 2>/dev/null \
               | plutil -extract Entitlements xml1 -o - - 2>/dev/null \
               | grep -A2 -i "aps-environment" || echo "SEM aps-environment"
-          done || true
+          done
+          true
 
       - name: Build do IPA
         script: |
