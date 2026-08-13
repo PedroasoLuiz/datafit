@@ -2,7 +2,9 @@ import '/components/chip_filtro.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
+import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/flutter_flow/form_field_controller.dart';
 import '/pages/components/selecionar_treino_aluno/selecionar_treino_aluno_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -48,6 +50,33 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// Janela de tempo dos graficos de evolucao.
+  ///
+  /// Mesmas opcoes e mesmo padrao da tela de metricas: o personal olhando o
+  /// perfil de um aluno precisa da mesma pergunta que faz no proprio painel —
+  /// "isso melhorou em quanto tempo?".
+  static const List<String> _periodos = [
+    '7 dias',
+    '15 dias',
+    '30 dias',
+    '2 meses',
+    '3 meses',
+    '4 meses',
+    '6 meses',
+  ];
+
+  String _periodo = '4 meses';
+  final FormFieldController<String> _periodoController =
+      FormFieldController<String>('4 meses');
+
+  /// Recarrega as metricas do aluno aberto na janela escolhida.
+  Future<void> _carregarMetricas() => action_blocks.getMetricasAluno(
+        context,
+        meses: 4,
+        periodo: _periodo,
+        alunoUuid: widget.alunoId,
+      );
+
   @override
   void initState() {
     super.initState();
@@ -56,12 +85,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await action_blocks.getPerfilAluno(context, alunoId: widget.alunoId);
       // Metricas do aluno aberto, nao do personal logado.
-      await action_blocks.getMetricasAluno(
-        context,
-        meses: 4,
-        periodo: '4 meses',
-        alunoUuid: widget.alunoId,
-      );
+      await _carregarMetricas();
       if (mounted) safeSetState(() {});
       if (mounted) {
         _model.isLoading = false;
@@ -2891,6 +2915,72 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                               ),
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
+                                    16.0, 0.0, 16.0, 4.0),
+                                child: Align(
+                                  alignment: AlignmentDirectional(-1.0, 0.0),
+                                  child: Text(
+                                    'Tempo em análise:',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.bold),
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                          fontSize: 13.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    16.0, 0.0, 16.0, 12.0),
+                                child: FlutterFlowDropDown<String>(
+                                  controller: _periodoController,
+                                  options: _periodos,
+                                  onChanged: (val) async {
+                                    if (val == null) return;
+                                    safeSetState(() => _periodo = val);
+                                    await _carregarMetricas();
+                                    if (mounted) safeSetState(() {});
+                                  },
+                                  width: double.infinity,
+                                  height: 40.0,
+                                  maxHeight: 200.0,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w500),
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                  hintText: 'Selecione...',
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color:
+                                        FlutterFlowTheme.of(context).primary,
+                                    size: 24.0,
+                                  ),
+                                  fillColor: FlutterFlowTheme.of(context)
+                                      .primaryBackground,
+                                  elevation: 2.0,
+                                  borderColor:
+                                      FlutterFlowTheme.of(context).alternate,
+                                  borderWidth: 1.0,
+                                  borderRadius: 12.0,
+                                  margin: EdgeInsetsDirectional.fromSTEB(
+                                      12.0, 0.0, 12.0, 0.0),
+                                  hidesUnderline: true,
+                                  isOverButton: false,
+                                  isSearchable: false,
+                                  isMultiSelect: false,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
                                     16.0, 0.0, 16.0, 8.0),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -2902,7 +2992,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   child: custom_widgets.GraficoEvolucaoPeso(
                                     width: double.infinity,
                                     height: 280.0,
-                                    periodoLabel: '4 meses',
+                                    periodoLabel: _periodo,
                                     corPrimaria:
                                         FlutterFlowTheme.of(context).primary,
                                   ),
@@ -2928,7 +3018,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                           .listarExercicios(
                                               FFAppState().metricasTemp)
                                           .first,
-                                      periodoLabel: '4 meses',
+                                      periodoLabel: _periodo,
                                       corPrimaria:
                                           FlutterFlowTheme.of(context).primary,
                                     ),

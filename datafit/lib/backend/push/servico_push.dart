@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '/backend/diagnostico.dart';
 import '/backend/supabase/supabase.dart';
 import 'config_push.dart';
 
@@ -37,19 +38,10 @@ class ServicoPush {
 
   /// Conta ao servidor em que ponto o registro parou.
   ///
-  /// Sem isto, descobrir por que o token nao chegou custa um ciclo inteiro de
-  /// build, TestFlight e instalacao por hipotese testada — e no fim so se sabe
-  /// que continua sem token, nunca o motivo.
-  static Future<void> _anotar(String etapa, [String? detalhe]) async {
-    try {
-      await SupaFlow.client.rpc('registrar_diagnostico_push', params: {
-        'p_etapa': etapa,
-        'p_detalhe': detalhe,
-      });
-    } catch (_) {
-      // Diagnostico nunca pode atrapalhar o que esta diagnosticando.
-    }
-  }
+  /// Prefixo `push_` porque o mesmo diario recebe as anotacoes da capa de
+  /// video — ver [anotarDiagnostico].
+  static Future<void> _anotar(String etapa, [String? detalhe]) =>
+      anotarDiagnostico('push_$etapa', detalhe);
 
   /// Sobe o Firebase e pede permissão. Seguro chamar mais de uma vez.
   static Future<void> iniciar() async {

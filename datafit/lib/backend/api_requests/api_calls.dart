@@ -890,6 +890,7 @@ class ConfirmarPagamentoCall {
   Future<ApiCallResponse> call({
     int? pPagamentoId,
     String? pPersonalUuid = '',
+    String? pTipoPagamento,
     String? apiKey,
     String? project,
   }) async {
@@ -899,10 +900,16 @@ class ConfirmarPagamentoCall {
       apiKey: apiKey,
       project: project,
     );
+    // Sem forma escolhida vai null, e o banco preserva a que o aluno
+    // declarou — mandar string vazia apagaria essa informacao.
+    final tipo = (pTipoPagamento != null && pTipoPagamento.isNotEmpty)
+        ? '"${escapeStringForJson(pTipoPagamento)}"'
+        : 'null';
     final ffApiRequestBody = '''
 {
   "p_pagamento_id": ${pPagamentoId ?? 0},
-  "p_personal_uuid": "${escapeStringForJson(pPersonalUuid)}"
+  "p_personal_uuid": "${escapeStringForJson(pPersonalUuid)}",
+  "p_tipo_pagamento": ${tipo}
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'confirmar pagamento',

@@ -558,7 +558,11 @@ class _InformarPagamentoWidgetState extends State<InformarPagamentoWidget>
                   width: 56.0,
                   height: 56.0,
                   decoration: BoxDecoration(
-                    color: _model.isLoading || _model.dataSelecionada == null
+                    // A forma tambem conta: o `onTap` ja a exigia, mas a cor
+                    // nao — sem escolher, o botao ficava azul e nao fazia nada.
+                    color: _model.isLoading ||
+                            _model.dataSelecionada == null ||
+                            _forma == null
                         ? FlutterFlowTheme.of(context).alternate
                         : FlutterFlowTheme.of(context).primary,
                     borderRadius: BorderRadius.circular(20.0),

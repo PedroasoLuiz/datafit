@@ -1,4 +1,5 @@
 import '/auth/supabase_auth/auth_util.dart';
+import '/backend/diagnostico.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mensagem_widget.dart';
 import 'dart:io';
@@ -147,7 +148,8 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
       if (urlVideo == null || urlVideo.isEmpty) return null;
 
       return (urlVideo, await _subirCapa(caminho));
-    } catch (_) {
+    } catch (e) {
+      await anotarDiagnostico('video_erro', '$e');
       return null;
     }
   }
@@ -162,16 +164,28 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
   /// escuro, que era o comportamento anterior.
   Future<String?> _subirCapa(String caminhoVideo) async {
     if (kIsWeb) return null;
+
+    // Cada saida anota onde parou. A capa vinha falhando calada — o exercicio
+    // gravava com `ThumbSegundo` preenchido e `ThumbUrl` nulo, e desse lado
+    // nao dava para distinguir plugin ausente, formato recusado e upload
+    // barrado.
+    final timeMs = ((_thumbSegundo ?? 0.0) * 1000).round();
+    await anotarDiagnostico(
+        'capa_inicio', '${p.extension(caminhoVideo)} em ${timeMs}ms');
     try {
       final capa = await VideoThumbnail.thumbnailFile(
         video: caminhoVideo,
         imageFormat: ImageFormat.JPEG,
-        timeMs: ((_thumbSegundo ?? 0.0) * 1000).round(),
+        timeMs: timeMs,
         quality: 80,
         maxWidth: 720,
       );
-      if (capa == null) return null;
+      if (capa == null) {
+        await anotarDiagnostico('capa_sem_arquivo', 'thumbnailFile deu nulo');
+        return null;
+      }
 
+      final bytes = await File(capa).readAsBytes();
       final urls = await uploadSupabaseStorageFiles(
         bucketName: 'Videos',
         selectedFiles: [
@@ -179,12 +193,20 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
             storagePath: '$currentUserUid/capa_'
                 '${DateTime.now().microsecondsSinceEpoch}.jpg',
             filePath: capa,
-            bytes: await File(capa).readAsBytes(),
+            bytes: bytes,
           ),
         ],
       );
-      return urls.firstOrNull;
-    } catch (_) {
+      final url = urls.firstOrNull;
+      if (url == null || url.isEmpty) {
+        await anotarDiagnostico(
+            'capa_sem_url', 'gerou ${bytes.length} bytes mas o upload nao voltou url');
+        return null;
+      }
+      await anotarDiagnostico('capa_ok', url);
+      return url;
+    } catch (e) {
+      await anotarDiagnostico('capa_erro', '$e');
       return null;
     }
   }

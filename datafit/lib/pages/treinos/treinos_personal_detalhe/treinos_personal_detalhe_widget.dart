@@ -163,6 +163,52 @@ class _TreinosPersonalDetalheWidgetState
     }
   }
 
+  /// Qual exercicio abre o treino: o de menor `Ordem` entre todos os grupos.
+  ///
+  /// Nulo quando o treino esta vazio.
+  int? get _etIdInicial {
+    ExercicioDetalhePersonal? primeiro;
+    for (final grupo in _model.grupos) {
+      for (final ex in grupo.exercicios) {
+        if (primeiro == null || ex.ordem < primeiro.ordem) primeiro = ex;
+      }
+    }
+    return primeiro?.etId;
+  }
+
+  /// Faz este exercicio ser o primeiro do treino.
+  ///
+  /// A tela do aluno ja usava `Ordem` para apontar o proximo a fazer; o que
+  /// faltava era o personal poder dizer por onde o treino comeca sem ter que
+  /// apagar e recadastrar os exercicios na ordem desejada.
+  Future<void> _definirComoInicial(ExercicioDetalhePersonal ex) async {
+    try {
+      await SupaFlow.client.rpc('definir_exercicio_inicial', params: {
+        'p_treino_id': widget.treinoId,
+        'p_et_id': ex.etId,
+      });
+      if (!mounted) return;
+      await _carregarExercicios();
+    } catch (_) {
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        useRootNavigator: true,
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => WebViewAware(
+          child: MensagemWidget(
+            texto: 'Não consegui mudar a ordem agora. Tente de novo.',
+            tipo: '2',
+            fechasozinho: true,
+            mostrabotoes: false,
+            action: () async {},
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _confirmarExcluirExercicio(int etId, String nome) async {
     final ok = await showModalBottomSheet<bool>(
       useRootNavigator: true,
@@ -402,7 +448,12 @@ class _TreinosPersonalDetalheWidgetState
                       key: ValueKey(e.value.etId),
                       ex: e.value,
                       isLast: e.key == grupo.exercicios.length - 1,
+                      // Os cartoes sao agrupados por subcategoria, entao a
+                      // posicao dentro do grupo nao diz quem abre o treino:
+                      // isso e a menor Ordem entre todos.
+                      isInicial: e.value.etId == _etIdInicial,
                       onEdit: () => _abrirEditarExercicio(e.value),
+                      onDefinirInicial: () => _definirComoInicial(e.value),
                       onDelete: () => _confirmarExcluirExercicio(
                           e.value.etId, e.value.nome),
                     ))
@@ -476,13 +527,20 @@ class _SwipeableExercicioRow extends StatefulWidget {
     super.key,
     required this.ex,
     required this.isLast,
+    required this.isInicial,
     required this.onEdit,
+    required this.onDefinirInicial,
     required this.onDelete,
   });
 
   final ExercicioDetalhePersonal ex;
   final bool isLast;
+
+  /// Este e o exercicio que abre o treino.
+  final bool isInicial;
+
   final VoidCallback onEdit;
+  final VoidCallback onDefinirInicial;
   final VoidCallback onDelete;
 
   @override
@@ -490,7 +548,12 @@ class _SwipeableExercicioRow extends StatefulWidget {
 }
 
 class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
-  static const double _actionWidth = 130.0;
+  /// Tres acoes cabem em 195; com os 130 de duas, a do meio ficava espremida
+  /// a ponto de o rotulo quebrar.
+  ///
+  /// O exercicio que ja abre o treino nao mostra a acao de inicial: seria um
+  /// botao que nao muda nada.
+  double get _actionWidth => widget.isInicial ? 130.0 : 195.0;
   double _offset = 0.0;
 
   void _onDragUpdate(DragUpdateDetails d) {
@@ -526,6 +589,43 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
               width: _actionWidth,
               child: Row(
                 children: [
+                  // Definir como inicial
+                  if (!widget.isInicial)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onDefinirInicial();
+                        },
+                        child: Container(
+                          color: theme.secondaryBackground,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.vertical_align_top_rounded,
+                                color: theme.primaryText,
+                                size: 20.0,
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Início',
+                                style: theme.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: theme.bodyMedium.fontStyle,
+                                  ),
+                                  color: theme.primaryText,
+                                  fontSize: 11.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   // Edit
                   Expanded(
                     child: GestureDetector(
@@ -624,17 +724,53 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  ex.nome,
-                                  style: theme.bodyMedium.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: theme.bodyMedium.fontStyle,
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Selo do exercicio que abre o treino: sem
+                                    // ele, a escolha do personal nao aparecia
+                                    // em lugar nenhum, ja que os cartoes ficam
+                                    // agrupados por subcategoria e nao pela
+                                    // ordem de execucao.
+                                    if (widget.isInicial)
+                                      Container(
+                                        margin: const EdgeInsetsDirectional
+                                            .fromSTEB(0.0, 0.0, 6.0, 0.0),
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(6.0, 2.0, 6.0, 2.0),
+                                        decoration: BoxDecoration(
+                                          color: theme.accent1,
+                                          borderRadius:
+                                              BorderRadius.circular(6.0),
+                                        ),
+                                        child: Text(
+                                          'Início',
+                                          style: theme.bodyMedium.override(
+                                            font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w600),
+                                            color: theme.primary,
+                                            fontSize: 10.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    Flexible(
+                                      child: Text(
+                                        ex.nome,
+                                        style: theme.bodyMedium.override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                theme.bodyMedium.fontStyle,
+                                          ),
+                                          fontSize: 13.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
-                                    fontSize: 13.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  ],
                                 ),
                                 if (ex.series > 0 || ex.repeticoes > 0)
                                   Text(

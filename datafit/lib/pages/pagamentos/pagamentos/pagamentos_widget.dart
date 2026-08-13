@@ -1,4 +1,6 @@
 import '/components/chip_filtro.dart';
+import '/components/confirmar_recebimento.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/schema/structs/index.dart';
@@ -85,6 +87,48 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     if (editou == true && mounted) await _recarregar();
   }
 
+  /// Confirma que o dinheiro do aluno entrou.
+  ///
+  /// Fecha o ciclo do "Pagamento aguardando aprovacao": ate agora o aluno
+  /// informava e nunca recebia resposta, e a unica forma de quitar era abrir a
+  /// edicao e digitar a data — que nao avisava ninguem.
+  Future<void> _confirmarRecebimento(PersonalpagamentosStruct pgto) async {
+    final forma = await confirmarRecebimento(
+      context,
+      descricao: pgto.descricao.isNotEmpty ? pgto.descricao : 'mensalidade',
+      valor: _moeda(pgto.valor),
+      nomeAluno: pgto.nome,
+      formaInformada:
+          pgto.tipoPagamento.isNotEmpty ? pgto.tipoPagamento : null,
+    );
+    if (forma == null || !mounted) return;
+
+    final resposta = await PersonalGroup.confirmarPagamentoCall.call(
+      pPagamentoId: pgto.id,
+      pPersonalUuid: currentUserUid,
+      pTipoPagamento: forma,
+    );
+    if (!mounted) return;
+
+    if (resposta.succeeded) {
+      await _recarregar();
+      return;
+    }
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (ctx) => MensagemWidget(
+        texto: 'Não consegui confirmar agora. Tente de novo.',
+        tipo: '2',
+        action: () async {},
+        fechasozinho: true,
+        mostrabotoes: false,
+      ),
+    );
+  }
+
   /// Inativa (ou reativa) o vinculo com o aluno.
   ///
   /// E a mesma acao da lista de alunos: aqui ela existe porque cobranca em
@@ -168,6 +212,15 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   String _moeda(num? v) =>
       NumberFormat.currency(locale: 'pt_BR', symbol: r'R$ ')
           .format((v ?? 0).toDouble());
+
+  /// So o numero, sem o simbolo.
+  ///
+  /// No cartao da lista o "R$" e um span a parte, em peso normal, para o valor
+  /// ficar sozinho em negrito. Usar [_moeda] ali imprimia "R$ R$ 1.000,00".
+  String _valorSemSimbolo(num? v) =>
+      NumberFormat.currency(locale: 'pt_BR', symbol: '')
+          .format((v ?? 0).toDouble())
+          .trim();
 
   @override
   void dispose() {
@@ -426,8 +479,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                 children: [
                                   Expanded(
                                     child: _CardKpi(
-                                      titulo: 'Receita',
-                                      rotuloDestaque: 'Este mês',
+                                      titulo: 'Receita atual',
                                       valorDestaque:
                                           _moeda(_kpis!['recebidoMes']),
                                       linhas: [
@@ -455,8 +507,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                   SizedBox(width: 12.0),
                                   Expanded(
                                     child: _CardKpi(
-                                      titulo: 'Pendências',
-                                      rotuloDestaque: 'Total',
+                                      titulo: 'Pendências totais',
                                       valorDestaque:
                                           _moeda(_kpis!['pendenteTotal']),
                                       corDestaque:
@@ -901,8 +952,9 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                 text:
                                                                     valueOrDefault<
                                                                         String>(
-                                                                  _moeda(pgtosItem
-                                                                      .valor),
+                                                                  _valorSemSimbolo(
+                                                                      pgtosItem
+                                                                          .valor),
                                                                   '0',
                                                                 ),
                                                                 style:
@@ -1003,6 +1055,17 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                               ].divide(SizedBox(width: 16.0)),
                                             ),
                                           ),
+                                          // O aluno informou que pagou e a
+                                          // cobranca espera o aceite. Ate aqui
+                                          // esse estado nao aparecia na lista:
+                                          // o personal recebia a notificacao e
+                                          // nao tinha onde confirmar.
+                                          if (pgtosItem.aguardandoConfirmacao)
+                                            _FaixaConfirmar(
+                                              onConfirmar: () =>
+                                                  _confirmarRecebimento(
+                                                      pgtosItem),
+                                            ),
                                           Divider(
                                             height: 1.0,
                                             thickness: 1.0,
@@ -1021,7 +1084,10 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                           // cartao, para o fundo branco de uma
                                           // linha encostar no da seguinte.
                                           .divide(SizedBox(height: 0.0))
-                                          .addToStart(SizedBox(height: 32.0))
+                                          // Sem folga extra no topo: os 32 que
+                                          // havia aqui somavam com o padding do
+                                          // primeiro cartao e descolavam a
+                                          // lista dos chips de filtro.
                                           .addToEnd(SizedBox(height: 120.0)),
                                 ),
                               );
@@ -1062,17 +1128,79 @@ class _LinhaKpi {
 /// Um valor grande em cima responde a pergunta principal; as linhas embaixo
 /// mostram de que ele se compoe ou com o que se compara. Alinhados a direita,
 /// os valores podem ser lidos em coluna.
+/// Faixa de "o aluno informou, falta voce confirmar".
+///
+/// Fica dentro do proprio cartao, e nao numa tela separada, porque a decisao
+/// depende do que esta ali em cima: quem pagou, quanto e quando vencia.
+class _FaixaConfirmar extends StatelessWidget {
+  const _FaixaConfirmar({required this.onConfirmar});
+
+  final VoidCallback onConfirmar;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(78.0, 0.0, 16.0, 14.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.schedule_rounded,
+            color: tema.secondaryText,
+            size: 14.0,
+          ),
+          const SizedBox(width: 6.0),
+          Expanded(
+            child: Text(
+              'Aguardando sua confirmação',
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                color: tema.secondaryText,
+                fontSize: 12.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: onConfirmar,
+            child: Container(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                  12.0, 7.0, 12.0, 7.0),
+              decoration: BoxDecoration(
+                color: tema.primary,
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Text(
+                'Confirmar',
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  color: tema.primaryBackground,
+                  fontSize: 12.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _CardKpi extends StatelessWidget {
   const _CardKpi({
     required this.titulo,
-    required this.rotuloDestaque,
     required this.valorDestaque,
     required this.linhas,
     this.corDestaque,
   });
 
   final String titulo;
-  final String rotuloDestaque;
   final String valorDestaque;
   final List<_LinhaKpi> linhas;
   final Color? corDestaque;
@@ -1105,17 +1233,10 @@ class _CardKpi extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12.0),
-          Text(
-            rotuloDestaque,
-            style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-              color: tema.secondaryText,
-              fontSize: 11.0,
-              letterSpacing: 0.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          // O periodo agora vive no titulo ("Receita atual"), entao aqui vem o
+          // numero direto: duas etiquetas empilhadas antes do valor faziam a
+          // vista pular duas vezes para chegar no que importa.
+          SizedBox(height: 8.0),
           Text(
             valorDestaque,
             style: tema.bodyMedium.override(
@@ -1312,12 +1433,13 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
             Transform.translate(
               offset: Offset(_deslocamento, 0.0),
               child: Container(
-                // Superficie propria, e nao a cor da pagina: sem ela a linha
-                // nao lia como cartao, e o arredondamento do ClipRRect nao
-                // aparecia contra um fundo da mesma cor.
-                // Superficie branca sem raio e sem sombra: o que separa uma
-                // linha da outra e o divisor, nao o contorno de um cartao.
-                color: tema.primaryBackground,
+                // A cor da pagina, nao branco: a lista de cobrancas nao e um
+                // conjunto de cartoes, e uma lista continua. O que separa uma
+                // linha da outra e o divisor.
+                //
+                // Opaca mesmo assim — se fosse transparente, as acoes de
+                // deslizar apareceriam por baixo do conteudo.
+                color: tema.secondaryBackground,
                 child: widget.child,
               ),
             ),

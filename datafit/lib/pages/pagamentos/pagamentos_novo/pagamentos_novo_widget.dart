@@ -212,7 +212,7 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Novo pagamento',
+                                        'Enviar cobrança',
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -1011,9 +1011,9 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                     await PerfilGroup.criarNotificacaoCall.call(
                       destinatario: _model.dpAlunosValue,
                       remetente: currentUserUid,
-                      titulo: 'Novo pagamento registrado',
+                      titulo: 'Nova cobrança registrada',
                       descricao:
-                          'Seu personal registrou um pagamento de ${valueOrDefault<String>(
+                          'Seu personal registrou uma cobrança de ${valueOrDefault<String>(
                         formatNumber(
                           double.parse(_model.txtValorTextController.text),
                           formatType: FormatType.decimal,

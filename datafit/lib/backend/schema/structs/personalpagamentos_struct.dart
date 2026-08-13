@@ -18,6 +18,7 @@ class PersonalpagamentosStruct extends BaseStruct {
     String? createdAt,
     String? alunoUuid,
     bool? alunoAtivo,
+    bool? aguardandoConfirmacao,
   })  : _id = id,
         _descricao = descricao,
         _nome = nome,
@@ -28,7 +29,8 @@ class PersonalpagamentosStruct extends BaseStruct {
         _dataPagamento = dataPagamento,
         _createdAt = createdAt,
         _alunoUuid = alunoUuid,
-        _alunoAtivo = alunoAtivo;
+        _alunoAtivo = alunoAtivo,
+        _aguardandoConfirmacao = aguardandoConfirmacao;
 
   // "id" field.
   int? _id;
@@ -111,6 +113,13 @@ class PersonalpagamentosStruct extends BaseStruct {
 
   bool hasAlunoAtivo() => _alunoAtivo != null;
 
+  // "aguardandoConfirmacao" field.
+  bool? _aguardandoConfirmacao;
+  bool get aguardandoConfirmacao => _aguardandoConfirmacao ?? false;
+  set aguardandoConfirmacao(bool? val) => _aguardandoConfirmacao = val;
+
+  bool hasAguardandoConfirmacao() => _aguardandoConfirmacao != null;
+
   static PersonalpagamentosStruct fromMap(Map<String, dynamic> data) =>
       PersonalpagamentosStruct(
         id: castToType<int>(data['id']),
@@ -124,6 +133,7 @@ class PersonalpagamentosStruct extends BaseStruct {
         createdAt: data['created_at'] as String?,
         alunoUuid: data['alunoUuid'] as String?,
         alunoAtivo: data['alunoAtivo'] as bool?,
+        aguardandoConfirmacao: data['aguardandoConfirmacao'] as bool?,
       );
 
   static PersonalpagamentosStruct? maybeFromMap(dynamic data) => data is Map
@@ -142,6 +152,7 @@ class PersonalpagamentosStruct extends BaseStruct {
         'created_at': _createdAt,
         'alunoUuid': _alunoUuid,
         'alunoAtivo': _alunoAtivo,
+        'aguardandoConfirmacao': _aguardandoConfirmacao,
       }.withoutNulls;
 
   @override
@@ -188,6 +199,10 @@ class PersonalpagamentosStruct extends BaseStruct {
         ),
         'alunoAtivo': serializeParam(
           _alunoAtivo,
+          ParamType.bool,
+        ),
+        'aguardandoConfirmacao': serializeParam(
+          _aguardandoConfirmacao,
           ParamType.bool,
         ),
       }.withoutNulls;
@@ -250,6 +265,11 @@ class PersonalpagamentosStruct extends BaseStruct {
           ParamType.bool,
           false,
         ),
+        aguardandoConfirmacao: deserializeParam(
+          data['aguardandoConfirmacao'],
+          ParamType.bool,
+          false,
+        ),
       );
 
   @override
@@ -268,7 +288,8 @@ class PersonalpagamentosStruct extends BaseStruct {
         dataPagamento == other.dataPagamento &&
         createdAt == other.createdAt &&
         alunoUuid == other.alunoUuid &&
-        alunoAtivo == other.alunoAtivo;
+        alunoAtivo == other.alunoAtivo &&
+        aguardandoConfirmacao == other.aguardandoConfirmacao;
   }
 
   @override
@@ -284,6 +305,7 @@ class PersonalpagamentosStruct extends BaseStruct {
         createdAt,
         alunoUuid,
         alunoAtivo,
+        aguardandoConfirmacao,
       ]);
 }
 
