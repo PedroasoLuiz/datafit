@@ -1,5 +1,8 @@
+import 'dart:async' show unawaited;
+
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/diagnostico.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
@@ -106,6 +109,27 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // A tela abriu so com o cabecalho e ninguem sabe por que. Anota o estado
+      // de entrada: quais indices vieram, se `exercicioTemp` esta preenchido e
+      // se os indices ainda encontram alguma coisa na lista. Ler o codigo ja
+      // me levou a uma conclusao errada hoje.
+      final ex = FFAppState().exercicioTemp;
+      final sub = FFAppState()
+          .treinosTemp
+          .subagrupamentos
+          .elementAtOrNull(widget!.index ?? -1);
+      final grupo = sub?.grupos.elementAtOrNull(widget!.indexGrupo ?? -1);
+      unawaited(anotarDiagnostico(
+        'execucao_abriu',
+        'index=${widget!.index} indexGrupo=${widget!.indexGrupo} '
+            'indexExercicio=${widget!.indexExercicio} '
+            'exercicioTemp.nome="${ex.nome}" execucaoId=${ex.execucaoId} '
+            'series=${ex.series} subagrupamentos=${FFAppState().treinosTemp.subagrupamentos.length} '
+            'subEncontrado=${sub != null} grupoEncontrado=${grupo != null} '
+            'exerciciosNoGrupo=${grupo?.exercicios.length} '
+            'emAndamento=${FFAppState().exercicioEmAndamento}',
+      ));
+
       _model.repets = FFAppState().exercicioTemp.repeticoes;
       // Unidade inicial vem da preferencia do perfil; o seletor ao lado do
       // campo continua podendo trocar so para esta digitacao.

@@ -62,6 +62,15 @@ class _FotoTelaCheia extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: url,
                   fit: BoxFit.contain,
+                  // Decodifica no tamanho da tela, nao no do arquivo. Uma foto
+                  // de celular tem 2268x4032 — 9 megapixels, uns 36 MB de
+                  // bitmap — e mandar isso inteiro para a memoria e o que fazia
+                  // a imagem falhar sem dar erro nenhum. `memCacheWidth` corta
+                  // o custo na decodificacao, antes de virar textura.
+                  memCacheWidth: (MediaQuery.sizeOf(context).width *
+                          MediaQuery.devicePixelRatioOf(context))
+                      .round()
+                      .clamp(360, 2000),
                   placeholder: (_, __) => const Center(
                     child: SizedBox(
                       width: 28.0,

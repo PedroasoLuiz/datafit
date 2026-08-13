@@ -1717,12 +1717,12 @@ class _MetricasWidgetState extends State<MetricasWidget>
                                   onTap: () =>
                                       safeSetState(() => _aba = 0),
                                 ),
-                                ChipFiltro(
-                                  texto: 'Exercícios',
-                                  selecionado: _aba == 1,
-                                  onTap: () =>
-                                      safeSetState(() => _aba = 1),
-                                ),
+                                // "Exercicios" deixou de ser aba: os
+                                // indicadores passaram a viver embaixo dos
+                                // cartoes de metricas. Eram a mesma leitura
+                                // partida em dois lugares — quem olhava os
+                                // numeros do periodo tinha que trocar de aba
+                                // para ver quais exercicios os produziram.
                                 ChipFiltro(
                                   texto: 'Calendário',
                                   selecionado: _aba == 2,
@@ -3134,14 +3134,13 @@ class _MetricasWidgetState extends State<MetricasWidget>
                               ],
                             ),
                           ),
-                          ],
-                          if (_aba == 1)
                             IndicadoresExercicios(
                               categorias: FFAppState()
                                   .metricasTemp
                                   .dsExercicios
                                   .toList(),
                             ),
+                          ],
                         ]
                             .addToStart(SizedBox(height: 16.0))
                             .addToEnd(SizedBox(height: 120.0)),

@@ -53,6 +53,17 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
   var hasContainerTriggered2 = false;
   final animationsMap = <String, AnimationInfo>{};
 
+  /// A lista como o servidor mandou.
+  ///
+  /// NAO ordenar aqui. A navegacao para a tela de execucao passa a POSICAO do
+  /// grupo e do exercicio, e a outra ponta le a lista original: qualquer
+  /// reordenacao so na exibicao faz os indices apontarem para outro exercicio
+  /// — foi assim que a tela de execucao passou a abrir vazia. A ordem correta
+  /// vem pronta de `get_treino_ativo_aluno`.
+  List<GrupossubcategoriasStruct> _gruposEmOrdem(
+          Iterable<GrupossubcategoriasStruct>? grupos) =>
+      (grupos ?? const <GrupossubcategoriasStruct>[]).toList();
+
   @override
   void initState() {
     super.initState();
@@ -591,18 +602,40 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                       child: Column(
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
+                                          // Quanto do treino ja foi feito.
+                                          //
+                                          // O card do baralho mostrava isso e a
+                                          // informacao sumia justamente ao
+                                          // abrir o treino, que e onde a pessoa
+                                          // esta enquanto treina.
+                                          _ProgressoDoTreino(
+                                            grupos: _gruposEmOrdem(FFAppState()
+                                                .treinosTemp
+                                                .subagrupamentos
+                                                .elementAtOrNull(_model.index)
+                                                ?.grupos),
+                                          ),
                                           Builder(
                                             builder: (context) {
-                                              final subGrupos = FFAppState()
+                                              // Na ordem em que o treino deve
+                                              // ser feito, e nao na que o
+                                              // payload chegou.
+                                              //
+                                              // `Ordem` sempre mandou na
+                                              // sequencia — e o que o personal
+                                              // define ao marcar o exercicio
+                                              // inicial — mas esta tela
+                                              // ignorava o campo. O treino da
+                                              // Maria comeca no Peitoral
+                                              // (ordem 0) e ela via Bracos
+                                              // (ordem 4) primeiro.
+                                              final subGrupos = _gruposEmOrdem(
+                                                  FFAppState()
                                                       .treinosTemp
                                                       .subagrupamentos
                                                       .elementAtOrNull(
                                                           _model.index)
-                                                      ?.grupos
-                                                      ?.map((e) => e)
-                                                      .toList()
-                                                      ?.toList() ??
-                                                  [];
+                                                      ?.grupos);
 
                                               return Column(
                                                 mainAxisSize: MainAxisSize.max,
@@ -690,8 +723,6 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                             final exercicios =
                                                                 subGruposItem
                                                                     .exercicios
-                                                                    .map((e) =>
-                                                                        e)
                                                                     .toList();
 
                                                             return Column(
@@ -953,75 +984,6 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                                                                 ),
                                                                                               ),
                                                                                           ],
-                                                                                        ),
-                                                                                        Padding(
-                                                                                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 16.0),
-                                                                                          child: Row(
-                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                            children: [
-                                                                                              Container(
-                                                                                                decoration: BoxDecoration(
-                                                                                                  color: FlutterFlowTheme.of(context).accent2,
-                                                                                                  borderRadius: BorderRadius.circular(12.0),
-                                                                                                ),
-                                                                                                child: Padding(
-                                                                                                  padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                                                  child: Row(
-                                                                                                    mainAxisSize: MainAxisSize.max,
-                                                                                                    children: [
-                                                                                                      Text(
-                                                                                                        '${exerciciosItem.series.toString()} x ${exerciciosItem.repeticoes.toString()}',
-                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                              font: GoogleFonts.inter(
-                                                                                                                fontWeight: FontWeight.normal,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                              color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                              fontSize: 12.0,
-                                                                                                              letterSpacing: 0.0,
-                                                                                                              fontWeight: FontWeight.normal,
-                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                            ),
-                                                                                                      ),
-                                                                                                    ],
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                              Container(
-                                                                                                decoration: BoxDecoration(
-                                                                                                  color: FlutterFlowTheme.of(context).accent2,
-                                                                                                  borderRadius: BorderRadius.circular(12.0),
-                                                                                                ),
-                                                                                                child: Padding(
-                                                                                                  padding: EdgeInsetsDirectional.fromSTEB(4.0, 2.0, 6.0, 2.0),
-                                                                                                  child: Row(
-                                                                                                    mainAxisSize: MainAxisSize.max,
-                                                                                                    children: [
-                                                                                                      Icon(
-                                                                                                        FFIcons.kproperty1FiRrTimeQuarterPast,
-                                                                                                        color: FlutterFlowTheme.of(context).secondary,
-                                                                                                        size: 14.0,
-                                                                                                      ),
-                                                                                                      Text(
-                                                                                                        'Descanso ${exerciciosItem.tempoDescansoSeg.toString()}s',
-                                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                              font: GoogleFonts.inter(
-                                                                                                                fontWeight: FontWeight.normal,
-                                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                              ),
-                                                                                                              color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                              fontSize: 12.0,
-                                                                                                              letterSpacing: 0.0,
-                                                                                                              fontWeight: FontWeight.normal,
-                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                            ),
-                                                                                                      ),
-                                                                                                    ].divide(SizedBox(width: 4.0)),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ].divide(SizedBox(width: 6.0)),
-                                                                                          ),
                                                                                         ),
                                                                                       ],
                                                                                     ),
@@ -3340,6 +3302,120 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// Progresso do treino aberto, no topo da tela de detalhes.
+///
+/// Segue o mesmo desenho dos indicadores de exercicio: uma frase que diz o que
+/// o numero significa, a barra logo abaixo e, quando o treino tem mais de um
+/// grupo muscular, uma linha por grupo. O numero solto nao dizia se era muito
+/// ou pouco, feito ou por fazer.
+class _ProgressoDoTreino extends StatelessWidget {
+  const _ProgressoDoTreino({required this.grupos});
+
+  final List<GrupossubcategoriasStruct> grupos;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    final exercicios = grupos.expand((g) => g.exercicios).toList();
+    final total = exercicios.length;
+    if (total == 0) return const SizedBox.shrink();
+
+    // Pulado nao conta como feito: a barra cheia precisa significar que o
+    // treino foi cumprido, e nao que ele terminou.
+    final feitos = exercicios.where((e) => e.isConcluido).length;
+    final pulados = exercicios.where((e) => e.isPulado).length;
+
+    return Padding(
+      // Vao curto: com 16 embaixo o cartao ficava descolado da lista que ele
+      // resume.
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: tema.primary,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [tema.designToken.shadow.lg],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  '$feitos',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 26.0,
+                    letterSpacing: -0.6,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 0.0, 0.0),
+                  child: Text(
+                    'de $total exercícios feitos',
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      // Branco a 85%: puro, ele competia com o numero ao lado
+                      // e os dois liam com o mesmo peso.
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(999.0),
+                child: LinearProgressIndicator(
+                  value: feitos / total,
+                  minHeight: 6.0,
+                  // Sobre o azul, o trilho e um branco rebaixado e o
+                  // preenchimento e branco cheio: com as cores do tema a barra
+                  // sumia dentro do proprio cartao.
+                  backgroundColor: Colors.white.withValues(alpha: 0.25),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    feitos == total ? tema.success : Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            if (pulados > 0)
+              Padding(
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                child: Text(
+                  pulados == 1
+                      ? '1 exercício pulado'
+                      : '$pulados exercícios pulados',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    color: Colors.white.withValues(alpha: 0.75),
+                    fontSize: 11.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

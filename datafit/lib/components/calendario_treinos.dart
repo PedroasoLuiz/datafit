@@ -123,38 +123,8 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // ── Cabeçalho do mês ────────────────────────────────────────
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 0.0),
-          child: Row(
-            children: [
-              _SetaMes(
-                icone: Icons.chevron_left_rounded,
-                aoTocar: () => _mudarMes(-1),
-              ),
-              Expanded(
-                child: Text(
-                  '${_mesesPtBr[_mesVisivel.month - 1]} ${_mesVisivel.year}',
-                  textAlign: TextAlign.center,
-                  style: tema.bodyMedium.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    color: tema.primaryText,
-                    fontSize: 15.0,
-                    letterSpacing: -0.2,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              _SetaMes(
-                icone: Icons.chevron_right_rounded,
-                aoTocar: () => _mudarMes(1),
-              ),
-            ],
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 0.0),
           child: Container(
             decoration: BoxDecoration(
               color: tema.primaryBackground,
@@ -165,6 +135,36 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // ── Cabeçalho do mês ──────────────────────────────
+                // Dentro do cartao, e nao acima dele: o mes e as setas
+                // comandam a grade que vem logo abaixo, e soltos por fora
+                // pareciam pertencer a tela em vez do calendario.
+                Row(
+                  children: [
+                    _SetaMes(
+                      icone: Icons.chevron_left_rounded,
+                      aoTocar: () => _mudarMes(-1),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${_mesesPtBr[_mesVisivel.month - 1]} ${_mesVisivel.year}',
+                        textAlign: TextAlign.center,
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          color: tema.primaryText,
+                          fontSize: 15.0,
+                          letterSpacing: -0.2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    _SetaMes(
+                      icone: Icons.chevron_right_rounded,
+                      aoTocar: () => _mudarMes(1),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
                 Row(
                   children: [
                     for (final d in _diasDaSemana)

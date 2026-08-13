@@ -1,4 +1,5 @@
 import '/backend/schema/structs/index.dart';
+import '/components/foto_tela_cheia.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -361,19 +362,43 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                             mainAxisSize: MainAxisSize.max,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100.0),
-                                child: Image(
-                                  image: CachedNetworkImageProvider(
-                                      valueOrDefault<String>(
-                                    widget!.perosnal?.fotoUrl,
-                                    'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/datafit-yuopjj/assets/b1so7onglxu0/123.png',
-                                  )),
-                                  width: 70.0,
-                                  height: 70.0,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                              // Tocar abre a foto em tela cheia, como na
+                              // listagem de alunos. So quando existe foto:
+                              // ampliar o avatar generico nao mostra nada a
+                              // mais, e um toque que nao faz nada se le como
+                              // defeito.
+                              Builder(builder: (context) {
+                                final foto =
+                                    widget!.perosnal?.fotoUrl ?? '';
+                                return GestureDetector(
+                                  onTap: foto.isEmpty
+                                      ? null
+                                      : () => mostrarFotoEmTelaCheia(
+                                            context,
+                                            url: foto,
+                                            titulo: widget!.perosnal?.nome,
+                                          ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    child: Image(
+                                      // Decodifica em ~210px: o avatar tem 70,
+                                      // e a foto do arquivo tem 4032 de altura.
+                                      image: ResizeImage(
+                                        CachedNetworkImageProvider(
+                                            valueOrDefault<String>(
+                                          widget!.perosnal?.fotoUrl,
+                                          'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/datafit-yuopjj/assets/b1so7onglxu0/123.png',
+                                        )),
+                                        width: 210,
+                                        allowUpscaling: false,
+                                      ),
+                                      width: 70.0,
+                                      height: 70.0,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              }),
                               Expanded(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,

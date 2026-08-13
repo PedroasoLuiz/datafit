@@ -420,251 +420,59 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      FFAppState().treinosTemp.nome,
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 16.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 4.0, 0.0, 0.0),
-                                      child: Text(
-                                        'Validade: ${valueOrDefault<String>(
-                                          dateTimeFormat(
-                                            "dd/MM/yyyy",
-                                            functions.formataData(FFAppState()
-                                                .treinosTemp
-                                                .dataValidade),
-                                            locale: FFLocalizations.of(context)
-                                                .languageCode,
-                                          ),
-                                          '-',
-                                        )}',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              fontSize: 12.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                      ),
-                                    ),
-                                    // Faixa do personal. O fundo e o chevron
-                                    // sao o que faltava: com a foto solta,
-                                    // nada indicava que dava para tocar.
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 14.0, 0.0, 0.0),
-                                      child: Material(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryBackground
-                                            .withValues(alpha: 0.85),
-                                        borderRadius:
-                                            BorderRadius.circular(14.0),
-                                        child: InkWell(
-                                          borderRadius:
-                                              BorderRadius.circular(14.0),
-                                          onTap: () async {
-                                            _model.result = await AlunoGroup
-                                                .getPerfilPersonalCall
-                                                .call(
-                                              pAlunoUuid: currentUserUid,
-                                              pPersonalUuid: FFAppState()
-                                                  .treinosTemp
-                                                  .personalUuid,
-                                            );
-
-                                            if ((_model.result?.succeeded ??
-                                                true)) {
-                                              context.pushNamed(
-                                                PerfilpersonalWidget.routeName,
-                                                queryParameters: {
-                                                  'perosnal': serializeParam(
-                                                    PerfilPersonalStruct
-                                                        .maybeFromMap((_model
-                                                                .result
-                                                                ?.jsonBody ??
-                                                            '')),
-                                                    ParamType.DataStruct,
-                                                  ),
-                                                }.withoutNulls,
-                                                extra: <String, dynamic>{
-                                                  '__transition_info__':
-                                                      TransitionInfo(
-                                                    hasTransition: true,
-                                                    transitionType:
-                                                        PageTransitionType.fade,
-                                                    duration: Duration(
-                                                        milliseconds: 0),
-                                                  ),
-                                                },
-                                              );
-                                            } else {
-                                              await showDialog(
-                                                useRootNavigator: true,
-                                                context: context,
-                                                builder: (alertDialogContext) {
-                                                  return WebViewAware(
-                                                    child: AlertDialog(
-                                                      content: Text((_model
-                                                                  .result
-                                                                  ?.jsonBody ??
-                                                              '')
-                                                          .toString()),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.pop(
-                                                                  alertDialogContext),
-                                                          child: Text('Ok'),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            }
-
-                                            safeSetState(() {});
-                                          },
+                                    // A pilha fica a esquerda de tudo, e nao
+                                    // uma barra atravessando o cartao: a
+                                    // imagem de fundo tem uma forma propria, e
+                                    // uma linha cruzando a largura inteira
+                                    // batia nela. Crescendo para cima, o
+                                    // progresso ocupa uma coluna estreita que
+                                    // nao disputa espaco com o desenho.
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _PilhaProgresso(),
+                                        Expanded(
                                           child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    8.0, 8.0, 12.0, 8.0),
-                                            child: Row(
+                                            padding: EdgeInsetsDirectional
+                                                .fromSTEB(12.0, 0.0, 0.0, 0.0),
+                                            child: Column(
                                               mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          100.0),
-                                                  child: FFAppState()
-                                                              .treinosTemp
-                                                              .hasPersonalFotoUrl() &&
-                                                          FFAppState()
-                                                              .treinosTemp
-                                                              .personalFotoUrl
-                                                              .isNotEmpty
-                                                      ? Image(
-                                                          image: CachedNetworkImageProvider(
-                                                              FFAppState()
-                                                                  .treinosTemp
-                                                                  .personalFotoUrl),
-                                                          width: 38.0,
-                                                          height: 38.0,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context,
-                                                                  error,
-                                                                  stackTrace) =>
-                                                              Image.asset(
-                                                            'assets/images/Profile_Image.png',
-                                                            width: 38.0,
-                                                            height: 38.0,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        )
-                                                      : Image.asset(
-                                                          'assets/images/Profile_Image.png',
-                                                          width: 38.0,
-                                                          height: 38.0,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          10.0, 0.0, 8.0, 0.0),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        'Seu personal',
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .bodyMedium
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .inter(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              fontSize: 10.5,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                            ),
-                                                      ),
-                                                      Text(
-                                                        FFAppState()
-                                                                .treinosTemp
-                                                                .personalNome
-                                                                .isNotEmpty
-                                                            ? FFAppState()
-                                                                .treinosTemp
-                                                                .personalNome
-                                                            : 'Ver perfil',
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .bodyMedium
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .inter(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryText,
-                                                              fontSize: 13.0,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Icon(
-                                                  Icons.chevron_right_rounded,
-                                                  color: FlutterFlowTheme.of(
+                                                Text(
+                                                  FFAppState().treinosTemp.nome,
+                                                  style: FlutterFlowTheme.of(
                                                           context)
-                                                      .secondaryText,
-                                                  size: 18.0,
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        fontSize: 16.0,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
                                                 ),
+                                                // Resumo do dia, no lugar onde
+                                                // ficava a validade: quem abre
+                                                // o app quer saber quanto falta
+                                                // hoje, e isso so existia la
+                                                // embaixo, espalhado pelo
+                                                // baralho.
+                                                _ResumoDoDia(),
                                               ],
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -674,6 +482,221 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                          // Faixa do personal, abaixo do baralho: dentro do
+                          // cabecalho ela disputava espaco com o nome do plano
+                          // e o progresso. Aqui ela e o que de fato e — um
+                          // atalho, e nao parte do resumo do dia.
+                          //
+                          // Largura cheia, com a mesma margem lateral dos
+                          // outros blocos, para alinhar com as cartas acima.
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                16.0, 16.0, 16.0, 0.0),
+                            child: Material(
+                              color: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
+                              borderRadius:
+                                  BorderRadius.circular(14.0),
+                              elevation: 2.0,
+                              shadowColor: Colors.black26,
+                              child: InkWell(
+                                borderRadius:
+                                    BorderRadius.circular(14.0),
+                                onTap: () async {
+                                  _model.result = await AlunoGroup
+                                      .getPerfilPersonalCall
+                                      .call(
+                                    pAlunoUuid: currentUserUid,
+                                    pPersonalUuid: FFAppState()
+                                        .treinosTemp
+                                        .personalUuid,
+                                  );
+
+                                  if ((_model.result?.succeeded ??
+                                      true)) {
+                                    context.pushNamed(
+                                      PerfilpersonalWidget.routeName,
+                                      queryParameters: {
+                                        'perosnal': serializeParam(
+                                          PerfilPersonalStruct
+                                              .maybeFromMap((_model
+                                                      .result
+                                                      ?.jsonBody ??
+                                                  '')),
+                                          ParamType.DataStruct,
+                                        ),
+                                      }.withoutNulls,
+                                      extra: <String, dynamic>{
+                                        '__transition_info__':
+                                            TransitionInfo(
+                                          hasTransition: true,
+                                          transitionType:
+                                              PageTransitionType.fade,
+                                          duration: Duration(
+                                              milliseconds: 0),
+                                        ),
+                                      },
+                                    );
+                                  } else {
+                                    await showDialog(
+                                      useRootNavigator: true,
+                                      context: context,
+                                      builder: (alertDialogContext) {
+                                        return WebViewAware(
+                                          child: AlertDialog(
+                                            content: Text((_model
+                                                        .result
+                                                        ?.jsonBody ??
+                                                    '')
+                                                .toString()),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        alertDialogContext),
+                                                child: Text('Ok'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  safeSetState(() {});
+                                },
+                                child: Padding(
+                                  padding:
+                                      EdgeInsetsDirectional.fromSTEB(
+                                          10.0, 10.0, 14.0, 10.0),
+                                  // Largura cheia: como cartao proprio abaixo
+                                  // do baralho, encolher ate o conteudo o
+                                  // deixaria desalinhado das cartas.
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(
+                                                100.0),
+                                        child: FFAppState()
+                                                    .treinosTemp
+                                                    .hasPersonalFotoUrl() &&
+                                                FFAppState()
+                                                    .treinosTemp
+                                                    .personalFotoUrl
+                                                    .isNotEmpty
+                                            ? Image(
+                                                image: CachedNetworkImageProvider(
+                                                    FFAppState()
+                                                        .treinosTemp
+                                                        .personalFotoUrl),
+                                                width: 38.0,
+                                                height: 38.0,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context,
+                                                        error,
+                                                        stackTrace) =>
+                                                    Image.asset(
+                                                  'assets/images/Profile_Image.png',
+                                                  width: 38.0,
+                                                  height: 38.0,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : Image.asset(
+                                                'assets/images/Profile_Image.png',
+                                                width: 38.0,
+                                                height: 38.0,
+                                                fit: BoxFit.cover,
+                                              ),
+                                      ),
+                                      // Expanded empurra o chevron para a
+                                      // borda direita do cartao, em vez de
+                                      // deixa-lo colado no nome.
+                                      Expanded(
+                                        child: Padding(
+                                        padding: EdgeInsetsDirectional
+                                            .fromSTEB(
+                                                10.0, 0.0, 8.0, 0.0),
+                                        child: Column(
+                                          mainAxisSize:
+                                              MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment
+                                                  .start,
+                                          children: [
+                                            Text(
+                                              'Seu personal',
+                                              style: FlutterFlowTheme
+                                                      .of(context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts
+                                                        .inter(
+                                                      fontWeight:
+                                                          FontWeight
+                                                              .w500,
+                                                    ),
+                                                    color: FlutterFlowTheme
+                                                            .of(context)
+                                                        .secondaryText,
+                                                    fontSize: 10.5,
+                                                    letterSpacing:
+                                                        0.0,
+                                                    fontWeight:
+                                                        FontWeight
+                                                            .w500,
+                                                  ),
+                                            ),
+                                            Text(
+                                              FFAppState()
+                                                      .treinosTemp
+                                                      .personalNome
+                                                      .isNotEmpty
+                                                  ? FFAppState()
+                                                      .treinosTemp
+                                                      .personalNome
+                                                  : 'Ver perfil',
+                                              style: FlutterFlowTheme
+                                                      .of(context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts
+                                                        .inter(
+                                                      fontWeight:
+                                                          FontWeight
+                                                              .w600,
+                                                    ),
+                                                    color: FlutterFlowTheme
+                                                            .of(context)
+                                                        .primaryText,
+                                                    fontSize: 13.0,
+                                                    letterSpacing:
+                                                        0.0,
+                                                    fontWeight:
+                                                        FontWeight
+                                                            .w600,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ),
+                                      Icon(
+                                        Icons.chevron_right_rounded,
+                                        color: FlutterFlowTheme.of(
+                                                context)
+                                            .secondaryText,
+                                        size: 18.0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
                               ListView(
                                 // O baralho tem sombra e cartas assomando dos
                                 // lados; encostado no card do personal os dois
@@ -843,85 +866,6 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                               ),
                             ].divide(SizedBox(height: 16.0)),
                           ),
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 32.0, 0.0, 0.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'DATAFITⓒ 2026',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Versão 1.0.1',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                         ].addToEnd(SizedBox(height: 120.0)),
                       ),
                     ),
@@ -931,6 +875,131 @@ class _TreinosWidgetState extends State<TreinosWidget> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Progresso do dia em pilha, crescendo de baixo para cima.
+///
+/// Uma barra horizontal atravessava o cartao inteiro e batia na forma que a
+/// imagem de fundo ja tem. Em pilha, o progresso vive numa coluna estreita a
+/// esquerda do texto e nao disputa espaco com o desenho.
+///
+/// Um degrau por treino do dia, e nao uma escala continua: sao dois, tres,
+/// talvez quatro — contar degraus e mais direto do que medir o comprimento de
+/// uma barra.
+class _PilhaProgresso extends StatelessWidget {
+  const _PilhaProgresso();
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+    final treinos = FFAppState().treinosTemp.subagrupamentos;
+    final total = treinos.length;
+    if (total == 0) return const SizedBox.shrink();
+
+    final feitos = treinos.where((e) => e.status == 'concluido').length;
+    final completo = feitos == total;
+
+    // Altura fixa: a pilha acompanha o bloco de texto ao lado, entao ela nao
+    // pode crescer conforme o numero de treinos.
+    const alturaTotal = 44.0;
+    const vao = 3.0;
+    final alturaDoDegrau = (alturaTotal - vao * (total - 1)) / total;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      verticalDirection: VerticalDirection.up,
+      children: [
+        for (var i = 0; i < total; i++)
+          Container(
+            width: 6.0,
+            height: alturaDoDegrau < 3.0 ? 3.0 : alturaDoDegrau,
+            decoration: BoxDecoration(
+              color: i < feitos
+                  ? (completo ? tema.success : tema.primary)
+                  : tema.primaryText.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+          ),
+      ].divide(const SizedBox(height: vao)),
+    );
+  }
+}
+
+/// Quanto do dia ja foi feito, no cabecalho.
+///
+/// Le a mesma lista que alimenta o baralho, entao os dois nunca discordam.
+/// A validade so aparece quando esta perto de vencer: todo dia ela ocupava uma
+/// linha para dizer algo que so importa uma vez por mes.
+class _ResumoDoDia extends StatelessWidget {
+  const _ResumoDoDia();
+
+  /// Dias que faltam para o plano vencer. Nulo quando nao da para saber.
+  int? _diasParaVencer() {
+    final bruto = FFAppState().treinosTemp.dataValidade;
+    if (bruto.isEmpty) return null;
+    final validade = DateTime.tryParse(bruto);
+    if (validade == null) return null;
+    final hoje = DateTime.now();
+    return DateTime(validade.year, validade.month, validade.day)
+        .difference(DateTime(hoje.year, hoje.month, hoje.day))
+        .inDays;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+    final treinos = FFAppState().treinosTemp.subagrupamentos;
+    final total = treinos.length;
+
+    // Pulado nao conta como feito: a barra cheia tem que querer dizer que o
+    // dia foi cumprido, nao que ele acabou.
+    final feitos = treinos.where((e) => e.status == 'concluido').length;
+
+    final dias = _diasParaVencer();
+    final vencendo = dias != null && dias <= 7;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (total > 0) ...[
+            Text(
+              feitos == total
+                  ? 'Tudo feito por hoje'
+                  : '$feitos de $total ${total == 1 ? 'treino' : 'treinos'} hoje',
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                color: tema.secondaryText,
+                fontSize: 12.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+          if (vencendo)
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+              child: Text(
+                dias <= 0
+                    ? 'Seu plano venceu'
+                    : dias == 1
+                        ? 'Seu plano vence amanhã'
+                        : 'Seu plano vence em $dias dias',
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  color: tema.error,
+                  fontSize: 11.5,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -959,7 +1028,7 @@ class _CarrosselLeque extends StatefulWidget {
 }
 
 class _CarrosselLequeState extends State<_CarrosselLeque>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static const double _altura = 250.0;
 
   /// Quanto cada carta de tras assoma para o lado, e quanto ela encolhe.
@@ -980,6 +1049,33 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
   /// Cartas de tras visiveis. Acima disso a pilha vira sujeira visual.
   static const int _visiveis = 2;
 
+  /// Onde cada assento da pilha fica: 0 = frente, 1 = segunda, 2 = terceira.
+  ///
+  /// Existe como lista, e nao como conta em cima da camada, porque a posicao
+  /// nao e uma progressao — a segunda vai para a direita e a terceira para a
+  /// esquerda, e a terceira ainda leva 2px a mais.
+  static const List<double> _deslocDoAssento = [
+    0.0,
+    _passoLateral,
+    -(_passoLateral + 2.0),
+  ];
+
+  static const List<double> _giroDoAssento = [0.0, _giroFundo, -_giroFundo];
+
+  /// Le a lista num ponto continuo entre dois assentos.
+  ///
+  /// E o que transforma a troca de lugar em movimento: com `p = 1.4` a carta
+  /// esta 40% do caminho entre o segundo assento e o primeiro, em vez de estar
+  /// num ou noutro.
+  static double _entreAssentos(List<double> assentos, double p) {
+    if (p <= 0) return assentos.first;
+    if (p >= assentos.length - 1) return assentos.last;
+    final anterior = p.floor();
+    final fracao = p - anterior;
+    return assentos[anterior] +
+        (assentos[anterior + 1] - assentos[anterior]) * fracao;
+  }
+
   /// Indice da carta que esta na frente.
   int _topo = 0;
 
@@ -988,6 +1084,13 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
 
   late final AnimationController _controle;
 
+  /// Entrada da carta que volta para o fundo da pilha.
+  ///
+  /// Quando a da frente sai, ela reaparece no ultimo assento — e aparecia
+  /// pronta, do nada. Comeca em 1 para a pilha parada ja nascer visivel; so
+  /// as trocas rodam a animacao.
+  late final AnimationController _controleEntrada;
+
   @override
   void initState() {
     super.initState();
@@ -995,11 +1098,17 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
       vsync: this,
       duration: const Duration(milliseconds: 280),
     )..addListener(() => setState(() {}));
+    _controleEntrada = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+      value: 1.0,
+    )..addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _controle.dispose();
+    _controleEntrada.dispose();
     super.dispose();
   }
 
@@ -1029,6 +1138,9 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
         _topo = (_topo + 1) % widget.quantidade;
         _arraste = 0.0;
       });
+      // A carta que acabou de sair reentra no fundo: sem isto ela pisca de
+      // volta ja pronta, no mesmo quadro em que a pilha se reorganiza.
+      _controleEntrada.forward(from: 0.0);
     });
   }
 
@@ -1073,7 +1185,8 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
         // De tras para frente, para a da frente terminar por cima na Stack.
         for (var camada = qtd - 1; camada >= 0; camada--) {
           final indice = (_topo + camada) % widget.quantidade;
-          cartas.add(_carta(context, camada, indice, largura));
+          cartas.add(_carta(context, camada, indice, largura,
+              ultima: camada == qtd - 1));
         }
 
         return SizedBox(
@@ -1087,7 +1200,13 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
     );
   }
 
-  Widget _carta(BuildContext context, int camada, int indice, double largura) {
+  Widget _carta(
+    BuildContext context,
+    int camada,
+    int indice,
+    double largura, {
+    required bool ultima,
+  }) {
     final daFrente = camada == 0;
 
     // Enquanto a da frente e arrastada, as de tras se adiantam. Sem isso so a
@@ -1098,20 +1217,17 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
 
     final escala = 1.0 - (_passoEscala * camadaEfetiva);
 
-    // As de tras alternam de lado: uma ponta na esquerda, a outra na direita.
-    final paraDireita = camada.isOdd;
-    final desloc = daFrente
-        ? _arraste
-        // Passo fixo por lado, como o giro: multiplicado pela camada, a
-        // terceira carta ia ao dobro da distancia e ficava jogada no canto.
-        : (paraDireita ? 1 : -1) * _passoLateral;
+    // As de tras caminham para o assento da frente conforme o arraste avanca,
+    // em vez de ficarem paradas e trocarem de lugar de uma vez no fim. Era
+    // esse salto — de +26 para 0, desendireitando junto — que fazia a troca
+    // parecer um corte em vez de um movimento.
+    final desloc =
+        daFrente ? _arraste : _entreAssentos(_deslocDoAssento, camadaEfetiva);
 
-    // Frente: gira conforme o arraste. Fundo: giro fixo, alternando o lado.
+    // Frente: gira conforme o arraste. Fundo: acompanha o assento.
     final giro = daFrente
         ? (largura > 0 ? (_arraste / largura) * 0.22 : 0.0)
-        // Angulo fixo por lado, sem multiplicar pela camada: com o fator, a
-        // terceira carta girava o dobro da segunda e ficava deitada.
-        : (paraDireita ? 1 : -1) * _giroFundo;
+        : _entreAssentos(_giroDoAssento, camadaEfetiva);
 
     final carta = Transform.translate(
       offset: Offset(desloc, 0.0),
@@ -1120,7 +1236,13 @@ class _CarrosselLequeState extends State<_CarrosselLeque>
         child: Transform.scale(
           scale: escala,
           child: Opacity(
-            opacity: daFrente ? 1.0 : (1.0 - 0.2 * camadaEfetiva),
+            // A ultima da pilha entra clareando: e o assento que recebe a
+            // carta recem-descartada, o unico que troca de conteudo de um
+            // quadro para o outro.
+            opacity: daFrente
+                ? 1.0
+                : (1.0 - 0.2 * camadaEfetiva) *
+                    (ultima ? _controleEntrada.value : 1.0),
             child: FractionallySizedBox(
               widthFactor: _larguraFrente,
               child: widget.construir(context, indice),
@@ -1184,20 +1306,19 @@ class _ConteudoCardTreino extends StatelessWidget {
     final subcategorias =
         treino.grupos.map((g) => g.subcategoria).where((s) => s.isNotEmpty);
 
-    // Rotulo e cor do estado, derivados do status que a RPC ja devolve.
-    late String rotulo;
-    late Color corEstado;
+    // So os estados que acrescentam algo ganham selo.
+    //
+    // "A fazer" e "Em andamento" sairam: o primeiro era o padrao — quase todo
+    // card tinha — e o segundo ja e dito pela bandeira "Executando" e pela
+    // barra de progresso preenchida pela metade. Tres avisos da mesma coisa
+    // no mesmo cartao.
+    String? rotulo;
+    Color corEstado = tema.secondaryText;
     if (treino.status == 'concluido') {
       rotulo = 'Concluído';
       corEstado = tema.success;
-    } else if (treino.status == 'em_andamento') {
-      rotulo = 'Em andamento';
-      corEstado = tema.primary;
     } else if (treino.status == 'pulado') {
       rotulo = 'Pulado';
-      corEstado = tema.secondaryText;
-    } else {
-      rotulo = 'A fazer';
       corEstado = tema.secondaryText;
     }
 
@@ -1205,11 +1326,67 @@ class _ConteudoCardTreino extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                treino.nome,
+                overflow: TextOverflow.ellipsis,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                  color: tema.primaryText,
+                  fontSize: 20.0,
+                  letterSpacing: -0.4,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (rotulo != null)
+              Container(
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(8.0, 3.0, 8.0, 3.0),
+                decoration: BoxDecoration(
+                  color: corEstado.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999.0),
+                ),
+                child: Text(
+                  rotulo,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    color: corEstado,
+                    fontSize: 10.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        if (subcategorias.isNotEmpty)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+            child: Text(
+              subcategorias.join(' · '),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 13.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
         // Bandeira flutuante: sombra e cor cheia para ela ler como uma
         // etiqueta colada por cima do card, nao como mais uma linha dele.
+        //
+        // Abaixo do nome e da descricao, e nao acima: primeiro se le que
+        // treino e este, depois em que pe ele esta. No topo ela era a primeira
+        // coisa a aparecer e empurrava o nome para baixo.
         if (bandeira != null)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
             child: Container(
               padding:
                   const EdgeInsetsDirectional.fromSTEB(10.0, 5.0, 10.0, 5.0),
@@ -1245,66 +1422,14 @@ class _ConteudoCardTreino extends StatelessWidget {
               ),
             ),
           ),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                treino.nome,
-                overflow: TextOverflow.ellipsis,
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: tema.primaryText,
-                  fontSize: 20.0,
-                  letterSpacing: -0.4,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsetsDirectional.fromSTEB(8.0, 3.0, 8.0, 3.0),
-              decoration: BoxDecoration(
-                color: corEstado.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(999.0),
-              ),
-              child: Text(
-                rotulo,
-                style: tema.bodyMedium.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                  color: corEstado,
-                  fontSize: 10.5,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (subcategorias.isNotEmpty)
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-            child: Text(
-              subcategorias.join(' · '),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: tema.bodyMedium.override(
-                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                color: tema.secondaryText,
-                fontSize: 13.0,
-                letterSpacing: 0.0,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
         const Spacer(),
         // O proximo exercicio e a informacao que responde "e agora?".
         if (proximo != null)
-          Container(
+          SizedBox(
             width: double.infinity,
-            padding: const EdgeInsetsDirectional.fromSTEB(10.0, 8.0, 10.0, 8.0),
-            decoration: BoxDecoration(
-              color: tema.accent1,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
+            // Sem fundo: so o icone e o texto em azul. A caixa colorida
+            // competia com a barra de progresso logo abaixo, e o cartao ficava
+            // com dois blocos disputando a mesma parte de baixo.
             child: Row(
               children: [
                 Icon(

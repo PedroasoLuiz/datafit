@@ -102,9 +102,13 @@ class ServicoPush {
       var apnsRespondeu = !Platform.isIOS;
       String? erroFcm;
 
+      await _anotar('buscando_token', Platform.isIOS ? 'ios' : 'android');
+
       for (var tentativa = 1; tentativa <= 5; tentativa++) {
         if (Platform.isIOS && !apnsRespondeu) {
-          final apns = await FirebaseMessaging.instance.getAPNSToken();
+          final apns = await FirebaseMessaging.instance
+              .getAPNSToken()
+              .timeout(const Duration(seconds: 10), onTimeout: () => null);
           if (apns == null) {
             await Future.delayed(const Duration(seconds: 3));
             continue;
@@ -113,7 +117,14 @@ class ServicoPush {
           await _anotar('apns_ok', 'na tentativa $tentativa');
         }
         try {
-          token = await FirebaseMessaging.instance.getToken();
+          // Com prazo: sem Google Play Services no aparelho, `getToken` fica
+          // pendurado para sempre — nao devolve e nao lanca. O loop parava na
+          // primeira volta e nenhuma etapa seguinte chegava a ser registrada,
+          // o que fazia o diagnostico terminar em silencio justo no caso em
+          // que ele era mais necessario.
+          token = await FirebaseMessaging.instance
+              .getToken()
+              .timeout(const Duration(seconds: 10));
         } catch (e) {
           // getToken lanca quando o Firebase recusa o registro — tipicamente
           // por falta da APNs Key. Sem capturar, o erro caia no catch de fora
@@ -135,7 +146,7 @@ class ServicoPush {
               motivo ?? 'o iOS nao registrou no APNs e nao informou o motivo');
         } else {
           await _anotar('sem_token_fcm',
-              'APNs respondeu mas o FCM nao devolveu token'
+              'o FCM nao devolveu token em 5 tentativas'
               '${erroFcm == null ? '' : ' — $erroFcm'}');
         }
         return;

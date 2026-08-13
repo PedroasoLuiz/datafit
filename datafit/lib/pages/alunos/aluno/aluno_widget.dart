@@ -714,13 +714,30 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                                       .circular(
                                                                           100.0),
                                                               child: Image(
-                                                                image: CachedNetworkImageProvider(
-                                                                    valueOrDefault<
-                                                                        String>(
-                                                                  alunosItem
-                                                                      .fotoUrl,
-                                                                  'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
-                                                                )),
+                                                                // Decodifica em
+                                                                // ~162px, e nao
+                                                                // nos 4032 do
+                                                                // arquivo: o
+                                                                // avatar tem 54
+                                                                // e uma foto de
+                                                                // celular vira
+                                                                // 36 MB de
+                                                                // bitmap para
+                                                                // caber num
+                                                                // circulo.
+                                                                image:
+                                                                    ResizeImage(
+                                                                  CachedNetworkImageProvider(
+                                                                      valueOrDefault<
+                                                                          String>(
+                                                                    alunosItem
+                                                                        .fotoUrl,
+                                                                    'https://miro.medium.com/v2/resize:fit:1400/1*g09N-jl7JtVjVZGcd-vL2g.jpeg',
+                                                                  )),
+                                                                  width: 162,
+                                                                  allowUpscaling:
+                                                                      false,
+                                                                ),
                                                                 width: 54.0,
                                                                 height: 54.0,
                                                                 fit: BoxFit
