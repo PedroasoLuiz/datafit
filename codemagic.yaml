@@ -105,12 +105,37 @@ workflows:
       - name: Aplica os perfis no projeto Xcode
         script: xcode-project use-profiles
 
+      # O aparelho so conseguia dizer "nao registrei no APNs", nunca por que.
+      # Esta etapa responde do lado do build: se aps-environment nao aparecer
+      # aqui, o perfil e velho (foi emitido antes de a capability Push existir
+      # no App ID) e precisa ser apagado no portal para o --create refazer.
+      # `|| true` em tudo: e diagnostico, nao pode derrubar a publicacao.
+      - name: Push chegou no provisioning profile?
+        script: |
+          for p in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            echo "--- $(basename "$p") ---"
+            security cms -D -i "$p" 2>/dev/null \
+              | plutil -extract Entitlements xml1 -o - - 2>/dev/null \
+              | grep -A2 -i "aps-environment" || echo "SEM aps-environment"
+          done || true
+
       - name: Build do IPA
         script: |
           set -e
           flutter build ipa --release \
             --build-number=$(cat /tmp/build_number) \
             --export-options-plist=/Users/builder/export_options.plist
+
+      # Confere o que foi realmente assinado, e nao o que o projeto pediu: o
+      # entitlement pode estar no Runner.entitlements e mesmo assim ser
+      # removido na assinatura se o perfil nao o conceder.
+      - name: Push chegou no binario assinado?
+        script: |
+          APP=$(find build/ios/archive -name "Runner.app" -maxdepth 4 | head -1)
+          echo "App: $APP"
+          codesign -d --entitlements :- "$APP" 2>/dev/null \
+            | grep -A2 -i "aps-environment" || echo "SEM aps-environment no binario"
+          true
 
     artifacts:
       - build/ios/ipa/*.ipa

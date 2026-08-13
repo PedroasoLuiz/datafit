@@ -75,22 +75,48 @@ class ServicoPush {
       // demora alguns segundos na primeira execução após instalar. Uma
       // tentativa só devolvia nulo e o aparelho ficava sem registro até a
       // próxima abertura — que também podia falhar do mesmo jeito.
+      //
+      // As duas etapas sao anotadas separadamente porque acusam culpados
+      // opostos: APNs mudo e entitlement que nao chegou no binario (App ID ou
+      // provisioning profile); APNs ok com FCM mudo e a chave .p8 ausente ou
+      // errada no Firebase. Uma mensagem unica para os dois casos mandava
+      // procurar no lugar errado.
       String? token;
+      var apnsRespondeu = !Platform.isIOS;
+      String? erroFcm;
+
       for (var tentativa = 1; tentativa <= 5; tentativa++) {
-        if (Platform.isIOS) {
+        if (Platform.isIOS && !apnsRespondeu) {
           final apns = await FirebaseMessaging.instance.getAPNSToken();
           if (apns == null) {
             await Future.delayed(const Duration(seconds: 3));
             continue;
           }
+          apnsRespondeu = true;
+          await _anotar('apns_ok', 'na tentativa $tentativa');
         }
-        token = await FirebaseMessaging.instance.getToken();
+        try {
+          token = await FirebaseMessaging.instance.getToken();
+        } catch (e) {
+          // getToken lanca quando o Firebase recusa o registro — tipicamente
+          // por falta da APNs Key. Sem capturar, o erro caia no catch de fora
+          // e virava um 'erro_registro' generico.
+          erroFcm = '$e';
+        }
         if (token != null && token.isNotEmpty) break;
         await Future.delayed(const Duration(seconds: 3));
       }
 
       if (token == null || token.isEmpty) {
-        await _anotar('sem_token', 'apns ou fcm nao respondeu em 5 tentativas');
+        if (!apnsRespondeu) {
+          await _anotar('sem_token_apns',
+              'o iOS nao registrou no APNs em 5 tentativas — '
+              'entitlement aps-environment ausente no binario');
+        } else {
+          await _anotar('sem_token_fcm',
+              'APNs respondeu mas o FCM nao devolveu token'
+              '${erroFcm == null ? '' : ' — $erroFcm'}');
+        }
         return;
       }
 
