@@ -11,11 +11,14 @@
 /// procurar em vez de ler.
 library;
 
+import 'dart:math' as math;
+
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '/backend/schema/structs/index.dart';
+import '/components/dias_treinados.dart';
 
 /// Altura de um cartão pequeno. O alto vale dois mais o vão.
 const double _kCartao = 100.0;
@@ -62,6 +65,22 @@ class PainelMetricas extends StatelessWidget {
     final m = s ~/ 60;
     final r = s % 60;
     return r == 0 ? '${m}min' : '${m}min${r}s';
+  }
+
+  /// O descanso dito em palavras.
+  ///
+  /// A conta é feita descanso a descanso no banco, cada um contra o tempo do
+  /// seu próprio exercício. Mostrar a razão crua obrigava a explicar isso;
+  /// a frase entrega a conclusão.
+  String? _leituraDoDescanso() {
+    final total = metricas.descansosTotal;
+    if (total == 0) return null;
+    final pct = metricas.descansosNoAlvo * 100 / total;
+    if (pct >= 80) return 'quase sempre no tempo';
+    if (pct >= 50) return 'metade delas no tempo';
+    // Fala do descanso, nao de quem descansa: "voce costuma encurtar" soava
+    // como reparo, e o cartao esta descrevendo um dado.
+    return 'quase sempre encurtado';
   }
 
   /// A frase do período: sempre a leitura mais forte que os dados permitem.
@@ -124,17 +143,30 @@ class PainelMetricas extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _Cartao(
-                        rotulo: 'Séries',
-                        valor: '${metricas.seriesConcluidas}',
-                        unidade: 'concluídas',
-                        // "3,3 series por treino" e uma media que nao existe
-                        // na vida real: ninguem faz um terco de serie. Em
-                        // quantos treinos elas sairam e um numero inteiro e
-                        // verdadeiro, e segue a mesma forma do cartao de
-                        // cardio ao lado.
-                        comparacao: metricas.completos > 0
-                            ? 'em ${metricas.completos} ${metricas.completos == 1 ? 'treino' : 'treinos'}'
-                            : null,
+                        rotulo: 'Sequência',
+                        valor: '${metricas.sequenciaMaxDias}',
+                        // A chama no lugar de "dias seguidos": a linha de
+                        // baixo ja diz que sao dias, e escrever de novo ao
+                        // lado do numero roubava a largura que o valor tem.
+                        sufixo: _Chama(
+                          acesa: metricas.sequenciaAtualDias > 0,
+                          atual: metricas.sequenciaAtualDias,
+                          maxima: metricas.sequenciaMaxDias,
+                        ),
+                        // A contagem de series saiu daqui: volume de trabalho
+                        // ja aparece em outros dois cartoes, e o que ninguem
+                        // via era constancia — treinar dez dias seguidos e
+                        // dez dias espalhados em dois meses davam o mesmo
+                        // numero.
+                        // Curtas de proposito: a linha tem uma altura so e
+                        // corta com reticencias, entao frase que nao cabe vira
+                        // "dias seguidos, e a seque...".
+                        comparacao: metricas.sequenciaAtualDias > 0
+                            ? (metricas.sequenciaAtualDias ==
+                                    metricas.sequenciaMaxDias
+                                ? 'dias seguidos · em curso'
+                                : 'dias · hoje: ${metricas.sequenciaAtualDias}')
+                            : 'dias seguidos · recorde',
                         neutro: true,
                       ),
                     ),
@@ -188,12 +220,11 @@ class PainelMetricas extends StatelessWidget {
                   // sustenta e contar quantos descansos alcancaram o tempo do
                   // SEU proprio exercicio — a conta e feita descanso a
                   // descanso no banco.
-                  // Curta de proposito: o cartao tem uma linha, e "por série ·
-                  // 2 de 32 no tempo pedido" nao cabia nela em telas
-                  // estreitas. "no alvo" diz o mesmo em tres letras.
-                  comparacao: metricas.descansosTotal > 0
-                      ? '${metricas.descansosNoAlvo} de ${metricas.descansosTotal} no alvo'
-                      : 'por série',
+                  // Em palavras, nao em razao: "2 de 32 no alvo" fazia o
+                  // proprio cliente perguntar o que era o alvo, e a resposta
+                  // exigia explicar que cada exercicio tem um tempo proprio.
+                  // A frase diz o comportamento, que e o que interessa.
+                  comparacao: _leituraDoDescanso(),
                   neutro: metricas.descansosNoAlvo * 2 >= metricas.descansosTotal,
                   subiu: false,
                 ),
@@ -210,11 +241,18 @@ class PainelMetricas extends StatelessWidget {
         if (metricas.incompletos > 0 || metricas.pulados > 0) ...[
           const SizedBox(height: _kVao),
           _LinhaAviso(
+            // "Treino", sempre escrito: pular exercício é comum e não entra
+            // nesta conta — quem lê "1 pulado" sem a palavra imagina que é o
+            // exercício que ficou de fora, não o dia inteiro.
             texto: [
               if (metricas.incompletos > 0)
-                '${metricas.incompletos} ${metricas.incompletos == 1 ? 'treino começado e não fechado' : 'treinos começados e não fechados'}',
+                metricas.incompletos == 1
+                    ? 'Você abriu 1 treino e não chegou ao fim'
+                    : 'Você abriu ${metricas.incompletos} treinos e não chegou ao fim',
               if (metricas.pulados > 0)
-                '${metricas.pulados} ${metricas.pulados == 1 ? 'treino pulado' : 'treinos pulados'}',
+                metricas.pulados == 1
+                    ? '1 dia de treino ficou sem começar'
+                    : '${metricas.pulados} dias de treino ficaram sem começar',
             ].join(' · '),
           ),
         ],
@@ -401,6 +439,7 @@ class _Cartao extends StatelessWidget {
     required this.rotulo,
     required this.valor,
     this.unidade,
+    this.sufixo,
     this.comparacao,
     this.subiu = true,
     this.neutro = false,
@@ -412,6 +451,9 @@ class _Cartao extends StatelessWidget {
   /// Vai numa pílula ao lado do número, como no cartão de calorias da
   /// referência: diz o que o número mede sem competir com ele.
   final String? unidade;
+
+  /// Um widget no lugar da unidade escrita — hoje só a chama da sequência.
+  final Widget? sufixo;
 
   final String? comparacao;
   final bool subiu;
@@ -470,7 +512,10 @@ class _Cartao extends StatelessWidget {
                   ),
                 ),
               ),
-              if ((unidade ?? '').isNotEmpty) ...[
+              if (sufixo != null) ...[
+                const SizedBox(width: 6.0),
+                sufixo!,
+              ] else if ((unidade ?? '').isNotEmpty) ...[
                 const SizedBox(width: 5.0),
                 Flexible(
                   child: Text(
@@ -564,6 +609,173 @@ class _LinhaAviso extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A chama da sequência.
+///
+/// Fogo não pulsa em compasso: ele treme. Uma escala indo e voltando no mesmo
+/// ritmo lê como ícone piscando, não como chama — daí a animação ser a soma de
+/// três ondas de períodos que não fecham entre si (2,0s, 1,3s e 0,7s). Como os
+/// períodos são incomensuráveis, o desenho nunca repete o mesmo quadro no
+/// mesmo lugar, e é isso que dá a impressão de vida.
+///
+/// São três movimentos ao mesmo tempo, todos pequenos:
+/// o corpo estica mais na vertical que na horizontal, como fogo sobe;
+/// a ponta balança alguns graus para os lados;
+/// e a chama sobe e desce um fio, fora de fase com o tamanho.
+/// A cor caminha do laranja da marca para o vermelho no pico da onda rápida,
+/// que é o que dá o estalo.
+///
+/// Apagada, fica cinza e imóvel: o número do cartão é o recorde histórico, e
+/// manter fogo animado numa sequência já quebrada seria comemorar o que não
+/// está acontecendo.
+class _Chama extends StatefulWidget {
+  const _Chama({
+    required this.acesa,
+    required this.atual,
+    required this.maxima,
+  });
+
+  final bool acesa;
+  final int atual;
+  final int maxima;
+
+  @override
+  State<_Chama> createState() => _ChamaState();
+}
+
+class _ChamaState extends State<_Chama> with SingleTickerProviderStateMixin {
+  /// Volta inteira do ciclo mais lento. As outras ondas são múltiplos não
+  /// inteiros dele.
+  late final AnimationController _controle = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2000),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.acesa) _controle.repeat();
+  }
+
+  @override
+  void didUpdateWidget(_Chama old) {
+    super.didUpdateWidget(old);
+    if (widget.acesa && !_controle.isAnimating) {
+      _controle.repeat();
+    } else if (!widget.acesa && _controle.isAnimating) {
+      _controle.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    if (!widget.acesa) {
+      return _tocavel(
+        context,
+        Icon(Icons.local_fire_department_rounded,
+            color: tema.secondaryText.withValues(alpha: 0.45), size: 22.0),
+      );
+    }
+
+    return _tocavel(
+      context,
+      SizedBox(
+      // Só o espaço que o ícone precisa para esticar e balançar sem ser
+      // cortado. Havia um halo circular atrás dele aqui — some, porque um
+      // disco de cor atrás de um ícone lê como fundo de botão, e o cartão
+      // passava a ter um chip dentro dele.
+      width: 24.0,
+      height: 26.0,
+      child: AnimatedBuilder(
+        animation: _controle,
+        builder: (context, _) {
+          final t = _controle.value * 2 * math.pi;
+
+          // Três ondas, períodos que não fecham entre si.
+          final lenta = math.sin(t);
+          final media = math.sin(t * 1.53 + 1.1);
+          final rapida = math.sin(t * 2.87 + 2.3);
+
+          // O tremor mistura as três; a rápida entra com pouco peso, senão
+          // vira vibração e não chama.
+          final tremor = (lenta * 0.5 + media * 0.35 + rapida * 0.15);
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.translate(
+                // Sobe e desce um fio, fora de fase com o tamanho.
+                offset: Offset(0.0, -1.2 * media),
+                child: Transform.rotate(
+                  // Cinco graus de balanço: mais que isso o ícone parece
+                  // tombando em vez de tremulando.
+                  angle: 0.09 * tremor,
+                  child: Transform(
+                    alignment: Alignment.bottomCenter,
+                    // Estica mais na vertical que na horizontal — fogo sobe.
+                    transform: Matrix4.diagonal3Values(
+                      1.0 + 0.05 * tremor,
+                      1.0 + 0.14 * tremor,
+                      1.0,
+                    ),
+                    child: Icon(
+                      Icons.local_fire_department_rounded,
+                      color: Color.lerp(
+                        tema.secondary,
+                        tema.error,
+                        (0.5 + rapida * 0.5) * 0.45,
+                      ),
+                      size: 22.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ),
+    );
+  }
+
+  /// A chama abre a lista de dias treinados.
+  ///
+  /// Um número de sequência sem como conferir é uma afirmação sem prova — e
+  /// justamente o tipo de dado que dá vontade de checar. A chave está aqui e
+  /// não no cartão inteiro porque tocar no cartão abriria a lista sem que nada
+  /// tivesse convidado para isso.
+  Widget _tocavel(BuildContext context, Widget filho) {
+    return Semantics(
+      button: true,
+      label: 'Ver os dias treinados',
+      child: Builder(builder: (ctx) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            final caixa = ctx.findRenderObject() as RenderBox?;
+            mostrarDiasTreinados(
+              context,
+              sequenciaAtual: widget.atual,
+              sequenciaMaxima: widget.maxima,
+              origem: (caixa != null && caixa.hasSize)
+                  ? caixa.localToGlobal(caixa.size.center(Offset.zero))
+                  : null,
+            );
+          },
+          child: filho,
+        );
+      }),
     );
   }
 }

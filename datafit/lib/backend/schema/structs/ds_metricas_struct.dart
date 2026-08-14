@@ -30,6 +30,8 @@ class DsMetricasStruct extends BaseStruct {
     int? tempoTreinoMinutosAnterior,
     int? descansosTotal,
     int? descansosNoAlvo,
+    int? sequenciaMaxDias,
+    int? sequenciaAtualDias,
   })  : _completos = completos,
         _incompletos = incompletos,
         _pulados = pulados,
@@ -52,7 +54,9 @@ class DsMetricasStruct extends BaseStruct {
         _tempoTreinoMinutos = tempoTreinoMinutos,
         _tempoTreinoMinutosAnterior = tempoTreinoMinutosAnterior,
         _descansosTotal = descansosTotal,
-        _descansosNoAlvo = descansosNoAlvo;
+        _descansosNoAlvo = descansosNoAlvo,
+        _sequenciaMaxDias = sequenciaMaxDias,
+        _sequenciaAtualDias = sequenciaAtualDias;
 
   // "completos" field.
   int? _completos;
@@ -266,6 +270,25 @@ class DsMetricasStruct extends BaseStruct {
 
   bool hasDescansosNoAlvo() => _descansosNoAlvo != null;
 
+
+  /// A maior sequência de dias seguidos treinando, no histórico inteiro. Não obedece ao período: recortada numa janela de sete dias daria no máximo sete.
+  int? _sequenciaMaxDias;
+  int get sequenciaMaxDias => _sequenciaMaxDias ?? 0;
+  set sequenciaMaxDias(int? val) => _sequenciaMaxDias = val;
+
+  void incrementSequenciaMaxDias(int amount) => sequenciaMaxDias = sequenciaMaxDias + amount;
+
+  bool hasSequenciaMaxDias() => _sequenciaMaxDias != null;
+
+  /// A sequência que ainda está viva — terminou hoje ou ontem. Zero quando foi quebrada.
+  int? _sequenciaAtualDias;
+  int get sequenciaAtualDias => _sequenciaAtualDias ?? 0;
+  set sequenciaAtualDias(int? val) => _sequenciaAtualDias = val;
+
+  void incrementSequenciaAtualDias(int amount) => sequenciaAtualDias = sequenciaAtualDias + amount;
+
+  bool hasSequenciaAtualDias() => _sequenciaAtualDias != null;
+
   static DsMetricasStruct fromMap(Map<String, dynamic> data) =>
       DsMetricasStruct(
         completos: castToType<int>(data['completos']),
@@ -291,6 +314,8 @@ class DsMetricasStruct extends BaseStruct {
         tempoTreinoMinutosAnterior: castToType<int>(data['tempoTreinoMinutosAnterior']),
         descansosTotal: castToType<int>(data['descansosTotal']),
         descansosNoAlvo: castToType<int>(data['descansosNoAlvo']),
+        sequenciaMaxDias: castToType<int>(data['sequenciaMaxDias']),
+        sequenciaAtualDias: castToType<int>(data['sequenciaAtualDias']),
       );
 
   static DsMetricasStruct? maybeFromMap(dynamic data) => data is Map
@@ -321,6 +346,8 @@ class DsMetricasStruct extends BaseStruct {
         'tempoTreinoMinutosAnterior': _tempoTreinoMinutosAnterior,
         'descansosTotal': _descansosTotal,
         'descansosNoAlvo': _descansosNoAlvo,
+        'sequenciaMaxDias': _sequenciaMaxDias,
+        'sequenciaAtualDias': _sequenciaAtualDias,
       }.withoutNulls;
 
   @override
@@ -415,6 +442,14 @@ class DsMetricasStruct extends BaseStruct {
         ),
         'descansosNoAlvo': serializeParam(
           _descansosNoAlvo,
+          ParamType.int,
+        ),
+        'sequenciaMaxDias': serializeParam(
+          _sequenciaMaxDias,
+          ParamType.int,
+        ),
+        'sequenciaAtualDias': serializeParam(
+          _sequenciaAtualDias,
           ParamType.int,
         ),
       }.withoutNulls;
@@ -536,6 +571,16 @@ class DsMetricasStruct extends BaseStruct {
           ParamType.int,
           false,
         ),
+        sequenciaMaxDias: deserializeParam(
+          data['sequenciaMaxDias'],
+          ParamType.int,
+          false,
+        ),
+        sequenciaAtualDias: deserializeParam(
+          data['sequenciaAtualDias'],
+          ParamType.int,
+          false,
+        ),
       );
 
   @override
@@ -566,7 +611,9 @@ class DsMetricasStruct extends BaseStruct {
         tempoTreinoMinutos == other.tempoTreinoMinutos &&
         tempoTreinoMinutosAnterior == other.tempoTreinoMinutosAnterior &&
         descansosTotal == other.descansosTotal &&
-        descansosNoAlvo == other.descansosNoAlvo;
+        descansosNoAlvo == other.descansosNoAlvo &&
+        sequenciaMaxDias == other.sequenciaMaxDias &&
+        sequenciaAtualDias == other.sequenciaAtualDias;
   }
 
   @override
@@ -593,7 +640,9 @@ class DsMetricasStruct extends BaseStruct {
         tempoTreinoMinutos,
         tempoTreinoMinutosAnterior,
         descansosTotal,
-        descansosNoAlvo
+        descansosNoAlvo,
+        sequenciaMaxDias,
+        sequenciaAtualDias
       ]);
 }
 

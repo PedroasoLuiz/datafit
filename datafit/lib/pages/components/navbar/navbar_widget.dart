@@ -141,12 +141,12 @@ class _NavbarWidgetState extends State<NavbarWidget>
         _Aba(
           indice: 3,
           rota: MetricasWidget.routeName,
-          // Barras, e em contorno: os outros ícones da barra são todos de
-          // traço, e um preenchido no meio deles puxa o olho como se
-          // estivesse selecionado. O velocímetro que havia antes dizia a
-          // coisa errada — ponteiro é medida instantânea, e a aba mostra
-          // evolução ao longo de um período.
-          icone: Icons.bar_chart_outlined,
+          // `leaderboard_outlined`, e não `bar_chart_outlined`: este último
+          // é um dos ícones do Material que não tem variante vazada de
+          // verdade — o "_outlined" desenha exatamente o mesmo glifo cheio.
+          // As barras aqui são de contorno como as dos vizinhos, senão a aba
+          // parece selecionada o tempo todo.
+          icone: Icons.leaderboard_outlined,
           rotulo: 'Métricas',
         ),
         _Aba(
