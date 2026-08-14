@@ -2015,6 +2015,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
           // Um "mais", e não outro visto: com o visto ficavam dois iguais
           // lado a lado, e o pequeno parecia um Finalizar menor.
           icone: Icons.add_rounded,
+          rotuloCurto: 'Série',
           rotuloSemantico: 'Concluir mais uma série',
           onTap: () => _concluirSerie(context),
         ),
@@ -2028,6 +2029,7 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
           // parecia controle de música): a seta atravessando é a de "seguir
           // adiante sem este".
           icone: Icons.redo_rounded,
+          rotuloCurto: 'Pular',
           rotuloSemantico: 'Pular exercício',
           onTap: () => _pularExercicio(context),
         ),
@@ -2425,11 +2427,15 @@ class _CardVideoExercicio extends StatelessWidget {
 class _AcaoSecundaria extends StatelessWidget {
   const _AcaoSecundaria({
     required this.icone,
+    required this.rotuloCurto,
     required this.rotuloSemantico,
     required this.onTap,
   });
 
   final IconData icone;
+
+  /// A palavra que aparece ao lado do ícone.
+  final String rotuloCurto;
   final String rotuloSemantico;
   final Future<void> Function() onTap;
 
@@ -2449,14 +2455,30 @@ class _AcaoSecundaria extends StatelessWidget {
           highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(999.0),
           onTap: () async => await onTap(),
+          // Com rotulo ao lado do icone: so a seta nao dizia o que ela faz, e
+          // "pular" nao e uma acao que se adivinha — quem toca sem saber pode
+          // perder o exercicio.
           child: Container(
-            width: 44.0,
             height: 44.0,
+            padding:
+                const EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 14.0, 0.0),
             alignment: const AlignmentDirectional(0.0, 0.0),
-            child: Icon(
-              icone,
-              color: tema.secondaryText,
-              size: 20.0,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icone, color: tema.secondaryText, size: 20.0),
+                const SizedBox(width: 6.0),
+                Text(
+                  rotuloCurto,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    color: tema.secondaryText,
+                    fontSize: 13.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

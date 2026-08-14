@@ -165,8 +165,12 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                       constraints:
                           BoxConstraints(minHeight: constraints.maxHeight),
                       child: Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 32.0),
+                        // Os mesmos 16 laterais do login: sem eles os botoes
+                        // de Google e Apple encostavam nas bordas da tela,
+                        // enquanto no login respiravam — duas telas irmas com
+                        // margens diferentes.
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            16.0, 0.0, 16.0, 32.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.end,

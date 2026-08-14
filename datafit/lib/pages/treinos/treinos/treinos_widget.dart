@@ -3,9 +3,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
+import '/backend/supabase/supabase.dart';
 import '/components/lista_notificacoes.dart';
 import '/components/acesso_bloqueado_widget.dart';
 import '/components/convite_personal_widget.dart';
+import '/components/chama_sequencia.dart';
+import '/components/dias_treinados.dart';
 import '/components/esqueleto.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -418,87 +421,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                   0.0,
                                 ),
                                 16.0),
-                            child: Container(
-                              width: MediaQuery.sizeOf(context).width * 1.0,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: Image.asset(
-                                    'assets/images/Workoutsummary.png',
-                                  ).image,
-                                ),
-                                boxShadow: [
-                                  FlutterFlowTheme.of(context)
-                                      .designToken
-                                      .shadow
-                                      .lg
-                                ],
-                                borderRadius: BorderRadius.circular(16.0),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // A pilha fica a esquerda de tudo, e nao
-                                    // uma barra atravessando o cartao: a
-                                    // imagem de fundo tem uma forma propria, e
-                                    // uma linha cruzando a largura inteira
-                                    // batia nela. Crescendo para cima, o
-                                    // progresso ocupa uma coluna estreita que
-                                    // nao disputa espaco com o desenho.
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _PilhaProgresso(),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: EdgeInsetsDirectional
-                                                .fromSTEB(12.0, 0.0, 0.0, 0.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  FFAppState().treinosTemp.nome,
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        fontSize: 16.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                ),
-                                                // Resumo do dia, no lugar onde
-                                                // ficava a validade: quem abre
-                                                // o app quer saber quanto falta
-                                                // hoje, e isso so existia la
-                                                // embaixo, espalhado pelo
-                                                // baralho.
-                                                _ResumoDoDia(),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            child: _CabecalhoDoDia(),
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
@@ -903,17 +826,15 @@ class _TreinosWidgetState extends State<TreinosWidget> {
   }
 }
 
-/// Progresso do dia em pilha, crescendo de baixo para cima.
+/// Progresso do dia, em anel, no canto do cartão.
 ///
-/// Uma barra horizontal atravessava o cartao inteiro e batia na forma que a
-/// imagem de fundo ja tem. Em pilha, o progresso vive numa coluna estreita a
-/// esquerda do texto e nao disputa espaco com o desenho.
-///
-/// Um degrau por treino do dia, e nao uma escala continua: sao dois, tres,
-/// talvez quatro — contar degraus e mais direto do que medir o comprimento de
-/// uma barra.
-class _PilhaProgresso extends StatelessWidget {
-  const _PilhaProgresso();
+/// Era uma pilha de barrinhas crescendo de baixo para cima — um degrau por
+/// treino do dia. Contar degraus funciona com dois ou três, mas exige
+/// decifrar: quantos são ao todo, qual está cheio, o que significa a altura.
+/// O anel responde com a forma que o painel de métricas já usa para "quanto
+/// do combinado saiu", e o número no meio dispensa a conta.
+class _AnelDoDia extends StatelessWidget {
+  const _AnelDoDia();
 
   @override
   Widget build(BuildContext context) {
@@ -922,36 +843,64 @@ class _PilhaProgresso extends StatelessWidget {
     final total = treinos.length;
     if (total == 0) return const SizedBox.shrink();
 
+    // Pulado nao conta como feito: o anel cheio tem que querer dizer que o dia
+    // foi cumprido, nao que ele acabou.
     final feitos = treinos.where((e) => e.status == 'concluido').length;
     final completo = feitos == total;
 
-    // Altura unica: a pilha ocupa sempre o mesmo espaco ao lado do texto, com
-    // qualquer numero de treinos. Quem cede e o vao, nunca o total — antes o
-    // degrau tinha um minimo e era o total que estourava, entao dois treinos e
-    // cinco treinos desenhavam pilhas de alturas diferentes.
-    const alturaTotal = 44.0;
-    const degrauMinimo = 3.0;
-    final vao = total > 1
-        ? ((alturaTotal - degrauMinimo * total) / (total - 1)).clamp(0.0, 3.0)
-        : 0.0;
-    final alturaDoDegrau = (alturaTotal - vao * (total - 1)) / total;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      verticalDirection: VerticalDirection.up,
-      children: [
-        for (var i = 0; i < total; i++)
-          Container(
-            width: 6.0,
-            height: alturaDoDegrau,
-            decoration: BoxDecoration(
-              color: i < feitos
-                  ? (completo ? tema.success : tema.primary)
-                  : tema.primaryText.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(3.0),
+    return SizedBox(
+      width: 54.0,
+      height: 54.0,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 54.0,
+            height: 54.0,
+            child: CircularProgressIndicator(
+              value: total == 0 ? 0.0 : feitos / total,
+              strokeWidth: 5.0,
+              strokeCap: StrokeCap.round,
+              backgroundColor: tema.alternate,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                completo ? tema.success : tema.primary,
+              ),
             ),
           ),
-      ].divide(SizedBox(height: vao)),
+          // Cheio, o numero da lugar ao visto: "3 de 3" e a mesma informacao
+          // que o anel fechado ja deu, e o visto fecha o assunto.
+          if (completo)
+            Icon(Icons.check_rounded, color: tema.success, size: 24.0)
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$feitos',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    color: tema.primaryText,
+                    fontSize: 17.0,
+                    letterSpacing: -0.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '/$total',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    color: tema.secondaryText,
+                    fontSize: 11.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -963,8 +912,46 @@ class _PilhaProgresso extends StatelessWidget {
 /// numero o que o desenho diz nao acrescenta —, entao a linha ficou so para a
 /// validade, que nao tem outro lugar onde aparecer e some justamente quando
 /// esta longe, que e quando da tempo de renovar sem correria.
-class _ResumoDoDia extends StatelessWidget {
+class _ResumoDoDia extends StatefulWidget {
   const _ResumoDoDia();
+
+  @override
+  State<_ResumoDoDia> createState() => _ResumoDoDiaState();
+}
+
+class _ResumoDoDiaState extends State<_ResumoDoDia> {
+  /// Dias seguidos treinando. Nulo enquanto a busca nao volta.
+  int? _sequencia;
+  int _sequenciaMaxima = 0;
+
+  /// Onde a chama esta na tela, para a lista de dias nascer dali.
+  final GlobalKey _chaveChama = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _buscarSequencia();
+  }
+
+  /// Uma chamada pequena e propria, em vez de carregar as metricas inteiras:
+  /// esta tela nao precisa de mais nada do painel, e puxar tudo por causa de
+  /// um numero seria trocar uma consulta de duas colunas por uma de dezenas.
+  Future<void> _buscarSequencia() async {
+    try {
+      final r = await SupaFlow.client.rpc('metricas_sequencia',
+          params: {'p_aluno_uuid': currentUserUid});
+      if (!mounted) return;
+      final m = (r as Map?)?.cast<String, dynamic>() ?? {};
+      setState(() {
+        _sequencia = (m['sequenciaAtualDias'] as num?)?.toInt() ?? 0;
+        _sequenciaMaxima = (m['sequenciaMaxDias'] as num?)?.toInt() ?? 0;
+      });
+    } catch (_) {
+      // Sem sequencia a linha simplesmente nao aparece: e um reforco, nao
+      // uma informacao que a tela deva a alguem.
+      if (mounted) setState(() => _sequencia = 0);
+    }
+  }
 
   /// Dias que faltam para o plano vencer. Nulo quando nao da para saber.
   int? _diasParaVencer() {
@@ -992,22 +979,152 @@ class _ResumoDoDia extends StatelessWidget {
     final expirado = dias <= 0;
     final urgente = dias <= 7;
 
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
-      child: Text(
-        expirado
-            ? 'Treino expirado'
-            : dias == 1
-                ? 'Seu treino expira amanhã'
-                : 'Seu treino expira em $dias dias',
-        style: tema.bodyMedium.override(
-          font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-          color: urgente ? tema.error : tema.secondaryText,
-          fontSize: 11.5,
-          letterSpacing: 0.0,
-          fontWeight: FontWeight.w600,
+    final seq = _sequencia ?? 0;
+
+    // Mesmo desenho dos cartoes do painel de metricas: rotulo pequeno em
+    // cima, o numero grande no meio, a leitura embaixo. Antes estes dois
+    // tinham icone e valor coloridos na mesma linha e o rotulo por baixo —
+    // outro cartao, na mesma familia de telas.
+    Widget cartao({
+      required String rotulo,
+      required String valor,
+      required String leitura,
+      Widget? sufixo,
+      VoidCallback? aoTocar,
+      int realce = 0,
+    }) {
+      return Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: aoTocar,
+          child: Container(
+            height: 100.0,
+            padding: const EdgeInsets.all(14.0),
+            decoration: BoxDecoration(
+              // So aos 30 dias o cartao inteiro puxa para o laranja.
+              color: realce >= 3
+                  ? Color.alphaBlend(tema.secondary.withValues(alpha: 0.12),
+                      tema.primaryBackground)
+                  : tema.primaryBackground,
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [tema.designToken.shadow.lg],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  rotulo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    color: tema.secondaryText,
+                    fontSize: 11.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Row(
+                  // `center`, e nao `baseline`: alinhar pela linha de base
+                  // obriga cada filho a informar a propria baseline, e a chama
+                  // e um Transform animado que nao tem uma. Pedir a baseline
+                  // dela no meio do layout dispara outro layout ali dentro —
+                  // era isso que travava a tela ao trocar o periodo.
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        valor,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          // A partir de 15 dias o numero vai para o laranja.
+                          color: realce >= 2
+                              ? tema.secondary
+                              : tema.primaryText,
+                          fontSize: 26.0,
+                          letterSpacing: -0.8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    if (sufixo != null) ...[
+                      const SizedBox(width: 2.0),
+                      sufixo,
+                    ],
+                  ],
+                ),
+                SizedBox(
+                  height: 15.0,
+                  child: Text(
+                    leitura,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                      color: tema.secondaryText,
+                      fontSize: 10.5,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      );
+    }
+
+    return Row(
+      key: _chaveChama,
+      children: [
+        // A sequência no cartão dela, em laranja sobre branco: no bloco azul
+        // de antes a cor brigava com o fundo, e não era a chama que estava
+        // errada — era uma foto tentando ser suporte de texto.
+        if (seq > 0) ...[
+          cartao(
+            rotulo: 'Sequência',
+            valor: '$seq',
+            leitura: seq == 1 ? 'dia seguido' : 'dias seguidos',
+            // A mesma chama do painel de metricas, com os mesmos degraus: em
+            // 10 dias ela cresce, e a partir de 15 o numero acompanha. Ter
+            // duas chamas diferentes no app faria a de ca parecer enfeite e a
+            // de la, dado.
+            sufixo: ChamaSequencia(dias: seq, tamanhoBase: 20.0),
+            realce: nivelDaSequencia(seq),
+            aoTocar: () {
+              final caixa =
+                  _chaveChama.currentContext?.findRenderObject() as RenderBox?;
+              mostrarDiasTreinados(
+                context,
+                sequenciaAtual: seq,
+                sequenciaMaxima: _sequenciaMaxima,
+                origem: (caixa != null && caixa.hasSize)
+                    ? caixa.localToGlobal(caixa.size.center(Offset.zero))
+                    : null,
+              );
+            },
+          ),
+          const SizedBox(width: 12.0),
+        ],
+        cartao(
+          rotulo: 'Validade',
+          // Vencido troca o numero pela palavra: "0 dias" e uma contagem que
+          // chegou ao fim, e ler zero exige a conta que a palavra ja entrega.
+          valor: expirado ? 'Vencido' : '$dias',
+          leitura: expirado
+              ? 'renove com seu personal'
+              : (dias == 1 ? 'dia até expirar' : 'dias até expirar'),
+          sufixo: urgente && !expirado
+              ? Icon(Icons.error_outline_rounded,
+                  color: tema.error, size: 18.0)
+              : null,
+        ),
+      ],
     );
   }
 }
@@ -1497,6 +1614,93 @@ class _ConteudoCardTreino extends StatelessWidget {
               ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Cabeçalho da home do aluno: o que ele tem para hoje, em cartões.
+///
+/// Era um bloco só, com foto de academia ao fundo e três informações
+/// empilhadas por cima dela — nome do treino, progresso do dia e validade.
+/// Funcionava enquanto tudo ali era azul; ao entrar a sequência em laranja, a
+/// cor brigou com a imagem e ficou claro que o problema não era a chama: era
+/// um fundo fotográfico tentando ser suporte de texto.
+///
+/// Aqui a informação se divide como no painel de métricas — cada coisa no seu
+/// cartão, sobre o fundo da página. Menos cartões que lá, porque são menos
+/// perguntas: o que treinar hoje, quanto já saiu, e até quando vale.
+class _CabecalhoDoDia extends StatelessWidget {
+  const _CabecalhoDoDia();
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // O treino do dia e o quanto dele já foi: é a resposta que a pessoa
+        // abre o app para ter, então ocupa a largura toda.
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: tema.primaryBackground,
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [tema.designToken.shadow.lg],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 14.0, 0.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Seu treino',
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                          color: tema.secondaryText,
+                          fontSize: 11.5,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2.0),
+                      Text(
+                        FFAppState().treinosTemp.nome,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          color: tema.primaryText,
+                          fontSize: 17.0,
+                          letterSpacing: -0.2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // O progresso do dia como anel, no canto direito: a pilha de
+              // barrinhas a esquerda pedia decifracao — quantos degraus sao,
+              // qual esta cheio — e o anel diz a mesma coisa com a forma que o
+              // painel de metricas ja usa para "quanto do combinado saiu".
+              _AnelDoDia(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        // Sequência e validade lado a lado: as duas dizem "quanto tempo", uma
+        // olhando para trás e outra para a frente.
+        _ResumoDoDia(),
       ],
     );
   }

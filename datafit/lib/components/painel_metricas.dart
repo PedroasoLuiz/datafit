@@ -18,22 +18,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '/backend/schema/structs/index.dart';
+import '/components/chama_sequencia.dart';
 import '/components/dias_treinados.dart';
 
 /// Altura de um cartão pequeno. O alto vale dois mais o vão.
 const double _kCartao = 100.0;
 const double _kVao = 12.0;
 
-/// Escurece mantendo matiz e saturação.
+/// TEMPORÁRIO — simulação das faixas da chama.
 ///
-/// Misturar com preto lava a cor: o azul vira cinza-escuro e deixa de ser o
-/// azul da marca.
-Color _tom(Color cor, double delta) {
-  final hsl = HSLColor.fromColor(cor);
-  return hsl.withLightness((hsl.lightness + delta).clamp(0.0, 1.0)).toColor();
-}
+/// Zero usa o valor real; qualquer outro número finge aquela sequência para
+/// dar para ver os quatro estados sem esperar trinta dias treinando.
+/// **Remover junto com o botão no cartão de sequência.**
+int kSequenciaSimulada = 0;
 
-class PainelMetricas extends StatelessWidget {
+class PainelMetricas extends StatefulWidget {
   const PainelMetricas({
     super.key,
     required this.metricas,
@@ -45,6 +44,20 @@ class PainelMetricas extends StatelessWidget {
   /// "7 dias", "3 meses"... Entra nas frases: o número só quer dizer algo
   /// junto com a janela em que foi medido.
   final String periodoLabel;
+
+  @override
+  State<PainelMetricas> createState() => _PainelMetricasState();
+}
+
+class _PainelMetricasState extends State<PainelMetricas> {
+  DsMetricasStruct get metricas => widget.metricas;
+  String get periodoLabel => widget.periodoLabel;
+
+  /// A sequência que o desenho usa: a simulada, quando houver.
+  int get _seqAtual =>
+      kSequenciaSimulada > 0 ? kSequenciaSimulada : metricas.sequenciaAtualDias;
+  int get _seqMaxima =>
+      kSequenciaSimulada > 0 ? kSequenciaSimulada : metricas.sequenciaMaxDias;
 
   String get _janela => 'nos últimos ${periodoLabel.toLowerCase()}';
 
@@ -67,6 +80,11 @@ class PainelMetricas extends StatelessWidget {
     return r == 0 ? '${m}min' : '${m}min${r}s';
   }
 
+  /// Quanto a sequência viva pesa no desenho, de 0 a 3.
+  ///
+  /// Os degraus não são lineares de propósito: os primeiros dias são fáceis e
+  /// não merecem festa, e é lá pelas duas semanas que manter a sequência começa
+  /// a exigir organizar a vida em volta. Daí 10, 15 e 30 — e não 5, 10, 15.
   /// O descanso dito em palavras.
   ///
   /// A conta é feita descanso a descanso no banco, cada um contra o tempo do
@@ -144,15 +162,23 @@ class PainelMetricas extends StatelessWidget {
                     Expanded(
                       child: _Cartao(
                         rotulo: 'Sequência',
-                        valor: '${metricas.sequenciaMaxDias}',
+                        valor: '$_seqMaxima',
                         // A chama no lugar de "dias seguidos": a linha de
                         // baixo ja diz que sao dias, e escrever de novo ao
                         // lado do numero roubava a largura que o valor tem.
-                        sufixo: _Chama(
-                          acesa: metricas.sequenciaAtualDias > 0,
-                          atual: metricas.sequenciaAtualDias,
-                          maxima: metricas.sequenciaMaxDias,
-                        ),
+                        sufixo: ChamaSequencia(dias: _seqAtual),
+                        // A sequencia viva tinge o proprio cartao a partir de
+                        // certo ponto: dez dias seguidos e uma conquista, e
+                        // uma conquista que so mexe num icone de 22px passa
+                        // despercebida na grade.
+                        realce: nivelDaSequencia(_seqAtual),
+                        // TEMPORÁRIO — remover junto com `kSequenciaSimulada`.
+                        aoTocarRotulo: () => setState(() {
+                          const faixas = [0, 10, 15, 30];
+                          final i = faixas.indexOf(kSequenciaSimulada);
+                          kSequenciaSimulada =
+                              faixas[(i + 1) % faixas.length];
+                        }),
                         // A contagem de series saiu daqui: volume de trabalho
                         // ja aparece em outros dois cartoes, e o que ninguem
                         // via era constancia — treinar dez dias seguidos e
@@ -161,11 +187,11 @@ class PainelMetricas extends StatelessWidget {
                         // Curtas de proposito: a linha tem uma altura so e
                         // corta com reticencias, entao frase que nao cabe vira
                         // "dias seguidos, e a seque...".
-                        comparacao: metricas.sequenciaAtualDias > 0
-                            ? (metricas.sequenciaAtualDias ==
-                                    metricas.sequenciaMaxDias
+                        comparacao: _seqAtual > 0
+                            ? (_seqAtual ==
+                                    _seqMaxima
                                 ? 'dias seguidos · em curso'
-                                : 'dias · hoje: ${metricas.sequenciaAtualDias}')
+                                : 'dias · hoje: $_seqAtual')
                             : 'dias seguidos · recorde',
                         neutro: true,
                       ),
@@ -209,11 +235,12 @@ class PainelMetricas extends StatelessWidget {
               const SizedBox(width: _kVao),
               Expanded(
                 child: _Cartao(
-                  rotulo: 'Descanso por série',
+                  rotulo: 'Descanso médio',
                   valor: _segundos(descanso),
-                  // Sem unidade ao lado: "por serie" ja esta dito no rotulo,
-                  // e ali ele disputava com o valor e cortava.
-                  unidade: null,
+                  // "por serie" cabe ao lado do numero — sao nove caracteres.
+                  // No rotulo, "Descanso medio por serie" nao entrava na
+                  // largura do cartao e virava reticencia.
+                  unidade: 'por série',
                   // Cada exercicio tem o seu tempo, entao nao ha um "prescrito
                   // medio" que signifique alguma coisa: comparar 9s com a
                   // media de prescricoes diferentes nao se sustenta. O que se
@@ -272,35 +299,42 @@ class _Narrativa extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
+    // Branco como todos os outros, com o simbolo num circulo azul. O bloco
+    // azul cheio destacava a frase do resto da tela — e destaque demais vira
+    // desencaixe: era o unico elemento com cor propria numa grade de cartoes
+    // brancos, e lia como banner, nao como parte do painel.
     return Container(
       width: double.infinity,
-      // Menos respiro em cima que embaixo: a frase começa logo abaixo da
-      // borda e o cartão termina com folga, o que o encaixa sob os chips sem
-      // abrir um vão entre os dois.
-      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 16.0),
+      padding: const EdgeInsets.all(14.0),
       decoration: BoxDecoration(
-        // Azul fechado, não o `primary`: o primary é a cor de ação do app e
-        // um bloco inteiro dele parece um botão gigante.
-        color: _tom(tema.primary, -0.20),
+        color: tema.primaryBackground,
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [tema.designToken.shadow.lg],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.insights_rounded,
-              color: Colors.white.withValues(alpha: 0.9), size: 18.0),
+          Container(
+            width: 32.0,
+            height: 32.0,
+            decoration: BoxDecoration(
+              color: tema.accent1,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(Icons.insights_rounded, color: tema.primary, size: 17.0),
+          ),
           const SizedBox(width: 10.0),
           Expanded(
             child: Text(
               texto,
               style: tema.bodyMedium.override(
                 font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                color: Colors.white,
-                fontSize: 14.0,
+                color: tema.primaryText,
+                fontSize: 13.5,
                 letterSpacing: 0.0,
                 fontWeight: FontWeight.w600,
-                lineHeight: 1.45,
+                lineHeight: 1.4,
               ),
             ),
           ),
@@ -443,6 +477,8 @@ class _Cartao extends StatelessWidget {
     this.comparacao,
     this.subiu = true,
     this.neutro = false,
+    this.realce = 0,
+    this.aoTocarRotulo,
   });
 
   final String rotulo;
@@ -462,6 +498,12 @@ class _Cartao extends StatelessWidget {
   /// contexto e não julgamento — o descanso prescrito, por exemplo.
   final bool neutro;
 
+  /// 0 = cartão comum. De 1 a 3, a sequência viva vai tomando conta dele.
+  final int realce;
+
+  /// TEMPORÁRIO — toque no rótulo para simular as faixas.
+  final VoidCallback? aoTocarRotulo;
+
   @override
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
@@ -473,7 +515,17 @@ class _Cartao extends StatelessWidget {
       height: _kCartao,
       padding: const EdgeInsets.all(14.0),
       decoration: BoxDecoration(
-        color: tema.primaryBackground,
+        // A partir de 30 dias o fundo inteiro puxa para o laranja; antes
+        // disso, só a borda muda. O fundo é o último degrau porque é o que
+        // tira o cartão da grade — usar isso cedo demais gastaria o recurso
+        // que deveria marcar a conquista rara.
+        // Só o último degrau tinge o cartão. A borda que havia no degrau 2
+        // recortava o cartão da grade sem dizer o porquê — quem olha vê uma
+        // moldura, não uma conquista. Lá o realce passou para o número.
+        color: realce >= 3
+            ? Color.alphaBlend(
+                tema.secondary.withValues(alpha: 0.12), tema.primaryBackground)
+            : tema.primaryBackground,
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [tema.designToken.shadow.lg],
       ),
@@ -482,21 +534,40 @@ class _Cartao extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            rotulo,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-              color: tema.secondaryText,
-              fontSize: 11.5,
-              letterSpacing: 0.0,
-              fontWeight: FontWeight.w500,
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: aoTocarRotulo,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    rotulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      color: tema.secondaryText,
+                      fontSize: 11.5,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                // TEMPORÁRIO — marcador do simulador.
+                if (aoTocarRotulo != null) ...[
+                  const SizedBox(width: 4.0),
+                  Icon(Icons.bug_report_outlined,
+                      color: tema.secondaryText, size: 12.0),
+                ],
+              ],
             ),
           ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            // `center`, e nao `baseline`: o sufixo deste cartao pode ser a
+            // chama, que e um Transform animado sem linha de base. Pedir a
+            // baseline dela durante o layout dispara outro layout ali dentro,
+            // e a tela trava — foi o que aconteceu ao trocar o periodo.
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
                 child: Text(
@@ -505,7 +576,9 @@ class _Cartao extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: tema.bodyMedium.override(
                     font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    color: tema.primaryText,
+                    // A partir de 15 dias o proprio numero vai para o laranja:
+                    // e o dado que mudou, entao e ele que muda de cor.
+                    color: realce >= 2 ? tema.secondary : tema.primaryText,
                     fontSize: 26.0,
                     letterSpacing: -0.8,
                     fontWeight: FontWeight.bold,
@@ -513,7 +586,8 @@ class _Cartao extends StatelessWidget {
                 ),
               ),
               if (sufixo != null) ...[
-                const SizedBox(width: 6.0),
+                // Dois pixels: a chama pertence ao numero, nao acompanha ele.
+                const SizedBox(width: 2.0),
                 sufixo!,
               ] else if ((unidade ?? '').isNotEmpty) ...[
                 const SizedBox(width: 5.0),
@@ -559,8 +633,7 @@ class _Cartao extends StatelessWidget {
   }
 }
 
-/// Aviso de uma linha, com o ícone à direita.
-///
+
 /// Serve para o que é exceção e não métrica: não tem número grande porque o
 /// número já está dentro da frase, e não tem cartão inteiro porque não é
 /// deste tamanho a importância dele.
@@ -617,9 +690,14 @@ class _LinhaAviso extends StatelessWidget {
 ///
 /// Fogo não pulsa em compasso: ele treme. Uma escala indo e voltando no mesmo
 /// ritmo lê como ícone piscando, não como chama — daí a animação ser a soma de
-/// três ondas de períodos que não fecham entre si (2,0s, 1,3s e 0,7s). Como os
-/// períodos são incomensuráveis, o desenho nunca repete o mesmo quadro no
-/// mesmo lugar, e é isso que dá a impressão de vida.
+/// três ondas de velocidades diferentes.
+///
+/// As três dão voltas inteiras dentro do ciclo (2, 3 e 5 voltas em 6s). Isso
+/// não é detalhe: com frequências quebradas, o fim do ciclo pega cada onda num
+/// ponto diferente de onde ela começou, e o loop salta de estado a cada volta.
+/// Sendo inteiras, o último quadro encosta no primeiro e a chama tremula sem
+/// costura. Escolhidas 2, 3 e 5 — primos entre si — o padrão só se repete de
+/// verdade a cada seis segundos, tempo suficiente para o olho não decorar.
 ///
 /// São três movimentos ao mesmo tempo, todos pequenos:
 /// o corpo estica mais na vertical que na horizontal, como fogo sobe;
@@ -647,11 +725,29 @@ class _Chama extends StatefulWidget {
 }
 
 class _ChamaState extends State<_Chama> with SingleTickerProviderStateMixin {
-  /// Volta inteira do ciclo mais lento. As outras ondas são múltiplos não
-  /// inteiros dele.
+  /// Quanto a sequência já vale, de 0 a 3. Governa tamanho e velocidade.
+  int get _nivel {
+    if (widget.atual >= 30) return 3;
+    if (widget.atual >= 15) return 2;
+    if (widget.atual >= 10) return 1;
+    return 0;
+  }
+
+  /// A chama cresce com a sequência.
+  double get _tamanho => const [22.0, 26.0, 28.0, 31.0][_nivel];
+
+  /// E acelera. O ciclo continua fechando (as ondas dão voltas inteiras), só
+  /// que mais rápido — é o mesmo desenho tremendo com mais pressa, não outra
+  /// animação.
+  int get _ciclo => const [6000, 4200, 3200, 2400][_nivel];
+
+  /// Quanto o tremor abre. Perto do teto ele fica visivelmente mais nervoso.
+  double get _amplitude => const [1.0, 1.25, 1.5, 1.8][_nivel];
+
+  /// O ciclo inteiro. As três ondas fecham juntas no fim dele.
   late final AnimationController _controle = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 2000),
+    duration: Duration(milliseconds: _ciclo),
   );
 
   @override
@@ -663,6 +759,8 @@ class _ChamaState extends State<_Chama> with SingleTickerProviderStateMixin {
   @override
   void didUpdateWidget(_Chama old) {
     super.didUpdateWidget(old);
+    // A sequência pode ter mudado de faixa entre uma carga e outra.
+    if (old.atual != widget.atual) _controle.duration = Duration(milliseconds: _ciclo);
     if (widget.acesa && !_controle.isAnimating) {
       _controle.repeat();
     } else if (!widget.acesa && _controle.isAnimating) {
@@ -695,21 +793,23 @@ class _ChamaState extends State<_Chama> with SingleTickerProviderStateMixin {
       // cortado. Havia um halo circular atrás dele aqui — some, porque um
       // disco de cor atrás de um ícone lê como fundo de botão, e o cartão
       // passava a ter um chip dentro dele.
-      width: 24.0,
-      height: 26.0,
+      width: _tamanho + 4.0,
+      height: _tamanho + 6.0,
       child: AnimatedBuilder(
         animation: _controle,
         builder: (context, _) {
           final t = _controle.value * 2 * math.pi;
 
-          // Três ondas, períodos que não fecham entre si.
-          final lenta = math.sin(t);
-          final media = math.sin(t * 1.53 + 1.1);
-          final rapida = math.sin(t * 2.87 + 2.3);
+          // Voltas inteiras: 2, 3 e 5 dentro do ciclo. As fases deslocam o
+          // desenho sem quebrar o fechamento.
+          final lenta = math.sin(t * 2);
+          final media = math.sin(t * 3 + 1.1);
+          final rapida = math.sin(t * 5 + 2.3);
 
           // O tremor mistura as três; a rápida entra com pouco peso, senão
           // vira vibração e não chama.
-          final tremor = (lenta * 0.5 + media * 0.35 + rapida * 0.15);
+          final tremor =
+              (lenta * 0.5 + media * 0.35 + rapida * 0.15) * _amplitude;
 
           return Stack(
             alignment: Alignment.center,
@@ -734,9 +834,10 @@ class _ChamaState extends State<_Chama> with SingleTickerProviderStateMixin {
                       color: Color.lerp(
                         tema.secondary,
                         tema.error,
-                        (0.5 + rapida * 0.5) * 0.45,
+                        // Mais perto do vermelho conforme a sequência cresce.
+                        (0.5 + rapida * 0.5) * (0.45 + 0.15 * _nivel),
                       ),
-                      size: 22.0,
+                      size: _tamanho,
                     ),
                   ),
                 ),

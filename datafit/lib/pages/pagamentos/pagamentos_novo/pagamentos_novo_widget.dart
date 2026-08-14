@@ -254,89 +254,11 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                           endIndent: 16.0,
                           color: FlutterFlowTheme.of(context).alternate,
                         ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              16.0, 16.0, 0.0, 8.0),
-                          child: Text(
-                            'Tipo',
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.normal,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              16.0, 0.0, 16.0, 0.0),
-                          child: FlutterFlowDropDown<String>(
-                            controller: _model.dpPgtosValueController ??=
-                                FormFieldController<String>(
-                              _model.dpPgtosValue ??= 'Outro',
-                            ),
-                            options: [
-                              'Boleto',
-                              'Cartão',
-                              'Dinheiro',
-                              'Transferência Bancária',
-                              'Outro'
-                            ],
-                            onChanged: (val) =>
-                                safeSetState(() => _model.dpPgtosValue = val),
-                            width: MediaQuery.sizeOf(context).width * 1.0,
-                            height: 40.0,
-                            maxHeight: 200.0,
-                            textStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                            hintText: 'Selecione...',
-                            icon: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: FlutterFlowTheme.of(context).primary,
-                              size: 24.0,
-                            ),
-                            fillColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                            elevation: 2.0,
-                            borderColor: FlutterFlowTheme.of(context).alternate,
-                            borderWidth: 0.0,
-                            borderRadius: 12.0,
-                            margin: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 12.0, 0.0),
-                            hidesUnderline: true,
-                            isOverButton: false,
-                            isSearchable: false,
-                            isMultiSelect: false,
-                          ),
-                        ),
+                        // O tipo de pagamento nao se escolhe ao CRIAR a cobranca: nesse
+                        // momento ninguem pagou nada ainda. Quem informa a forma e o aluno,
+                        // quando avisa que pagou, ou o personal, quando confirma que
+                        // recebeu — e as duas telas ja perguntam isso. Aqui o campo so
+                        // gravava um palpite ("Outro") que depois era sobrescrito.
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               16.0, 16.0, 0.0, 8.0),
@@ -1000,7 +922,10 @@ class _PagamentosNovoWidgetState extends State<PagamentosNovoWidget>
                     pValor: (String valor) {
                       return double.tryParse(valor.replaceAll(',', '.')) ?? 0.0;
                     }(_model.txtValorTextController.text),
-                    pTipoPagamento: _model.dpPgtosValue,
+                    // Nulo de proposito: o RPC mantem o tipo que ja
+                    // estiver gravado quando recebe nulo, entao editar a
+                    // cobranca nao apaga a forma que o aluno informou.
+                    pTipoPagamento: null,
                     pDataVencimento: functions
                         .formataDataParaSalvar(
                             _model.txtVencimentoTextController.text)

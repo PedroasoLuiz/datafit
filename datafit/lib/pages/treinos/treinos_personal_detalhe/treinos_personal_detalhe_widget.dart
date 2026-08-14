@@ -176,6 +176,39 @@ class _TreinosPersonalDetalheWidgetState
     return primeiro?.etId;
   }
 
+  /// Qual exercicio fecha o treino: o de maior `Ordem` entre todos os grupos.
+  int? get _etIdFinal {
+    ExercicioDetalhePersonal? ultimo;
+    for (final grupo in _model.grupos) {
+      for (final ex in grupo.exercicios) {
+        if (ultimo == null || ex.ordem > ultimo.ordem) ultimo = ex;
+      }
+    }
+    return ultimo?.etId;
+  }
+
+  /// Posicao de execucao de cada exercicio, de 1 em diante.
+  ///
+  /// Os cartoes ficam agrupados por grupo muscular, que e como o personal
+  /// monta o treino — mas nao e a ordem em que ele sera feito. Sem o numero,
+  /// mandar um exercicio para o fim nao mudava nada na tela e parecia que o
+  /// botao nao tinha funcionado.
+  Map<int, int> get _posicoes {
+    final todos = <ExercicioDetalhePersonal>[
+      for (final g in _model.grupos) ...g.exercicios,
+    ]..sort((a, b) => a.ordem.compareTo(b.ordem));
+    return {
+      for (var i = 0; i < todos.length; i++) todos[i].etId: i + 1,
+    };
+  }
+
+  /// Quantos exercicios o treino tem, somando os grupos.
+  ///
+  /// Com um só, mover para o inicio ou para o fim nao muda nada — e um botao
+  /// que promete uma acao e nao faz nenhuma.
+  int get _totalExercicios => _model.grupos
+      .fold<int>(0, (soma, g) => soma + g.exercicios.length);
+
   /// Faz este exercicio ser o primeiro do treino.
   ///
   /// A tela do aluno ja usava `Ordem` para apontar o proximo a fazer; o que
@@ -184,6 +217,35 @@ class _TreinosPersonalDetalheWidgetState
   Future<void> _definirComoInicial(ExercicioDetalhePersonal ex) async {
     try {
       await SupaFlow.client.rpc('definir_exercicio_inicial', params: {
+        'p_treino_id': widget.treinoId,
+        'p_et_id': ex.etId,
+      });
+      if (!mounted) return;
+      await _carregarExercicios();
+    } catch (_) {
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        useRootNavigator: true,
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => WebViewAware(
+          child: MensagemWidget(
+            texto: 'Não consegui mudar a ordem agora. Tente de novo.',
+            tipo: '2',
+            fechasozinho: true,
+            mostrabotoes: false,
+            action: () async {},
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Manda este exercicio para o fim do treino.
+  Future<void> _definirComoFinal(ExercicioDetalhePersonal ex) async {
+    try {
+      await SupaFlow.client.rpc('definir_exercicio_final', params: {
         'p_treino_id': widget.treinoId,
         'p_et_id': ex.etId,
       });
@@ -451,9 +513,14 @@ class _TreinosPersonalDetalheWidgetState
                       // Os cartoes sao agrupados por subcategoria, entao a
                       // posicao dentro do grupo nao diz quem abre o treino:
                       // isso e a menor Ordem entre todos.
+                      posicao: _posicoes[e.value.etId] ?? 0,
                       isInicial: e.value.etId == _etIdInicial,
+                      isFinal: e.value.etId == _etIdFinal,
+                      // Com um exercicio so nao ha ordem para mudar.
+                      podeReordenar: _totalExercicios > 1,
                       onEdit: () => _abrirEditarExercicio(e.value),
                       onDefinirInicial: () => _definirComoInicial(e.value),
+                      onDefinirFinal: () => _definirComoFinal(e.value),
                       onDelete: () => _confirmarExcluirExercicio(
                           e.value.etId, e.value.nome),
                     ))
@@ -527,20 +594,34 @@ class _SwipeableExercicioRow extends StatefulWidget {
     super.key,
     required this.ex,
     required this.isLast,
+    required this.posicao,
     required this.isInicial,
+    required this.isFinal,
+    required this.podeReordenar,
     required this.onEdit,
     required this.onDefinirInicial,
+    required this.onDefinirFinal,
     required this.onDelete,
   });
 
   final ExercicioDetalhePersonal ex;
   final bool isLast;
 
+  /// Em que passo do treino ele sera feito.
+  final int posicao;
+
   /// Este e o exercicio que abre o treino.
   final bool isInicial;
 
+  /// Este e o que fecha.
+  final bool isFinal;
+
+  /// Falso quando o treino tem um exercicio so.
+  final bool podeReordenar;
+
   final VoidCallback onEdit;
   final VoidCallback onDefinirInicial;
+  final VoidCallback onDefinirFinal;
   final VoidCallback onDelete;
 
   @override
@@ -548,12 +629,16 @@ class _SwipeableExercicioRow extends StatefulWidget {
 }
 
 class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
-  /// Tres acoes cabem em 195; com os 130 de duas, a do meio ficava espremida
-  /// a ponto de o rotulo quebrar.
+  /// Cada acao ocupa 65; a largura acompanha quantas estao a mostra.
   ///
-  /// O exercicio que ja abre o treino nao mostra a acao de inicial: seria um
-  /// botao que nao muda nada.
-  double get _actionWidth => widget.isInicial ? 130.0 : 195.0;
+  /// Nem toda acao aparece sempre: quem ja abre o treino nao ganha "Início" e
+  /// quem ja fecha nao ganha "Fim" — seria um botao que promete mover e deixa
+  /// tudo onde estava. Com um exercicio so, nenhuma das duas aparece.
+  bool get _mostraInicio => widget.podeReordenar && !widget.isInicial;
+  bool get _mostraFim => widget.podeReordenar && !widget.isFinal;
+
+  double get _actionWidth =>
+      65.0 * (2 + (_mostraInicio ? 1 : 0) + (_mostraFim ? 1 : 0));
   double _offset = 0.0;
 
   void _onDragUpdate(DragUpdateDetails d) {
@@ -590,7 +675,7 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
               child: Row(
                 children: [
                   // Definir como inicial
-                  if (!widget.isInicial)
+                  if (_mostraInicio)
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -610,6 +695,42 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                               const SizedBox(height: 4.0),
                               Text(
                                 'Início',
+                                style: theme.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: theme.bodyMedium.fontStyle,
+                                  ),
+                                  color: theme.primaryText,
+                                  fontSize: 11.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_mostraFim)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onDefinirFinal();
+                        },
+                        child: Container(
+                          color: theme.secondaryBackground,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.vertical_align_bottom_rounded,
+                                color: theme.primaryText,
+                                size: 20.0,
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Fim',
                                 style: theme.bodyMedium.override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,
@@ -727,31 +848,40 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Selo do exercicio que abre o treino: sem
-                                    // ele, a escolha do personal nao aparecia
-                                    // em lugar nenhum, ja que os cartoes ficam
-                                    // agrupados por subcategoria e nao pela
-                                    // ordem de execucao.
-                                    if (widget.isInicial)
+                                    // O numero da ordem no lugar do selo
+                                    // "Início": os cartoes ficam agrupados por
+                                    // grupo muscular, que nao e a ordem de
+                                    // execucao, e so o primeiro tinha marca.
+                                    // Com o numero, a sequencia inteira fica
+                                    // legivel e mover um exercicio muda algo
+                                    // visivel na propria tela.
+                                    if (widget.posicao > 0)
                                       Container(
+                                        width: 20.0,
+                                        height: 20.0,
                                         margin: const EdgeInsetsDirectional
-                                            .fromSTEB(0.0, 0.0, 6.0, 0.0),
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(6.0, 2.0, 6.0, 2.0),
+                                            .fromSTEB(0.0, 0.0, 8.0, 0.0),
                                         decoration: BoxDecoration(
-                                          color: theme.accent1,
-                                          borderRadius:
-                                              BorderRadius.circular(6.0),
+                                          color: widget.isInicial
+                                              ? theme.primary
+                                              : theme.accent1,
+                                          shape: BoxShape.circle,
                                         ),
+                                        alignment: Alignment.center,
                                         child: Text(
-                                          'Início',
+                                          '${widget.posicao}',
                                           style: theme.bodyMedium.override(
                                             font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w600),
-                                            color: theme.primary,
-                                            fontSize: 10.0,
+                                                fontWeight: FontWeight.bold),
+                                            // O primeiro em azul cheio: e ele
+                                            // que o aluno ve como "Agora" ao
+                                            // abrir o treino.
+                                            color: widget.isInicial
+                                                ? Colors.white
+                                                : theme.primary,
+                                            fontSize: 10.5,
                                             letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
