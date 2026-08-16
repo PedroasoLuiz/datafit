@@ -70,6 +70,12 @@ Container / Row / Stack / Positioned
 | FF retorna 404 inesperado | Pode ser falta de headers `apikey`/`Authorization` na config da API call | Testar RPC no DB antes de debugar no FF |
 | `valueOrDefault<String>(campo, '-') != ''` | **Sempre true** — fallback `'-'` nunca é vazio. Condição bugada não esconde nada. | Usar direto: `campo != null && campo != ''` |
 | Container com altura fixa em volta de grid dinâmico | Grid fica cortado ou com overflow | Remover o Container; usar `GridView.builder` com `shrinkWrap: true` + `NeverScrollableScrollPhysics()` |
+| `AnimationController` do FF nasce **sem `duration`** | `forward`/`reverse` num controller que nenhum widget usa lança; dentro de `Future.wait` o erro engole o `Navigator.pop` e o fundo preto do modal fica na tela | Só declarar a animação de quem vai ser construído, e `try/catch` no recolhimento |
+| `FFLocalizations.of(context)` em `Future` pós-frame | "Looking up a deactivated widget's ancestor" e tela vermelha quando a folha já fechou | Formatar data na hora de desenhar, não num `Future` agendado no `initState` |
+| `showModalBottomSheet` sem `useRootNavigator: true` | Sobe no navegador da aba; folhas aninhadas caem na mesma pilha e uma fecha no lugar da outra | Sempre `useRootNavigator: true` |
+| `resposta.succeeded ?? true` | Resposta nula passa por sucesso e a falha some | `resposta.succeeded != true` |
+| `FlutterFlowDropDown.fillColor` | Pinta o botão **e** o menu que abre; campo sem caixa abre lista transparente | Usar `menuFillColor` e `menuElevation` (adicionados em 16/08/2026) |
+| `formataData('')` | Devolve `DateTime.now()`, não nulo | Guardar `if (cru.trim().isEmpty) return null;` antes de chamar |
 
 ### Tabelas específicas
 
@@ -82,6 +88,8 @@ Container / Row / Stack / Positioned
 | `Perfis` | PK é `"idUser"` (UUID) — **NÃO** `"Id"`. Confirmar com `information_schema.columns` antes de fazer join |
 | `PersonalAlunos` | **Sempre filtrar por `StatusConvite`** — um aluno pode ter múltiplos registros (pendente, aceito, recusado, substituido). Aluno ativo = `StatusConvite = 'aceito' AND Ativo = true` |
 | `Notificacoes` | **Não tem `PerfisId`** — tem `DestinatarioPerfisId` e `RemetentePerfisId`. O schema antigo (Corpo, PerfisId) estava errado |
+| `TreinosExecucao` | Ciclo 1 é o **plano** (o que o personal definiu); ciclos > 1 são as repetições. `DataValidade` é propriedade do plano e se propaga na virada de ciclo |
+| `ExerciciosTreinos` | **Não tem `IsDeleted`** |
 
 ### Notificações — regras de comportamento
 
@@ -92,50 +100,93 @@ Container / Row / Stack / Positioned
 
 ---
 
-## Padrão de componente bottom sheet animado
+## Folhas do rodapé — use o `folha_kit`
 
-Todos os componentes flutuantes (ex: `substituir_exercicio`, `selecionar_exercicio`, `alunos_novo_objetivo`) seguem este padrão:
+Todo formulário e listagem que sobe do rodapé usa `lib/components/folha_kit.dart`.
+**Não monte a casca à mão.** Antes de 16/08/2026 cada componente tinha o seu
+desenho e a sua cópia da animação; hoje são 23 telas no mesmo kit.
 
 ```dart
-// Abertura (na página que chama)
-final result = await showModalBottomSheet<T>(
+// A tela inteira:
+return FolhaPadrao(
+  aoConfirmar: _gravar,          // devolve o valor do pop; `null` mantém aberta
+  fixos: [CabecaFolha(...)],     // não rola (cabeçalho, busca)
+  filhos: [CampoFolha(...)],     // rola
+);
+
+// Abertura (sempre com useRootNavigator):
+await showModalBottomSheet<bool>(
+  useRootNavigator: true,        // OBRIGATÓRIO — ver armadilha abaixo
   isScrollControlled: true,
   backgroundColor: Colors.transparent,
-  enableDrag: false,
   context: context,
-  builder: (ctx) => WebViewAware(
-    child: GestureDetector(
-      onTap: () { FocusScope.of(ctx).unfocus(); },
-      child: Padding(
-        padding: MediaQuery.viewInsetsOf(ctx),
-        child: MeuComponenteWidget(parametros...),
-      ),
+  builder: (folha) => WebViewAware(
+    child: Padding(
+      padding: MediaQuery.viewInsetsOf(folha),
+      child: MinhaFolhaWidget(),
     ),
   ),
 );
-
-// Estrutura do widget (root do build)
-Column(
-  mainAxisAlignment: MainAxisAlignment.end,
-  children: [
-    Flexible(child: ClipRRect(borderRadius: 20, child: Container(...))),
-    FlutterFlowIconButton(icon: FiRrCrossSmall, onPressed: _fechar),
-  ]
-  .divide(SizedBox(16))
-  .addToStart(SizedBox(40))
-  .addToEnd(SizedBox(40)),
-)
-
-// Animações obrigatórias
-'cardOnActionTriggerAnimation': MoveEffect(delay:300, begin:Offset(0,100)) + ScaleEffect(begin:(-5,-5))
-'closeButtonOnActionTriggerAnimation': MoveEffect(curve:bounceOut, delay:650, begin:Offset(0,100))
-
-// Fechar com retorno
-Future<void> _fechar([T? result]) async {
-  await Future.wait([card.controller.reverse(), btn.controller.reverse()]);
-  if (mounted) Navigator.pop(context, result);
-}
 ```
+
+### Peças
+
+| Peça | Para quê |
+|---|---|
+| `FolhaPadrao` | cartão branco, animação e os dois botões redondos |
+| `CabecaFolha` | título, apoio e ícone em quadrado claro |
+| `CampoFolha` | rótulo + campo de linha; acende em azul no foco |
+| `CampoCompacto` | idem, sem recuo lateral, para viver numa linha |
+| `LinhaCamposFolha` | dois ou três campos lado a lado |
+| `CampoToqueFolha` | campo que abre algo (data, seletor) |
+| `DropFolha` | dropdown com a mesma linha dos campos |
+| `EscolhaFolha` / `EscolhaFolhaSimples` | pastilhas para poucas opções |
+| `ChaveFolha` | liga/desliga com apoio |
+| `ProgressoFolha` | slider com o número no rótulo |
+| `ResumoFolha` | bloco de leitura ("sobre o quê?") |
+| `BuscaFolha` / `ItemFolha` / `ListaFolha` | listagens paginadas |
+| `AcaoDestrutivaFolha` | excluir, em vermelho, no pé |
+| `MedidasFolha` | `lado 20`, `topo 22`, `base 24`, `entreCampos 18`, `raio 22` |
+
+### Regras
+
+- **`aoConfirmar` devolvendo `null` mantém a folha aberta.** É como campo
+  inválido e erro de servidor se defendem sem perder o que foi digitado.
+- **Fechar por dentro é `FolhaPadrao.fechar(context, resultado)`**, não
+  `Navigator.pop`: só ela desfaz a animação de entrada.
+- **Sem `aoConfirmar`, só o X aparece.** Use quando o toque num item já é a
+  resposta (listagens) ou quando cada controle grava sozinho (preferências).
+- Erro nunca é `SnackBar`: use `MensagemWidget`.
+
+### Armadilhas que já custaram caro
+
+- **`useRootNavigator: true` em toda folha.** Sem isso ela sobe no navegador
+  da aba; um seletor de data aberto de dentro de outra folha cai na mesma
+  pilha, e fechar um deixa o outro em pé.
+- **`createAnimation` do FF cria `AnimationController` sem `duration`** — quem
+  a define é o `Animate` ao se conectar. Mandar `forward`/`reverse` num
+  controller que nenhum widget usa lança, e o erro sobe pelo `Future.wait` do
+  fechamento: o cartão some e o fundo preto fica na tela. O kit só declara a
+  animação de quem vai existir, e engole erro no recolhimento.
+- **A altura do cartão desconta as bordas do sistema.** Limitar por fração da
+  tela não basta: a folha ainda gasta 96 de folga e 72 de botões por fora, e o
+  topo passava por baixo da barra de status.
+- **`FFLocalizations.of(context)` nunca dentro de `Future` pós-frame.** Com a
+  folha já fechada é "Looking up a deactivated widget's ancestor" e tela
+  vermelha. Formate na hora de desenhar.
+- **`?? true` em `resposta.succeeded` esconde falha.** Use `!= true`.
+
+---
+
+## Outros componentes compartilhados
+
+| Arquivo | O que é |
+|---|---|
+| `components/perfil_kit.dart` | fichas de perfil: capa, avatar, cartões, chips, estrelas |
+| `components/folha_kit.dart` | as folhas do rodapé (acima) |
+| `components/baralho_cartas.dart` | `BaralhoCartas`: pilha que se arrasta, usada na home do aluno e na ficha do aluno pelo personal |
+| `components/atalho_cartao.dart` | `AtalhoCartao`: linha branca com quadrado colorido de ícone |
+| `components/mensagem_widget.dart` | o aviso padrão do app (sucesso/erro) |
 
 ---
 

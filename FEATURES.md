@@ -177,6 +177,57 @@
 
 ---
 
+## Padronização de UI — 16/08/2026
+
+### ✅ `folha_kit` — todas as folhas do rodapé
+23 componentes passaram a usar `lib/components/folha_kit.dart`, de 15.400 para
+3.900 linhas. Fundo branco, campo com linha embaixo que acende em azul no foco,
+e os dois botões redondos com a animação de sempre. Detalhes em `RULES.md`.
+
+Convertidos: `novo_aluno`, `selecionar_treino_aluno`, `selecionar_exercicio`,
+`substituir_exercicio`, `treinos_novo_treino`, `treinos_novo_sub_treino`,
+`treinos_novo_exercicio_treino`, `novo_exercicio`, `alunos_novo_exercicio`,
+`alunos_edit_exercicio`, `alunos_novo_objetivo`, `alunos_editar_objetivo`,
+`informar_pagamento`, `pagamentos_novo`, `pagamentos_edit`,
+`perfil_aluno_status`, `confirmar_recebimento`, `avaliar_personal`,
+`folha_feedback_treino`, `preferencias_app`, `convite_personal`,
+`custom_date_picker`, `metas_fotos`, os dois de cárdio e os filtros de grupo.
+
+**Fora do kit de propósito:** `mensagem_widget` (aviso, desenho próprio),
+`reels_video_grid`, `novidades_sessao`, `foto_tela_cheia`.
+
+### ✅ Componentes extraídos para reuso
+- `BaralhoCartas` (era privado de `treinos_widget`): a home do aluno e a ficha
+  do aluno vista pelo personal usam o mesmo baralho
+- `AtalhoCartao` (era privado de `treinos_widget`): treino, personal e validade
+
+### ✅ Ficha do aluno vista pelo personal
+Baralho de cartas para os blocos do treino, atalhos abaixo, aba Desenvolvimento
+com sub-chips (Métricas/Cargas/Corpo), Metas em aba própria, e a lista de
+pagamentos no mesmo desenho da ficha que o aluno vê do personal.
+
+### ❌ `codconfimacao`
+O botão de confirmar só faz `print('btConfirm pressed ...')` e **nenhuma tela
+do app o abre**. Precisa ser implementado ou apagado — não foi para o kit
+porque maquiar algo que não funciona nem é chamado não resolve nada.
+
+---
+
+## Correções de 16/08/2026
+
+| O quê | Causa |
+|---|---|
+| Validade do treino divergia entre personal e aluno | A virada de ciclo em `get_treino_ativo_aluno` reescrevia `DataValidade` para `CURRENT_DATE`: o rebase por defasagem dava sempre zero, porque todas as linhas de um ciclo têm a mesma data. Corrigido para copiar a validade do plano; ciclo corrente reparado |
+| Treino C aparecia duas vezes na ficha do aluno | `get_perfil_aluno_pelo_personal` percorria toda linha `pendente` de `TreinosExecucao`, e o mesmo treino existe no ciclo 1 (plano) e no corrente. Agora `DISTINCT ON (Treinos.Id)` |
+| Fundo preto ficava depois de fechar a folha | `AnimationController` do FF sem `duration` (ver `RULES.md`) |
+| Tela vermelha ao editar cobrança | `FFLocalizations.of` em `Future` pós-frame |
+| Seletor de treino não fechava | Folha e calendário em navegadores diferentes |
+| Menu do dropdown transparente | `fillColor` pintava botão e menu; adicionados `menuFillColor` e `menuElevation` em `flutter_flow_drop_down.dart` |
+| Bloquear aluno parecia não funcionar | `?? true` escondia falha. **Banco verificado e correto** — se persistir, a folha agora mostra o motivo |
+| Cartão da folha passava sob a barra de status | Altura media só a fração da tela, sem descontar bordas do sistema nem o que a folha gasta em volta |
+
+---
+
 ## Issues abertas
 
 Nenhuma no momento. As duas issues anteriores foram revisadas em 2026-07-01:

@@ -297,7 +297,7 @@ Status calculado por comparação entre `DataPagamento` e `DataVencimento` — *
 ### Aluno
 | RPC | Descrição |
 |---|---|
-| `get_treino_ativo_aluno` | Retorna treino ativo + exercícios na ordem da fila |
+| `get_treino_ativo_aluno` | Retorna treino ativo + exercícios na ordem da fila. **Vira o ciclo** quando o atual acabou, sob `pg_advisory_xact_lock` por aluno. A cópia preserva `DataValidade` do plano (corrigido 16/08/2026: antes rebaseava para `CURRENT_DATE` e o treino nascia vencido) |
 | `finalizar_treino_aluno` | Conclui treino, move para fim da fila rotacional |
 | `salvar_feedback_treino` | Salva feedback pós-treino |
 | `pular_exercicio` | Marca exercício como pulado |
@@ -381,3 +381,15 @@ Ao adicionar tabelas com volume esperado alto, criar índices em:
 - Colunas FK usadas em JOINs frequentes
 - Colunas de data usadas em filtros de período
 - `PerfisId` em todas as tabelas de histórico
+
+---
+
+## RPCs revisadas em 16/08/2026
+
+| RPC | Nota |
+|---|---|
+| `get_treino_ativo_aluno` | A virada de ciclo copia `DataValidade` como está. Ciclo 1 é o plano; ciclos > 1 são repetições |
+| `get_perfil_aluno_pelo_personal` | `subagrupamentos` usa `DISTINCT ON (Treinos.Id)` ordenado por `CicloNumero DESC`: o mesmo treino existe no plano e no ciclo corrente, e ambos `pendente` duplicavam o card |
+| `toggle_status_aluno` | Lê `Ativo` e inverte. Funciona (testado com rollback); o bug de "não bloqueia" era do app |
+| `atribuir_grupo_treino_aluno` | Responde `sucesso: true` com `treinosCriados: 0` em alguns casos — o app checa os dois |
+

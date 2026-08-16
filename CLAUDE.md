@@ -26,6 +26,15 @@ Deep link scheme: `com.virtus.datafit://`
 | [`RULES.md`](./RULES.md) | Armadilhas conhecidas, regras invioláveis, decisões já tomadas |
 | [`PERSONAS.md`](./PERSONAS.md) | Papéis de usuário, planos, fluxos por perfil |
 
+### Kits de UI (leia antes de escrever tela)
+
+| Kit | Para quê |
+|---|---|
+| `lib/components/folha_kit.dart` | todas as folhas do rodapé |
+| `lib/components/perfil_kit.dart` | fichas de perfil |
+| `lib/components/baralho_cartas.dart` | a pilha de cartas que se arrasta |
+| `lib/components/atalho_cartao.dart` | linha branca com quadrado de ícone |
+
 ---
 
 ## Decisões rápidas (TL;DR)
@@ -40,10 +49,16 @@ Deep link scheme: `com.virtus.datafit://`
 - Antes de debugar frontend, teste o RPC direto no Supabase via SQL
 - `Perfis` PK é `"idUser"` (UUID) — **NÃO** `"Id"` — confirmar antes de fazer JOIN
 - `valueOrDefault<String>(campo, '-') != ''` é **sempre true** — use `campo != null && campo != ''`
-- Componentes flutuantes animados: seguir padrão de `selecionar_exercicio_widget.dart` — ver `RULES.md`
+- **Folhas do rodapé (formulário/listagem): use `components/folha_kit.dart`.** Nunca monte a casca à mão — ver `RULES.md`
+- **Todo `showModalBottomSheet` leva `useRootNavigator: true`** — sem isso folhas aninhadas fecham uma no lugar da outra
+- Erro para o usuário é `MensagemWidget`, nunca `SnackBar`
+- `resposta.succeeded ?? true` esconde falha — use `!= true`
+- `FFLocalizations.of(context)` nunca dentro de `Future` agendado no `initState` — tela vermelha quando a folha já fechou
 - `Notificacoes` **não tem** `PerfisId` — tem `DestinatarioPerfisId` e `RemetentePerfisId`
 - `PersonalAlunos` pode ter múltiplos registros por aluno — **sempre filtrar** `StatusConvite = 'aceito' AND Ativo = true` para pegar o vínculo ativo
 - Convite: botões Aceitar/Recusar usam `notisItem.remetenteId` (UUID) — nunca buscar por nome em `convitesPendentes`
+- `TreinosExecucao`: ciclo 1 é o **plano**, ciclos > 1 são as repetições. `DataValidade` pertence ao plano
+- `ExerciciosTreinos` **não tem** `IsDeleted`
 
 ---
 

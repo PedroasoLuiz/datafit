@@ -197,6 +197,23 @@ Supabase.instance.client.rpc(...)
 
 ---
 
+## Kits compartilhados
+
+Antes de escrever qualquer tela, veja se o desenho já existe:
+
+| Kit | Onde | Para quê |
+|---|---|---|
+| `folha_kit.dart` | `lib/components/` | **todas** as folhas do rodapé (formulários e listagens). Ver `RULES.md` |
+| `perfil_kit.dart` | `lib/components/` | fichas de perfil: capa, avatar, cartões, chips, estrelas |
+| `baralho_cartas.dart` | `lib/components/` | `BaralhoCartas`, a pilha que se arrasta |
+| `atalho_cartao.dart` | `lib/components/` | `AtalhoCartao`, linha branca com ícone colorido |
+
+Montar a casca à mão é o erro que este projeto já pagou caro: em 16/08/2026
+foram 23 componentes reescritos para acabar com 15 desenhos parecidos e
+nenhum igual.
+
+---
+
 ## Checklist antes de criar qualquer arquivo
 
 - [ ] A feature já tem pasta em `features/`?
