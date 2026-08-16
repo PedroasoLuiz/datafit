@@ -46,7 +46,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
   /// Le a capa ja escolhida quando se abre um exercicio para editar.
   ///
   /// Nao vem por parametro porque as telas que abrem esta folha so conhecem
-  /// nome, link e subcategoria — passar mais um campo obrigaria a mexer em
+  /// nome, link e subcategoria: passar mais um campo obrigaria a mexer em
   /// todos os pontos de chamada por um dado que so esta folha usa.
   Future<void> _carregarCapaAtual() async {
     if (widget.exercicioId == null) return;
@@ -151,14 +151,14 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
   ///
   /// Guardar a IMAGEM, e nao so o instante, e o que deixa a grade de videos
   /// ser imagem pura: com o instante, cada celula precisaria manter um player
-  /// de video vivo so para pintar o quadro — nao escala e nao tem cache.
+  /// de video vivo so para pintar o quadro: nao escala e nao tem cache.
   ///
   /// Falhar aqui nao derruba o exercicio: sem capa a celula cai no fundo
   /// escuro, que era o comportamento anterior.
   Future<String?> _subirCapa(String caminhoVideo) async {
     if (kIsWeb) return null;
 
-    // Cada saida anota onde parou. A capa vinha falhando calada — o exercicio
+    // Cada saida anota onde parou. A capa vinha falhando calada: o exercicio
     // gravava com `ThumbSegundo` preenchido e `ThumbUrl` nulo, e desse lado
     // nao dava para distinguir plugin ausente, formato recusado e upload
     // barrado.

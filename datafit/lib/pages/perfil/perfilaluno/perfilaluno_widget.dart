@@ -12,6 +12,7 @@ import '/components/baralho_cartas.dart';
 import '/components/perfil_kit.dart';
 import '/components/folha_kit.dart';
 import '/components/foto_tela_cheia.dart';
+import '/backend/cache_curto.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -113,9 +114,18 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
   }
 
   /// Qual recorte de Desenvolvimento esta a mostra: 0 metricas, 1 cargas,
-  /// 2 corpo. Sem calendario — o personal quer o retrato do periodo, e o dia
+  /// 2 corpo. Sem calendario: o personal quer o retrato do periodo, e o dia
   /// a dia ja e o assunto da aba Treinos.
   int _subAba = 0;
+
+  /// Perimetros do aluno, buscados sob demanda.
+  ///
+  /// Nao vem no payload do perfil de proposito: e uma lista de ate treze
+  /// medidas que so a aba Corpo usa, e carrega-la em toda abertura de ficha
+  /// seria pagar por ela o tempo todo.
+  List<dynamic>? _perimetros;
+  String _perimetrosEm = '';
+  bool _buscandoPerimetros = false;
 
   /// Exercicio do grafico de carga. Nulo ate a primeira escolha: ai assume o
   /// primeiro da lista, que e o que o grafico ja mostrava antes de existir
@@ -124,7 +134,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
 
   /// O exercicio em exibicao no grafico de carga.
   ///
-  /// Cai no primeiro da lista quando ainda nao houve escolha — ou quando o
+  /// Cai no primeiro da lista quando ainda nao houve escolha: ou quando o
   /// escolhido some do periodo, o que acontece ao encurtar a janela: sem essa
   /// volta, o grafico ficaria pedindo um exercicio que nao existe mais ali.
   String _exercicioDaVez() {
@@ -134,6 +144,177 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
       return _exercicioCarga!;
     }
     return lista.first;
+  }
+
+  Future<void> _carregarPerimetros() async {
+    if (_buscandoPerimetros) return;
+    _buscandoPerimetros = true;
+
+    final resposta = await CacheCurto.obter<Map<String, dynamic>>(
+      'perimetros:${widget.alunoId}',
+      () async {
+        final cru = await SupaFlow.client.rpc('get_perimetros_aluno',
+            params: {'p_aluno_uuid': widget.alunoId});
+        return (cru as Map?)?.cast<String, dynamic>() ?? {};
+      },
+    );
+
+    if (!mounted) {
+      _buscandoPerimetros = false;
+      return;
+    }
+
+    safeSetState(() {
+      _perimetros = (resposta?['itens'] as List?) ?? const [];
+      _perimetrosEm = resposta?['dataUltima']?.toString() ?? '';
+      _buscandoPerimetros = false;
+    });
+  }
+
+  /// As medidas de fita, abaixo da composicao corporal.
+  ///
+  /// Peso e IMC dizem o total; o perimetro diz onde ele foi parar. Sao as duas
+  /// metades da mesma pergunta, e por isso ficam no mesmo lugar.
+  Widget _perimetrosDoAluno(FlutterFlowTheme tema) {
+    // Busca na primeira vez que a aba Corpo aparece, e nao no `initState`:
+    // quem abre a ficha para ver o treino nunca precisou desta lista.
+    if (_perimetros == null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _carregarPerimetros());
+      return const SizedBox.shrink();
+    }
+    if (_perimetros!.isEmpty) return const SizedBox.shrink();
+
+    String medida(num v) =>
+        '${v.toStringAsFixed(v % 1 == 0 ? 0 : 1).replaceAll('.', ',')} cm';
+
+    final data = DateTime.tryParse(_perimetrosEm);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 10.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsetsDirectional.fromSTEB(12.0, 10.0, 12.0, 10.0),
+        decoration: BoxDecoration(
+          color: tema.primaryBackground,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [tema.designToken.shadow.lg],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 6.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Perímetros',
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                        color: tema.primaryText,
+                        fontSize: 13.0,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (data != null)
+                    Text(
+                      '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}',
+                      style: tema.bodyMedium.override(
+                        font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                        color: tema.secondaryText,
+                        fontSize: 11.0,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
+              child: Wrap(
+                spacing: 18.0,
+                runSpacing: 10.0,
+                children: [
+                  for (final item in _perimetros!)
+                    Builder(builder: (context) {
+                      final mapa = (item as Map).cast<String, dynamic>();
+                      final atual = (mapa['atual'] as num?) ?? 0;
+                      final variacao = (mapa['variacao'] as num?) ?? 0;
+                      final medicoes = (mapa['medicoes'] as num?)?.toInt() ?? 1;
+
+                      // A variacao so aparece com duas medicoes ou mais: com
+                      // uma so ela e sempre zero, e um "0,0 cm" ao lado de
+                      // toda medida vira ruido que ninguem le.
+                      final mostraVariacao = medicoes > 1 && variacao != 0;
+                      final subiu = variacao > 0;
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                medida(atual),
+                                style: tema.bodyMedium.override(
+                                  font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold),
+                                  color: tema.primaryText,
+                                  fontSize: 15.0,
+                                  letterSpacing: -0.3,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (mostraVariacao) ...[
+                                const SizedBox(width: 4.0),
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 0.0, 2.0),
+                                  child: Text(
+                                    '${subiu ? '+' : ''}'
+                                    '${variacao.toStringAsFixed(1).replaceAll('.', ',')}',
+                                    style: tema.bodyMedium.override(
+                                      font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600),
+                                      color:
+                                          subiu ? tema.primary : tema.secondary,
+                                      fontSize: 10.5,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          Text(
+                            mapa['tipo']?.toString() ?? '',
+                            style: tema.bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w400),
+                              color: tema.secondaryText,
+                              fontSize: 10.5,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Treino e validade abaixo do baralho, no mesmo desenho da tela do aluno.
@@ -172,7 +353,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
             titulo: 'Válido até ${_dataCurta(validade)}',
             selo: vencido ? 'VENCIDO' : null,
             apoio: vencido
-                ? 'O treino expirou — defina uma nova data'
+                ? 'O treino expirou, defina uma nova data'
                 : (dias == 0
                     ? 'Expira hoje'
                     : '$dias ${dias == 1 ? 'dia' : 'dias'} até expirar'),
@@ -766,7 +947,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
     );
   }
 
-  /// "1.234,50" — virgula decimal e ponto de milhar, como se le em portugues.
+  /// "1.234,50": virgula decimal e ponto de milhar, como se le em portugues.
   String _valorPgto(double v) {
     final partes = v.toStringAsFixed(2).split('.');
     final inteiro = partes[0];
@@ -788,7 +969,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
   ///
   /// A mesma folha e a mesma RPC da tela de cobranca: o personal esta olhando
   /// a ficha, ve a cobranca em aberto e nao deveria precisar sair dali para
-  /// dar baixa — sair e voltar e onde ele desiste.
+  /// dar baixa: sair e voltar e onde ele desiste.
   Future<void> _registrarRecebimento(PagamentosStruct pgto) async {
     final forma = await confirmarRecebimento(
       context,
@@ -807,7 +988,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
       );
       if (!mounted) return;
 
-      // O RPC responde 200 mesmo quando recusa — a negativa vem no corpo.
+      // O RPC responde 200 mesmo quando recusa: a negativa vem no corpo.
       final ok = resposta.succeeded &&
           getJsonField(resposta.jsonBody, r'$.sucesso') == true;
 
@@ -897,7 +1078,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                 //
                                 // Eram oitocentas linhas geradas montando avatar,
                                 // trio de numeros, bio e botoes a mao. O que estava
-                                // ali nao era diferente por necessidade — era
+                                // ali nao era diferente por necessidade: era
                                 // diferente por ter sido escrito antes de existir
                                 // um padrao.
                                 Builder(builder: (context) {
@@ -924,7 +1105,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   // Idade, altura e peso no formato de "x alunos x
                                   // treinos" da ficha publica: numero em negrito,
                                   // unidade em cinza. Cada um so aparece se houver
-                                  // valor — "0 kg" e pior que nada.
+                                  // valor: "0 kg" e pior que nada.
                                   final medidas = <({String v, String r})>[
                                     if ('${a.idade}'.isNotEmpty &&
                                         '${a.idade}' != '0')
@@ -1031,7 +1212,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   );
                                 }),
                                 // Abas no padrao de chips do app. Eram dois pares
-                                // de FFButtonWidget com width fixo de 114 — que
+                                // de FFButtonWidget com width fixo de 114: que
                                 // nao comporta "Desenvolvimento".
                                 Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
@@ -1052,7 +1233,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                       ),
                                       // Metas em aba propria: elas nao sao
                                       // desenvolvimento medido, sao o combinado
-                                      // entre os dois — e dentro daquela aba
+                                      // entre os dois: e dentro daquela aba
                                       // dividiam espaco com numeros que respondem
                                       // outra pergunta.
                                       ChipFiltro(
@@ -1651,7 +1832,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   // Soltos sobre o cinza, os dois pareciam
                                   // sobras entre a barra de abas e os graficos.
                                   // Juntos num cartao, viram o controle do que
-                                  // vem abaixo — que e o que eles sao.
+                                  // vem abaixo: que e o que eles sao.
                                   Padding(
                                     padding:
                                         const EdgeInsetsDirectional.fromSTEB(
@@ -1792,7 +1973,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   // O painel inteiro das metricas do aluno.
                                   //
                                   // E o mesmo componente que o aluno ve na aba
-                                  // Metricas — nao uma copia. O personal
+                                  // Metricas: nao uma copia. O personal
                                   // acompanha exatamente os numeros que o aluno
                                   // acompanha, e ajustar o painel muda os dois.
                                   if (_subAba == 0)
@@ -1814,7 +1995,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                   //
                                   // O grafico conta a trajetoria; estes contam
                                   // onde a pessoa esta hoje. Sem eles, "Corpo"
-                                  // respondia so a segunda pergunta — e a
+                                  // respondia so a segunda pergunta: e a
                                   // primeira e a que o personal faz antes.
                                   //
                                   // Peso e altura ja aparecem no topo da ficha,
@@ -1986,6 +2167,9 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                         ),
                                       );
                                     }),
+                                  if (_subAba == 2)
+                                    _perimetrosDoAluno(
+                                        FlutterFlowTheme.of(context)),
                                   if (_subAba == 2)
                                     Padding(
                                       padding:
@@ -2209,7 +2393,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
             // Como filho solto do Stack, esta camada recebia restricoes
             // frouxas e a Column em `max` esticava ate o rodape: a barra
             // ocupava a tela inteira, transparente, e engolia todos os toques.
-            // Dava a impressao de app travado — a tela aparecia e nada
+            // Dava a impressao de app travado: a tela aparecia e nada
             // respondia.
             Positioned(
               top: 0.0,
@@ -2246,7 +2430,7 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                 height: 36.0,
                                 // Preto translucido, como nas outras fichas: a
                                 // barra fica sobre a capa azul, e branco a 22%
-                                // quase nao aparecia — o caminho de volta sumia
+                                // quase nao aparecia: o caminho de volta sumia
                                 // junto com o botao.
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.28),

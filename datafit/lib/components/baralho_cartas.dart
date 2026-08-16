@@ -52,7 +52,7 @@ class _BaralhoCartasState extends State<BaralhoCartas>
   /// Onde cada assento da pilha fica: 0 = frente, 1 = segunda, 2 = terceira.
   ///
   /// Existe como lista, e nao como conta em cima da camada, porque a posicao
-  /// nao e uma progressao — a segunda vai para a direita e a terceira para a
+  /// nao e uma progressao: a segunda vai para a direita e a terceira para a
   /// esquerda, e a terceira ainda leva 2px a mais.
   static const List<double> _deslocDoAssento = [
     0.0,
@@ -86,7 +86,7 @@ class _BaralhoCartasState extends State<BaralhoCartas>
 
   /// Entrada da carta que volta para o fundo da pilha.
   ///
-  /// Quando a da frente sai, ela reaparece no ultimo assento — e aparecia
+  /// Quando a da frente sai, ela reaparece no ultimo assento: e aparecia
   /// pronta, do nada. Comeca em 1 para a pilha parada ja nascer visivel; so
   /// as trocas rodam a animacao.
   late final AnimationController _controleEntrada;
@@ -219,7 +219,7 @@ class _BaralhoCartasState extends State<BaralhoCartas>
 
     // As de tras caminham para o assento da frente conforme o arraste avanca,
     // em vez de ficarem paradas e trocarem de lugar de uma vez no fim. Era
-    // esse salto — de +26 para 0, desendireitando junto — que fazia a troca
+    // esse salto: de +26 para 0, desendireitando junto — que fazia a troca
     // parecer um corte em vez de um movimento.
     final desloc =
         daFrente ? _arraste : _entreAssentos(_deslocDoAssento, camadaEfetiva);

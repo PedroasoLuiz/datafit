@@ -234,7 +234,6 @@ class PerfilStruct extends BaseStruct {
 
   bool hasTipoPix() => _tipoPix != null && _tipoPix!.isNotEmpty;
 
-
   /// Recebe aviso no celular de treino novo e lembrete.
   ///
   /// Padrao `true`: quem nunca mexeu continua recebendo tudo, como antes de a

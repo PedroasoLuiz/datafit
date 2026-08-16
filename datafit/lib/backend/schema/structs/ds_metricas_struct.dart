@@ -114,13 +114,13 @@ class DsMetricasStruct extends BaseStruct {
 
   bool hasCardioMinutosHoje() => _cardioMinutosHoje != null;
 
-
   /// Treinos do período, feitos ou não. É o denominador da aderência.
   int? _totalTreinos;
   int get totalTreinos => _totalTreinos ?? 0;
   set totalTreinos(int? val) => _totalTreinos = val;
 
-  void incrementTotalTreinos(int amount) => totalTreinos = totalTreinos + amount;
+  void incrementTotalTreinos(int amount) =>
+      totalTreinos = totalTreinos + amount;
 
   bool hasTotalTreinos() => _totalTreinos != null;
 
@@ -138,7 +138,8 @@ class DsMetricasStruct extends BaseStruct {
   int get descansoPrescritoSegundos => _descansoPrescritoSegundos ?? 0;
   set descansoPrescritoSegundos(int? val) => _descansoPrescritoSegundos = val;
 
-  void incrementDescansoPrescritoSegundos(int amount) => descansoPrescritoSegundos = descansoPrescritoSegundos + amount;
+  void incrementDescansoPrescritoSegundos(int amount) =>
+      descansoPrescritoSegundos = descansoPrescritoSegundos + amount;
 
   bool hasDescansoPrescritoSegundos() => _descansoPrescritoSegundos != null;
 
@@ -165,7 +166,8 @@ class DsMetricasStruct extends BaseStruct {
   int get cardioMinutos => _cardioMinutos ?? 0;
   set cardioMinutos(int? val) => _cardioMinutos = val;
 
-  void incrementCardioMinutos(int amount) => cardioMinutos = cardioMinutos + amount;
+  void incrementCardioMinutos(int amount) =>
+      cardioMinutos = cardioMinutos + amount;
 
   bool hasCardioMinutos() => _cardioMinutos != null;
 
@@ -174,7 +176,8 @@ class DsMetricasStruct extends BaseStruct {
   int get completosAnterior => _completosAnterior ?? 0;
   set completosAnterior(int? val) => _completosAnterior = val;
 
-  void incrementCompletosAnterior(int amount) => completosAnterior = completosAnterior + amount;
+  void incrementCompletosAnterior(int amount) =>
+      completosAnterior = completosAnterior + amount;
 
   bool hasCompletosAnterior() => _completosAnterior != null;
 
@@ -183,7 +186,8 @@ class DsMetricasStruct extends BaseStruct {
   int get volumeKgAnterior => _volumeKgAnterior ?? 0;
   set volumeKgAnterior(int? val) => _volumeKgAnterior = val;
 
-  void incrementVolumeKgAnterior(int amount) => volumeKgAnterior = volumeKgAnterior + amount;
+  void incrementVolumeKgAnterior(int amount) =>
+      volumeKgAnterior = volumeKgAnterior + amount;
 
   bool hasVolumeKgAnterior() => _volumeKgAnterior != null;
 
@@ -192,26 +196,30 @@ class DsMetricasStruct extends BaseStruct {
   int get cardioMinutosAnterior => _cardioMinutosAnterior ?? 0;
   set cardioMinutosAnterior(int? val) => _cardioMinutosAnterior = val;
 
-  void incrementCardioMinutosAnterior(int amount) => cardioMinutosAnterior = cardioMinutosAnterior + amount;
+  void incrementCardioMinutosAnterior(int amount) =>
+      cardioMinutosAnterior = cardioMinutosAnterior + amount;
 
   bool hasCardioMinutosAnterior() => _cardioMinutosAnterior != null;
 
   /// Descanso médio da janela anterior.
   int? _descansoMedioAnteriorSegundos;
   int get descansoMedioAnteriorSegundos => _descansoMedioAnteriorSegundos ?? 0;
-  set descansoMedioAnteriorSegundos(int? val) => _descansoMedioAnteriorSegundos = val;
+  set descansoMedioAnteriorSegundos(int? val) =>
+      _descansoMedioAnteriorSegundos = val;
 
-  void incrementDescansoMedioAnteriorSegundos(int amount) => descansoMedioAnteriorSegundos = descansoMedioAnteriorSegundos + amount;
+  void incrementDescansoMedioAnteriorSegundos(int amount) =>
+      descansoMedioAnteriorSegundos = descansoMedioAnteriorSegundos + amount;
 
-  bool hasDescansoMedioAnteriorSegundos() => _descansoMedioAnteriorSegundos != null;
-
+  bool hasDescansoMedioAnteriorSegundos() =>
+      _descansoMedioAnteriorSegundos != null;
 
   /// Séries fechadas no período. É o número de esforço que uma pessoa entende sem conversão.
   int? _seriesConcluidas;
   int get seriesConcluidas => _seriesConcluidas ?? 0;
   set seriesConcluidas(int? val) => _seriesConcluidas = val;
 
-  void incrementSeriesConcluidas(int amount) => seriesConcluidas = seriesConcluidas + amount;
+  void incrementSeriesConcluidas(int amount) =>
+      seriesConcluidas = seriesConcluidas + amount;
 
   bool hasSeriesConcluidas() => _seriesConcluidas != null;
 
@@ -220,7 +228,8 @@ class DsMetricasStruct extends BaseStruct {
   int get seriesConcluidasAnterior => _seriesConcluidasAnterior ?? 0;
   set seriesConcluidasAnterior(int? val) => _seriesConcluidasAnterior = val;
 
-  void incrementSeriesConcluidasAnterior(int amount) => seriesConcluidasAnterior = seriesConcluidasAnterior + amount;
+  void incrementSeriesConcluidasAnterior(int amount) =>
+      seriesConcluidasAnterior = seriesConcluidasAnterior + amount;
 
   bool hasSeriesConcluidasAnterior() => _seriesConcluidasAnterior != null;
 
@@ -229,17 +238,18 @@ class DsMetricasStruct extends BaseStruct {
   int get totalTreinosAnterior => _totalTreinosAnterior ?? 0;
   set totalTreinosAnterior(int? val) => _totalTreinosAnterior = val;
 
-  void incrementTotalTreinosAnterior(int amount) => totalTreinosAnterior = totalTreinosAnterior + amount;
+  void incrementTotalTreinosAnterior(int amount) =>
+      totalTreinosAnterior = totalTreinosAnterior + amount;
 
   bool hasTotalTreinosAnterior() => _totalTreinosAnterior != null;
-
 
   /// Minutos somados dos treinos fechados no período. Sessão sem fim gravado ou acima de 4h fica de fora — app esquecido aberto viraria treino de dez horas.
   int? _tempoTreinoMinutos;
   int get tempoTreinoMinutos => _tempoTreinoMinutos ?? 0;
   set tempoTreinoMinutos(int? val) => _tempoTreinoMinutos = val;
 
-  void incrementTempoTreinoMinutos(int amount) => tempoTreinoMinutos = tempoTreinoMinutos + amount;
+  void incrementTempoTreinoMinutos(int amount) =>
+      tempoTreinoMinutos = tempoTreinoMinutos + amount;
 
   bool hasTempoTreinoMinutos() => _tempoTreinoMinutos != null;
 
@@ -248,7 +258,8 @@ class DsMetricasStruct extends BaseStruct {
   int get tempoTreinoMinutosAnterior => _tempoTreinoMinutosAnterior ?? 0;
   set tempoTreinoMinutosAnterior(int? val) => _tempoTreinoMinutosAnterior = val;
 
-  void incrementTempoTreinoMinutosAnterior(int amount) => tempoTreinoMinutosAnterior = tempoTreinoMinutosAnterior + amount;
+  void incrementTempoTreinoMinutosAnterior(int amount) =>
+      tempoTreinoMinutosAnterior = tempoTreinoMinutosAnterior + amount;
 
   bool hasTempoTreinoMinutosAnterior() => _tempoTreinoMinutosAnterior != null;
 
@@ -257,7 +268,8 @@ class DsMetricasStruct extends BaseStruct {
   int get descansosTotal => _descansosTotal ?? 0;
   set descansosTotal(int? val) => _descansosTotal = val;
 
-  void incrementDescansosTotal(int amount) => descansosTotal = descansosTotal + amount;
+  void incrementDescansosTotal(int amount) =>
+      descansosTotal = descansosTotal + amount;
 
   bool hasDescansosTotal() => _descansosTotal != null;
 
@@ -266,17 +278,18 @@ class DsMetricasStruct extends BaseStruct {
   int get descansosNoAlvo => _descansosNoAlvo ?? 0;
   set descansosNoAlvo(int? val) => _descansosNoAlvo = val;
 
-  void incrementDescansosNoAlvo(int amount) => descansosNoAlvo = descansosNoAlvo + amount;
+  void incrementDescansosNoAlvo(int amount) =>
+      descansosNoAlvo = descansosNoAlvo + amount;
 
   bool hasDescansosNoAlvo() => _descansosNoAlvo != null;
-
 
   /// A maior sequência de dias seguidos treinando, no histórico inteiro. Não obedece ao período: recortada numa janela de sete dias daria no máximo sete.
   int? _sequenciaMaxDias;
   int get sequenciaMaxDias => _sequenciaMaxDias ?? 0;
   set sequenciaMaxDias(int? val) => _sequenciaMaxDias = val;
 
-  void incrementSequenciaMaxDias(int amount) => sequenciaMaxDias = sequenciaMaxDias + amount;
+  void incrementSequenciaMaxDias(int amount) =>
+      sequenciaMaxDias = sequenciaMaxDias + amount;
 
   bool hasSequenciaMaxDias() => _sequenciaMaxDias != null;
 
@@ -285,7 +298,8 @@ class DsMetricasStruct extends BaseStruct {
   int get sequenciaAtualDias => _sequenciaAtualDias ?? 0;
   set sequenciaAtualDias(int? val) => _sequenciaAtualDias = val;
 
-  void incrementSequenciaAtualDias(int amount) => sequenciaAtualDias = sequenciaAtualDias + amount;
+  void incrementSequenciaAtualDias(int amount) =>
+      sequenciaAtualDias = sequenciaAtualDias + amount;
 
   bool hasSequenciaAtualDias() => _sequenciaAtualDias != null;
 
@@ -299,19 +313,23 @@ class DsMetricasStruct extends BaseStruct {
         cardioMinutosHoje: castToType<int>(data['cardioMinutosHoje']),
         totalTreinos: castToType<int>(data['totalTreinos']),
         aderencia: castToType<int>(data['aderencia']),
-        descansoPrescritoSegundos: castToType<int>(data['descansoPrescritoSegundos']),
+        descansoPrescritoSegundos:
+            castToType<int>(data['descansoPrescritoSegundos']),
         volumeKg: castToType<int>(data['volumeKg']),
         cardios: castToType<int>(data['cardios']),
         cardioMinutos: castToType<int>(data['cardioMinutos']),
         completosAnterior: castToType<int>(data['completosAnterior']),
         volumeKgAnterior: castToType<int>(data['volumeKgAnterior']),
         cardioMinutosAnterior: castToType<int>(data['cardioMinutosAnterior']),
-        descansoMedioAnteriorSegundos: castToType<int>(data['descansoMedioAnteriorSegundos']),
+        descansoMedioAnteriorSegundos:
+            castToType<int>(data['descansoMedioAnteriorSegundos']),
         seriesConcluidas: castToType<int>(data['seriesConcluidas']),
-        seriesConcluidasAnterior: castToType<int>(data['seriesConcluidasAnterior']),
+        seriesConcluidasAnterior:
+            castToType<int>(data['seriesConcluidasAnterior']),
         totalTreinosAnterior: castToType<int>(data['totalTreinosAnterior']),
         tempoTreinoMinutos: castToType<int>(data['tempoTreinoMinutos']),
-        tempoTreinoMinutosAnterior: castToType<int>(data['tempoTreinoMinutosAnterior']),
+        tempoTreinoMinutosAnterior:
+            castToType<int>(data['tempoTreinoMinutosAnterior']),
         descansosTotal: castToType<int>(data['descansosTotal']),
         descansosNoAlvo: castToType<int>(data['descansosNoAlvo']),
         sequenciaMaxDias: castToType<int>(data['sequenciaMaxDias']),

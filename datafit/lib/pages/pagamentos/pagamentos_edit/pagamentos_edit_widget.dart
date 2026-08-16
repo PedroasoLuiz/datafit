@@ -72,7 +72,7 @@ class _PagamentosEditWidgetState extends State<PagamentosEditWidget> {
 
   /// Le a data gravada. Nulo quando nao ha data, e nao "hoje".
   ///
-  /// `formataData` devolve `DateTime.now()` para entrada vazia — o que faria
+  /// `formataData` devolve `DateTime.now()` para entrada vazia: o que faria
   /// uma cobranca em aberto abrir marcada como paga hoje.
   DateTime? _lerData(String? cru) {
     if (cru == null || cru.trim().isEmpty) return null;

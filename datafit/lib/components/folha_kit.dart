@@ -1,4 +1,4 @@
-/// O desenho das folhas que sobem do rodapé — formulários e listagens.
+/// O desenho das folhas que sobem do rodapé: formulários e listagens.
 ///
 /// Cada uma tinha o seu: faixa azul-clara no topo com o título em preto e um
 /// ícone solto na direita, campos com caixa arredondada e contorno cinza, e a
@@ -133,7 +133,7 @@ class CabecaFolha extends StatelessWidget {
 /// Rótulo de campo: pequeno, colado no campo que nomeia.
 ///
 /// Em foco ele vira azul e engorda meio ponto. É a única cor que a folha
-/// gasta, e ela marca onde a pessoa está — num campo de linha fina, sem essa
+/// gasta, e ela marca onde a pessoa está: num campo de linha fina, sem essa
 /// resposta nada na tela reage ao toque.
 class RotuloFolha extends StatelessWidget {
   const RotuloFolha(this.texto, {super.key, this.ativo = false});
@@ -166,7 +166,7 @@ class RotuloFolha extends StatelessWidget {
 
 /// A decoração dos campos: linha embaixo, e só.
 ///
-/// A linha é cinza em repouso e azul em foco — é assim que o campo diz de quem
+/// A linha é cinza em repouso e azul em foco: é assim que o campo diz de quem
 /// é a vez sem precisar de fundo nem de contorno.
 InputDecoration decoracaoCampo(
   BuildContext context, {
@@ -231,18 +231,18 @@ class DivisoriaFolha extends StatelessWidget {
 /// A folha inteira: cartão branco que sobe, e os dois botões redondos.
 ///
 /// A animação mora aqui. Cada componente declarava os mesmos três
-/// `AnimationInfo` e o mesmo `Future.wait` de fechamento — cinquenta linhas
+/// `AnimationInfo` e o mesmo `Future.wait` de fechamento: cinquenta linhas
 /// repetidas quinze vezes, e bastava uma delas divergir para uma folha fechar
 /// diferente das outras.
 ///
 /// [aoConfirmar] devolve o que será entregue ao `Navigator.pop`. Devolver
-/// `null` mantém a folha aberta — é como um campo inválido se defende.
+/// `null` mantém a folha aberta: é como um campo inválido se defende.
 class FolhaPadrao extends StatefulWidget {
   const FolhaPadrao({
     super.key,
     required this.filhos,
 
-    /// O que fica parado acima da rolagem — cabeçalho e busca.
+    /// O que fica parado acima da rolagem: cabeçalho e busca.
     ///
     /// Numa listagem, deixar o campo de busca rolar com os resultados obriga
     /// a subir tudo para corrigir uma letra.
@@ -259,7 +259,7 @@ class FolhaPadrao extends StatefulWidget {
 
   /// Fecha a folha com a animação de saída e devolve [resultado].
   ///
-  /// É o caminho para quem fecha por dentro — tocar num item de listagem, por
+  /// É o caminho para quem fecha por dentro: tocar num item de listagem, por
   /// exemplo. Chamar `Navigator.pop` direto funciona, mas a folha some de
   /// uma vez em vez de descer pelo caminho por onde subiu.
   static Future<void> fechar(BuildContext context, [Object? resultado]) async {
@@ -324,7 +324,7 @@ class _FolhaPadraoState extends State<FolhaPadrao>
         ],
       ),
       // Só entra quando o botão existe. O `AnimationController` do FF nasce
-      // sem `duration` — quem a define é o `Animate` ao se conectar —, e
+      // sem `duration`: quem a define é o `Animate` ao se conectar —, e
       // mandar `forward` ou `reverse` num controller solto lança. O erro
       // subia pelo `Future.wait` do fechamento e o `Navigator.pop` nunca
       // rodava: o cartão sumia e o fundo preto ficava na tela.
@@ -578,7 +578,7 @@ class CampoFolha extends StatefulWidget {
   final Widget? sufixo;
   final void Function(String)? aoMudar;
 
-  /// O que vem colado sob o campo — um aviso, uma contagem, uma dica que só
+  /// O que vem colado sob o campo: um aviso, uma contagem, uma dica que só
   /// aparece às vezes.
   final Widget? abaixo;
 
@@ -804,7 +804,7 @@ class ItemFolha extends StatelessWidget {
 /// Ela nao rola por conta propria: quem rola e a folha. Duas areas rolaveis
 /// empilhadas disputam o mesmo gesto, e o dedo nunca sabe qual respondeu.
 ///
-/// A pagina e local — os itens ja vieram todos da chamada —, mas desenhar
+/// A pagina e local: os itens ja vieram todos da chamada —, mas desenhar
 /// oitocentos exercicios de uma vez custa quase o mesmo que busca-los.
 class ListaFolha<T> extends StatelessWidget {
   const ListaFolha({
@@ -908,7 +908,7 @@ class ListaFolha<T> extends StatelessWidget {
 /// Campo que não se digita: mostra o valor escolhido e abre algo ao toque.
 ///
 /// Data, hora, uma folha de escolha. Tem a mesma linha embaixo dos campos de
-/// texto porque faz o mesmo papel na leitura — é um lugar onde falta uma
+/// texto porque faz o mesmo papel na leitura: é um lugar onde falta uma
 /// resposta —, e o ícone à direita é o que diz que a resposta vem de outro
 /// lugar em vez do teclado.
 class CampoToqueFolha extends StatelessWidget {
@@ -998,7 +998,7 @@ class CampoToqueFolha extends StatelessWidget {
 /// Escolha entre poucas opções curtas, em pastilhas.
 ///
 /// Um dropdown esconderia as alternativas atrás de um toque, e são poucas o
-/// bastante para caberem à vista — ver "Pix" ao lado de "Dinheiro" é o que
+/// bastante para caberem à vista: ver "Pix" ao lado de "Dinheiro" é o que
 /// faz a escolha ser imediata.
 class EscolhaFolha extends StatelessWidget {
   const EscolhaFolha({
@@ -1080,7 +1080,7 @@ class EscolhaFolha extends StatelessWidget {
 
 /// Resumo de leitura no topo da folha: o que a ação vai afetar.
 ///
-/// Fica antes dos campos porque responde "sobre o quê?" — sem ele, informar
+/// Fica antes dos campos porque responde "sobre o quê?": sem ele, informar
 /// um pagamento é preencher data e forma sem ver de qual cobrança se trata.
 class ResumoFolha extends StatelessWidget {
   const ResumoFolha({

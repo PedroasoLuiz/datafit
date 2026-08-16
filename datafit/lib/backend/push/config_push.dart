@@ -12,7 +12,8 @@
 library;
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 
 /// Preencha com o que o Firebase mostrar ao registrar cada app.
 ///
@@ -55,8 +56,9 @@ class ConfigPush {
         apiKey: defaultTargetPlatform == TargetPlatform.iOS
             ? iosApiKey
             : androidApiKey,
-        appId:
-            defaultTargetPlatform == TargetPlatform.iOS ? iosAppId : androidAppId,
+        appId: defaultTargetPlatform == TargetPlatform.iOS
+            ? iosAppId
+            : androidAppId,
         messagingSenderId: messagingSenderId,
         projectId: projectId,
         storageBucket: storageBucket.isEmpty ? null : storageBucket,

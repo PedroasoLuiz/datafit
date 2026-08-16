@@ -77,8 +77,8 @@ class _SubstituirExercicioWidgetState extends State<SubstituirExercicioWidget> {
       fixos: [
         CabecaFolha(
           titulo: 'Substituir exercício',
-          // O nome do original como apoio: e a pergunta que a folha responde
-          // — "no lugar de qual?".
+          // O nome do original como apoio: e a pergunta que a folha
+          // responde, "no lugar de qual?".
           apoio: widget.nomeOriginal,
           icone: FFIcons.kproperty1FiRrRefresh,
         ),

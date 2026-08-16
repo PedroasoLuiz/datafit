@@ -92,7 +92,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   ///
   /// Fecha o ciclo do "Pagamento aguardando aprovacao": ate agora o aluno
   /// informava e nunca recebia resposta, e a unica forma de quitar era abrir a
-  /// edicao e digitar a data — que nao avisava ninguem.
+  /// edicao e digitar a data: que nao avisava ninguem.
   /// Uma chave por cobranca, para a comemoracao nascer do cartao que foi
   /// confirmado em vez do meio da tela.
   final Map<int, GlobalKey> _chavesCartao = {};
@@ -124,7 +124,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     );
     if (!mounted) return;
 
-    // O RPC responde HTTP 200 mesmo quando recusa — a negativa vem no corpo,
+    // O RPC responde HTTP 200 mesmo quando recusa: a negativa vem no corpo,
     // em `sucesso`. Olhar so `succeeded` fazia a recusa passar por sucesso: a
     // lista recarregava, nada mudava e nenhum aviso aparecia.
     final corpo = resposta.jsonBody;
@@ -168,7 +168,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   ///
   /// A acao e sobre a PESSOA, nao sobre a cobranca: ela inativa o vinculo em
   /// `PersonalAlunos`, entao vale para o aluno inteiro e aparece em todos os
-  /// registros dele. Deslizando um pagamento isso nao era obvio — dai a
+  /// registros dele. Deslizando um pagamento isso nao era obvio: dai a
   /// pergunta antes, dizendo de quem e o acesso que vai cair.
   Future<void> _bloquearAcesso(PersonalpagamentosStruct pgto) async {
     if (pgto.alunoUuid.isEmpty) return;
@@ -206,7 +206,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   /// Apaga a cobranca, com confirmacao.
   ///
   /// `PagamentosAlunos` nao tem exclusao logica, entao isto remove a linha de
-  /// vez — dai a pergunta antes, e nao um desfazer depois.
+  /// vez: dai a pergunta antes, e nao um desfazer depois.
   Future<void> _excluirPagamento(PersonalpagamentosStruct pgto) async {
     final confirmou = await showModalBottomSheet<bool>(
       useRootNavigator: true,
@@ -265,8 +265,8 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
 
   /// Moeda no formato brasileiro: R$ 1.000,00.
   ///
-  /// `formatNumber` do FlutterFlow usa a convencao do ingles — ponto no
-  /// decimal e virgula no milhar — e sai "R$ 1,000.00". O `NumberFormat` com
+  /// `formatNumber` do FlutterFlow usa a convencao do ingles: ponto no
+  /// decimal e virgula no milhar: e sai "R$ 1,000.00". O `NumberFormat` com
   /// locale pt_BR e quem sabe a ordem certa.
   String _moeda(num? v) =>
       NumberFormat.currency(locale: 'pt_BR', symbol: r'R$ ')
@@ -688,14 +688,14 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                       // precisava atravessar a Stack e o
                                       // Transform do arraste, e o InkWell —
                                       // que depende de um Material acima dele
-                                      // para receber o gesto — deixava de
+                                      // para receber o gesto: deixava de
                                       // responder. Opaco, o alvo e a linha
                                       // inteira, inclusive os vaos entre os
                                       // textos.
                                       // Sem toque na linha: o swipe e o unico
                                       // caminho para editar.
                                       //
-                                      // Havia os dois — tocar abria a folha de
+                                      // Havia os dois: tocar abria a folha de
                                       // edicao e arrastar revelava as acoes —,
                                       // e um cartao que responde a dois gestos
                                       // diferentes para coisas diferentes faz a
@@ -1162,7 +1162,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
 /// Uma linha de detalhe do card de KPI: rotulo a esquerda, valor na direita.
 ///
 /// [sinal] pinta o valor: 1 verde, -1 vermelho, 0 cinza. Zero fica neutro de
-/// proposito — mes sem receita nao e erro, e so mes sem receita.
+/// proposito: mes sem receita nao e erro, e so mes sem receita.
 class _LinhaKpi {
   const _LinhaKpi({
     required this.rotulo,
@@ -1452,7 +1452,7 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
       onHorizontalDragUpdate: _arrastando,
       onHorizontalDragEnd: _soltou,
       // ClipRect e nao ClipRRect: a lista de cobrancas e uma lista continua,
-      // sem vao entre as linhas — com canto arredondado cada linha viraria um
+      // sem vao entre as linhas: com canto arredondado cada linha viraria um
       // bloco solto e a leitura de cima para baixo se perderia.
       child: ClipRect(
         child: Stack(
@@ -1500,7 +1500,7 @@ class _CardPagamentoDeslizavelState extends State<_CardPagamentoDeslizavel> {
                 // conjunto de cartoes, e uma lista continua. O que separa uma
                 // linha da outra e o divisor.
                 //
-                // Opaca mesmo assim — se fosse transparente, as acoes de
+                // Opaca mesmo assim: se fosse transparente, as acoes de
                 // deslizar apareceriam por baixo do conteudo.
                 color: tema.secondaryBackground,
                 child: widget.child,

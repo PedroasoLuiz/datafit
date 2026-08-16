@@ -166,9 +166,10 @@ class ServicoPush {
           await _anotar('sem_token_apns',
               motivo ?? 'o iOS nao registrou no APNs e nao informou o motivo');
         } else {
-          await _anotar('sem_token_fcm',
+          await _anotar(
+              'sem_token_fcm',
               'o FCM nao devolveu token em 5 tentativas'
-              '${erroFcm == null ? '' : ' — $erroFcm'}');
+                  '${erroFcm == null ? '' : ' — $erroFcm'}');
         }
         return;
       }

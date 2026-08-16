@@ -50,7 +50,7 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget> {
 
   /// Consulta o e-mail dois segundos depois da ultima tecla.
   ///
-  /// Sem a espera, cada letra digitada virava uma ida ao servidor — e a
+  /// Sem a espera, cada letra digitada virava uma ida ao servidor: e a
   /// resposta de uma tecla antiga chegava depois da atual, piscando um aviso
   /// sobre um e-mail que ja nao era o do campo.
   void _aoDigitarEmail(String _) {
@@ -165,7 +165,7 @@ class _NovoAlunoWidgetState extends State<NovoAlunoWidget> {
   /// O que o app ja sabe sobre este e-mail.
   ///
   /// Fica sob o campo, no amarelo de atencao: nao impede o convite, so conta
-  /// que a pessoa ja existe — e se ela ja treina com outro personal, isso
+  /// que a pessoa ja existe: e se ela ja treina com outro personal, isso
   /// muda o que voce vai dizer a ela.
   Widget _avisoDeCadastro(BuildContext context) {
     final cadastro = FFAppState().existeCadastro;

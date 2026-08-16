@@ -332,9 +332,8 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
     // Volume: peso vezes repetições. É o que separa progresso de estagnação
     // quando a carga não muda — sair de 3x10 para 3x12 com os mesmos 20 kg
     // aparecia como linha reta, porque a barra só media o peso.
-    final volumes = slots
-        .map((sl) => (sl['peso'] as double) * (sl['qtd'] as int))
-        .toList();
+    final volumes =
+        slots.map((sl) => (sl['peso'] as double) * (sl['qtd'] as int)).toList();
     final maxVolume = volumes.fold(0.0, (prev, v) => v > prev ? v : prev);
     final maxVolumeSafe = maxVolume > 0 ? maxVolume : 1.0;
     final ratiosVolume =
@@ -636,8 +635,7 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
                                           .clamp(2.0, barAreaH),
                                       decoration: BoxDecoration(
                                         color: cor.withOpacity(0.10),
-                                        borderRadius:
-                                            BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
                                   ),
@@ -879,7 +877,8 @@ class _GraficoEvolucaoCargaState extends State<GraficoEvolucaoCarga>
 /// eixo leem como esforço mínimo, não como ausência de dado. Melhor dizer em
 /// palavras e explicar o que faz o dado aparecer.
 class _Vazio extends StatelessWidget {
-  const _Vazio({required this.cor, required this.titulo, required this.detalhe});
+  const _Vazio(
+      {required this.cor, required this.titulo, required this.detalhe});
 
   final Color cor;
   final String titulo;

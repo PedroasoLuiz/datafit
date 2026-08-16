@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 /// Uma linha da lista de atalhos: quadrado colorido, titulo e apoio.
 ///
 /// Vive no kit porque o mesmo desenho serve a tela do aluno e a ficha que o
-/// personal abre: sao os mesmos tres assuntos — o treino, quem o escreveu e
-/// ate quando ele vale — vistos dos dois lados do vinculo.
+/// personal abre: sao os mesmos tres assuntos: o treino, quem o escreveu e
+/// ate quando ele vale: vistos dos dois lados do vinculo.
 class AtalhoCartao extends StatelessWidget {
   const AtalhoCartao({
     super.key,

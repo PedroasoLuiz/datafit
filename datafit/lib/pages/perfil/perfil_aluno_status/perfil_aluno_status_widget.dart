@@ -48,9 +48,9 @@ class _PerfilAlunoStatusWidgetState extends State<PerfilAlunoStatusWidget> {
   /// Liga e desliga o vínculo com este aluno.
   ///
   /// A RPC do banco é um toggle: ela lê o estado gravado e inverte. Por isso o
-  /// que a tela manda não é o valor novo, e sim "inverta" — e depois relê o
-  /// perfil para o botão passar a refletir o que ficou gravado, e não o que
-  /// se supunha que ficaria.
+  /// que a tela manda não é o valor novo, e sim "inverta". Depois ela relê o
+  /// perfil, para o botão refletir o que ficou gravado e não o que se supunha
+  /// que ficaria.
   Future<void> _trocarStatus(bool novo) async {
     if (_trocando) return;
     safeSetState(() {

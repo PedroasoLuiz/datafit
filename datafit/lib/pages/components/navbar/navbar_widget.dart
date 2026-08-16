@@ -27,7 +27,7 @@ import 'navbar_model.dart';
 export 'navbar_model.dart';
 
 /// Uma aba da barra. `indice` é o mesmo número que as páginas passam em
-/// `NavbarWidget(index: ...)` — por isso os valores não são sequenciais.
+/// `NavbarWidget(index: ...)`: por isso os valores não são sequenciais.
 class _Aba {
   const _Aba({
     required this.indice,
@@ -143,7 +143,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
           rota: MetricasWidget.routeName,
           // `leaderboard_outlined`, e não `bar_chart_outlined`: este último
           // é um dos ícones do Material que não tem variante vazada de
-          // verdade — o "_outlined" desenha exatamente o mesmo glifo cheio.
+          // verdade: o "_outlined" desenha exatamente o mesmo glifo cheio.
           // As barras aqui são de contorno como as dos vizinhos, senão a aba
           // parece selecionada o tempo todo.
           icone: Icons.leaderboard_outlined,
@@ -268,7 +268,7 @@ class _NavbarWidgetState extends State<NavbarWidget>
 /// Um item da barra.
 ///
 /// Selecionado: pílula azul com ícone e rótulo lado a lado.
-/// Não selecionado: só o ícone, sem fundo — é o que faz a aba ativa saltar.
+/// Não selecionado: só o ícone, sem fundo: é o que faz a aba ativa saltar.
 class _ItemNavbar extends StatelessWidget {
   const _ItemNavbar({
     required this.aba,
@@ -316,7 +316,7 @@ class _ItemNavbar extends StatelessWidget {
               color: selecionada ? Colors.white : tema.secondaryText,
               size: 20.0,
             ),
-            // O rótulo só existe na aba ativa — mostrar os quatro encheria a
+            // O rótulo só existe na aba ativa: mostrar os quatro encheria a
             // barra e tiraria o contraste que faz a pílula funcionar.
             //
             // O `AnimatedSize` é o que faz a troca parecer contínua: antes o

@@ -391,5 +391,6 @@ Ao adicionar tabelas com volume esperado alto, criar índices em:
 | `get_treino_ativo_aluno` | A virada de ciclo copia `DataValidade` como está. Ciclo 1 é o plano; ciclos > 1 são repetições |
 | `get_perfil_aluno_pelo_personal` | `subagrupamentos` usa `DISTINCT ON (Treinos.Id)` ordenado por `CicloNumero DESC`: o mesmo treino existe no plano e no ciclo corrente, e ambos `pendente` duplicavam o card |
 | `toggle_status_aluno` | Lê `Ativo` e inverte. Funciona (testado com rollback); o bug de "não bloqueia" era do app |
-| `atribuir_grupo_treino_aluno` | Responde `sucesso: true` com `treinosCriados: 0` em alguns casos — o app checa os dois |
+| `atribuir_grupo_treino_aluno` | Responde `sucesso: true` com `treinosCriados: 0` em alguns casos, o app checa os dois |
+| `get_perimetros_aluno(p_aluno_uuid)` | **Nova em 16/08/2026.** Um item por tipo de perímetro com valor atual, primeiro valor, variação e nº de medições. Lê `PerimetrosCorporais` + `TiposPerimetro`. Empate de data desempata pelo `Id` maior |
 

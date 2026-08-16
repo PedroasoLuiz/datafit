@@ -114,7 +114,7 @@ class _SelecionarTreinoAlunoWidgetState
   /// Escolher o treino pede a validade antes de gravar.
   ///
   /// A data vem primeiro porque atribuir sem prazo cria um treino que nunca
-  /// vence — e ninguem volta aqui so para preencher o que ja parece pronto.
+  /// vence: e ninguem volta aqui so para preencher o que ja parece pronto.
   Future<void> _selecionar(GrupostreinosStruct treino) async {
     var sugerida = DateTime.now().add(const Duration(days: 30));
     final atual = widget.dataValidadeAtual;

@@ -206,10 +206,21 @@ Baralho de cartas para os blocos do treino, atalhos abaixo, aba Desenvolvimento
 com sub-chips (Métricas/Cargas/Corpo), Metas em aba própria, e a lista de
 pagamentos no mesmo desenho da ficha que o aluno vê do personal.
 
-### ❌ `codconfimacao`
-O botão de confirmar só faz `print('btConfirm pressed ...')` e **nenhuma tela
-do app o abre**. Precisa ser implementado ou apagado — não foi para o kit
-porque maquiar algo que não funciona nem é chamado não resolve nada.
+### 🗑️ `codconfimacao` — apagado
+Tela de código de 5 dígitos por e-mail, resto do scaffold inicial do
+FlutterFlow. Nasceu no commit inicial, nunca foi referenciada por nada, e o
+app usa o link de confirmação do Supabase em vez de código. Removida em
+16/08/2026.
+
+### ✅ Perímetros corporais na aba Corpo
+`PerimetrosCorporais` era gravada pela edição de perfil e **nenhuma tela lia**.
+A RPC `get_perimetros_aluno` fechou a lacuna: a aba Corpo da ficha do aluno
+mostra a última medida de cada perímetro, a data e a variação desde a primeira.
+
+- A variação vem calculada do banco, não do app
+- Só aparece com duas medições ou mais (com uma só seria sempre "0,0")
+- Busca sob demanda com o `CacheCurto`: quem abre a ficha para ver o treino
+  nunca dispara a chamada
 
 ---
 

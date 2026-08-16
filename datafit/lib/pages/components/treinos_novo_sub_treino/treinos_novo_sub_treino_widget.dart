@@ -61,7 +61,7 @@ class _TreinosNovoSubTreinoWidgetState
           .update({'Descricao': nome}).eq('Id', widget.treinoId!);
     } else {
       // `Ativo` e `IsDeleted` explicitos: sem eles a linha nascia com null, e
-      // a atribuicao ao aluno filtrava por `Ativo = true` — que em SQL nao
+      // a atribuicao ao aluno filtrava por `Ativo = true`, que em SQL nao
       // casa com null. O treino era criado, aparecia na tela do personal e
       // nunca chegava a aluno nenhum. A coluna ganhou default no banco, e
       // aqui fica escrito para quem ler o insert saber o que a linha precisa.
@@ -84,7 +84,7 @@ class _TreinosNovoSubTreinoWidgetState
       filhos: [
         CabecaFolha(
           titulo: _ehEdicao ? 'Editar treino' : 'Novo treino',
-          apoio: 'Cada treino é um dia do ciclo — A, B, C.',
+          apoio: 'Cada treino é um dia do ciclo: A, B, C.',
           icone: FFIcons.kproperty1FiRrGym,
         ),
         CampoFolha(
