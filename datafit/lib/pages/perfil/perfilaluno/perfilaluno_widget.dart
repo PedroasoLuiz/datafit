@@ -2294,84 +2294,84 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
             ),
             // A barra por cima da rolagem, sem fundo: a capa passa por
             // baixo dela e some ao subir, como qualquer conteudo.
-            SafeArea(
-              bottom: false,
-              child: Container(
-                decoration: BoxDecoration(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          16.0, 16.0, 16.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              FFAppState().alunotemp = PerfilAlunoStruct();
-                              safeSetState(() {});
-                              context.safePop();
-                            },
-                            // O voltar do kit: circulo branco com
-                            // sombra, como nas demais fichas.
-                            child: Container(
-                              width: 36.0,
-                              height: 36.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .primaryBackground,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  FlutterFlowTheme.of(context)
-                                      .designToken
-                                      .shadow
-                                      .sm
-                                ],
-                              ),
-                              child: Align(
-                                alignment: AlignmentDirectional(0.0, 0.0),
-                                child: Icon(
-                                  FFIcons.kproperty1FiRrArrowSmallLeft,
+            // `Positioned` com as tres bordas, e `mainAxisSize.min` na coluna.
+            //
+            // Como filho solto do Stack, esta camada recebia restricoes
+            // frouxas e a Column em `max` esticava ate o rodape: a barra
+            // ocupava a tela inteira, transparente, e engolia todos os toques.
+            // Dava a impressao de app travado — a tela aparecia e nada
+            // respondia.
+            Positioned(
+              top: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: SafeArea(
+                bottom: false,
+                child: Container(
+                  decoration: BoxDecoration(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            16.0, 16.0, 16.0, 16.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                FFAppState().alunotemp = PerfilAlunoStruct();
+                                safeSetState(() {});
+                                context.safePop();
+                              },
+                              // O voltar do kit: circulo branco com
+                              // sombra, como nas demais fichas.
+                              child: Container(
+                                width: 36.0,
+                                height: 36.0,
+                                decoration: BoxDecoration(
                                   color: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  size: 20.0,
+                                      .primaryBackground,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    FlutterFlowTheme.of(context)
+                                        .designToken
+                                        .shadow
+                                        .sm
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: AlignmentDirectional(0.0, 0.0),
+                                  child: Icon(
+                                    FFIcons.kproperty1FiRrArrowSmallLeft,
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    size: 20.0,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          // Sem o nick aqui: ele ja aparece sob
-                          // o nome, na capa. Repetido no topo,
-                          // ele dizia duas vezes a mesma coisa e
-                          // ainda ocupava a barra que agora e
-                          // transparente.
-                          const Spacer(),
-                          Container(
-                            width: 36.0,
-                            height: 36.0,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Icon(
-                                FFIcons.kproperty1FiRrApple,
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                size: 18.0,
-                              ),
-                            ),
-                          ),
-                        ],
+                            // Sem o nick aqui: ele ja aparece sob
+                            // o nome, na capa. Repetido no topo,
+                            // ele dizia duas vezes a mesma coisa e
+                            // ainda ocupava a barra que agora e
+                            // transparente.
+                            const Spacer(),
+                            // O icone da Apple saiu: ele era um espacador
+                            // invisivel, pintado da cor do fundo para equilibrar
+                            // o titulo centralizado. Sem titulo e com a barra
+                            // sobre a capa azul, ele deixou de ser invisivel e
+                            // virou uma maca no canto.
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
