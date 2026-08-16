@@ -88,17 +88,19 @@ class ReelsVideoGrid extends StatelessWidget {
         .toList()
       ..sort((a, b) => b.execucaoId.compareTo(a.execucaoId));
 
-
     if (comVideo.isEmpty) return const SizedBox.shrink();
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
+      // O recuo em volta e o mesmo vao que separa os videos entre si: assim a
+      // primeira coluna fica do lado da tela a mesma distancia que fica da
+      // segunda, e a grade se le como um bloco em vez de tres colunas soltas.
+      padding: const EdgeInsets.all(3.0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
+        crossAxisSpacing: 3,
+        mainAxisSpacing: 3,
         childAspectRatio: 9 / 16,
       ),
       itemCount: comVideo.length,
@@ -123,6 +125,13 @@ class ReelsVideoGrid extends StatelessWidget {
             url,
             comVideo.map((e) => e.linkInstrucao).toList(),
           ),
+          // Superelipse, e nao raio simples: e a curva contínua que a Apple
+          // usa nos ícones. O canto arredondado comum tem uma quebra onde a
+          // reta vira curva; a superelipse entra na curva aos poucos, e é isso
+          // que faz o canto parecer moldado em vez de recortado.
+          // Canto reto. Arredondado, a miniatura de 9:16 ficava com as pontas
+          // comidas justamente onde costuma estar o corpo de quem executa o
+          // exercicio — o recorte tirava conteudo, nao so forma.
           child: Stack(
             fit: StackFit.expand,
             children: [

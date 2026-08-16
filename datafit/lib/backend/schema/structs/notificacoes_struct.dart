@@ -15,6 +15,7 @@ class NotificacoesStruct extends BaseStruct {
     String? criadoEm,
     String? remetente,
     String? remetenteId,
+    String? remetenteFoto,
     int? referenciaId,
   })  : _id = id,
         _titulo = titulo,
@@ -24,6 +25,7 @@ class NotificacoesStruct extends BaseStruct {
         _criadoEm = criadoEm,
         _remetente = remetente,
         _remetenteId = remetenteId,
+        _remetenteFoto = remetenteFoto,
         _referenciaId = referenciaId;
 
   // "id" field.
@@ -84,6 +86,13 @@ class NotificacoesStruct extends BaseStruct {
 
   bool hasRemetenteId() => _remetenteId != null;
 
+  // "remetenteFoto" field.
+  String? _remetenteFoto;
+  String get remetenteFoto => _remetenteFoto ?? '';
+  set remetenteFoto(String? val) => _remetenteFoto = val;
+
+  bool hasRemetenteFoto() => _remetenteFoto != null;
+
   // "referenciaId" field.
   int? _referenciaId;
   int get referenciaId => _referenciaId ?? 0;
@@ -101,6 +110,7 @@ class NotificacoesStruct extends BaseStruct {
         criadoEm: data['criadoEm'] as String?,
         remetente: data['remetente'] as String?,
         remetenteId: data['remetenteId'] as String?,
+        remetenteFoto: data['remetenteFoto'] as String?,
         referenciaId: castToType<int>(data['referenciaId']),
       );
 
@@ -117,6 +127,7 @@ class NotificacoesStruct extends BaseStruct {
         'criadoEm': _criadoEm,
         'remetente': _remetente,
         'remetenteId': _remetenteId,
+        'remetenteFoto': _remetenteFoto,
         'referenciaId': _referenciaId,
       }.withoutNulls;
 
@@ -152,6 +163,10 @@ class NotificacoesStruct extends BaseStruct {
         ),
         'remetenteId': serializeParam(
           _remetenteId,
+          ParamType.String,
+        ),
+        'remetenteFoto': serializeParam(
+          _remetenteFoto,
           ParamType.String,
         ),
         'referenciaId': serializeParam(
@@ -202,6 +217,11 @@ class NotificacoesStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        remetenteFoto: deserializeParam(
+          data['remetenteFoto'],
+          ParamType.String,
+          false,
+        ),
         referenciaId: deserializeParam(
           data['referenciaId'],
           ParamType.int,
@@ -223,6 +243,7 @@ class NotificacoesStruct extends BaseStruct {
         criadoEm == other.criadoEm &&
         remetente == other.remetente &&
         remetenteId == other.remetenteId &&
+        remetenteFoto == other.remetenteFoto &&
         referenciaId == other.referenciaId;
   }
 
@@ -236,6 +257,7 @@ class NotificacoesStruct extends BaseStruct {
         criadoEm,
         remetente,
         remetenteId,
+        remetenteFoto,
         referenciaId
       ]);
 }

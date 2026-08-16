@@ -163,30 +163,6 @@ class _TreinosPersonalDetalheWidgetState
     }
   }
 
-  /// Qual exercicio abre o treino: o de menor `Ordem` entre todos os grupos.
-  ///
-  /// Nulo quando o treino esta vazio.
-  int? get _etIdInicial {
-    ExercicioDetalhePersonal? primeiro;
-    for (final grupo in _model.grupos) {
-      for (final ex in grupo.exercicios) {
-        if (primeiro == null || ex.ordem < primeiro.ordem) primeiro = ex;
-      }
-    }
-    return primeiro?.etId;
-  }
-
-  /// Qual exercicio fecha o treino: o de maior `Ordem` entre todos os grupos.
-  int? get _etIdFinal {
-    ExercicioDetalhePersonal? ultimo;
-    for (final grupo in _model.grupos) {
-      for (final ex in grupo.exercicios) {
-        if (ultimo == null || ex.ordem > ultimo.ordem) ultimo = ex;
-      }
-    }
-    return ultimo?.etId;
-  }
-
   /// Posicao de execucao de cada exercicio, de 1 em diante.
   ///
   /// Os cartoes ficam agrupados por grupo muscular, que e como o personal
@@ -202,52 +178,18 @@ class _TreinosPersonalDetalheWidgetState
     };
   }
 
-  /// Quantos exercicios o treino tem, somando os grupos.
+  /// Move o exercício uma posição dentro do próprio grupo.
   ///
-  /// Com um só, mover para o inicio ou para o fim nao muda nada — e um botao
-  /// que promete uma acao e nao faz nenhuma.
-  int get _totalExercicios => _model.grupos
-      .fold<int>(0, (soma, g) => soma + g.exercicios.length);
-
-  /// Faz este exercicio ser o primeiro do treino.
-  ///
-  /// A tela do aluno ja usava `Ordem` para apontar o proximo a fazer; o que
-  /// faltava era o personal poder dizer por onde o treino comeca sem ter que
-  /// apagar e recadastrar os exercicios na ordem desejada.
-  Future<void> _definirComoInicial(ExercicioDetalhePersonal ex) async {
+  /// Trocou `definir_exercicio_inicial` e `definir_exercicio_final`, que
+  /// jogavam para o extremo do treino inteiro. Com os rótulos "Subir" e
+  /// "Descer" aquilo virava mentira: num grupo de três, subir pulava o do meio
+  /// — e ia para o topo do treino, atravessando os outros grupos.
+  Future<void> _mover(ExercicioDetalhePersonal ex, String direcao) async {
     try {
-      await SupaFlow.client.rpc('definir_exercicio_inicial', params: {
+      await SupaFlow.client.rpc('mover_exercicio_no_grupo', params: {
         'p_treino_id': widget.treinoId,
         'p_et_id': ex.etId,
-      });
-      if (!mounted) return;
-      await _carregarExercicios();
-    } catch (_) {
-      if (!mounted) return;
-      await showModalBottomSheet<void>(
-        useRootNavigator: true,
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => WebViewAware(
-          child: MensagemWidget(
-            texto: 'Não consegui mudar a ordem agora. Tente de novo.',
-            tipo: '2',
-            fechasozinho: true,
-            mostrabotoes: false,
-            action: () async {},
-          ),
-        ),
-      );
-    }
-  }
-
-  /// Manda este exercicio para o fim do treino.
-  Future<void> _definirComoFinal(ExercicioDetalhePersonal ex) async {
-    try {
-      await SupaFlow.client.rpc('definir_exercicio_final', params: {
-        'p_treino_id': widget.treinoId,
-        'p_et_id': ex.etId,
+        'p_direcao': direcao,
       });
       if (!mounted) return;
       await _carregarExercicios();
@@ -345,12 +287,17 @@ class _TreinosPersonalDetalheWidgetState
                         height: 36.0,
                         decoration: BoxDecoration(
                           color: FlutterFlowTheme.of(context).primaryBackground,
-                          borderRadius: BorderRadius.circular(12.0),
+                          // Circular com sombra, como o voltar
+                          // das fichas de perfil.
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            FlutterFlowTheme.of(context).designToken.shadow.sm
+                          ],
                         ),
                         child: Align(
                           alignment: const AlignmentDirectional(0.0, 0.0),
                           child: Icon(
-                            Icons.navigate_before_rounded,
+                            FFIcons.kproperty1FiRrArrowSmallLeft,
                             color: FlutterFlowTheme.of(context).primaryText,
                             size: 20.0,
                           ),
@@ -422,14 +369,14 @@ class _TreinosPersonalDetalheWidgetState
                         width: 36.0,
                         height: 36.0,
                         decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).accent1,
-                          borderRadius: BorderRadius.circular(12.0),
+                          color: FlutterFlowTheme.of(context).primary,
+                          shape: BoxShape.circle,
                         ),
                         child: Align(
                           alignment: const AlignmentDirectional(0.0, 0.0),
                           child: Icon(
                             Icons.add_sharp,
-                            color: FlutterFlowTheme.of(context).primary,
+                            color: Colors.white,
                             size: 20.0,
                           ),
                         ),
@@ -487,7 +434,10 @@ class _TreinosPersonalDetalheWidgetState
                     fontStyle:
                         FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                   ),
-                  color: FlutterFlowTheme.of(context).primary,
+                  // Preto: azul e a cor de acao, e o nome do grupo nao e
+                  // clicavel — pintado de azul ele convidava a um toque que
+                  // nao existe.
+                  color: FlutterFlowTheme.of(context).primaryText,
                   fontSize: 13.0,
                   letterSpacing: 0.0,
                   fontWeight: FontWeight.w600,
@@ -510,17 +460,21 @@ class _TreinosPersonalDetalheWidgetState
                       key: ValueKey(e.value.etId),
                       ex: e.value,
                       isLast: e.key == grupo.exercicios.length - 1,
-                      // Os cartoes sao agrupados por subcategoria, entao a
-                      // posicao dentro do grupo nao diz quem abre o treino:
-                      // isso e a menor Ordem entre todos.
                       posicao: _posicoes[e.value.etId] ?? 0,
-                      isInicial: e.value.etId == _etIdInicial,
-                      isFinal: e.value.etId == _etIdFinal,
-                      // Com um exercicio so nao ha ordem para mudar.
-                      podeReordenar: _totalExercicios > 1,
+                      // Primeiro e ultimo **do grupo**, nao do treino inteiro.
+                      //
+                      // A ordem que o personal enxerga e a de dentro do
+                      // peitoral, do triceps, de cada bloco — e era por isso
+                      // que "mover para o inicio" aparecia num exercicio que
+                      // ja era o primeiro da lista dele: ele nao era o
+                      // primeiro do treino todo.
+                      isInicial: e.key == 0,
+                      isFinal: e.key == grupo.exercicios.length - 1,
+                      // Com um exercicio so no grupo nao ha ordem para mudar.
+                      podeReordenar: grupo.exercicios.length > 1,
                       onEdit: () => _abrirEditarExercicio(e.value),
-                      onDefinirInicial: () => _definirComoInicial(e.value),
-                      onDefinirFinal: () => _definirComoFinal(e.value),
+                      onDefinirInicial: () => _mover(e.value, 'cima'),
+                      onDefinirFinal: () => _mover(e.value, 'baixo'),
                       onDelete: () => _confirmarExcluirExercicio(
                           e.value.etId, e.value.nome),
                     ))
@@ -694,7 +648,7 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                               ),
                               const SizedBox(height: 4.0),
                               Text(
-                                'Início',
+                                'Subir',
                                 style: theme.bodyMedium.override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,
@@ -730,7 +684,7 @@ class _SwipeableExercicioRowState extends State<_SwipeableExercicioRow> {
                               ),
                               const SizedBox(height: 4.0),
                               Text(
-                                'Fim',
+                                'Descer',
                                 style: theme.bodyMedium.override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w500,

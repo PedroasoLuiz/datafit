@@ -97,7 +97,8 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
   /// confirmado em vez do meio da tela.
   final Map<int, GlobalKey> _chavesCartao = {};
 
-  GlobalKey _chaveDo(int id) => _chavesCartao.putIfAbsent(id, () => GlobalKey());
+  GlobalKey _chaveDo(int id) =>
+      _chavesCartao.putIfAbsent(id, () => GlobalKey());
 
   Offset? _centroDoCartao(int id) {
     final caixa =
@@ -112,8 +113,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
       descricao: pgto.descricao.isNotEmpty ? pgto.descricao : 'mensalidade',
       valor: _moeda(pgto.valor),
       nomeAluno: pgto.nome,
-      formaInformada:
-          pgto.tipoPagamento.isNotEmpty ? pgto.tipoPagamento : null,
+      formaInformada: pgto.tipoPagamento.isNotEmpty ? pgto.tipoPagamento : null,
     );
     if (forma == null || !mounted) return;
 
@@ -128,8 +128,8 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
     // em `sucesso`. Olhar so `succeeded` fazia a recusa passar por sucesso: a
     // lista recarregava, nada mudava e nenhum aviso aparecia.
     final corpo = resposta.jsonBody;
-    final confirmou = resposta.succeeded &&
-        getJsonField(corpo, r'$.sucesso') == true;
+    final confirmou =
+        resposta.succeeded && getJsonField(corpo, r'$.sucesso') == true;
 
     if (confirmou) {
       // Mesma comemoracao do fim do exercicio, no verde de sucesso: confirmar
@@ -400,7 +400,7 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
                                                 child: Text(
-                                                  'Histórico de pagamento',
+                                                  'Meus pagamentos',
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .bodyMedium
@@ -483,30 +483,26 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                             child: Container(
                                               width: 36.0,
                                               height: 36.0,
-                                              // Branco com sombra, como os
-                                              // demais botoes de icone do kit.
+                                              // Circular, como todos os
+                                              // botoes de icone do app agora.
                                               decoration: BoxDecoration(
                                                 color:
                                                     FlutterFlowTheme.of(context)
-                                                        .primaryBackground,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
+                                                        .primary,
                                                 boxShadow: [
                                                   FlutterFlowTheme.of(context)
                                                       .designToken
                                                       .shadow
                                                       .sm
                                                 ],
-                                                shape: BoxShape.rectangle,
+                                                shape: BoxShape.circle,
                                               ),
                                               child: Align(
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
                                                 child: Icon(
                                                   Icons.add_rounded,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
+                                                  color: Colors.white,
                                                   size: 18.0,
                                                 ),
                                               ),
@@ -681,12 +677,12 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                       List.generate(pgtos.length, (pgtosIndex) {
                                     final pgtosItem = pgtos[pgtosIndex];
                                     return _CardPagamentoDeslizavel(
-                                      aoEditar: () => _editarPagamento(
-                                          pgtosItem),
-                                      aoBloquear: () => _bloquearAcesso(
-                                          pgtosItem),
-                                      aoExcluir: () => _excluirPagamento(
-                                          pgtosItem),
+                                      aoEditar: () =>
+                                          _editarPagamento(pgtosItem),
+                                      aoBloquear: () =>
+                                          _bloquearAcesso(pgtosItem),
+                                      aoExcluir: () =>
+                                          _excluirPagamento(pgtosItem),
                                       // GestureDetector opaco, e nao InkWell:
                                       // dentro do cartao deslizavel o toque
                                       // precisava atravessar a Stack e o
@@ -696,217 +692,196 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                       // responder. Opaco, o alvo e a linha
                                       // inteira, inclusive os vaos entre os
                                       // textos.
+                                      // Sem toque na linha: o swipe e o unico
+                                      // caminho para editar.
+                                      //
+                                      // Havia os dois — tocar abria a folha de
+                                      // edicao e arrastar revelava as acoes —,
+                                      // e um cartao que responde a dois gestos
+                                      // diferentes para coisas diferentes faz a
+                                      // pessoa descobrir por acidente qual ela
+                                      // acionou.
                                       child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () async {
-                                        await showModalBottomSheet(
-                                          useRootNavigator: true,
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          enableDrag: false,
-                                          context: context,
-                                          builder: (context) {
-                                            return WebViewAware(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                  FocusManager
-                                                      .instance.primaryFocus
-                                                      ?.unfocus();
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      MediaQuery.viewInsetsOf(
-                                                          context),
-                                                  child:
-                                                      NotificacaoalunosWidget(
-                                                    pgtos: pgtosItem,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ).then((value) => safeSetState(
-                                            () => _model.sim = value));
-
-                                        // Sem `!`: fechada pelo arraste, a
-                                        // folha devolve null e o bang
-                                        // estourava dentro do proprio toque.
-                                        if (_model.sim == true) {
-                                          await action_blocks.pagamentos(
-                                            context,
-                                            uuidpersonal: currentUserUid,
-                                          );
-                                          safeSetState(() {});
-                                        }
-
-                                        safeSetState(() {});
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
-                                                                        context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
+                                        behavior: HitTestBehavior.opaque,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      valueOrDefault<double>(
+                                                        () {
+                                                          if (MediaQuery.sizeOf(
+                                                                      context)
+                                                                  .width <
+                                                              kBreakpointSmall) {
+                                                            return 16.0;
+                                                          } else if (MediaQuery
+                                                                      .sizeOf(
+                                                                          context)
+                                                                  .width <
+                                                              kBreakpointMedium) {
+                                                            return 16.0;
+                                                          } else if (MediaQuery
+                                                                      .sizeOf(
+                                                                          context)
+                                                                  .width <
+                                                              kBreakpointLarge) {
+                                                            return 32.0;
+                                                          } else {
+                                                            return 32.0;
+                                                          }
+                                                        }(),
+                                                        0.0,
+                                                      ),
+                                                      // 16 em cima e embaixo:
+                                                      // sem vao entre as linhas,
+                                                      // e o padding que separa
+                                                      // uma cobranca da outra.
+                                                      16.0,
+                                                      valueOrDefault<double>(
+                                                        () {
+                                                          if (MediaQuery.sizeOf(
+                                                                      context)
+                                                                  .width <
+                                                              kBreakpointSmall) {
+                                                            return 16.0;
+                                                          } else if (MediaQuery
+                                                                      .sizeOf(
+                                                                          context)
+                                                                  .width <
+                                                              kBreakpointMedium) {
+                                                            return 16.0;
+                                                          } else if (MediaQuery
+                                                                      .sizeOf(
+                                                                          context)
+                                                                  .width <
+                                                              kBreakpointLarge) {
+                                                            return 32.0;
+                                                          } else {
+                                                            return 32.0;
+                                                          }
+                                                        }(),
+                                                        0.0,
+                                                      ),
+                                                      16.0),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Container(
+                                                    width: 46.0,
+                                                    height: 46.0,
+                                                    decoration: BoxDecoration(
+                                                      color: () {
+                                                        if (pgtosItem.status ==
+                                                            'atrasado') {
+                                                          return FlutterFlowTheme
+                                                                  .of(context)
+                                                              .accent3;
+                                                        } else if (pgtosItem
+                                                                .status ==
+                                                            'pago') {
+                                                          return Color(
+                                                              0x38009663);
                                                         } else {
-                                                          return 32.0;
+                                                          return FlutterFlowTheme
+                                                                  .of(context)
+                                                              .alternate;
                                                         }
                                                       }(),
-                                                      0.0,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              100.0),
                                                     ),
-                                                    // 16 em cima e embaixo:
-                                                    // sem vao entre as linhas,
-                                                    // e o padding que separa
-                                                    // uma cobranca da outra.
-                                                    16.0,
-                                                    valueOrDefault<double>(
-                                                      () {
-                                                        if (MediaQuery.sizeOf(
-                                                                    context)
-                                                                .width <
-                                                            kBreakpointSmall) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
+                                                    child: Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              0.0, 0.0),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          if (pgtosItem
+                                                                  .status ==
+                                                              'atrasado')
+                                                            Align(
+                                                              alignment:
+                                                                  AlignmentDirectional(
+                                                                      0.0, 0.0),
+                                                              child: Icon(
+                                                                FFIcons
+                                                                    .kproperty1FiRrShieldExclamation,
+                                                                color: FlutterFlowTheme.of(
                                                                         context)
-                                                                .width <
-                                                            kBreakpointMedium) {
-                                                          return 16.0;
-                                                        } else if (MediaQuery
-                                                                    .sizeOf(
+                                                                    .warning,
+                                                                size: 18.0,
+                                                              ),
+                                                            ),
+                                                          if (pgtosItem
+                                                                  .status ==
+                                                              'pago')
+                                                            Align(
+                                                              alignment:
+                                                                  AlignmentDirectional(
+                                                                      0.0, 0.0),
+                                                              child: Icon(
+                                                                Icons
+                                                                    .check_rounded,
+                                                                color: FlutterFlowTheme.of(
                                                                         context)
-                                                                .width <
-                                                            kBreakpointLarge) {
-                                                          return 32.0;
-                                                        } else {
-                                                          return 32.0;
-                                                        }
-                                                      }(),
-                                                      0.0,
-                                                    ),
-                                                    16.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Container(
-                                                  width: 46.0,
-                                                  height: 46.0,
-                                                  decoration: BoxDecoration(
-                                                    color: () {
-                                                      if (pgtosItem.status ==
-                                                          'atrasado') {
-                                                        return FlutterFlowTheme
-                                                                .of(context)
-                                                            .accent3;
-                                                      } else if (pgtosItem
-                                                              .status ==
-                                                          'pago') {
-                                                        return Color(
-                                                            0x38009663);
-                                                      } else {
-                                                        return FlutterFlowTheme
-                                                                .of(context)
-                                                            .alternate;
-                                                      }
-                                                    }(),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100.0),
-                                                  ),
-                                                  child: Align(
-                                                    alignment:
-                                                        AlignmentDirectional(
-                                                            0.0, 0.0),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        if (pgtosItem.status ==
-                                                            'atrasado')
-                                                          Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Icon(
-                                                              FFIcons
-                                                                  .kproperty1FiRrShieldExclamation,
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .warning,
-                                                              size: 18.0,
+                                                                    .success,
+                                                                size: 18.0,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        if (pgtosItem.status ==
-                                                            'pago')
-                                                          Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Icon(
-                                                              Icons
-                                                                  .check_rounded,
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .success,
-                                                              size: 18.0,
+                                                          if (pgtosItem
+                                                                  .status ==
+                                                              'pendente')
+                                                            Align(
+                                                              alignment:
+                                                                  AlignmentDirectional(
+                                                                      0.0, 0.0),
+                                                              child: Icon(
+                                                                FFIcons
+                                                                    .kproperty1FiRrClock,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryText,
+                                                                size: 18.0,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        if (pgtosItem.status ==
-                                                            'pendente')
-                                                          Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Icon(
-                                                              FFIcons
-                                                                  .kproperty1FiRrClock,
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              size: 18.0,
-                                                            ),
-                                                          ),
-                                                      ],
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      pgtosItem.nome,
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts
-                                                                .inter(
+                                                  Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        pgtosItem.nome,
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              font: GoogleFonts
+                                                                  .inter(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                              ),
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.0,
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
@@ -916,27 +891,33 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                       .bodyMedium
                                                                       .fontStyle,
                                                             ),
-                                                            fontSize: 14.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                    ),
-                                                    Text(
-                                                      pgtosItem.tipoPagamento,
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
+                                                      ),
+                                                      Text(
+                                                        pgtosItem.tipoPagamento,
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  font:
+                                                                      GoogleFonts
+                                                                          .inter(
+                                                                    fontWeight: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontWeight,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .secondaryText,
+                                                                  fontSize:
+                                                                      12.0,
+                                                                  letterSpacing:
+                                                                      0.0,
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -946,52 +927,50 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                       .bodyMedium
                                                                       .fontStyle,
                                                                 ),
-                                                                color: FlutterFlowTheme.of(
+                                                      ),
+                                                    ].divide(
+                                                        SizedBox(height: 4.0)),
+                                                  ),
+                                                  Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.0, 0.0),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          RichText(
+                                                            textScaler:
+                                                                MediaQuery.of(
                                                                         context)
-                                                                    .secondaryText,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                    ),
-                                                  ].divide(
-                                                      SizedBox(height: 4.0)),
-                                                ),
-                                                Expanded(
-                                                  child: Align(
-                                                    alignment:
-                                                        AlignmentDirectional(
-                                                            1.0, 0.0),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        RichText(
-                                                          textScaler:
-                                                              MediaQuery.of(
-                                                                      context)
-                                                                  .textScaler,
-                                                          text: TextSpan(
-                                                            children: [
-                                                              TextSpan(
-                                                                text: 'R\$ ',
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
+                                                                    .textScaler,
+                                                            text: TextSpan(
+                                                              children: [
+                                                                TextSpan(
+                                                                  text: 'R\$ ',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontWeight,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .primaryText,
+                                                                        fontSize:
+                                                                            12.0,
+                                                                        letterSpacing:
+                                                                            0.0,
                                                                         fontWeight: FlutterFlowTheme.of(context)
                                                                             .bodyMedium
                                                                             .fontWeight,
@@ -999,13 +978,32 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                             .bodyMedium
                                                                             .fontStyle,
                                                                       ),
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryText,
-                                                                      fontSize:
-                                                                          12.0,
-                                                                      letterSpacing:
-                                                                          0.0,
+                                                                ),
+                                                                TextSpan(
+                                                                  text: valueOrDefault<
+                                                                      String>(
+                                                                    _valorSemSimbolo(
+                                                                        pgtosItem
+                                                                            .valor),
+                                                                    '0',
+                                                                  ),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    font: GoogleFonts
+                                                                        .inter(
                                                                       fontWeight: FlutterFlowTheme.of(
                                                                               context)
                                                                           .bodyMedium
@@ -1015,27 +1013,37 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                           .bodyMedium
                                                                           .fontStyle,
                                                                     ),
-                                                              ),
-                                                              TextSpan(
-                                                                text:
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    fontWeight: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontWeight,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            valueOrDefault<
+                                                                String>(
+                                                              dateTimeFormat(
+                                                                "dd/MM/yyyy",
+                                                                functions.formataData(
                                                                     valueOrDefault<
                                                                         String>(
-                                                                  _valorSemSimbolo(
-                                                                      pgtosItem
-                                                                          .valor),
-                                                                  '0',
-                                                                ),
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              )
-                                                            ],
+                                                                  pgtosItem
+                                                                      .dataVencimento,
+                                                                  'x',
+                                                                )),
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ),
+                                                              'x',
+                                                            ),
                                                             style: FlutterFlowTheme
                                                                     .of(context)
                                                                 .bodyMedium
@@ -1052,6 +1060,11 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                         .bodyMedium
                                                                         .fontStyle,
                                                                   ),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .secondaryText,
+                                                                  fontSize:
+                                                                      12.0,
                                                                   letterSpacing:
                                                                       0.0,
                                                                   fontWeight: FlutterFlowTheme.of(
@@ -1064,89 +1077,57 @@ class _PagamentosWidgetState extends State<PagamentosWidget> {
                                                                       .fontStyle,
                                                                 ),
                                                           ),
-                                                        ),
-                                                        Text(
-                                                          valueOrDefault<
-                                                              String>(
-                                                            dateTimeFormat(
-                                                              "dd/MM/yyyy",
-                                                              functions.formataData(
-                                                                  valueOrDefault<
-                                                                      String>(
-                                                                pgtosItem
-                                                                    .dataVencimento,
-                                                                'x',
-                                                              )),
-                                                              locale: FFLocalizations
-                                                                      .of(context)
-                                                                  .languageCode,
-                                                            ),
-                                                            'x',
-                                                          ),
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryText,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ].divide(SizedBox(
-                                                          height: 4.0)),
+                                                        ].divide(SizedBox(
+                                                            height: 4.0)),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ].divide(SizedBox(width: 16.0)),
-                                            ),
-                                          ),
-                                          // O aluno informou que pagou e a
-                                          // cobranca espera o aceite. Ate aqui
-                                          // esse estado nao aparecia na lista:
-                                          // o personal recebia a notificacao e
-                                          // nao tinha onde confirmar.
-                                          if (pgtosItem.aguardandoConfirmacao)
-                                            Container(
-                                              key: _chaveDo(pgtosItem.id),
-                                              child: _FaixaConfirmar(
-                                                onConfirmar: () =>
-                                                    _confirmarRecebimento(
-                                                        pgtosItem),
+                                                ].divide(SizedBox(width: 16.0)),
                                               ),
                                             ),
-                                          Divider(
-                                            height: 1.0,
-                                            thickness: 1.0,
-                                            indent: 78.0,
-                                            endIndent: 16.0,
-                                            color: FlutterFlowTheme.of(context)
-                                                .alternate,
-                                          ),
-                                        ],
-                                      ),
+                                            // O aluno informou que pagou e a
+                                            // cobranca espera o aceite. Ate aqui
+                                            // esse estado nao aparecia na lista:
+                                            // o personal recebia a notificacao e
+                                            // nao tinha onde confirmar.
+                                            // Qualquer cobranca ainda nao paga,
+                                            // e nao so a que o aluno informou.
+                                            //
+                                            // A faixa estava presa a
+                                            // `aguardandoConfirmacao`: quem
+                                            // pagou em dinheiro na academia e
+                                            // nao abriu o app deixava a
+                                            // cobranca pendente para sempre —
+                                            // o personal recebeu, e nao tinha
+                                            // onde registrar.
+                                            if (pgtosItem.status != 'pago')
+                                              Container(
+                                                key: _chaveDo(pgtosItem.id),
+                                                child: _FaixaConfirmar(
+                                                  // O texto muda com a
+                                                  // origem: confirmar o que o
+                                                  // aluno informou nao e a
+                                                  // mesma coisa que registrar
+                                                  // um recebimento que so o
+                                                  // personal viu.
+                                                  informado: pgtosItem
+                                                      .aguardandoConfirmacao,
+                                                  onConfirmar: () =>
+                                                      _confirmarRecebimento(
+                                                          pgtosItem),
+                                                ),
+                                              ),
+                                            Divider(
+                                              height: 1.0,
+                                              thickness: 1.0,
+                                              indent: 78.0,
+                                              endIndent: 16.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   })
@@ -1204,7 +1185,13 @@ class _LinhaKpi {
 /// Fica dentro do proprio cartao, e nao numa tela separada, porque a decisao
 /// depende do que esta ali em cima: quem pagou, quanto e quando vencia.
 class _FaixaConfirmar extends StatelessWidget {
-  const _FaixaConfirmar({required this.onConfirmar});
+  const _FaixaConfirmar({
+    required this.onConfirmar,
+    this.informado = false,
+  });
+
+  /// O aluno avisou que pagou. Sem isso, a baixa parte do personal.
+  final bool informado;
 
   final VoidCallback onConfirmar;
 
@@ -1224,7 +1211,9 @@ class _FaixaConfirmar extends StatelessWidget {
           const SizedBox(width: 6.0),
           Expanded(
             child: Text(
-              'Aguardando sua confirmação',
+              informado
+                  ? 'Aguardando sua confirmação'
+                  : 'Recebeu por fora? Registre aqui',
               style: tema.bodyMedium.override(
                 font: GoogleFonts.inter(fontWeight: FontWeight.w500),
                 color: tema.secondaryText,
@@ -1239,14 +1228,14 @@ class _FaixaConfirmar extends StatelessWidget {
             highlightColor: Colors.transparent,
             onTap: onConfirmar,
             child: Container(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                  12.0, 7.0, 12.0, 7.0),
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(12.0, 7.0, 12.0, 7.0),
               decoration: BoxDecoration(
                 color: tema.primary,
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Text(
-                'Confirmar',
+                informado ? 'Confirmar' : 'Registrar',
                 style: tema.bodyMedium.override(
                   font: GoogleFonts.inter(fontWeight: FontWeight.w600),
                   color: tema.primaryBackground,
@@ -1364,7 +1353,6 @@ class _CardKpi extends StatelessWidget {
     );
   }
 }
-
 
 /// Card de cobranca com acoes de deslizar dos dois lados.
 ///

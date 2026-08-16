@@ -172,12 +172,17 @@ class _TreinosPersonalGrupoWidgetState
                         height: 36.0,
                         decoration: BoxDecoration(
                           color: FlutterFlowTheme.of(context).primaryBackground,
-                          borderRadius: BorderRadius.circular(12.0),
+                          // Circular com sombra, como o voltar
+                          // das fichas de perfil.
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            FlutterFlowTheme.of(context).designToken.shadow.sm
+                          ],
                         ),
                         child: Align(
                           alignment: const AlignmentDirectional(0.0, 0.0),
                           child: Icon(
-                            Icons.navigate_before_rounded,
+                            FFIcons.kproperty1FiRrArrowSmallLeft,
                             color: FlutterFlowTheme.of(context).primaryText,
                             size: 20.0,
                           ),
@@ -220,14 +225,14 @@ class _TreinosPersonalGrupoWidgetState
                         width: 36.0,
                         height: 36.0,
                         decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).accent1,
-                          borderRadius: BorderRadius.circular(12.0),
+                          color: FlutterFlowTheme.of(context).primary,
+                          shape: BoxShape.circle,
                         ),
                         child: Align(
                           alignment: const AlignmentDirectional(0.0, 0.0),
                           child: Icon(
                             Icons.add_sharp,
-                            color: FlutterFlowTheme.of(context).primary,
+                            color: Colors.white,
                             size: 20.0,
                           ),
                         ),

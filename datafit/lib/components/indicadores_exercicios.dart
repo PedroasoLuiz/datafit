@@ -36,8 +36,7 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
-    final comExercicios =
-        widget.categorias.where((c) => c.total > 0).toList();
+    final comExercicios = widget.categorias.where((c) => c.total > 0).toList();
 
     if (comExercicios.isEmpty) {
       return Padding(
@@ -63,8 +62,7 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
       );
     }
 
-    final total =
-        comExercicios.fold<int>(0, (soma, c) => soma + c.total);
+    final total = comExercicios.fold<int>(0, (soma, c) => soma + c.total);
 
     /// Quantos exercicios daquele grupo ja apareceram no periodo.
     int feitosDe(DsExerciciosStruct c) => c.subcategorias
@@ -72,8 +70,7 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
         .where((e) => e.totalConclusoes > 0)
         .length;
 
-    final feitos =
-        comExercicios.fold<int>(0, (soma, c) => soma + feitosDe(c));
+    final feitos = comExercicios.fold<int>(0, (soma, c) => soma + feitosDe(c));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +114,8 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
                         Text(
                           '$feitos',
                           style: tema.bodyMedium.override(
-                            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            font:
+                                GoogleFonts.inter(fontWeight: FontWeight.bold),
                             color: tema.primaryText,
                             fontSize: 26.0,
                             letterSpacing: -0.8,
@@ -131,7 +129,8 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: tema.bodyMedium.override(
-                              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w500),
                               color: tema.secondaryText,
                               fontSize: 12.0,
                               letterSpacing: 0.0,
@@ -169,8 +168,9 @@ class _IndicadoresExerciciosState extends State<IndicadoresExercicios> {
             // A barra mede o que foi FEITO dentro do grupo, e nao o tamanho
             // dele. Cheia quer dizer "passei por todos deste grupo". Antes ela
             // media o tamanho e parecia progresso — era isso que confundia.
-            proporcao:
-                categoria.total == 0 ? 0.0 : feitosDe(categoria) / categoria.total,
+            proporcao: categoria.total == 0
+                ? 0.0
+                : feitosDe(categoria) / categoria.total,
             aberta: _abertaId == categoria.categoriaId,
             aoTocar: () => setState(() {
               _abertaId = _abertaId == categoria.categoriaId
@@ -392,8 +392,7 @@ class _BlocoSubcategoria extends StatelessWidget {
                             ? 'feito 1×'
                             : 'feito ${ex.totalConclusoes}×',
                         style: tema.bodyMedium.override(
-                          font:
-                              GoogleFonts.inter(fontWeight: FontWeight.w600),
+                          font: GoogleFonts.inter(fontWeight: FontWeight.w600),
                           color: tema.success,
                           fontSize: 11.0,
                           letterSpacing: 0.0,

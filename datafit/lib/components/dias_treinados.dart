@@ -114,11 +114,27 @@ class _TelaDiasState extends State<_TelaDias>
   }
 
   static const _meses = [
-    'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
-    'jul', 'ago', 'set', 'out', 'nov', 'dez',
+    'jan',
+    'fev',
+    'mar',
+    'abr',
+    'mai',
+    'jun',
+    'jul',
+    'ago',
+    'set',
+    'out',
+    'nov',
+    'dez',
   ];
   static const _semana = [
-    'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo',
+    'segunda',
+    'terça',
+    'quarta',
+    'quinta',
+    'sexta',
+    'sábado',
+    'domingo',
   ];
 
   /// "hoje", "ontem" ou "qua, 13 de ago".
@@ -140,8 +156,7 @@ class _TelaDiasState extends State<_TelaDias>
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
     final medida = MediaQuery.sizeOf(context);
-    final origem =
-        widget.origem ?? Offset(medida.width / 2, medida.height / 2);
+    final origem = widget.origem ?? Offset(medida.width / 2, medida.height / 2);
 
     double distancia(Offset canto) => (canto - origem).distance;
     final raio = [
@@ -151,17 +166,25 @@ class _TelaDiasState extends State<_TelaDias>
       distancia(Offset(medida.width, medida.height)),
     ].reduce(math.max);
 
-    return AnimatedBuilder(
-      animation: _controle,
-      builder: (context, _) => Material(
-        type: MaterialType.transparency,
-        child: Stack(
-          children: [
-            Positioned(
-              left: origem.dx - raio,
-              top: origem.dy - raio,
-              child: Transform.scale(
-                scale: _circulo.value,
+    // A animacao nao reconstroi mais a tela: antes um `AnimatedBuilder` em
+    // volta de tudo remontava a lista inteira — e cada imagem de rede dentro
+    // dela — a cada quadro, umas cinquenta vezes seguidas, para mover um
+    // circulo. Agora o circulo tem seu proprio `ScaleTransition` e o conteudo
+    // entra por `FadeTransition`/`SlideTransition`: os tres agem direto no
+    // objeto de renderizacao, sem passar pelo `build`. A lista e montada uma
+    // vez so.
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          Positioned(
+            left: origem.dx - raio,
+            top: origem.dy - raio,
+            // Camada propria: o circulo cresce sozinho sem sujar o conteudo
+            // que ja esta desenhado por cima dele.
+            child: RepaintBoundary(
+              child: ScaleTransition(
+                scale: _circulo,
                 child: Container(
                   width: raio * 2,
                   height: raio * 2,
@@ -172,31 +195,34 @@ class _TelaDiasState extends State<_TelaDias>
                 ),
               ),
             ),
-            Opacity(
-              opacity: _conteudo.value.clamp(0.0, 1.0),
-              child: Transform.translate(
-                offset: Offset(0.0, 20.0 * (1 - _conteudo.value)),
-                child: SafeArea(child: _corpo(tema)),
-              ),
+          ),
+          FadeTransition(
+            opacity: _conteudo,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 0.025),
+                end: Offset.zero,
+              ).animate(_conteudo),
+              child: SafeArea(child: _corpo(tema)),
             ),
-            // O X fora do corpo, preso ao canto: dentro da coluna ele
-            // disputava a linha com o titulo e empurrava o texto para o meio.
-            Positioned(
-              top: 0.0,
-              right: 0.0,
-              child: SafeArea(
-                child: Opacity(
-                  opacity: _conteudo.value.clamp(0.0, 1.0),
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded,
-                        color: Colors.white, size: 26.0),
-                  ),
+          ),
+          // O X fora do corpo, preso ao canto: dentro da coluna ele
+          // disputava a linha com o titulo e empurrava o texto para o meio.
+          Positioned(
+            top: 0.0,
+            right: 0.0,
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _conteudo,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_rounded,
+                      color: Colors.white, size: 26.0),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -217,55 +243,55 @@ class _TelaDiasState extends State<_TelaDias>
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-        // O mesmo selo das comemorações: círculo translúcido com o símbolo do
-        // assunto dentro. É ele que amarra esta tela às outras do app.
-        Container(
-          width: 88.0,
-          height: 88.0,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.16),
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: const Icon(Icons.local_fire_department_rounded,
-              color: Colors.white, size: 50.0),
-        ),
-        const SizedBox(height: 20.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Text(
-            widget.sequenciaAtual > 0
-                ? 'Você está em ${widget.sequenciaAtual} ${widget.sequenciaAtual == 1 ? 'dia' : 'dias'} seguidos'
-                : 'Seu recorde: ${widget.sequenciaMaxima} ${widget.sequenciaMaxima == 1 ? 'dia' : 'dias'} seguidos',
-            textAlign: TextAlign.center,
-            style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-              color: Colors.white,
-              fontSize: 22.0,
-              letterSpacing: -0.3,
-              fontWeight: FontWeight.bold,
-              lineHeight: 1.25,
-            ),
-          ),
-        ),
-        const SizedBox(height: 6.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Text(
-            widget.sequenciaAtual > 0 &&
-                    widget.sequenciaAtual < widget.sequenciaMaxima
-                ? 'Seu recorde é de ${widget.sequenciaMaxima} dias.'
-                : 'Cada dia abaixo é um treino que você fechou.',
-            textAlign: TextAlign.center,
-            style: tema.bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-              color: Colors.white.withValues(alpha: 0.85),
-              fontSize: 13.0,
-              letterSpacing: 0.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+              // O mesmo selo das comemorações: círculo translúcido com o símbolo do
+              // assunto dentro. É ele que amarra esta tela às outras do app.
+              Container(
+                width: 88.0,
+                height: 88.0,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.local_fire_department_rounded,
+                    color: Colors.white, size: 50.0),
+              ),
+              const SizedBox(height: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Text(
+                  widget.sequenciaAtual > 0
+                      ? 'Você está em ${widget.sequenciaAtual} ${widget.sequenciaAtual == 1 ? 'dia' : 'dias'} seguidos'
+                      : 'Seu recorde: ${widget.sequenciaMaxima} ${widget.sequenciaMaxima == 1 ? 'dia' : 'dias'} seguidos',
+                  textAlign: TextAlign.center,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 22.0,
+                    letterSpacing: -0.3,
+                    fontWeight: FontWeight.bold,
+                    lineHeight: 1.25,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Text(
+                  widget.sequenciaAtual > 0 &&
+                          widget.sequenciaAtual < widget.sequenciaMaxima
+                      ? 'Seu recorde é de ${widget.sequenciaMaxima} dias.'
+                      : 'Cada dia abaixo é um treino que você fechou.',
+                  textAlign: TextAlign.center,
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 13.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -307,8 +333,8 @@ class _TelaDiasState extends State<_TelaDias>
           return Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
             child: TextButton(
-              onPressed: () => setState(
-                  () => _visiveis = (_visiveis + 10).clamp(0, total)),
+              onPressed: () =>
+                  setState(() => _visiveis = (_visiveis + 10).clamp(0, total)),
               child: Text(
                 'Ver mais ${(total - mostrando) < 10 ? (total - mostrando) : 10}',
                 style: tema.bodyMedium.override(
@@ -379,8 +405,8 @@ class _TelaDiasState extends State<_TelaDias>
               // a lista faz parecer que todo dia rendeu igual.
               if (treinos.length > 1)
                 Container(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                      8.0, 3.0, 8.0, 3.0),
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(8.0, 3.0, 8.0, 3.0),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(999.0),

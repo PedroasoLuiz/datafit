@@ -18,6 +18,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 import '/backend/schema/structs/index.dart';
+import '/components/perfil_kit.dart';
 import 'perfil_edit_model.dart';
 export 'perfil_edit_model.dart';
 
@@ -111,6 +112,10 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
     _model.txtQuadrilFocusNode ??= FocusNode();
     _model.txtCoxaDirTextController ??= TextEditingController();
     _model.txtCoxaDirFocusNode ??= FocusNode();
+
+    _model.txtCrefTextController ??=
+        TextEditingController(text: FFAppState().perfil.cref);
+    _model.txtCrefFocusNode ??= FocusNode();
 
     _model.txtChavePixTextController ??=
         TextEditingController(text: FFAppState().perfil.chavePix);
@@ -230,35 +235,13 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      context.safePop();
-                                    },
-                                    child: Container(
-                                      width: 36.0,
-                                      height: 36.0,
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        shape: BoxShape.rectangle,
-                                      ),
-                                      child: Align(
-                                        alignment:
-                                            AlignmentDirectional(0.0, 0.0),
-                                        child: Icon(
-                                          Icons.navigate_before_rounded,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          size: 20.0,
-                                        ),
-                                      ),
-                                    ),
+                                  // O mesmo botao das fichas de perfil: esta
+                                  // tela e alcancada a partir delas, e o
+                                  // caminho de volta mudando de desenho no meio
+                                  // do trajeto faz duvidar se e o mesmo caminho.
+                                  BotaoCirculoPerfil(
+                                    icone: FFIcons.kproperty1FiRrArrowSmallLeft,
+                                    aoTocar: () => context.safePop(),
                                   ),
                                   Column(
                                     mainAxisSize: MainAxisSize.max,
@@ -2824,6 +2807,126 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                         ),
                       ),
 
+                      // ── Registro profissional (somente personal) ──────
+                      //
+                      // A coluna Cref sempre existiu e nunca teve onde ser
+                      // digitada — por isso estava vazia em todos os personais.
+                      // E o unico dado que sustenta confianca na ficha publica,
+                      // entao ganha secao propria em vez de virar mais uma
+                      // linha perdida no cadastro.
+                      if (FFAppState().perfil.tipoPerfilId != 2) ...[
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 0.0, 16.0, 0.0),
+                          child: Text(
+                            'Registro profissional',
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600),
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
+                                  letterSpacing: 0.0,
+                                ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 0.0, 16.0, 0.0),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
+                              boxShadow: [
+                                FlutterFlowTheme.of(context)
+                                    .designToken
+                                    .shadow
+                                    .lg
+                              ],
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 4.0, 6.0, 4.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'CREF',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.w500),
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                          letterSpacing: 0.0,
+                                        ),
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _model.txtCrefTextController,
+                                      focusNode: _model.txtCrefFocusNode,
+                                      textAlign: TextAlign.end,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        // O formato inteiro no exemplo: o
+                                        // numero sozinho nao identifica nada,
+                                        // e a categoria e o estado fazem parte
+                                        // do registro.
+                                        hintText: '000000-G/SP',
+                                        hintStyle: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.w500),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              letterSpacing: 0.0,
+                                            ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Color(0x00000000),
+                                              width: 1.0),
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Color(0x00000000),
+                                              width: 1.0),
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                        ),
+                                        filled: true,
+                                        fillColor: FlutterFlowTheme.of(context)
+                                            .primaryBackground,
+                                        contentPadding:
+                                            EdgeInsetsDirectional.fromSTEB(
+                                                0.0, 12.0, 10.0, 12.0),
+                                      ),
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            font: GoogleFonts.inter(
+                                                fontWeight: FontWeight.w500),
+                                            letterSpacing: 0.0,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
                       // ── Seção Pix (somente personal) ──────────────────
                       if (FFAppState().perfil.tipoPerfilId != 2) ...[
                         Padding(
@@ -3533,6 +3636,10 @@ class _PerfilEditWidgetState extends State<PerfilEditWidget> {
                                                         .perfil
                                                         .tipoPerfilId !=
                                                     2) ...{
+                                                  'Cref': _model
+                                                      .txtCrefTextController
+                                                      ?.text
+                                                      .trim(),
                                                   'ChavePix': _model
                                                       .txtChavePixTextController
                                                       ?.text

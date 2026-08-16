@@ -535,7 +535,9 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                         ),
                                   ),
                                 ),
-                                if (FFAppState().exercicioTemp.tempoDescansoSeg >
+                                if (FFAppState()
+                                        .exercicioTemp
+                                        .tempoDescansoSeg >
                                     0)
                                   Text(
                                     'Descanso indicado ${_formatarDescanso(FFAppState().exercicioTemp.tempoDescansoSeg)}',
@@ -558,9 +560,10 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                           fontSize: 12.0,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.normal,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
                                         ),
                                   ),
                               ],
@@ -941,43 +944,42 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                     ),
                                               ),
                                             ),
-                                              // Sem o Row externo: ele tinha um
-                                              // filho so, entao o spaceBetween
-                                              // nao separava nada — e um Row
-                                              // dentro de outro Row chega sem
-                                              // largura, o que torna ilegal o
-                                              // Expanded do campo de peso aqui
-                                              // dentro. Em release a assercao
-                                              // some e o layout se vira; em
-                                              // debug a tela inteira falhava.
-                                              Row(
-                                                mainAxisSize:
-                                                    MainAxisSize.max,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  // Acompanha o numero
-                                                  // digitado, e nao a largura
-                                                  // toda: com Expanded a
-                                                  // unidade era empurrada para
-                                                  // a borda oposta do cartao,
-                                                  // longe do valor que ela
-                                                  // qualifica. Antes disso o
-                                                  // Row chegava sem largura e
-                                                  // o Expanded nao expandia
-                                                  // nada — parecia certo por
-                                                  // acidente.
-                                                  if (_buscandoUltimaCarga)
-                                                    const Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(0.0,
-                                                                  0.0, 0.0, 4.0),
-                                                      child: BlocoEsqueleto(
-                                                          largura: 76.0,
-                                                          altura: 28.0),
-                                                    )
-                                                  else
+                                            // Sem o Row externo: ele tinha um
+                                            // filho so, entao o spaceBetween
+                                            // nao separava nada — e um Row
+                                            // dentro de outro Row chega sem
+                                            // largura, o que torna ilegal o
+                                            // Expanded do campo de peso aqui
+                                            // dentro. Em release a assercao
+                                            // some e o layout se vira; em
+                                            // debug a tela inteira falhava.
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                // Acompanha o numero
+                                                // digitado, e nao a largura
+                                                // toda: com Expanded a
+                                                // unidade era empurrada para
+                                                // a borda oposta do cartao,
+                                                // longe do valor que ela
+                                                // qualifica. Antes disso o
+                                                // Row chegava sem largura e
+                                                // o Expanded nao expandia
+                                                // nada — parecia certo por
+                                                // acidente.
+                                                if (_buscandoUltimaCarga)
+                                                  const Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(0.0, 0.0,
+                                                                0.0, 4.0),
+                                                    child: BlocoEsqueleto(
+                                                        largura: 76.0,
+                                                        altura: 28.0),
+                                                  )
+                                                else
                                                   Flexible(
                                                     child: AnimatedBuilder(
                                                       animation: _pulsoPeso,
@@ -992,10 +994,8 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                         // precisar de duas
                                                         // animacoes em
                                                         // sequencia.
-                                                        final onda = sin(
-                                                            pi *
-                                                                _pulsoPeso
-                                                                    .value);
+                                                        final onda = sin(pi *
+                                                            _pulsoPeso.value);
                                                         return Transform
                                                             .translate(
                                                           offset: Offset(
@@ -1012,170 +1012,160 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                                         );
                                                       },
                                                       child: ConstrainedBox(
-                                                      constraints:
-                                                          const BoxConstraints(
-                                                              minWidth: 44.0),
-                                                      child: IntrinsicWidth(
-                                                    child: TextFormField(
-                                                      controller:
-                                                          _pesoController,
-                                                      keyboardType:
-                                                          const TextInputType
-                                                              .numberWithOptions(
-                                                              decimal: true),
-                                                      inputFormatters: [
-                                                        // So digito, virgula e ponto. Evita sinal, espaco e letras.
-                                                        FilteringTextInputFormatter
-                                                            .allow(RegExp(
-                                                                r'[0-9.,]')),
-                                                      ],
-                                                      textInputAction:
-                                                          TextInputAction
-                                                              .done,
-                                                      onChanged: (texto) {
-                                                        final valor =
-                                                            lerCargaDigitada(
-                                                                texto);
-                                                        if (valor != null) {
-                                                          _model.peso = valor;
-                                                        }
-                                                      },
-                                                      onTapOutside: (_) =>
-                                                          FocusScope.of(
-                                                                  context)
-                                                              .unfocus(),
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        isDense: true,
-                                                        border:
-                                                            InputBorder.none,
-                                                        enabledBorder:
-                                                            InputBorder.none,
-                                                        focusedBorder:
-                                                            InputBorder.none,
-                                                        contentPadding:
-                                                            EdgeInsets.zero,
-                                                        hintText: '0',
-                                                      ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font: GoogleFonts.inter(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
-                                                                color: FlutterFlowTheme.of(
+                                                        constraints:
+                                                            const BoxConstraints(
+                                                                minWidth: 44.0),
+                                                        child: IntrinsicWidth(
+                                                          child: TextFormField(
+                                                            controller:
+                                                                _pesoController,
+                                                            keyboardType:
+                                                                const TextInputType
+                                                                    .numberWithOptions(
+                                                                    decimal:
+                                                                        true),
+                                                            inputFormatters: [
+                                                              // So digito, virgula e ponto. Evita sinal, espaco e letras.
+                                                              FilteringTextInputFormatter
+                                                                  .allow(RegExp(
+                                                                      r'[0-9.,]')),
+                                                            ],
+                                                            textInputAction:
+                                                                TextInputAction
+                                                                    .done,
+                                                            onChanged: (texto) {
+                                                              final valor =
+                                                                  lerCargaDigitada(
+                                                                      texto);
+                                                              if (valor !=
+                                                                  null) {
+                                                                _model.peso =
+                                                                    valor;
+                                                              }
+                                                            },
+                                                            onTapOutside: (_) =>
+                                                                FocusScope.of(
                                                                         context)
-                                                                    .primaryText,
-                                                                fontSize:
-                                                                    30.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                    ),
+                                                                    .unfocus(),
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              isDense: true,
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                              enabledBorder:
+                                                                  InputBorder
+                                                                      .none,
+                                                              focusedBorder:
+                                                                  InputBorder
+                                                                      .none,
+                                                              contentPadding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              hintText: '0',
+                                                            ),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  font: GoogleFonts.inter(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryText,
+                                                                  fontSize:
+                                                                      30.0,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
                                                     ),
                                                   ),
-                                                  FlutterFlowDropDown<int>(
-                                                    controller: _model
-                                                            .dropDownValueController ??=
-                                                        FormFieldController<
-                                                            int>(
-                                                      _model.dropDownValue ??=
-                                                          1,
-                                                    ),
-                                                    options: List<int>.from(
-                                                        [2, 1]),
-                                                    optionLabels: [
-                                                      'Lb',
-                                                      'Kg'
-                                                    ],
-                                                    onChanged: (val) {
-                                                      // Converte o valor
-                                                      // exibido para a
-                                                      // nova unidade.
-                                                      final eraLb = _emLibras;
-                                                      final emKg = paraKg(
-                                                          _model.peso,
-                                                          emLibras: eraLb);
-                                                      _model.dropDownValue =
-                                                          val;
-                                                      _definirPeso(deKg(emKg,
-                                                          emLibras:
-                                                              val == 2));
-                                                    },
-                                                    width: 42.0,
-                                                    height: 24.0,
-                                                    textStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .override(
-                                                              font:
-                                                                  GoogleFonts
-                                                                      .inter(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                              color: FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .secondary,
-                                                              fontSize: 12.0,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontStyle: FlutterFlowTheme.of(
+                                                FlutterFlowDropDown<int>(
+                                                  controller: _model
+                                                          .dropDownValueController ??=
+                                                      FormFieldController<int>(
+                                                    _model.dropDownValue ??= 1,
+                                                  ),
+                                                  options:
+                                                      List<int>.from([2, 1]),
+                                                  optionLabels: ['Lb', 'Kg'],
+                                                  onChanged: (val) {
+                                                    // Converte o valor
+                                                    // exibido para a
+                                                    // nova unidade.
+                                                    final eraLb = _emLibras;
+                                                    final emKg = paraKg(
+                                                        _model.peso,
+                                                        emLibras: eraLb);
+                                                    _model.dropDownValue = val;
+                                                    _definirPeso(deKg(emKg,
+                                                        emLibras: val == 2));
+                                                  },
+                                                  width: 42.0,
+                                                  height: 24.0,
+                                                  textStyle: FlutterFlowTheme
+                                                          .of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
                                                                       context)
                                                                   .bodyMedium
                                                                   .fontStyle,
-                                                            ),
-                                                    hintText: 'Kg',
-                                                    icon: Icon(
-                                                      Icons
-                                                          .keyboard_arrow_down_rounded,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondary,
-                                                      size: 16.0,
-                                                    ),
-                                                    fillColor:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .primaryBackground,
-                                                    elevation: 2.0,
-                                                    borderColor:
-                                                        Colors.transparent,
-                                                    borderWidth: 0.0,
-                                                    borderRadius: 0.0,
-                                                    margin:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                4.0,
-                                                                0.0,
-                                                                0.0,
-                                                                0.0),
-                                                    hidesUnderline: true,
-                                                    isOverButton: false,
-                                                    isSearchable: false,
-                                                    isMultiSelect: false,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                        fontSize: 12.0,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontStyle,
+                                                      ),
+                                                  hintText: 'Kg',
+                                                  icon: Icon(
+                                                    Icons
+                                                        .keyboard_arrow_down_rounded,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondary,
+                                                    size: 16.0,
                                                   ),
-                                                ].divide(
-                                                    SizedBox(width: 8.0)),
-                                              ),
+                                                  fillColor:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .primaryBackground,
+                                                  elevation: 2.0,
+                                                  borderColor:
+                                                      Colors.transparent,
+                                                  borderWidth: 0.0,
+                                                  borderRadius: 0.0,
+                                                  margin: EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                          4.0, 0.0, 0.0, 0.0),
+                                                  hidesUnderline: true,
+                                                  isOverButton: false,
+                                                  isSearchable: false,
+                                                  isMultiSelect: false,
+                                                ),
+                                              ].divide(SizedBox(width: 8.0)),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -1680,7 +1670,9 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
     if (r == null) return null;
     final corpo = (r.jsonBody ?? '').toString().trim();
     final curto = corpo.length > 160 ? '${corpo.substring(0, 160)}…' : corpo;
-    return curto.isEmpty ? 'HTTP ${r.statusCode}' : 'HTTP ${r.statusCode} · $curto';
+    return curto.isEmpty
+        ? 'HTTP ${r.statusCode}'
+        : 'HTTP ${r.statusCode} · $curto';
   }
 
   /// Começa o exercício sem esperar o banco.
@@ -1959,8 +1951,8 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
     final tema = FlutterFlowTheme.of(context);
     final emAndamento = FFAppState().exercicioEmAndamento;
     final descansando = _model.descansando;
-    final ultimaSerieFeita =
-        FFAppState().exercicioTemp.seriesFeitas >= FFAppState().exercicioTemp.series;
+    final ultimaSerieFeita = FFAppState().exercicioTemp.seriesFeitas >=
+        FFAppState().exercicioTemp.series;
 
     // A ordem importa: descanso vence "concluir série" porque durante ele não
     // há série a concluir, e "finalizar" vence o descanso quando as séries já
@@ -2123,35 +2115,34 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                         duration: const Duration(milliseconds: 380),
                         curve: Curves.easeOutCubic,
                         child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    mostraTempo ? 8.0 : 0.0, 0.0, 0.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (mostraTempo) ...[
-                                    Text(
-                                      prefixoTempo == null
-                                          ? '·'
-                                          : '· $prefixoTempo',
-                                      style: tema.bodyMedium.override(
-                                        font: GoogleFonts.inter(
-                                            fontWeight: FontWeight.w500),
-                                        color:
-                                            Colors.white.withValues(alpha: 0.8),
-                                        fontSize: 13.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6.0),
-                                    ],
-                                    _cronometro(context,
-                                        descanso: false, mostrar: mostraTempo),
-                                    _cronometro(context,
-                                        descanso: true, mostrar: mostraTempo),
-                                  ],
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              mostraTempo ? 8.0 : 0.0, 0.0, 0.0, 0.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (mostraTempo) ...[
+                                Text(
+                                  prefixoTempo == null
+                                      ? '·'
+                                      : '· $prefixoTempo',
+                                  style: tema.bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w500),
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 13.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 6.0),
+                              ],
+                              _cronometro(context,
+                                  descanso: false, mostrar: mostraTempo),
+                              _cronometro(context,
+                                  descanso: true, mostrar: mostraTempo),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -2192,7 +2183,6 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
       ),
     ).animateOnPageLoad(animationsMap['barraOnPageLoadAnimation']!);
   }
-
 }
 
 /// Cartão do vídeo do exercício, abaixo do cartão de peso.
@@ -2219,7 +2209,8 @@ class _CardVideoExercicio extends StatelessWidget {
   /// do tamanho de um selo, com metade da tela ocupada por cabeçalho e
   /// moldura. O link do YouTube continua na folha, porque lá quem desenha o
   /// player é a view nativa deles.
-  Future<void> _abrir(BuildContext context, {required bool daPlataforma}) async {
+  Future<void> _abrir(BuildContext context,
+      {required bool daPlataforma}) async {
     if (daPlataforma) {
       await mostrarVideoEmTelaCheia(
         context,
@@ -2307,8 +2298,7 @@ class _CardVideoExercicio extends StatelessWidget {
     String url,
   ) {
     final capa = exercicio.thumbUrl;
-    final segundo =
-        exercicio.thumbSegundo > 0 ? exercicio.thumbSegundo : null;
+    final segundo = exercicio.thumbSegundo > 0 ? exercicio.thumbSegundo : null;
 
     final quadro = capa.isNotEmpty
         ? Image(
@@ -2368,7 +2358,8 @@ class _CardVideoExercicio extends StatelessWidget {
   }
 
   /// A linha de sempre — só o ícone muda com a origem do vídeo.
-  Widget _linha(BuildContext context, FlutterFlowTheme tema, bool daPlataforma) {
+  Widget _linha(
+      BuildContext context, FlutterFlowTheme tema, bool daPlataforma) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Row(
@@ -2460,8 +2451,7 @@ class _AcaoSecundaria extends StatelessWidget {
           // perder o exercicio.
           child: Container(
             height: 44.0,
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 14.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 14.0, 0.0),
             alignment: const AlignmentDirectional(0.0, 0.0),
             child: Row(
               mainAxisSize: MainAxisSize.min,

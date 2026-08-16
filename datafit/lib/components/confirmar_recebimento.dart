@@ -218,8 +218,8 @@ class _FolhaConfirmarState extends State<_FolhaConfirmar> {
                           child: Text(
                             'Agora não',
                             style: tema.bodyMedium.override(
-                              font:
-                                  GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
                               color: tema.secondaryText,
                               fontSize: 14.0,
                               letterSpacing: 0.0,
@@ -246,8 +246,8 @@ class _FolhaConfirmarState extends State<_FolhaConfirmar> {
                           child: Text(
                             'Confirmar recebimento',
                             style: tema.bodyMedium.override(
-                              font:
-                                  GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
                               color: tema.primaryBackground,
                               fontSize: 14.0,
                               letterSpacing: 0.0,

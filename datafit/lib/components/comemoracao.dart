@@ -252,8 +252,8 @@ class _ComemoracaoState extends State<_Comemoracao>
                             widget.titulo,
                             textAlign: TextAlign.center,
                             style: tema.bodyMedium.override(
-                              font:
-                                  GoogleFonts.inter(fontWeight: FontWeight.w700),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w700),
                               color: Colors.white,
                               fontSize: 22.0,
                               letterSpacing: 0.0,
@@ -364,7 +364,8 @@ class _ComemoracaoState extends State<_Comemoracao>
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: tema.bodyMedium.override(
-                          font: GoogleFonts.robotoMono(fontWeight: FontWeight.w400),
+                          font: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.w400),
                           color: Colors.white,
                           fontSize: 11.0,
                           letterSpacing: 0.0,

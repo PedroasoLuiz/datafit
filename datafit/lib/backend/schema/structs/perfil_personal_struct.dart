@@ -18,6 +18,13 @@ class PerfilPersonalStruct extends BaseStruct {
     String? whatsapp,
     String? chavePix,
     String? tipoPix,
+    double? notaMedia,
+    int? totalAvaliacoes,
+    int? minhaNota,
+    double? emAberto,
+    int? qtdEmAberto,
+    int? diasAtraso,
+    int? totalPagamentos,
     int? totalAlunos,
     List<TreinoPersonalStruct>? treinos,
     List<PagamentosStruct>? pagamentos,
@@ -38,7 +45,14 @@ class PerfilPersonalStruct extends BaseStruct {
         _treinos = treinos,
         _pagamentos = pagamentos,
         _totalTreinos = totalTreinos,
-        _totalExercicios = totalExercicios;
+        _totalExercicios = totalExercicios,
+        _notaMedia = notaMedia,
+        _totalAvaliacoes = totalAvaliacoes,
+        _minhaNota = minhaNota,
+        _emAberto = emAberto,
+        _qtdEmAberto = qtdEmAberto,
+        _diasAtraso = diasAtraso,
+        _totalPagamentos = totalPagamentos;
 
   // "id" field.
   String? _id;
@@ -168,6 +182,55 @@ class PerfilPersonalStruct extends BaseStruct {
 
   bool hasTipoPix() => _tipoPix != null && _tipoPix!.isNotEmpty;
 
+  // "notaMedia" field.
+  double? _notaMedia;
+  double get notaMedia => _notaMedia ?? 0.0;
+  set notaMedia(double? val) => _notaMedia = val;
+
+  bool hasNotaMedia() => _notaMedia != null;
+
+  // "totalAvaliacoes" field.
+  int? _totalAvaliacoes;
+  int get totalAvaliacoes => _totalAvaliacoes ?? 0;
+  set totalAvaliacoes(int? val) => _totalAvaliacoes = val;
+
+  bool hasTotalAvaliacoes() => _totalAvaliacoes != null;
+
+  // "minhaNota" field.
+  int? _minhaNota;
+  int get minhaNota => _minhaNota ?? 0;
+  set minhaNota(int? val) => _minhaNota = val;
+
+  bool hasMinhaNota() => _minhaNota != null;
+
+  // "emAberto" field.
+  double? _emAberto;
+  double get emAberto => _emAberto ?? 0.0;
+  set emAberto(double? val) => _emAberto = val;
+
+  bool hasEmAberto() => _emAberto != null;
+
+  // "qtdEmAberto" field.
+  int? _qtdEmAberto;
+  int get qtdEmAberto => _qtdEmAberto ?? 0;
+  set qtdEmAberto(int? val) => _qtdEmAberto = val;
+
+  bool hasQtdEmAberto() => _qtdEmAberto != null;
+
+  // "diasAtraso" field.
+  int? _diasAtraso;
+  int get diasAtraso => _diasAtraso ?? 0;
+  set diasAtraso(int? val) => _diasAtraso = val;
+
+  bool hasDiasAtraso() => _diasAtraso != null;
+
+  // "totalPagamentos" field.
+  int? _totalPagamentos;
+  int get totalPagamentos => _totalPagamentos ?? 0;
+  set totalPagamentos(int? val) => _totalPagamentos = val;
+
+  bool hasTotalPagamentos() => _totalPagamentos != null;
+
   static PerfilPersonalStruct fromMap(Map<String, dynamic> data) =>
       PerfilPersonalStruct(
         id: data['id'] as String?,
@@ -181,6 +244,13 @@ class PerfilPersonalStruct extends BaseStruct {
         whatsapp: data['whatsapp'] as String?,
         chavePix: data['chavePix'] as String?,
         tipoPix: data['tipoPix'] as String?,
+        notaMedia: castToType<double>(data['notaMedia']),
+        totalAvaliacoes: castToType<int>(data['totalAvaliacoes']),
+        minhaNota: castToType<int>(data['minhaNota']),
+        emAberto: castToType<double>(data['emAberto']),
+        qtdEmAberto: castToType<int>(data['qtdEmAberto']),
+        diasAtraso: castToType<int>(data['diasAtraso']),
+        totalPagamentos: castToType<int>(data['totalPagamentos']),
         totalAlunos: castToType<int>(data['totalAlunos']),
         treinos: getStructList(
           data['treinos'],
@@ -210,6 +280,13 @@ class PerfilPersonalStruct extends BaseStruct {
         'whatsapp': _whatsapp,
         'chavePix': _chavePix,
         'tipoPix': _tipoPix,
+        'notaMedia': _notaMedia,
+        'totalAvaliacoes': _totalAvaliacoes,
+        'minhaNota': _minhaNota,
+        'emAberto': _emAberto,
+        'qtdEmAberto': _qtdEmAberto,
+        'diasAtraso': _diasAtraso,
+        'totalPagamentos': _totalPagamentos,
         'totalAlunos': _totalAlunos,
         'treinos': _treinos?.map((e) => e.toMap()).toList(),
         'pagamentos': _pagamentos?.map((e) => e.toMap()).toList(),
@@ -262,6 +339,34 @@ class PerfilPersonalStruct extends BaseStruct {
         'tipoPix': serializeParam(
           _tipoPix,
           ParamType.String,
+        ),
+        'notaMedia': serializeParam(
+          _notaMedia,
+          ParamType.double,
+        ),
+        'totalAvaliacoes': serializeParam(
+          _totalAvaliacoes,
+          ParamType.int,
+        ),
+        'minhaNota': serializeParam(
+          _minhaNota,
+          ParamType.int,
+        ),
+        'emAberto': serializeParam(
+          _emAberto,
+          ParamType.double,
+        ),
+        'qtdEmAberto': serializeParam(
+          _qtdEmAberto,
+          ParamType.int,
+        ),
+        'diasAtraso': serializeParam(
+          _diasAtraso,
+          ParamType.int,
+        ),
+        'totalPagamentos': serializeParam(
+          _totalPagamentos,
+          ParamType.int,
         ),
         'totalAlunos': serializeParam(
           _totalAlunos,
@@ -344,6 +449,41 @@ class PerfilPersonalStruct extends BaseStruct {
           ParamType.String,
           false,
         ),
+        notaMedia: deserializeParam(
+          data['notaMedia'],
+          ParamType.double,
+          false,
+        ),
+        totalAvaliacoes: deserializeParam(
+          data['totalAvaliacoes'],
+          ParamType.int,
+          false,
+        ),
+        minhaNota: deserializeParam(
+          data['minhaNota'],
+          ParamType.int,
+          false,
+        ),
+        emAberto: deserializeParam(
+          data['emAberto'],
+          ParamType.double,
+          false,
+        ),
+        qtdEmAberto: deserializeParam(
+          data['qtdEmAberto'],
+          ParamType.int,
+          false,
+        ),
+        diasAtraso: deserializeParam(
+          data['diasAtraso'],
+          ParamType.int,
+          false,
+        ),
+        totalPagamentos: deserializeParam(
+          data['totalPagamentos'],
+          ParamType.int,
+          false,
+        ),
         totalAlunos: deserializeParam(
           data['totalAlunos'],
           ParamType.int,
@@ -391,6 +531,13 @@ class PerfilPersonalStruct extends BaseStruct {
         whatsapp == other.whatsapp &&
         chavePix == other.chavePix &&
         tipoPix == other.tipoPix &&
+        notaMedia == other.notaMedia &&
+        totalAvaliacoes == other.totalAvaliacoes &&
+        minhaNota == other.minhaNota &&
+        emAberto == other.emAberto &&
+        qtdEmAberto == other.qtdEmAberto &&
+        diasAtraso == other.diasAtraso &&
+        totalPagamentos == other.totalPagamentos &&
         totalAlunos == other.totalAlunos &&
         listEquality.equals(treinos, other.treinos) &&
         listEquality.equals(pagamentos, other.pagamentos) &&
@@ -415,7 +562,14 @@ class PerfilPersonalStruct extends BaseStruct {
         treinos,
         pagamentos,
         totalTreinos,
-        totalExercicios
+        totalExercicios,
+        notaMedia,
+        totalAvaliacoes,
+        minhaNota,
+        emAberto,
+        qtdEmAberto,
+        diasAtraso,
+        totalPagamentos
       ]);
 }
 

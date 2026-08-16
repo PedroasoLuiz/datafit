@@ -50,7 +50,8 @@ class _FolhaPreferenciasState extends State<_FolhaPreferencias> {
   /// mexer no controle e ainda ter de confirmar. Falhando, o valor volta e o
   /// aviso aparece — o contrário deixaria a tela dizendo uma coisa e o banco
   /// guardando outra.
-  Future<void> _gravar(Map<String, dynamic> campos, VoidCallback desfazer) async {
+  Future<void> _gravar(
+      Map<String, dynamic> campos, VoidCallback desfazer) async {
     setState(() {
       _salvando = true;
       _falhou = false;
@@ -120,7 +121,6 @@ class _FolhaPreferenciasState extends State<_FolhaPreferencias> {
                 ),
               ],
             ),
-
             _titulo(tema, 'Unidade de carga'),
             Text(
               'Vale para o que você vê. O histórico continua guardado em quilos, então trocar aqui não bagunça os gráficos.',
@@ -167,7 +167,6 @@ class _FolhaPreferenciasState extends State<_FolhaPreferencias> {
                 ),
               ],
             ),
-
             _titulo(tema, 'Avisos no celular'),
             Text(
               'Desligar aqui não desliga o app — você continua vendo tudo na tela de notificações.',
@@ -220,7 +219,6 @@ class _FolhaPreferenciasState extends State<_FolhaPreferencias> {
                           () => setState(() => _convite = antes));
                     },
             ),
-
             if (_falhou)
               Padding(
                 padding:

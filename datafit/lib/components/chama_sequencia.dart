@@ -33,6 +33,56 @@ int nivelDaSequencia(int dias) {
   return 0;
 }
 
+/// A chama dentro de um disco laranja-claro.
+///
+/// Solta ao lado do numero, a chama ficava a deriva: nao era parte do valor
+/// nem elemento proprio do cartao, e a leitura dependia de adivinhar a que
+/// numero ela se referia. No disco, encostada na direita, ela vira o segundo
+/// polo do cartao — numero de um lado, estado do outro —, que e o mesmo
+/// desenho do anel de aderencia e do circulo da narrativa.
+///
+/// O disco acompanha o estado: laranja enquanto a sequencia vive, cinza
+/// quando ela quebrou. Um disco laranja com a chama apagada dentro prometeria
+/// calor onde nao ha nenhum.
+class ChamaEmCirculo extends StatelessWidget {
+  const ChamaEmCirculo({
+    super.key,
+    required this.dias,
+    this.tamanhoBase = 22.0,
+  });
+
+  final int dias;
+  final double tamanhoBase;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+    final viva = dias > 0;
+
+    // Diametro fixo, dimensionado pelo degrau mais alto: o disco cabe no
+    // cartao de 100px em todos os estados, e a chama e que vai tomando conta
+    // dele conforme a sequencia cresce. Um disco que crescesse junto estouraria
+    // o cartao aos 30 dias — e, pior, tiraria da chama o unico jeito de mostrar
+    // que ela cresceu, ja que a proporcao entre as duas ficaria sempre igual.
+    final lado = tamanhoBase * 1.4 + 9.0;
+
+    return Container(
+      width: lado,
+      height: lado,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        // Alpha um pouco acima do fundo laranja que o cartao ganha aos 30
+        // dias, senao o disco desaparece justamente no degrau mais alto.
+        color: viva
+            ? tema.secondary.withValues(alpha: 0.14)
+            : tema.secondaryText.withValues(alpha: 0.08),
+        shape: BoxShape.circle,
+      ),
+      child: ChamaSequencia(dias: dias, tamanhoBase: tamanhoBase),
+    );
+  }
+}
+
 class ChamaSequencia extends StatefulWidget {
   const ChamaSequencia({
     super.key,
@@ -105,52 +155,60 @@ class _ChamaSequenciaState extends State<ChamaSequencia>
           size: widget.tamanhoBase);
     }
 
-    return SizedBox(
-      // Só o espaço para esticar e balançar sem ser cortada.
-      width: _tamanho + 4.0,
-      height: _tamanho + 6.0,
-      child: AnimatedBuilder(
-        animation: _controle,
-        builder: (context, _) {
-          final t = _controle.value * 2 * math.pi;
+    // A chama nunca para: ela repinta a cada quadro enquanto a tela estiver
+    // aberta. Sem uma camada propria, cada quadro sujava o cartao inteiro — e,
+    // por tabela, tudo que divide camada com ele — e o app repintava a home ou
+    // o painel de metricas sessenta vezes por segundo para mexer 30px de
+    // icone. O RepaintBoundary isola a chama: o resto da tela e desenhado uma
+    // vez e reaproveitado.
+    return RepaintBoundary(
+      child: SizedBox(
+        // Só o espaço para esticar e balançar sem ser cortada.
+        width: _tamanho + 4.0,
+        height: _tamanho + 6.0,
+        child: AnimatedBuilder(
+          animation: _controle,
+          builder: (context, _) {
+            final t = _controle.value * 2 * math.pi;
 
-          final lenta = math.sin(t * 2);
-          final media = math.sin(t * 3 + 1.1);
-          final rapida = math.sin(t * 5 + 2.3);
+            final lenta = math.sin(t * 2);
+            final media = math.sin(t * 3 + 1.1);
+            final rapida = math.sin(t * 5 + 2.3);
 
-          // A rápida entra com pouco peso: no talo ela vira vibração, e
-          // vibração parece defeito.
-          final tremor =
-              (lenta * 0.5 + media * 0.35 + rapida * 0.15) * _amplitude;
+            // A rápida entra com pouco peso: no talo ela vira vibração, e
+            // vibração parece defeito.
+            final tremor =
+                (lenta * 0.5 + media * 0.35 + rapida * 0.15) * _amplitude;
 
-          return Transform.translate(
-            offset: Offset(0.0, -1.2 * media),
-            child: Transform.rotate(
-              // Cinco graus: mais que isso o ícone parece tombando em vez de
-              // tremulando.
-              angle: 0.09 * tremor,
-              child: Transform(
-                alignment: Alignment.bottomCenter,
-                // Estica mais na vertical que na horizontal — fogo sobe.
-                transform: Matrix4.diagonal3Values(
-                  1.0 + 0.05 * tremor,
-                  1.0 + 0.14 * tremor,
-                  1.0,
-                ),
-                child: Icon(
-                  Icons.local_fire_department_rounded,
-                  color: Color.lerp(
-                    tema.secondary,
-                    tema.error,
-                    // Mais perto do vermelho conforme a sequência cresce.
-                    (0.5 + rapida * 0.5) * (0.45 + 0.15 * _nivel),
+            return Transform.translate(
+              offset: Offset(0.0, -1.2 * media),
+              child: Transform.rotate(
+                // Cinco graus: mais que isso o ícone parece tombando em vez de
+                // tremulando.
+                angle: 0.09 * tremor,
+                child: Transform(
+                  alignment: Alignment.bottomCenter,
+                  // Estica mais na vertical que na horizontal — fogo sobe.
+                  transform: Matrix4.diagonal3Values(
+                    1.0 + 0.05 * tremor,
+                    1.0 + 0.14 * tremor,
+                    1.0,
                   ),
-                  size: _tamanho,
+                  child: Icon(
+                    Icons.local_fire_department_rounded,
+                    color: Color.lerp(
+                      tema.secondary,
+                      tema.error,
+                      // Mais perto do vermelho conforme a sequência cresce.
+                      (0.5 + rapida * 0.5) * (0.45 + 0.15 * _nivel),
+                    ),
+                    size: _tamanho,
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

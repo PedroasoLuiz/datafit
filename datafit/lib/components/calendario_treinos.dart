@@ -19,18 +19,35 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 const List<String> _mesesPtBr = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
 ];
 
 const List<String> _diasDaSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 class CalendarioTreinos extends StatefulWidget {
-  const CalendarioTreinos({super.key, this.alunoUuid});
+  const CalendarioTreinos({super.key, this.alunoUuid, this.filtroTreino});
 
   /// Quando nulo assume o próprio usuário — que é o caso do aluno vendo o
   /// próprio histórico. O personal passa o uuid do aluno.
   final String? alunoUuid;
+
+  /// Mostra só os dias em que este treino saiu.
+  ///
+  /// Filtrado aqui, e não no banco: a busca já devolve o nome de cada treino
+  /// do dia, então a alternativa seria um parâmetro novo na RPC para separar
+  /// o que a resposta separa sozinha.
+  final String? filtroTreino;
 
   @override
   State<CalendarioTreinos> createState() => _CalendarioTreinosState();
@@ -72,7 +89,16 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
         for (final d in dias) {
           final dia = (d as Map)['dia']?.toString();
           if (dia == null) continue;
-          mapa[dia] = (d['treinos'] as List?) ?? const [];
+          var doDia = (d['treinos'] as List?) ?? const [];
+          if ((widget.filtroTreino ?? '').isNotEmpty) {
+            doDia = doDia
+                .where((t) => (t as Map)['nome'] == widget.filtroTreino)
+                .toList();
+            // Dia sem o treino filtrado sai do mapa: mantido, ele pintaria um
+            // ponto para um treino que nao aconteceu ali.
+            if (doDia.isEmpty) continue;
+          }
+          mapa[dia] = doDia;
         }
       }
       safeSetState(() {
@@ -177,8 +203,8 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
                           child: Text(
                             d,
                             style: tema.bodyMedium.override(
-                              font:
-                                  GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
                               color: tema.secondaryText,
                               fontSize: 11.0,
                               letterSpacing: 0.0,
@@ -222,7 +248,8 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
                 Expanded(
                   child: _Resumo(
                     numero: '${_porDia.length}',
-                    rotulo: _porDia.length == 1 ? 'dia treinado' : 'dias treinados',
+                    rotulo:
+                        _porDia.length == 1 ? 'dia treinado' : 'dias treinados',
                     cor: tema.primary,
                   ),
                 ),
@@ -230,7 +257,8 @@ class _CalendarioTreinosState extends State<CalendarioTreinos> {
                 Expanded(
                   child: _Resumo(
                     numero: '$_totalTreinos',
-                    rotulo: _totalTreinos == 1 ? 'treino feito' : 'treinos feitos',
+                    rotulo:
+                        _totalTreinos == 1 ? 'treino feito' : 'treinos feitos',
                     cor: tema.success,
                   ),
                 ),
@@ -449,8 +477,8 @@ class _DetalheDoDia extends StatelessWidget {
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 8.0, 16.0, 16.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 16.0),
                 itemCount: treinos.length,
                 itemBuilder: (context, i) => _CardTreinoDoDia(
                   treino: treinos[i] as Map<String, dynamic>,
@@ -558,9 +586,7 @@ class _LinhaExercicio extends StatelessWidget {
 
     final series = exercicio['series'];
     final reps = exercicio['repeticoes'];
-    final detalhe = (series != null && reps != null)
-        ? '$series × $reps'
-        : null;
+    final detalhe = (series != null && reps != null) ? '$series × $reps' : null;
 
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 6.0),
@@ -621,8 +647,7 @@ class _LinhaCardio extends StatelessWidget {
     final partes = <String>[
       if (cardio['duracaoMinutos'] != null)
         '${(cardio['duracaoMinutos'] as num).round()} min',
-      if (cardio['distanciaKm'] != null &&
-          (cardio['distanciaKm'] as num) > 0)
+      if (cardio['distanciaKm'] != null && (cardio['distanciaKm'] as num) > 0)
         '${cardio['distanciaKm']} km',
       if (cardio['kcal'] != null) '${cardio['kcal']} kcal',
     ];

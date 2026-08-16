@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:provider/provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +29,14 @@ void main() async {
 
   await SupaFlow.initialize();
 
+  // Sem `await`: subir o Firebase custa algumas centenas de milissegundos e,
+  // esperado aqui, esse custo virava tela parada antes do primeiro quadro —
+  // eram os quadros perdidos na abertura. A subida corre em paralelo, e quem
+  // depende dela (`registrarUsuario`, depois do login) a aguarda por dentro.
+  //
   // Sai em silencio se as credenciais do Firebase nao estiverem preenchidas
   // — o app roda igual sem push. Ver `lib/backend/push/config_push.dart`.
-  await ServicoPush.iniciar();
+  unawaited(ServicoPush.iniciar());
 
   final appState = FFAppState(); // Initialize FFAppState
   await appState.initializePersistedState();

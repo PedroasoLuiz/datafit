@@ -60,6 +60,8 @@ class _FotoTelaCheia extends StatelessWidget {
               // Perde-se a pinca para aproximar; ver a foto vale mais.
               child: SizedBox.expand(
                 child: CachedNetworkImage(
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero,
                   imageUrl: url,
                   fit: BoxFit.contain,
                   // Decodifica no tamanho da tela, nao no do arquivo. Uma foto
@@ -77,8 +79,7 @@ class _FotoTelaCheia extends StatelessWidget {
                       height: 28.0,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
                   ),

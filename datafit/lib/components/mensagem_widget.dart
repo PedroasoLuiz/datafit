@@ -232,8 +232,8 @@ class _MensagemWidgetState extends State<MensagemWidget>
                         // sucesso, erro ou recado antes de ler a frase.
                         Builder(builder: (context) {
                           final tema = FlutterFlowTheme.of(context);
-                          final (IconData icone, Color cor) = switch (
-                              widget!.tipo) {
+                          final (IconData icone, Color cor) =
+                              switch (widget!.tipo) {
                             '1' => (Icons.check_rounded, tema.success),
                             '2' => (Icons.priority_high_rounded, tema.error),
                             _ => (Icons.info_outline_rounded, tema.primary),

@@ -62,8 +62,8 @@ class _BlocoEsqueletoState extends State<BlocoEsqueleto>
         decoration: BoxDecoration(
           // Entre 6% e 14%: acima disso o esqueleto compete com o conteúdo
           // real que já apareceu ao lado dele.
-          color: tema.primaryText
-              .withValues(alpha: 0.06 + 0.08 * _controle.value),
+          color:
+              tema.primaryText.withValues(alpha: 0.06 + 0.08 * _controle.value),
           borderRadius: BorderRadius.circular(widget.raio),
         ),
       ),

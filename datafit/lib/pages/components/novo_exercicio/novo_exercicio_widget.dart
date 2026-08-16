@@ -199,8 +199,8 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
       );
       final url = urls.firstOrNull;
       if (url == null || url.isEmpty) {
-        await anotarDiagnostico(
-            'capa_sem_url', 'gerou ${bytes.length} bytes mas o upload nao voltou url');
+        await anotarDiagnostico('capa_sem_url',
+            'gerou ${bytes.length} bytes mas o upload nao voltou url');
         return null;
       }
       await anotarDiagnostico('capa_ok', url);
@@ -513,8 +513,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                       ),
                     ),
                     if (_videoLocal != null ||
-                        ehVideoDaPlataforma(
-                            _model.txtLinkTextController?.text))
+                        ehVideoDaPlataforma(_model.txtLinkTextController?.text))
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 12.0, 16.0, 0.0),
@@ -711,8 +710,7 @@ class _NovoExercicioWidgetState extends State<NovoExercicioWidget>
                         'SubCategoriasTrabalhadasId': subcatId,
                       if (link != null && link.isNotEmpty)
                         'LinkInstrucao': link,
-                      if (_thumbSegundo != null)
-                        'ThumbSegundo': _thumbSegundo,
+                      if (_thumbSegundo != null) 'ThumbSegundo': _thumbSegundo,
                       if (capaUrl != null) 'ThumbUrl': capaUrl,
                     });
                   }

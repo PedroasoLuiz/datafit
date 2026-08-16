@@ -70,7 +70,9 @@ class _AvisoPlanoFreeState extends State<AvisoPlanoFree> {
     final noLimite = alunos >= limite;
 
     return Padding(
-      padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 0.0),
+      // 4, e nao 12: a linha de chips ja traz 8 de folga embaixo, e os dois
+      // somavam 20 — o cartao ficava boiando longe do filtro que ele comenta.
+      padding: EdgeInsetsDirectional.fromSTEB(16.0, 4.0, 16.0, 0.0),
       child: Container(
         decoration: BoxDecoration(
           color: tema.accent1,

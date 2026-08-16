@@ -98,6 +98,11 @@ class PerfilEditModel extends FlutterFlowModel<PerfilEditWidget> {
   String uploadedFileUrl_updata = '';
 
   // Pix (personal only)
+  // CREF: a credencial do personal. Vive junto do Pix por ser tambem um dado
+  // que so o personal preenche.
+  FocusNode? txtCrefFocusNode;
+  TextEditingController? txtCrefTextController;
+
   FocusNode? txtChavePixFocusNode;
   TextEditingController? txtChavePixTextController;
   String? Function(BuildContext, String?)? txtChavePixTextControllerValidator;
@@ -163,6 +168,8 @@ class PerfilEditModel extends FlutterFlowModel<PerfilEditWidget> {
     txtCoxaDirFocusNode?.dispose();
     txtCoxaDirTextController?.dispose();
 
+    txtCrefFocusNode?.dispose();
+    txtCrefTextController?.dispose();
     txtChavePixFocusNode?.dispose();
     txtChavePixTextController?.dispose();
 

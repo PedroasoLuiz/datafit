@@ -4,7 +4,10 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
+import '/backend/cache_curto.dart';
 import '/components/lista_notificacoes.dart';
+import '/components/calendario_treinos.dart';
+import '/components/mensagem_widget.dart';
 import '/components/acesso_bloqueado_widget.dart';
 import '/components/convite_personal_widget.dart';
 import '/components/chama_sequencia.dart';
@@ -54,8 +57,7 @@ class _TreinosWidgetState extends State<TreinosWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TreinosModel());
-    _carregandoPrimeiraVez =
-        FFAppState().treinosTemp.subagrupamentos.isEmpty;
+    _carregandoPrimeiraVez = FFAppState().treinosTemp.subagrupamentos.isEmpty;
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -175,6 +177,43 @@ class _TreinosWidgetState extends State<TreinosWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        // Gaveta a direita, e nao folha por baixo. Notificacao e um painel que
+        // se puxa e se fecha, nao um conteudo que interrompe a tela — e e
+        // assim que ela ja se comporta no perfil. Duas apresentacoes para a
+        // mesma lista fariam parecer duas coisas diferentes.
+        //
+        // `endDrawer` porque o sino esta a direita: a gaveta vem do lado do
+        // botao que a chamou.
+        endDrawer: Drawer(
+          elevation: 16.0,
+          width: MediaQuery.sizeOf(context).width * 0.88,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+          child: SafeArea(
+            // Sem padding aqui. O recuo dos cartoes e responsabilidade da
+            // lista, que ja aplica 16 nas laterais e 24 no fim — somando o
+            // desta gaveta, as notificacoes ficavam com 32 de cada lado.
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      16.0, 16.0, 16.0, 12.0),
+                  child: Text(
+                    'Notificações',
+                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          color: FlutterFlowTheme.of(context).primaryText,
+                          fontSize: 18.0,
+                          letterSpacing: -0.3,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Expanded(child: ListaNotificacoes()),
+              ],
+            ),
+          ),
+        ),
         body: SafeArea(
           top: true,
           // A navbar reserva o inset inferior por dentro, para o branco
@@ -266,100 +305,34 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Container(
-                                                width: 36.0,
-                                                height: 36.0,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  shape: BoxShape.rectangle,
-                                                ),
-                                                child: Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          0.0, 0.0),
-                                                  child: Icon(
-                                                    Icons
-                                                        .navigate_before_rounded,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    size: 20.0,
-                                                  ),
-                                                ),
+                                              // A marca, alinhada a
+                                              // esquerda. Antes havia aqui um
+                                              // botao de voltar invisivel
+                                              // (icone pintado da cor do
+                                              // fundo) e o titulo "Seus
+                                              // exercicios" centralizado — um
+                                              // rotulo que descrevia a aba em
+                                              // que a pessoa ja esta.
+                                              Image.asset(
+                                                'assets/images/marca_datafit.png',
+                                                height: 30.0,
+                                                fit: BoxFit.contain,
                                               ),
-                                              Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
-                                                  Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Align(
-                                                        alignment:
-                                                            AlignmentDirectional(
-                                                                0.0, 0.0),
-                                                        child: Text(
-                                                          'Seus exercícios',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                fontSize: 14.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                                              // O sino ocupa o canto onde
+                                              // havia um icone da Apple
+                                              // pintado da cor do fundo —
+                                              // invisivel, so para equilibrar
+                                              // a linha. Aqui a pessoa passa
+                                              // mais tempo que em qualquer
+                                              // outra tela, e era o unico
+                                              // lugar sem acesso as
+                                              // notificacoes.
                                               Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
-                                                  Container(
-                                                    width: 36.0,
-                                                    height: 36.0,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.0),
-                                                      shape: BoxShape.rectangle,
-                                                    ),
-                                                    child: Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              0.0, 0.0),
-                                                      child: Icon(
-                                                        FFIcons
-                                                            .kproperty1FiRrApple,
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                        size: 18.0,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: const [
+                                                  _BotaoSequencia(),
+                                                  SizedBox(width: 8.0),
+                                                  _SinoNotificacoes(),
                                                 ],
                                               ),
                                             ].divide(SizedBox(width: 12.0)),
@@ -379,438 +352,238 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                           if (_carregandoPrimeiraVez)
                             const EsqueletoTreinos()
                           else ...[
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                valueOrDefault<double>(
-                                  () {
-                                    if (MediaQuery.sizeOf(context).width <
-                                        kBreakpointSmall) {
-                                      return 16.0;
-                                    } else if (MediaQuery.sizeOf(context)
-                                            .width <
-                                        kBreakpointMedium) {
-                                      return 16.0;
-                                    } else if (MediaQuery.sizeOf(context)
-                                            .width <
-                                        kBreakpointLarge) {
-                                      return 32.0;
-                                    } else {
-                                      return 32.0;
-                                    }
-                                  }(),
-                                  0.0,
-                                ),
-                                0.0,
-                                valueOrDefault<double>(
-                                  () {
-                                    if (MediaQuery.sizeOf(context).width <
-                                        kBreakpointSmall) {
-                                      return 16.0;
-                                    } else if (MediaQuery.sizeOf(context)
-                                            .width <
-                                        kBreakpointMedium) {
-                                      return 16.0;
-                                    } else if (MediaQuery.sizeOf(context)
-                                            .width <
-                                        kBreakpointLarge) {
-                                      return 32.0;
-                                    } else {
-                                      return 32.0;
-                                    }
-                                  }(),
-                                  0.0,
-                                ),
-                                16.0),
-                            child: _CabecalhoDoDia(),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                          // Faixa do personal, entre o cabecalho e as cartas:
-                          // dentro do cabecalho ela disputava espaco com o
-                          // nome do plano e o progresso. Aqui ela e o que de
-                          // fato e — um atalho, e nao parte do resumo do dia.
-                          //
-                          // Colada no cartao de cima (8) e afastada das cartas
-                          // (16, do padding da ListView): o agrupamento diz que
-                          // ela pertence ao cabecalho, nao ao baralho.
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                16.0, 0.0, 16.0, 0.0),
-                            child: Material(
-                              color: FlutterFlowTheme.of(context)
-                                  .primaryBackground,
-                              borderRadius:
-                                  BorderRadius.circular(14.0),
-                              elevation: 2.0,
-                              shadowColor: Colors.black26,
-                              child: InkWell(
-                                borderRadius:
-                                    BorderRadius.circular(14.0),
-                                onTap: () async {
-                                  _model.result = await AlunoGroup
-                                      .getPerfilPersonalCall
-                                      .call(
-                                    pAlunoUuid: currentUserUid,
-                                    pPersonalUuid: FFAppState()
-                                        .treinosTemp
-                                        .personalUuid,
-                                  );
-
-                                  if ((_model.result?.succeeded ??
-                                      true)) {
-                                    context.pushNamed(
-                                      PerfilpersonalWidget.routeName,
-                                      queryParameters: {
-                                        'perosnal': serializeParam(
-                                          PerfilPersonalStruct
-                                              .maybeFromMap((_model
-                                                      .result
-                                                      ?.jsonBody ??
-                                                  '')),
-                                          ParamType.DataStruct,
-                                        ),
-                                      }.withoutNulls,
-                                      extra: <String, dynamic>{
-                                        '__transition_info__':
-                                            TransitionInfo(
-                                          hasTransition: true,
-                                          transitionType:
-                                              PageTransitionType.fade,
-                                          duration: Duration(
-                                              milliseconds: 0),
-                                        ),
-                                      },
-                                    );
-                                  } else {
-                                    await showDialog(
-                                      useRootNavigator: true,
-                                      context: context,
-                                      builder: (alertDialogContext) {
-                                        return WebViewAware(
-                                          child: AlertDialog(
-                                            content: Text((_model
-                                                        .result
-                                                        ?.jsonBody ??
-                                                    '')
-                                                .toString()),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(
-                                                        alertDialogContext),
-                                                child: Text('Ok'),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }
-
-                                  safeSetState(() {});
-                                },
-                                child: Padding(
-                                  padding:
-                                      EdgeInsetsDirectional.fromSTEB(
-                                          10.0, 10.0, 14.0, 10.0),
-                                  // Largura cheia: como cartao proprio abaixo
-                                  // do baralho, encolher ate o conteudo o
-                                  // deixaria desalinhado das cartas.
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(
-                                                100.0),
-                                        child: FFAppState()
-                                                    .treinosTemp
-                                                    .hasPersonalFotoUrl() &&
-                                                FFAppState()
-                                                    .treinosTemp
-                                                    .personalFotoUrl
-                                                    .isNotEmpty
-                                            ? Image(
-                                                image: CachedNetworkImageProvider(
-                                                    FFAppState()
-                                                        .treinosTemp
-                                                        .personalFotoUrl),
-                                                width: 38.0,
-                                                height: 38.0,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context,
-                                                        error,
-                                                        stackTrace) =>
-                                                    Image.asset(
-                                                  'assets/images/Profile_Image.png',
-                                                  width: 38.0,
-                                                  height: 38.0,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                            : Image.asset(
-                                                'assets/images/Profile_Image.png',
-                                                width: 38.0,
-                                                height: 38.0,
-                                                fit: BoxFit.cover,
-                                              ),
-                                      ),
-                                      // Expanded empurra o chevron para a
-                                      // borda direita do cartao, em vez de
-                                      // deixa-lo colado no nome.
-                                      Expanded(
-                                        child: Padding(
-                                        padding: EdgeInsetsDirectional
-                                            .fromSTEB(
-                                                10.0, 0.0, 8.0, 0.0),
-                                        child: Column(
-                                          mainAxisSize:
-                                              MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                          children: [
-                                            Text(
-                                              'Seu personal',
-                                              style: FlutterFlowTheme
-                                                      .of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts
-                                                        .inter(
-                                                      fontWeight:
-                                                          FontWeight
-                                                              .w500,
-                                                    ),
-                                                    color: FlutterFlowTheme
-                                                            .of(context)
-                                                        .secondaryText,
-                                                    fontSize: 10.5,
-                                                    letterSpacing:
-                                                        0.0,
-                                                    fontWeight:
-                                                        FontWeight
-                                                            .w500,
-                                                  ),
-                                            ),
-                                            Text(
-                                              FFAppState()
-                                                      .treinosTemp
-                                                      .personalNome
-                                                      .isNotEmpty
-                                                  ? FFAppState()
-                                                      .treinosTemp
-                                                      .personalNome
-                                                  : 'Ver perfil',
-                                              style: FlutterFlowTheme
-                                                      .of(context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts
-                                                        .inter(
-                                                      fontWeight:
-                                                          FontWeight
-                                                              .w600,
-                                                    ),
-                                                    color: FlutterFlowTheme
-                                                            .of(context)
-                                                        .primaryText,
-                                                    fontSize: 13.0,
-                                                    letterSpacing:
-                                                        0.0,
-                                                    fontWeight:
-                                                        FontWeight
-                                                            .w600,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      ),
-                                      Icon(
-                                        Icons.chevron_right_rounded,
-                                        color: FlutterFlowTheme.of(
-                                                context)
-                                            .secondaryText,
-                                        size: 18.0,
-                                      ),
-                                    ],
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  valueOrDefault<double>(
+                                    () {
+                                      if (MediaQuery.sizeOf(context).width <
+                                          kBreakpointSmall) {
+                                        return 16.0;
+                                      } else if (MediaQuery.sizeOf(context)
+                                              .width <
+                                          kBreakpointMedium) {
+                                        return 16.0;
+                                      } else if (MediaQuery.sizeOf(context)
+                                              .width <
+                                          kBreakpointLarge) {
+                                        return 32.0;
+                                      } else {
+                                        return 32.0;
+                                      }
+                                    }(),
+                                    0.0,
                                   ),
-                                ),
-                              ),
+                                  14.0,
+                                  valueOrDefault<double>(
+                                    () {
+                                      if (MediaQuery.sizeOf(context).width <
+                                          kBreakpointSmall) {
+                                        return 16.0;
+                                      } else if (MediaQuery.sizeOf(context)
+                                              .width <
+                                          kBreakpointMedium) {
+                                        return 16.0;
+                                      } else if (MediaQuery.sizeOf(context)
+                                              .width <
+                                          kBreakpointLarge) {
+                                        return 32.0;
+                                      } else {
+                                        return 32.0;
+                                      }
+                                    }(),
+                                    0.0,
+                                  ),
+                                  24.0),
+                              child: _SaudacaoDoDia(),
                             ),
-                          ),
-
-                              ListView(
-                                // O baralho tem sombra e cartas assomando dos
-                                // lados; encostado no card do personal os dois
-                                // blocos se liam como um so.
-                                padding: const EdgeInsets.only(top: 16.0),
-                                primary: false,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        valueOrDefault<double>(
-                                          () {
-                                            if (MediaQuery.sizeOf(context)
-                                                    .width <
-                                                kBreakpointSmall) {
-                                              return 16.0;
-                                            } else if (MediaQuery.sizeOf(
-                                                        context)
-                                                    .width <
-                                                kBreakpointMedium) {
-                                              return 16.0;
-                                            } else if (MediaQuery.sizeOf(
-                                                        context)
-                                                    .width <
-                                                kBreakpointLarge) {
-                                              return 32.0;
-                                            } else {
-                                              return 32.0;
-                                            }
-                                          }(),
-                                          0.0,
-                                        ),
-                                        0.0,
-                                        valueOrDefault<double>(
-                                          () {
-                                            if (MediaQuery.sizeOf(context)
-                                                    .width <
-                                                kBreakpointSmall) {
-                                              return 16.0;
-                                            } else if (MediaQuery.sizeOf(
-                                                        context)
-                                                    .width <
-                                                kBreakpointMedium) {
-                                              return 16.0;
-                                            } else if (MediaQuery.sizeOf(
-                                                        context)
-                                                    .width <
-                                                kBreakpointLarge) {
-                                              return 32.0;
-                                            } else {
-                                              return 32.0;
-                                            }
-                                          }(),
-                                          0.0,
-                                        ),
-                                        0.0),
-                                    child: Container(
-                                      width: MediaQuery.sizeOf(context).width *
-                                          1.0,
-                                      // Sem fundo: o card branco agora e de
-                                      // cada item, nao do conjunto.
-                                      decoration: BoxDecoration(),
-                                      child: Builder(
-                                        builder: (context) {
-                                          final treinos = FFAppState()
-                                              .treinosTemp
-                                              .subagrupamentos
-                                              .map((e) => e)
-                                              .toList()
-                                              .sortedList(
-                                                  keyOf: (e) => e.ordem,
-                                                  desc: false)
-                                              .toList();
-
-                                          // "Proximo" e o primeiro que ainda
-                                          // nao foi feito. Se algum estiver em
-                                          // andamento, ele manda: nao existe
-                                          // "proximo" enquanto ha um aberto.
-                                          final emAndamento = treinos.indexWhere(
-                                              (e) => e.status == 'em_andamento');
-                                          final proximo = emAndamento >= 0
-                                              ? -1
-                                              : treinos.indexWhere((e) =>
-                                                  e.status != 'concluido' &&
-                                                  e.status != 'pulado');
-
-                                          return _CarrosselLeque(
-                                            quantidade: treinos.length,
-                                            construir: (context, treinosIndex) {
-                                              final treinosItem =
-                                                  treinos[treinosIndex];
-                                              final bandeira = treinosIndex ==
-                                                      emAndamento
-                                                  ? 'Executando'
-                                                  : (treinosIndex == proximo
-                                                      ? 'Próximo treino'
-                                                      : null);
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListView(
+                                  // O baralho tem sombra e cartas assomando dos
+                                  // lados; encostado no card do personal os dois
+                                  // blocos se liam como um so.
+                                  padding: const EdgeInsets.only(top: 16.0),
+                                  primary: false,
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.vertical,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          valueOrDefault<double>(
+                                            () {
+                                              if (MediaQuery.sizeOf(context)
+                                                      .width <
+                                                  kBreakpointSmall) {
+                                                return 16.0;
+                                              } else if (MediaQuery.sizeOf(
                                                           context)
-                                                      .primaryBackground,
-                                                  boxShadow: [
-                                                    FlutterFlowTheme.of(context)
-                                                        .designToken
-                                                        .shadow
-                                                        .lg
-                                                  ],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16.0),
-                                                ),
-                                                clipBehavior: Clip.antiAlias,
-                                                child: Material(
-                                                  color: Colors.transparent,
-                                                  child: InkWell(
+                                                      .width <
+                                                  kBreakpointMedium) {
+                                                return 16.0;
+                                              } else if (MediaQuery.sizeOf(
+                                                          context)
+                                                      .width <
+                                                  kBreakpointLarge) {
+                                                return 32.0;
+                                              } else {
+                                                return 32.0;
+                                              }
+                                            }(),
+                                            0.0,
+                                          ),
+                                          0.0,
+                                          valueOrDefault<double>(
+                                            () {
+                                              if (MediaQuery.sizeOf(context)
+                                                      .width <
+                                                  kBreakpointSmall) {
+                                                return 16.0;
+                                              } else if (MediaQuery.sizeOf(
+                                                          context)
+                                                      .width <
+                                                  kBreakpointMedium) {
+                                                return 16.0;
+                                              } else if (MediaQuery.sizeOf(
+                                                          context)
+                                                      .width <
+                                                  kBreakpointLarge) {
+                                                return 32.0;
+                                              } else {
+                                                return 32.0;
+                                              }
+                                            }(),
+                                            0.0,
+                                          ),
+                                          0.0),
+                                      child: Container(
+                                        width:
+                                            MediaQuery.sizeOf(context).width *
+                                                1.0,
+                                        // Sem fundo: o card branco agora e de
+                                        // cada item, nao do conjunto.
+                                        decoration: BoxDecoration(),
+                                        child: Builder(
+                                          builder: (context) {
+                                            final treinos = FFAppState()
+                                                .treinosTemp
+                                                .subagrupamentos
+                                                .map((e) => e)
+                                                .toList()
+                                                .sortedList(
+                                                    keyOf: (e) => e.ordem,
+                                                    desc: false)
+                                                .toList();
+
+                                            // "Proximo" e o primeiro que ainda
+                                            // nao foi feito. Se algum estiver em
+                                            // andamento, ele manda: nao existe
+                                            // "proximo" enquanto ha um aberto.
+                                            final emAndamento =
+                                                treinos.indexWhere((e) =>
+                                                    e.status == 'em_andamento');
+                                            final proximo = emAndamento >= 0
+                                                ? -1
+                                                : treinos.indexWhere((e) =>
+                                                    e.status != 'concluido' &&
+                                                    e.status != 'pulado');
+
+                                            return _CarrosselLeque(
+                                              quantidade: treinos.length,
+                                              construir:
+                                                  (context, treinosIndex) {
+                                                final treinosItem =
+                                                    treinos[treinosIndex];
+                                                final bandeira = treinosIndex ==
+                                                        emAndamento
+                                                    ? 'Executando'
+                                                    : (treinosIndex == proximo
+                                                        ? 'Próximo treino'
+                                                        : null);
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryBackground,
+                                                    boxShadow: [
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .designToken
+                                                          .shadow
+                                                          .lg
+                                                    ],
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             16.0),
-                                                    onTap: () async {
-                                                      context.pushNamed(
-                                                        TreinosDetalhesWidget
-                                                            .routeName,
-                                                        queryParameters: {
-                                                          'indexGrupo':
-                                                              serializeParam(
-                                                            treinosIndex,
-                                                            ParamType.int,
-                                                          ),
-                                                        }.withoutNulls,
-                                                        extra: <String,
-                                                            dynamic>{
-                                                          '__transition_info__':
-                                                              TransitionInfo(
-                                                            hasTransition: true,
-                                                            transitionType:
-                                                                PageTransitionType
-                                                                    .fade,
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    0),
-                                                          ),
-                                                        },
-                                                      );
-                                                    },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
+                                                  ),
+                                                  clipBehavior: Clip.antiAlias,
+                                                  child: Material(
+                                                    color: Colors.transparent,
+                                                    child: InkWell(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
                                                               16.0),
-                                                      child:
-                                                          _ConteudoCardTreino(
-                                                        treino: treinosItem,
-                                                        bandeira: bandeira,
+                                                      onTap: () async {
+                                                        context.pushNamed(
+                                                          TreinosDetalhesWidget
+                                                              .routeName,
+                                                          queryParameters: {
+                                                            'indexGrupo':
+                                                                serializeParam(
+                                                              treinosIndex,
+                                                              ParamType.int,
+                                                            ),
+                                                          }.withoutNulls,
+                                                          extra: <String,
+                                                              dynamic>{
+                                                            '__transition_info__':
+                                                                TransitionInfo(
+                                                              hasTransition:
+                                                                  true,
+                                                              transitionType:
+                                                                  PageTransitionType
+                                                                      .fade,
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      0),
+                                                            ),
+                                                          },
+                                                        );
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(16.0),
+                                                        child:
+                                                            _ConteudoCardTreino(
+                                                          treino: treinosItem,
+                                                          bandeira: bandeira,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ].divide(SizedBox(height: 16.0)),
-                              ),
-                            ].divide(SizedBox(height: 16.0)),
-                          ),
+                                  ].divide(SizedBox(height: 16.0)),
+                                ),
+                              ].divide(SizedBox(height: 16.0)),
+                            ),
+                            // Os atalhos, depois do baralho: seguem o desenho
+                            // de referencia, onde o cartao do dia vem primeiro e
+                            // a lista de acessos vem abaixo. Antes o treino, o
+                            // personal e a validade disputavam o topo com o
+                            // proprio treino do dia — tres cartoes antes de a
+                            // pessoa ver o que tinha para fazer.
+                            Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 24.0, 16.0, 0.0),
+                              child: _AtalhosDoTreino(),
+                            ),
                           ],
                         ].addToEnd(SizedBox(height: 120.0)),
                       ),
@@ -818,6 +591,700 @@ class _TreinosWidgetState extends State<TreinosWidget> {
                   ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A frase que abre o dia, com o número em destaque.
+///
+/// Substitui o cartão "Seu treino" no topo. O cartão dizia o nome do treino
+/// antes de dizer o que havia para fazer — e o nome do treino é a informação
+/// menos urgente da tela, já que ele não muda de um dia para o outro.
+///
+/// O número vem realçado por fundo, e não por cor: uma palavra colorida no
+/// meio de uma frase preta some na leitura rápida; o bloco azul é lido antes
+/// da frase inteira, que é exatamente a ordem desejada.
+class _SaudacaoDoDia extends StatelessWidget {
+  const _SaudacaoDoDia();
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    // Frase fixa. Nao muda com o dia, com o progresso nem com o estado do
+    // treino: e a assinatura do app naquela tela, e assinatura que muda deixa
+    // de ser assinatura.
+    //
+    // Largura cheia, e nao so o texto: a coluna que envolve esta tela alinha
+    // os filhos pelo centro, entao um Text do tamanho do proprio conteudo
+    // nascia centralizado por mais que o `textAlign` dissesse o contrario. Com
+    // a largura toda, o alinhamento passa a ser decidido pelo `textAlign`.
+    return SizedBox(
+      width: double.infinity,
+      child: Text.rich(
+        TextSpan(children: [
+          // Quebra escrita, e nao deixada ao acaso: assim a pilula fica sempre
+          // no fim da segunda linha, e nunca desce sozinha por nao caber.
+          const TextSpan(text: 'Não precisa ser perfeito.\nSó precisa ser '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Container(
+              padding: const EdgeInsetsDirectional.fromSTEB(9.0, 2.0, 9.0, 4.0),
+              decoration: BoxDecoration(
+                color: tema.primary,
+                borderRadius: BorderRadius.circular(9.0),
+              ),
+              child: Text(
+                'hoje',
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 22.0,
+                  letterSpacing: -0.6,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const TextSpan(text: '.'),
+        ]),
+        textAlign: TextAlign.start,
+        style: tema.bodyMedium.override(
+          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          color: tema.primaryText,
+          fontSize: 22.0,
+          letterSpacing: -0.6,
+          fontWeight: FontWeight.bold,
+          lineHeight: 1.5,
+        ),
+      ),
+    );
+  }
+}
+
+/// O foguinho da sequência, como botão de barra.
+///
+/// Mesmo desenho do sino ao lado — quadrado claro com sombra —, para os dois
+/// se lerem como um par de controles e não como um enfeite ao lado de um
+/// botão. Dentro dele a mesma chama animada dos cartões de métrica, com os
+/// mesmos degraus, e o mesmo toque que abre a lista de dias treinados.
+///
+/// O selo traz os dias seguidos. Some quando a sequência é zero: um selo com
+/// "0" anunciaria a ausência, e sequência quebrada não é notícia que a barra
+/// precise dar.
+class _BotaoSequencia extends StatefulWidget {
+  const _BotaoSequencia();
+
+  @override
+  State<_BotaoSequencia> createState() => _BotaoSequenciaState();
+}
+
+class _BotaoSequenciaState extends State<_BotaoSequencia> {
+  int _sequencia = 0;
+  int _sequenciaMaxima = 0;
+
+  /// Onde a chama está na tela, para a lista de dias nascer dali.
+  final GlobalKey _chave = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _buscar();
+  }
+
+  /// Uma chamada pequena e propria, em vez das metricas inteiras: a barra
+  /// precisa de dois numeros, e puxar o painel todo por causa deles seria
+  /// trocar uma consulta de duas colunas por uma de dezenas.
+  Future<void> _buscar() async {
+    try {
+      final r = await CacheCurto.obter(
+        // Mesma chave da data de definicao: os dois widgets pedem juntos, e o
+        // cache serve os dois com uma ida so ao banco.
+        'treinos:extras',
+        () => SupaFlow.client
+            .rpc('get_extras_treino', params: {'p_aluno_uuid': currentUserUid}),
+      );
+      if (!mounted) return;
+      final m = (r as Map?)?.cast<String, dynamic>() ?? {};
+      setState(() {
+        _sequencia = (m['sequenciaAtualDias'] as num?)?.toInt() ?? 0;
+        _sequenciaMaxima = (m['sequenciaMaxDias'] as num?)?.toInt() ?? 0;
+      });
+    } catch (_) {
+      // Sem o numero o botao continua ali, so sem selo.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return InkWell(
+      key: _chave,
+      borderRadius: BorderRadius.circular(999.0),
+      onTap: () {
+        final caixa = _chave.currentContext?.findRenderObject() as RenderBox?;
+        mostrarDiasTreinados(
+          context,
+          sequenciaAtual: _sequencia,
+          sequenciaMaxima: _sequenciaMaxima,
+          origem: (caixa != null && caixa.hasSize)
+              ? caixa.localToGlobal(caixa.size.center(Offset.zero))
+              : null,
+        );
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 36.0,
+            height: 36.0,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: tema.primaryBackground,
+              // Circulo, como os botoes das fichas de perfil: a barra
+              // inteira do app passa a falar a mesma lingua.
+              shape: BoxShape.circle,
+              boxShadow: [tema.designToken.shadow.sm],
+            ),
+            // A chama de sempre, no tamanho que cabe no botao. Apagada quando
+            // a sequencia e zero — e ela mesma quem decide isso.
+            child: ChamaSequencia(dias: _sequencia, tamanhoBase: 19.0),
+          ),
+          if (_sequencia > 0)
+            Positioned(
+              top: -3.0,
+              right: -3.0,
+              child: Container(
+                width: 18.0,
+                height: 18.0,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  // Laranja, e nao o azul do sino: o selo pertence a chama, e
+                  // dois selos azuis lado a lado se somariam num numero so.
+                  color: tema.secondary,
+                  shape: BoxShape.circle,
+                  border:
+                      Border.all(color: tema.secondaryBackground, width: 1.5),
+                ),
+                child: Text(
+                  _sequencia > 99 ? '99' : '$_sequencia',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                    color: Colors.white,
+                    fontSize: 9.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// O sino, com o contador de não lidas.
+class _SinoNotificacoes extends StatelessWidget {
+  const _SinoNotificacoes();
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+    final naoLidas = FFAppState().notificacoes.where((e) => !e.lida).length;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999.0),
+      onTap: () => Scaffold.of(context).openEndDrawer(),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 36.0,
+            height: 36.0,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: tema.primaryBackground,
+              // Circulo, como os botoes das fichas de perfil: a barra
+              // inteira do app passa a falar a mesma lingua.
+              shape: BoxShape.circle,
+              boxShadow: [tema.designToken.shadow.sm],
+            ),
+            // O sino da familia FFIcons, a mesma do resto do app: o do
+            // Material tem outro peso de traco e destoa dos vizinhos.
+            child: Icon(FFIcons.kproperty1FiRrBell,
+                color: tema.primary, size: 18.0),
+          ),
+          if (naoLidas > 0)
+            Positioned(
+              top: -3.0,
+              right: -3.0,
+              // Lado fixo, e nao padding: com o padding o selo esticava a
+              // cada digito e virava uma capsula. Circulo certo, e acima de
+              // nove o texto vira '9+' para caber.
+              child: Container(
+                width: 18.0,
+                height: 18.0,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  // Vermelho, como o selo do perfil: contagem de nao
+                  // lidas e aviso, e aviso no app e vermelho.
+                  color: tema.error,
+                  shape: BoxShape.circle,
+                  border:
+                      Border.all(color: tema.secondaryBackground, width: 1.5),
+                ),
+                child: Text(
+                  naoLidas > 9 ? '9+' : '$naoLidas',
+                  style: tema.bodyMedium.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                    color: Colors.white,
+                    fontSize: 9.5,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Os acessos que ficam abaixo do baralho.
+///
+/// Seguem o desenho da referência: um quadrado colorido com o ícone, o título
+/// com um selo à direita quando há número, e uma linha de apoio explicando o
+/// que se encontra ali. Cada um com sua cor, porque são assuntos diferentes —
+/// e é a cor que faz a lista ser varrida de relance em vez de lida.
+///
+/// Antes estes três eram cartões acima do baralho, e a pessoa passava por
+/// treino, personal e validade antes de ver o que tinha para fazer no dia.
+class _AtalhosDoTreino extends StatefulWidget {
+  const _AtalhosDoTreino();
+
+  @override
+  State<_AtalhosDoTreino> createState() => _AtalhosDoTreinoState();
+}
+
+class _AtalhosDoTreinoState extends State<_AtalhosDoTreino> {
+  bool _abrindoPersonal = false;
+
+  /// Quando o personal montou este treino, em dd/MM/aaaa.
+  String? _definidoEm;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDataDefinicao();
+  }
+
+  Future<void> _carregarDataDefinicao() async {
+    try {
+      final resposta = await CacheCurto.obter(
+        'treinos:extras',
+        () => SupaFlow.client
+            .rpc('get_extras_treino', params: {'p_aluno_uuid': currentUserUid}),
+      );
+      final iso = (resposta as Map?)?['definidoEm'];
+      final data = DateTime.tryParse('$iso')?.toLocal();
+      if (!mounted || data == null) return;
+      setState(() => _definidoEm =
+          '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}');
+    } catch (_) {
+      // Sem a data o atalho cai no texto neutro.
+    }
+  }
+
+  Future<void> _abrirPersonal() async {
+    if (_abrindoPersonal) return;
+    setState(() => _abrindoPersonal = true);
+    try {
+      final resposta = await AlunoGroup.getPerfilPersonalCall.call(
+        pAlunoUuid: currentUserUid,
+        pPersonalUuid: FFAppState().treinosTemp.personalUuid,
+      );
+      if (!mounted) return;
+      if (resposta.succeeded) {
+        context.pushNamed(
+          PerfilpersonalWidget.routeName,
+          queryParameters: {
+            'perosnal': serializeParam(
+              PerfilPersonalStruct.maybeFromMap(resposta.jsonBody),
+              ParamType.DataStruct,
+            ),
+          }.withoutNulls,
+        );
+      }
+    } catch (_) {
+      // Falhar aqui não pode derrubar a tela: o atalho volta ao normal e a
+      // pessoa tenta de novo.
+    } finally {
+      if (mounted) setState(() => _abrindoPersonal = false);
+    }
+  }
+
+  /// O calendário do plano: em que dias houve treino.
+  ///
+  /// Sem filtro por treino, e o motivo importa: este atalho mostra o *grupo*
+  /// ("Hipertrofia"), enquanto o calendário guarda o nome de cada treino
+  /// ("Treino A"). Filtrar um pelo outro nunca casa — e foi o que fez o
+  /// calendário abrir vazio. Um recorte por treino cabe nas cartas do
+  /// baralho, onde o A e o B existem separados.
+  Future<void> _abrirCalendario(String nome) async {
+    final tema = FlutterFlowTheme.of(context);
+    await showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        height: MediaQuery.sizeOf(context).height * 0.8,
+        decoration: BoxDecoration(
+          color: tema.secondaryBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: tema.alternate,
+                      borderRadius: BorderRadius.circular(999.0),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      2.0, 18.0, 2.0, 12.0),
+                  child: Text(
+                    nome,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                      color: tema.primaryText,
+                      fontSize: 17.0,
+                      letterSpacing: -0.3,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: const CalendarioTreinos(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Pergunta antes de cutucar o personal.
+  ///
+  /// Sem a pergunta, um toque curioso viraria uma cobrança no celular de outra
+  /// pessoa — e cobrança disparada sem querer é o tipo de coisa que faz alguém
+  /// parar de tocar em tudo.
+  Future<void> _pedirRenovacao() async {
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => WebViewAware(
+        child: MensagemWidget(
+          texto: 'Avisar seu personal que o treino venceu e pedir a renovação?',
+          tipo: '2',
+          fechasozinho: false,
+          mostrabotoes: true,
+          action: () async {
+            try {
+              final r = await SupaFlow.client.rpc('pedir_renovacao_treino');
+              final mapa = (r as Map?)?.cast<String, dynamic>() ?? {};
+              if (!mounted) return;
+              await _avisar(
+                mapa['sucesso'] == true
+                    ? (mapa['jaAvisado'] == true
+                        // Silenciar o segundo pedido sem dizer nada faria
+                        // parecer que o toque nao funcionou.
+                        ? 'Seu personal já foi avisado hoje.'
+                        : 'Pedido enviado ao seu personal.')
+                    : 'Não consegui avisar agora. Tente de novo.',
+              );
+            } catch (_) {
+              if (mounted) {
+                await _avisar('Não consegui avisar agora. Tente de novo.',
+                    sucesso: false);
+              }
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  /// O aviso do app, e nao a barrinha do sistema.
+  ///
+  /// O `SnackBar` do Material nao tem nada do nosso desenho — cor, tipografia
+  /// e animacao sao de outro produto — e aparece no rodape, longe de onde o
+  /// dedo acabou de tocar.
+  Future<void> _avisar(String texto, {bool sucesso = true}) async {
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => WebViewAware(
+        child: MensagemWidget(
+          texto: texto,
+          tipo: sucesso ? '1' : '2',
+          fechasozinho: sucesso,
+          mostrabotoes: false,
+          action: () async {},
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+    final t = FFAppState().treinosTemp;
+
+    // Os exercicios vivem dois niveis abaixo: subagrupamento -> grupo ->
+    // exercicios. Somar so o primeiro nivel devolvia zero sempre.
+    final exercicios = t.subagrupamentos.fold<int>(
+      0,
+      (soma, sub) =>
+          soma + sub.grupos.fold<int>(0, (s2, g) => s2 + g.exercicios.length),
+    );
+
+    // Dias até a validade. Negativo já venceu.
+    final validade = DateTime.tryParse(t.dataValidade);
+    final dias = validade == null
+        ? null
+        : DateTime(validade.year, validade.month, validade.day)
+            .difference(DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day))
+            .inDays;
+    final vencido = dias != null && dias < 0;
+    final urgente = dias != null && dias >= 0 && dias <= 7;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(2.0, 0.0, 2.0, 12.0),
+          child: Text(
+            'Seu treino',
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              color: tema.primaryText,
+              fontSize: 15.0,
+              letterSpacing: -0.2,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        _Atalho(
+          icone: Icons.fitness_center_outlined,
+          cor: tema.primary,
+          titulo: t.nome.isEmpty ? 'Seu treino' : t.nome,
+          // A data em que foi montado, e nao um convite para tocar: sem acao
+          // atras dele, um texto no imperativo promete uma tela que nao existe.
+          // Enquanto a data nao chega, nada no lugar — inventar outra legenda
+          // so para preencher faria a linha mudar de assunto por um instante.
+          apoio:
+              _definidoEm == null ? null : 'Definido para você em $_definidoEm',
+          aoTocar: t.nome.isEmpty ? null : () => _abrirCalendario(t.nome),
+        ),
+        const SizedBox(height: 10.0),
+        _Atalho(
+          icone: Icons.person_outline_rounded,
+          // Mesmo azul do primeiro: os tres sao atalhos comuns, e uma cor por
+          // linha fazia a lista parecer um semaforo. A cor fica reservada para
+          // quando ela significa alguma coisa — e so a validade tem estado.
+          cor: tema.primary,
+          titulo: t.personalNome.isEmpty ? 'Seu personal' : t.personalNome,
+          apoio: 'Perfil, vídeos dos exercícios e cobranças',
+          carregando: _abrindoPersonal,
+          aoTocar: _abrirPersonal,
+        ),
+        const SizedBox(height: 10.0),
+        _Atalho(
+          icone: Icons.event_available_outlined,
+          // Vermelho so quando venceu. Antes o laranja tambem entrava perto
+          // do vencimento, mas isso dava alarme de tres em tres dias para uma
+          // coisa que so tem uma consequencia real: ter vencido.
+          cor: vencido ? tema.error : tema.primary,
+          titulo: dias == null
+              ? 'Sem prazo definido'
+              : (vencido
+                  ? 'Seu treino venceu'
+                  : '$dias ${dias == 1 ? 'dia' : 'dias'} até expirar'),
+          apoio: vencido
+              ? 'Toque para pedir a renovação'
+              : 'Depois disso, seu personal precisa renovar',
+          // So o vencido responde ao toque: antes do vencimento nao ha o que
+          // pedir, e um atalho que abre uma pergunta sem motivo ensina a
+          // ignorar o proximo.
+          aoTocar: vencido ? _pedirRenovacao : null,
+        ),
+      ],
+    );
+  }
+}
+
+/// Uma linha da lista de atalhos.
+class _Atalho extends StatelessWidget {
+  const _Atalho({
+    required this.icone,
+    required this.cor,
+    required this.titulo,
+    this.apoio,
+    this.selo,
+    this.aoTocar,
+    this.carregando = false,
+  });
+
+  final IconData icone;
+  final Color cor;
+  final String titulo;
+  final String? apoio;
+  final String? selo;
+  final VoidCallback? aoTocar;
+  final bool carregando;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16.0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16.0),
+        onTap: aoTocar,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            // Branco com sombra, como todo cartao do app. A cor fica so no
+            // quadrado do icone: tingir o cartao inteiro dava a cada linha o
+            // peso de um alerta, e sao tres atalhos comuns.
+            color: tema.primaryBackground,
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [tema.designToken.shadow.lg],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 42.0,
+                height: 42.0,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: cor.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13.0),
+                ),
+                child: carregando
+                    ? SizedBox(
+                        width: 18.0,
+                        height: 18.0,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation<Color>(cor),
+                        ),
+                      )
+                    : Icon(icone, color: cor, size: 21.0),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            titulo,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: tema.bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
+                              color: tema.primaryText,
+                              fontSize: 14.0,
+                              letterSpacing: -0.2,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (selo != null) ...[
+                          const SizedBox(width: 7.0),
+                          Container(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                7.0, 1.0, 7.0, 2.0),
+                            decoration: BoxDecoration(
+                              color: cor.withValues(alpha: 0.22),
+                              borderRadius: BorderRadius.circular(999.0),
+                            ),
+                            child: Text(
+                              selo!,
+                              style: tema.bodyMedium.override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700),
+                                color: cor,
+                                fontSize: 10.5,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if ((apoio ?? '').isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            0.0, 2.0, 0.0, 0.0),
+                        child: Text(
+                          apoio!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: tema.bodyMedium.override(
+                            font:
+                                GoogleFonts.inter(fontWeight: FontWeight.w400),
+                            color: tema.secondaryText,
+                            fontSize: 11.5,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (aoTocar != null) ...[
+                const SizedBox(width: 6.0),
+                Icon(Icons.chevron_right_rounded,
+                    color: tema.secondaryText, size: 20.0),
+              ],
             ],
           ),
         ),
@@ -938,8 +1405,13 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
   /// um numero seria trocar uma consulta de duas colunas por uma de dezenas.
   Future<void> _buscarSequencia() async {
     try {
-      final r = await SupaFlow.client.rpc('metricas_sequencia',
-          params: {'p_aluno_uuid': currentUserUid});
+      final r = await CacheCurto.obter(
+        // Mesma chave da data de definicao: os dois widgets pedem juntos, e o
+        // cache serve os dois com uma ida so ao banco.
+        'treinos:extras',
+        () => SupaFlow.client
+            .rpc('get_extras_treino', params: {'p_aluno_uuid': currentUserUid}),
+      );
       if (!mounted) return;
       final m = (r as Map?)?.cast<String, dynamic>() ?? {};
       setState(() {
@@ -990,6 +1462,10 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
       required String valor,
       required String leitura,
       Widget? sufixo,
+      // O disco da chama vai para a borda; o alerta de validade fica colado no
+      // numero, porque ali o icone qualifica o numero em vez de contar outra
+      // coisa sobre o cartao.
+      bool sufixoNaDireita = false,
       VoidCallback? aoTocar,
       int realce = 0,
     }) {
@@ -1033,6 +1509,11 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
                   // dela no meio do layout dispara outro layout ali dentro —
                   // era isso que travava a tela ao trocar o periodo.
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  // Ver painel_metricas: com um Spacer o disco parava no meio,
+                  // porque texto e Spacer dividiam a folga meio a meio.
+                  mainAxisAlignment: sufixoNaDireita
+                      ? MainAxisAlignment.spaceBetween
+                      : MainAxisAlignment.start,
                   children: [
                     Flexible(
                       child: Text(
@@ -1042,9 +1523,8 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
                         style: tema.bodyMedium.override(
                           font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                           // A partir de 15 dias o numero vai para o laranja.
-                          color: realce >= 2
-                              ? tema.secondary
-                              : tema.primaryText,
+                          color:
+                              realce >= 2 ? tema.secondary : tema.primaryText,
                           fontSize: 26.0,
                           letterSpacing: -0.8,
                           fontWeight: FontWeight.bold,
@@ -1052,7 +1532,7 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
                       ),
                     ),
                     if (sufixo != null) ...[
-                      const SizedBox(width: 2.0),
+                      SizedBox(width: sufixoNaDireita ? 6.0 : 2.0),
                       sufixo,
                     ],
                   ],
@@ -1094,7 +1574,8 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
             // 10 dias ela cresce, e a partir de 15 o numero acompanha. Ter
             // duas chamas diferentes no app faria a de ca parecer enfeite e a
             // de la, dado.
-            sufixo: ChamaSequencia(dias: seq, tamanhoBase: 20.0),
+            sufixo: ChamaEmCirculo(dias: seq, tamanhoBase: 20.0),
+            sufixoNaDireita: true,
             realce: nivelDaSequencia(seq),
             aoTocar: () {
               final caixa =
@@ -1120,8 +1601,7 @@ class _ResumoDoDiaState extends State<_ResumoDoDia> {
               ? 'renove com seu personal'
               : (dias == 1 ? 'dia até expirar' : 'dias até expirar'),
           sufixo: urgente && !expirado
-              ? Icon(Icons.error_outline_rounded,
-                  color: tema.error, size: 18.0)
+              ? Icon(Icons.error_outline_rounded, color: tema.error, size: 18.0)
               : null,
         ),
       ],
@@ -1436,12 +1916,13 @@ class _ConteudoCardTreino extends StatelessWidget {
     // card tinha — e o segundo ja e dito pela bandeira "Executando" e pela
     // barra de progresso preenchida pela metade. Tres avisos da mesma coisa
     // no mesmo cartao.
+    // Concluido nao ganha bandeira: ganha um visto. A palavra repetia o que a
+    // barra cheia ja diz, e ocupava a largura que o nome do treino precisa.
+    final concluido = treino.status == 'concluido';
+
     String? rotulo;
     Color corEstado = tema.secondaryText;
-    if (treino.status == 'concluido') {
-      rotulo = 'Concluído';
-      corEstado = tema.success;
-    } else if (treino.status == 'pulado') {
+    if (treino.status == 'pulado') {
       rotulo = 'Pulado';
       corEstado = tema.secondaryText;
     }
@@ -1465,7 +1946,9 @@ class _ConteudoCardTreino extends StatelessWidget {
                 ),
               ),
             ),
-            if (rotulo != null)
+            if (concluido)
+              Icon(Icons.check_circle_rounded, color: tema.primary, size: 22.0)
+            else if (rotulo != null)
               Container(
                 padding:
                     const EdgeInsetsDirectional.fromSTEB(8.0, 3.0, 8.0, 3.0),
@@ -1590,11 +2073,11 @@ class _ConteudoCardTreino extends StatelessWidget {
                     value: feitos / total,
                     minHeight: 5.0,
                     backgroundColor: tema.alternate,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      treino.status == 'concluido'
-                          ? tema.success
-                          : tema.primary,
-                    ),
+                    // Sempre primary: o verde no fim dizia "concluido" pela
+                    // terceira vez no mesmo cartao — barra cheia e visto ja
+                    // dizem, e a troca de cor so fazia a barra mudar de
+                    // significado no ultimo passo.
+                    valueColor: AlwaysStoppedAnimation<Color>(tema.primary),
                   ),
                 ),
                 Padding(
@@ -1614,93 +2097,6 @@ class _ConteudoCardTreino extends StatelessWidget {
               ],
             ),
           ),
-      ],
-    );
-  }
-}
-
-/// Cabeçalho da home do aluno: o que ele tem para hoje, em cartões.
-///
-/// Era um bloco só, com foto de academia ao fundo e três informações
-/// empilhadas por cima dela — nome do treino, progresso do dia e validade.
-/// Funcionava enquanto tudo ali era azul; ao entrar a sequência em laranja, a
-/// cor brigou com a imagem e ficou claro que o problema não era a chama: era
-/// um fundo fotográfico tentando ser suporte de texto.
-///
-/// Aqui a informação se divide como no painel de métricas — cada coisa no seu
-/// cartão, sobre o fundo da página. Menos cartões que lá, porque são menos
-/// perguntas: o que treinar hoje, quanto já saiu, e até quando vale.
-class _CabecalhoDoDia extends StatelessWidget {
-  const _CabecalhoDoDia();
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = FlutterFlowTheme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // O treino do dia e o quanto dele já foi: é a resposta que a pessoa
-        // abre o app para ter, então ocupa a largura toda.
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: tema.primaryBackground,
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: [tema.designToken.shadow.lg],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 14.0, 0.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Seu treino',
-                        style: tema.bodyMedium.override(
-                          font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                          color: tema.secondaryText,
-                          fontSize: 11.5,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        FFAppState().treinosTemp.nome,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: tema.bodyMedium.override(
-                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                          color: tema.primaryText,
-                          fontSize: 17.0,
-                          letterSpacing: -0.2,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // O progresso do dia como anel, no canto direito: a pilha de
-              // barrinhas a esquerda pedia decifracao — quantos degraus sao,
-              // qual esta cheio — e o anel diz a mesma coisa com a forma que o
-              // painel de metricas ja usa para "quanto do combinado saiu".
-              _AnelDoDia(),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12.0),
-        // Sequência e validade lado a lado: as duas dizem "quanto tempo", uma
-        // olhando para trás e outra para a frente.
-        _ResumoDoDia(),
       ],
     );
   }

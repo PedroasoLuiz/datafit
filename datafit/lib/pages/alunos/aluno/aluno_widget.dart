@@ -5,6 +5,8 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/components/df_estado_vazio.dart';
 import '/components/aviso_plano_free.dart';
+import '/components/perfil_kit.dart';
+import '/backend/supabase/supabase.dart';
 import '/components/lista_notificacoes.dart';
 import '/components/foto_tela_cheia.dart';
 import '/components/chip_filtro.dart';
@@ -116,18 +118,61 @@ class _AlunoWidgetState extends State<AlunoWidget> {
     );
   }
 
-  /// Abre o WhatsApp com a cobranca ja escrita.
+  /// Cobra pelo app, com o valor no texto.
   ///
-  /// Cobrar e falar: o que muda e o texto. Deixar a mensagem pronta evita que
-  /// o personal tenha de redigir a mesma coisa toda vez — e evita que ele
-  /// deixe de cobrar por constrangimento de escrever.
+  /// Era um link de WhatsApp com a mensagem pronta. Cobranca por fora tira a
+  /// conversa de dentro do produto: o valor vira texto solto, o aluno responde
+  /// por la e nada volta para o historico. Como notificacao, ela chega pelo
+  /// mesmo canal das outras e o push sai de graca — o gatilho ja existe.
+  ///
+  /// O valor e somado no banco, nao mandado daqui: esta lista pode estar
+  /// desatualizada, e cobrar algo que ja foi pago e pior que nao cobrar.
   Future<void> _cobrarAluno(PersonalalunosStruct aluno) async {
-    final primeiroNome = aluno.nome.split(' ').first;
-    final texto = Uri.encodeComponent(
-      'Oi, $primeiroNome! Passando para lembrar da mensalidade que está em '
-      'aberto. Qualquer dúvida é só me chamar.',
+    try {
+      final r = await SupaFlow.client
+          .rpc('cobrar_aluno', params: {'p_aluno_uuid': aluno.alunoUuid});
+      final mapa = (r as Map?)?.cast<String, dynamic>() ?? {};
+      if (!mounted) return;
+
+      final ok = mapa['sucesso'] == true;
+      final texto = !ok
+          ? (mapa['erro'] == 'NADA_EM_ABERTO'
+              ? 'Este aluno não tem nada em aberto.'
+              : 'Não consegui enviar a cobrança agora.')
+          : (mapa['jaCobrado'] == true
+              // Silenciar o segundo toque sem dizer nada faria parecer que
+              // nao funcionou.
+              ? 'Você já cobrou este aluno hoje.'
+              : 'Lembrete enviado.');
+
+      await _avisar(texto, sucesso: ok);
+    } catch (_) {
+      if (!mounted) return;
+      await _avisar('Não consegui enviar a cobrança agora.', sucesso: false);
+    }
+  }
+
+  /// O aviso do app, e nao a barrinha do sistema.
+  ///
+  /// O `SnackBar` do Material nao tem nada do nosso desenho: cor, tipografia e
+  /// animacao sao de outro produto, e ele aparece no rodape, longe de onde o
+  /// dedo acabou de tocar.
+  Future<void> _avisar(String texto, {required bool sucesso}) async {
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => WebViewAware(
+        child: MensagemWidget(
+          texto: texto,
+          tipo: sucesso ? '1' : '2',
+          fechasozinho: sucesso,
+          mostrabotoes: false,
+          action: () async {},
+        ),
+      ),
     );
-    await _abrirWhatsApp(aluno, mensagem: texto);
   }
 
   /// Ativa ou inativa o vinculo com o aluno.
@@ -143,8 +188,8 @@ class _AlunoWidgetState extends State<AlunoWidget> {
     );
     if (novoEstado == null || !mounted) return;
 
-    final i = _model.alunospersonal
-        .indexWhere((e) => e.alunoUuid == aluno.alunoUuid);
+    final i =
+        _model.alunospersonal.indexWhere((e) => e.alunoUuid == aluno.alunoUuid);
     if (i >= 0) {
       _model.alunospersonal[i].ativo = novoEstado;
     }
@@ -186,7 +231,9 @@ class _AlunoWidgetState extends State<AlunoWidget> {
         // A lista e a mesma do perfil e a de Metas: ver
         // `lista_notificacoes.dart`. Antes cada tela tinha a propria copia do
         // cartao, e elas foram se afastando com o tempo.
-        drawer: Drawer(
+        // `endDrawer`: a gaveta vem do lado do sino que a chamou. Como
+        // `drawer` ela abria pelo lado oposto ao botao.
+        endDrawer: Drawer(
           elevation: 16.0,
           width: MediaQuery.of(context).size.width * 0.88,
           backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
@@ -304,8 +351,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                       // centralizado por estar entre dois
                                       // elementos: sem ele, "Meus alunos"
                                       // deslizaria para a esquerda.
-                                      const SizedBox(
-                                          width: 36.0, height: 36.0),
+                                      const SizedBox(width: 36.0, height: 36.0),
                                       Column(
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
@@ -349,6 +395,40 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                       Row(
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
+                                          // O sino, a esquerda do "+": o personal tambem recebe
+                                          // notificacao, e esta e a tela inicial dele — a gaveta
+                                          // ja existia aqui, mas nada a abria.
+                                          Builder(
+                                            builder: (context) {
+                                              final naoLidas = FFAppState()
+                                                  .notificacoes
+                                                  .where((e) => !e.lida)
+                                                  .length;
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        0.0, 0.0, 10.0, 0.0),
+                                                child: BotaoCirculoPerfil(
+                                                  icone: FFIcons
+                                                      .kproperty1FiRrBell,
+                                                  badge: naoLidas,
+                                                  // Azul e 18, como o sino da
+                                                  // tela do aluno: e o mesmo
+                                                  // botao, e o glifo desta
+                                                  // familia pede um ponto a
+                                                  // menos que os do Material.
+                                                  cor: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  tamanhoIcone: 18.0,
+                                                  aoTocar: () => scaffoldKey
+                                                      .currentState
+                                                      ?.openEndDrawer(),
+                                                ),
+                                              );
+                                            },
+                                          ),
                                           InkWell(
                                             splashColor: Colors.transparent,
                                             focusColor: Colors.transparent,
@@ -406,13 +486,13 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                             child: Container(
                                               width: 36.0,
                                               height: 36.0,
+                                              // Circular, como todos os botoes
+                                              // de icone do app agora.
                                               decoration: BoxDecoration(
                                                 color:
                                                     FlutterFlowTheme.of(context)
-                                                        .primaryBackground,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                                shape: BoxShape.rectangle,
+                                                        .primary,
+                                                shape: BoxShape.circle,
                                                 boxShadow: [
                                                   FlutterFlowTheme.of(context)
                                                       .designToken
@@ -425,9 +505,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                     0.0, 0.0),
                                                 child: Icon(
                                                   Icons.add_sharp,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
+                                                  color: Colors.white,
                                                   size: 18.0,
                                                 ),
                                               ),
@@ -591,14 +669,34 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                             children: [
                                               _CardAlunoDeslizavel(
                                                 ativo: alunosItem.ativo,
-                                                onWhatsApp: () =>
-                                                    _abrirWhatsApp(alunosItem),
-                                                onCobrar: alunosItem.atrasado
-                                                    ? () => _cobrarAluno(
+                                                // Convite ainda nao aceito: nao
+                                                // ha vinculo, entao ativar ou
+                                                // inativar nao tem o que mexer
+                                                // — e cobrar ou chamar no zap e
+                                                // falar com quem ainda nao
+                                                // disse que quer ser aluno.
+                                                //
+                                                // As acoes somem em vez de
+                                                // aparecerem desabilitadas: uma
+                                                // acao cinza convida ao toque e
+                                                // devolve nada.
+                                                onWhatsApp: alunosItem.status ==
+                                                        'aceito'
+                                                    ? () => _abrirWhatsApp(
                                                         alunosItem)
                                                     : null,
-                                                onToggleAtivo: () =>
-                                                    _alternarAtivo(alunosItem),
+                                                onCobrar: alunosItem.status ==
+                                                            'aceito' &&
+                                                        alunosItem.atrasado
+                                                    ? () =>
+                                                        _cobrarAluno(alunosItem)
+                                                    : null,
+                                                onToggleAtivo:
+                                                    alunosItem.status ==
+                                                            'aceito'
+                                                        ? () => _alternarAtivo(
+                                                            alunosItem)
+                                                        : null,
                                                 child: Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(
@@ -700,13 +798,13 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                                     .fotoUrl
                                                                     .isEmpty
                                                                 ? null
-                                                                : () => mostrarFotoEmTelaCheia(
+                                                                : () =>
+                                                                    mostrarFotoEmTelaCheia(
                                                                       context,
                                                                       url: alunosItem
                                                                           .fotoUrl,
-                                                                      titulo:
-                                                                          alunosItem
-                                                                              .nome,
+                                                                      titulo: alunosItem
+                                                                          .nome,
                                                                     ),
                                                             child: ClipRRect(
                                                               borderRadius:
@@ -977,15 +1075,18 @@ class _AlunoWidgetState extends State<AlunoWidget> {
 class _CardAlunoDeslizavel extends StatefulWidget {
   const _CardAlunoDeslizavel({
     required this.child,
-    required this.onWhatsApp,
-    required this.onToggleAtivo,
+    this.onWhatsApp,
+    this.onToggleAtivo,
     required this.ativo,
     this.onCobrar,
   });
 
   final Widget child;
-  final VoidCallback onWhatsApp;
-  final VoidCallback onToggleAtivo;
+
+  /// Nulos enquanto o convite nao foi aceito: sem vinculo nao ha o que ativar,
+  /// nem com quem falar.
+  final VoidCallback? onWhatsApp;
+  final VoidCallback? onToggleAtivo;
   final bool ativo;
 
   /// Nulo quando o aluno esta em dia: sem divida, nao ha o que cobrar.
@@ -1093,16 +1194,17 @@ class _CardAlunoDeslizavelState extends State<_CardAlunoDeslizavel> {
                       rotulo: 'Cobrar',
                       aoTocar: widget.onCobrar!,
                     ),
-                  _acao(
-                    fundo: _verdeWhatsApp,
-                    icone: const FaIcon(
-                      FontAwesomeIcons.whatsapp,
-                      color: Colors.white,
-                      size: 22.0,
+                  if (widget.onWhatsApp != null)
+                    _acao(
+                      fundo: _verdeWhatsApp,
+                      icone: const FaIcon(
+                        FontAwesomeIcons.whatsapp,
+                        color: Colors.white,
+                        size: 22.0,
+                      ),
+                      rotulo: 'WhatsApp',
+                      aoTocar: widget.onWhatsApp!,
                     ),
-                    rotulo: 'WhatsApp',
-                    aoTocar: widget.onWhatsApp,
-                  ),
                 ],
               ),
             ),
@@ -1111,18 +1213,20 @@ class _CardAlunoDeslizavelState extends State<_CardAlunoDeslizavel> {
               left: 0,
               top: 0,
               bottom: 0,
-              child: _acao(
-                fundo: widget.ativo ? tema.secondaryText : tema.success,
-                icone: Icon(
-                  widget.ativo
-                      ? Icons.person_off_rounded
-                      : Icons.person_rounded,
-                  color: Colors.white,
-                  size: 22.0,
-                ),
-                rotulo: widget.ativo ? 'Inativar' : 'Ativar',
-                aoTocar: widget.onToggleAtivo,
-              ),
+              child: widget.onToggleAtivo == null
+                  ? const SizedBox.shrink()
+                  : _acao(
+                      fundo: widget.ativo ? tema.secondaryText : tema.success,
+                      icone: Icon(
+                        widget.ativo
+                            ? Icons.person_off_rounded
+                            : Icons.person_rounded,
+                        color: Colors.white,
+                        size: 22.0,
+                      ),
+                      rotulo: widget.ativo ? 'Inativar' : 'Ativar',
+                      aoTocar: widget.onToggleAtivo!,
+                    ),
             ),
             Transform.translate(
               offset: Offset(_deslocamento, 0.0),
@@ -1132,8 +1236,7 @@ class _CardAlunoDeslizavelState extends State<_CardAlunoDeslizavel> {
                 // colorido das acoes parava antes da borda da tela; como
                 // padding, o conteudo continua recuado e a cor vai ate o fim.
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: widget.child,
                 ),
               ),

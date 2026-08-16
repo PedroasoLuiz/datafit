@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '/components/perfil_kit.dart';
 import 'gestao_exercicios_model.dart';
 export 'gestao_exercicios_model.dart';
 
@@ -215,20 +216,25 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                         hoverColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         onTap: () => context.pop(),
+                        // O mesmo botao das fichas de perfil, para o caminho de
+                        // volta ser o mesmo desenho em todo lugar.
                         child: Container(
                           width: 36.0,
                           height: 36.0,
                           decoration: BoxDecoration(
                             color:
                                 FlutterFlowTheme.of(context).primaryBackground,
-                            borderRadius: BorderRadius.circular(12.0),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              FlutterFlowTheme.of(context).designToken.shadow.sm
+                            ],
                           ),
                           child: Align(
                             alignment: const AlignmentDirectional(0.0, 0.0),
                             child: Icon(
-                              Icons.navigate_before_rounded,
+                              FFIcons.kproperty1FiRrArrowSmallLeft,
                               color: FlutterFlowTheme.of(context).primaryText,
-                              size: 20.0,
+                              size: 18.0,
                             ),
                           ),
                         ),
@@ -245,15 +251,21 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                         child: Container(
                           width: 36.0,
                           height: 36.0,
+                          // Branco com sombra e o icone em primary, como os
+                          // demais botoes de adicionar do app. O accent1 de
+                          // antes so aparecia aqui.
                           decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            borderRadius: BorderRadius.circular(12.0),
+                            color: FlutterFlowTheme.of(context).primary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              FlutterFlowTheme.of(context).designToken.shadow.sm
+                            ],
                           ),
                           child: Align(
                             alignment: const AlignmentDirectional(0.0, 0.0),
                             child: Icon(
-                              Icons.add_sharp,
-                              color: FlutterFlowTheme.of(context).primary,
+                              Icons.add_rounded,
+                              color: Colors.white,
                               size: 20.0,
                             ),
                           ),
@@ -276,34 +288,137 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
               ),
 
               // ── HINT ───────────────────────────────────────────────
+              // Todos / Padrao / Meus.
+              //
+              // Sao origens, nao categorias: respondem "de onde veio este
+              // exercicio", que e outra pergunta que o grupo muscular nao
+              // responde. Por isso convivem com o seletor em vez de substitui-lo.
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                    // 4 embaixo, contra 12 em cima: os chips se afastam da
+                    // busca e se aproximam de "Cadastrados", que e a linha
+                    // que eles filtram.
+                    16.0,
+                    12.0,
+                    16.0,
+                    4.0),
+                child: ChipsPerfil(
+                  rotulos: const ['Todos', 'Padrão', 'Meus'],
+                  selecionado: _origem,
+                  aoSelecionar: (i) => safeSetState(() => _origem = i),
+                ),
+              ),
+
+              // O seletor de grupo. Escondido durante a busca, porque ali
+              // ele nao filtra nada e so confundiria.
+              if (_searchQuery.isEmpty && _model.grupos.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      16.0, 4.0, 16.0, 0.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Cadastrados',
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                                font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600),
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                fontSize: 13.0,
+                                letterSpacing: -0.1,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _escolherGrupo,
+                        borderRadius: BorderRadius.circular(999.0),
+                        child: Container(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              12.0, 5.0, 9.0, 5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999.0),
+                            border: Border.all(
+                              color: FlutterFlowTheme.of(context).alternate,
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _nomeDoGrupoDaVez(),
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w500),
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryText,
+                                      fontSize: 11.5,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                              Icon(FFIcons.kproperty1FiRrAngleSmallDown,
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
+                                  size: 14.0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // O aviso logo abaixo de "Cadastrados" e do seletor.
+              //
+              // Como texto cinza de 11px solto, ele era lido como legenda de
+              // rodape e passava despercebido — e e ele que explica por que
+              // alguns itens nao podem ser editados. Fica depois dos chips
+              // porque comenta o que eles separam: "Padrao" sao justamente os
+              // com cadeado.
               Padding(
                 padding:
-                    const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 8.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.lock_outline_rounded,
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      size: 12.0,
-                    ),
-                    const SizedBox(width: 6.0),
-                    Text(
-                      'Exercícios com cadeado são padrão da plataforma',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 10.0, 16.0, 0.0),
+                child: Container(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      12.0, 9.0, 12.0, 9.0),
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).accent3,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.lock_outline_rounded,
+                        // Amarelo, o mesmo das estrelas: e um aviso, e
+                        // azul aqui se confundia com o azul de acao.
+                        color: corEstrela,
+                        size: 14.0,
+                      ),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        'Exercícios com cadeado são padrão da plataforma',
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontWeight,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              fontSize: 11.5,
+                              letterSpacing: 0.0,
                             ),
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            fontSize: 11.0,
-                            letterSpacing: 0.0,
-                          ),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -316,9 +431,36 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
                         ),
                       )
                     : Builder(builder: (context) {
-                        final filteredGrupos = _searchQuery.isEmpty
+                        // Sem busca, um grupo por vez: a lista completa
+                        // passava de uma centena de itens e a rolagem virava o
+                        // unico jeito de achar qualquer coisa.
+                        //
+                        // Com busca, o grupo e ignorado de proposito — quem
+                        // digita o nome sabe o que quer e nao deveria precisar
+                        // acertar a categoria antes. Sem essa excecao, o filtro
+                        // obrigatorio trocaria "lista longa" por "nao acho".
+                        // A origem filtra antes de tudo: ela vale igual na
+                        // busca e fora dela.
+                        final porOrigem = _origem == 0
                             ? _model.grupos
                             : _model.grupos
+                                .map((g) => SubcatGestaoGroup(
+                                      g.id,
+                                      g.nome,
+                                      g.exercicios
+                                          .where((e) => _origem == 1
+                                              ? e.isGlobal
+                                              : !e.isGlobal)
+                                          .toList(),
+                                    ))
+                                .where((g) => g.exercicios.isNotEmpty)
+                                .toList();
+
+                        final filteredGrupos = _searchQuery.isEmpty
+                            ? porOrigem
+                                .where((g) => g.id == _grupoDaVez())
+                                .toList()
+                            : porOrigem
                                 .map((g) => SubcatGestaoGroup(
                                       g.id,
                                       g.nome,
@@ -364,29 +506,37 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 8.0),
-          child: Text(
-            grupo.nome,
-            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                  font: GoogleFonts.inter(
+        // O nome do grupo so na busca, quando varios aparecem juntos. Fora
+        // dela ele repetia o que o seletor logo acima ja diz.
+        if (_searchQuery.isNotEmpty)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 8.0),
+            child: Text(
+              grupo.nome,
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    font: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontStyle:
+                          FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                    ),
+                    color: FlutterFlowTheme.of(context).primary,
+                    fontSize: 13.0,
+                    letterSpacing: 0.0,
                     fontWeight: FontWeight.w600,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                   ),
-                  color: FlutterFlowTheme.of(context).primary,
-                  fontSize: 13.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
+            ),
           ),
-        ),
         Container(
           width: double.infinity,
           clipBehavior: Clip.hardEdge,
+          // Raio 16 e sombra `lg`, como todo cartao do app. Sem a sombra, a
+          // lista era um retangulo claro sobre o cinza — a unica superficie do
+          // app que nao flutuava, e era isso que a fazia parecer de outro
+          // produto.
           decoration: BoxDecoration(
             color: FlutterFlowTheme.of(context).primaryBackground,
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [FlutterFlowTheme.of(context).designToken.shadow.lg],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -458,6 +608,123 @@ class _GestaoExerciciosWidgetState extends State<GestaoExerciciosWidget> {
   }
 
   // ── EMPTY STATE ──────────────────────────────────────────────────────────
+
+  /// O grupo em exibição.
+  ///
+  /// Nulo até a primeira escolha: aí assume o primeiro em ordem alfabética,
+  /// que é o mesmo que a lista mostrava no topo antes do filtro existir.
+  int? _grupoEscolhido;
+
+  /// 0 = todos, 1 = padrao da plataforma, 2 = cadastrados pelo personal.
+  int _origem = 0;
+
+  int? _grupoDaVez() {
+    if (_model.grupos.isEmpty) return null;
+    final ordenados = _model.grupos.toList()
+      ..sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
+    if (_grupoEscolhido != null &&
+        ordenados.any((g) => g.id == _grupoEscolhido)) {
+      return _grupoEscolhido;
+    }
+    return ordenados.first.id;
+  }
+
+  String _nomeDoGrupoDaVez() {
+    final id = _grupoDaVez();
+    if (id == null) return '';
+    return _model.grupos.firstWhere((g) => g.id == id).nome;
+  }
+
+  /// Folha de escolha do grupo. Sem "Todos" de propósito: a lista completa é
+  /// justamente o que esta tela deixou de mostrar.
+  Future<void> _escolherGrupo() async {
+    final tema = FlutterFlowTheme.of(context);
+    final ordenados = _model.grupos.toList()
+      ..sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
+    final atual = _grupoDaVez();
+
+    final escolhido = await showModalBottomSheet<int>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (contexto) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+        ),
+        decoration: BoxDecoration(
+          color: tema.secondaryBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding:
+                const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: tema.alternate,
+                      borderRadius: BorderRadius.circular(999.0),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      2.0, 18.0, 2.0, 12.0),
+                  child: Text(
+                    'Grupo muscular',
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                      color: tema.primaryText,
+                      fontSize: 17.0,
+                      letterSpacing: -0.3,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: CartaoPerfil(
+                      filhos: [
+                        for (final g in ordenados)
+                          LinhaPerfil(
+                            titulo: g.nome,
+                            // Quantos ha em cada grupo: ajuda a escolher sem
+                            // precisar entrar para descobrir que esta vazio.
+                            valor: '${g.exercicios.length}',
+                            icone: g.id == atual
+                                ? Icons.check_circle_outline_rounded
+                                : Icons.circle_outlined,
+                            corIcone: g.id == atual
+                                ? tema.primary
+                                : tema.secondaryText,
+                            fundoIcone: g.id == atual
+                                ? tema.accent1
+                                : tema.alternate.withValues(alpha: 0.35),
+                            aoTocar: () => Navigator.of(contexto).pop(g.id),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (escolhido != null && mounted) {
+      safeSetState(() => _grupoEscolhido = escolhido);
+    }
+  }
 
   Widget _buildEstadoVazio(BuildContext context) {
     return Center(

@@ -501,7 +501,6 @@ class _PaginaReelsState extends State<_PaginaReels> {
   }
 }
 
-
 /// Escolha do quadro de capa, no estilo do Instagram.
 ///
 /// O vídeo aparece inteiro e uma régua embaixo percorre a duração: arrastar

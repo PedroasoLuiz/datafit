@@ -37,6 +37,19 @@ class ServicoPush {
   static bool _iniciado = false;
   static String? _tokenAtual;
 
+  /// A subida do Firebase, para quem precisar esperar por ela.
+  ///
+  /// Existe porque `iniciar()` deixou de ser esperado na abertura do app: o
+  /// `Firebase.initializeApp` custa algumas centenas de milissegundos e, sendo
+  /// aguardado antes do `runApp`, esse custo aparecia como tela parada. Agora
+  /// ele corre em paralelo com a montagem da primeira tela.
+  ///
+  /// Sem esta espera o preço seria pior que o ganho: `registrarUsuario()` roda
+  /// logo depois do login, poderia chegar antes de a subida terminar, sairia
+  /// em silêncio pelo `_iniciado` ainda falso, e o aparelho ficaria sem token
+  /// até a próxima abertura.
+  static Future<void>? _subida;
+
   /// Conta ao servidor em que ponto o registro parou.
   ///
   /// Prefixo `push_` porque o mesmo diario recebe as anotacoes da capa de
@@ -60,10 +73,16 @@ class ServicoPush {
     }
   }
 
-  /// Sobe o Firebase e pede permissão. Seguro chamar mais de uma vez.
-  static Future<void> iniciar() async {
-    if (_iniciado || kIsWeb || !ConfigPush.configurado) return;
+  /// Sobe o Firebase. Seguro chamar mais de uma vez: a partir da segunda,
+  /// devolve a mesma subida em vez de começar outra.
+  static Future<void> iniciar() {
+    if (_iniciado || kIsWeb || !ConfigPush.configurado) {
+      return Future<void>.value();
+    }
+    return _subida ??= _subir();
+  }
 
+  static Future<void> _subir() async {
     try {
       await Firebase.initializeApp(options: ConfigPush.opcoes);
       FirebaseMessaging.onBackgroundMessage(_mensagemEmSegundoPlano);
@@ -81,6 +100,8 @@ class ServicoPush {
   /// antes de a pessoa entrar na conta é pedir sem contexto, e o iOS só
   /// permite perguntar uma vez.
   static Future<void> registrarUsuario() async {
+    // Espera a subida em vez de desistir se ela ainda estiver a caminho.
+    await iniciar();
     if (!_iniciado) return;
 
     try {

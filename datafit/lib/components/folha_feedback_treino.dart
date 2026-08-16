@@ -104,8 +104,8 @@ class _FolhaFeedbackTreinoState extends State<FolhaFeedbackTreino> {
                 borderRadius: BorderRadius.circular(12.0),
                 border: Border.all(color: tema.alternate, width: 1.0),
               ),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               child: TextFormField(
                 controller: widget.controlador,
                 autofocus: true,
@@ -172,8 +172,8 @@ class _FolhaFeedbackTreinoState extends State<FolhaFeedbackTreino> {
                         : Text(
                             'Salvar',
                             style: tema.titleSmall.override(
-                              font:
-                                  GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              font: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600),
                               color: Colors.white,
                               fontSize: 14.0,
                               letterSpacing: 0.0,

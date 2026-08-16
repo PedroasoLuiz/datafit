@@ -755,7 +755,8 @@ class _MetasWidgetState extends State<MetasWidget> {
                                     // aninhados, e o de dentro roubava o
                                     // gesto da pagina. Quem rola e a pagina.
                                     primary: false,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.vertical,
                                     children: [
                                       Padding(
