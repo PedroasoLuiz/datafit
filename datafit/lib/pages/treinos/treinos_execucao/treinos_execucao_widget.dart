@@ -340,23 +340,32 @@ class _TreinosExecucaoWidgetState extends State<TreinosExecucaoWidget>
                                     onTap: () async {
                                       context.safePop();
                                     },
+                                    // O voltar do kit: circulo branco com
+                                    // sombra e a seta pequena da familia de
+                                    // icones do app. Em quadrado cinza chapado
+                                    // ele lia como parte do fundo, e cada tela
+                                    // desenhava o seu.
                                     child: Container(
                                       width: 36.0,
                                       height: 36.0,
                                       decoration: BoxDecoration(
                                         color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        shape: BoxShape.rectangle,
+                                            .primaryBackground,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          FlutterFlowTheme.of(context)
+                                              .designToken
+                                              .shadow
+                                              .sm
+                                        ],
                                       ),
                                       child: Align(
                                         alignment:
                                             AlignmentDirectional(0.0, 0.0),
                                         child: Icon(
-                                          Icons.navigate_before_rounded,
+                                          FFIcons.kproperty1FiRrArrowSmallLeft,
                                           color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
+                                              .primaryText,
                                           size: 20.0,
                                         ),
                                       ),

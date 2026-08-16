@@ -7,7 +7,10 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/components/mensagem_widget.dart';
 import '/components/confirmar_recebimento.dart';
 import '/components/painel_metricas.dart';
+import '/components/atalho_cartao.dart';
+import '/components/baralho_cartas.dart';
 import '/components/perfil_kit.dart';
+import '/components/folha_kit.dart';
 import '/components/foto_tela_cheia.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
@@ -113,6 +116,673 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
   /// 2 corpo. Sem calendario — o personal quer o retrato do periodo, e o dia
   /// a dia ja e o assunto da aba Treinos.
   int _subAba = 0;
+
+  /// Exercicio do grafico de carga. Nulo ate a primeira escolha: ai assume o
+  /// primeiro da lista, que e o que o grafico ja mostrava antes de existir
+  /// seletor.
+  String? _exercicioCarga;
+
+  /// O exercicio em exibicao no grafico de carga.
+  ///
+  /// Cai no primeiro da lista quando ainda nao houve escolha — ou quando o
+  /// escolhido some do periodo, o que acontece ao encurtar a janela: sem essa
+  /// volta, o grafico ficaria pedindo um exercicio que nao existe mais ali.
+  String _exercicioDaVez() {
+    final lista = functions.listarExercicios(FFAppState().metricasTemp);
+    if (lista.isEmpty) return '';
+    if (_exercicioCarga != null && lista.contains(_exercicioCarga)) {
+      return _exercicioCarga!;
+    }
+    return lista.first;
+  }
+
+  /// Treino e validade abaixo do baralho, no mesmo desenho da tela do aluno.
+  ///
+  /// Os dois moravam num cartao acima das cartas, um ao lado do outro numa
+  /// linha so: o nome do treino a esquerda e a validade em cinza a direita,
+  /// ambos clicaveis sem parecer. Como atalhos eles ganham o quadrado de cor,
+  /// o rotulo do que sao e a seta que promete o que o toque faz.
+  Widget _atalhosDoTreino(FlutterFlowTheme tema) {
+    final grupo = FFAppState().alunotemp.grupoTreino;
+    final validade = functions.formataData(grupo.dataValidade);
+    final hoje = DateTime.now();
+    final dias = DateTime(validade.year, validade.month, validade.day)
+        .difference(DateTime(hoje.year, hoje.month, hoje.day))
+        .inDays;
+    final vencido = dias < 0;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AtalhoCartao(
+            icone: FFIcons.kproperty1FiRrGym,
+            cor: tema.primary,
+            titulo: grupo.nome.isEmpty ? 'Nenhum treino atribuído' : grupo.nome,
+            apoio: 'Toque para trocar o treino deste aluno',
+            aoTocar: _trocarTreino,
+          ),
+          const SizedBox(height: 10.0),
+          AtalhoCartao(
+            // Vencido pinta de erro e ganha selo: e a unica das duas linhas
+            // que pode exigir acao hoje, e em cinza ela se lia como legenda.
+            icone: FFIcons.kproperty1FiRrCalendar,
+            cor: vencido ? tema.error : tema.secondary,
+            titulo: 'Válido até ${_dataCurta(validade)}',
+            selo: vencido ? 'VENCIDO' : null,
+            apoio: vencido
+                ? 'O treino expirou — defina uma nova data'
+                : (dias == 0
+                    ? 'Expira hoje'
+                    : '$dias ${dias == 1 ? 'dia' : 'dias'} até expirar'),
+            aoTocar: _trocarValidade,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _dataCurta(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+
+  Future<void> _trocarTreino() async {
+    final trocou = await showModalBottomSheet<bool>(
+      // No navegador raiz, como todas as outras folhas do app. Sem isto ela
+      // subia no navegador da aba, e o seletor de data aberto por dentro
+      // acabava na mesma pilha: fechar um deixava o outro em pe.
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) => Padding(
+        padding: MediaQuery.viewInsetsOf(context),
+        child: SelecionarTreinoAlunoWidget(
+          alunoUuid: FFAppState().alunotemp.alunoUuid,
+          grupoTreinoIdAtual: FFAppState().alunotemp.grupoTreino.grupoTreinoId,
+          dataValidadeAtual: FFAppState().alunotemp.grupoTreino.dataValidade,
+        ),
+      ),
+    );
+    if (trocou == true && mounted) {
+      await action_blocks.getPerfilAluno(context, alunoId: widget.alunoId);
+      if (mounted) safeSetState(() {});
+    }
+  }
+
+  Future<void> _trocarValidade() async {
+    final escolhida = await custom_widgets.showCustomDatePicker(
+      context,
+      initialDate: () {
+        final d = functions
+            .formataData(FFAppState().alunotemp.grupoTreino.dataValidade);
+        final agora = DateTime.now();
+        return d.isBefore(agora) ? agora : d;
+      }(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2099),
+    );
+    if (escolhida == null) return;
+
+    final texto = '${escolhida.year.toString().padLeft(4, '0')}'
+        '-${escolhida.month.toString().padLeft(2, '0')}'
+        '-${escolhida.day.toString().padLeft(2, '0')}';
+
+    await SupaFlow.client
+        .from('TreinosExecucao')
+        .update({'DataValidade': texto})
+        .eq('ExecutorPerfisId', FFAppState().alunotemp.alunoUuid)
+        .eq('Status', 'pendente')
+        .or('IsDeleted.is.null,IsDeleted.eq.false');
+
+    if (!mounted) return;
+    FFAppState().alunotemp.grupoTreino.dataValidade = texto;
+    safeSetState(() {});
+  }
+
+  /// Os blocos do treino, no mesmo baralho da tela inicial do aluno.
+  ///
+  /// Antes eram cartoes empilhados verticalmente com o nome do bloco em cinza
+  /// por dentro e os grupos abrindo cartoes cinzas dentro do cartao branco.
+  /// O baralho ja existia do outro lado do vinculo, com a mesma estrutura de
+  /// dados: reaproveita-lo e o que faz o personal e o aluno olharem o mesmo
+  /// treino com a mesma forma, em vez de duas telas que so coincidem no
+  /// conteudo.
+  Widget _blocosDeTreino(FlutterFlowTheme tema) {
+    final blocos = FFAppState().alunotemp.grupoTreino.subagrupamentos.toList()
+      ..sort((a, b) => a.ordem.compareTo(b.ordem));
+    if (blocos.isEmpty) return const SizedBox.shrink();
+
+    // Sem recuo lateral proprio: a aba ja abre com 16 de cada lado, e somar
+    // o do baralho estreitava as cartas em 32.
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 36.0),
+      child: BaralhoCartas(
+        quantidade: blocos.length,
+        altura: 210.0,
+        construir: (context, i) {
+          final bloco = blocos[i];
+          return Container(
+            decoration: BoxDecoration(
+              color: tema.primaryBackground,
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [tema.designToken.shadow.lg],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16.0),
+                onTap: () => _detalhesDoBloco(bloco),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _cartaDoBloco(tema, bloco),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// O que a carta mostra sem precisar abrir: o nome, os grupos e o tamanho.
+  Widget _cartaDoBloco(FlutterFlowTheme tema, GruposStruct bloco) {
+    final grupos = bloco.grupos.toList();
+    final total = grupos.fold<int>(0, (soma, g) => soma + g.exercicios.length);
+    final nomes = grupos.map((g) => g.subcategoria).where((n) => n.isNotEmpty);
+
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          bloco.nome.isEmpty ? 'Treino' : bloco.nome,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: tema.bodyMedium.override(
+            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            color: tema.primaryText,
+            fontSize: 20.0,
+            letterSpacing: -0.4,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (nomes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 0.0),
+            child: Text(
+              nomes.join(' · '),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 13.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        const Spacer(),
+        // O tamanho do bloco e o convite a abrir, na mesma linha: e o que a
+        // carta pode dizer sem virar a lista que ela justamente esconde.
+        Row(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(10.0, 5.0, 10.0, 5.0),
+              decoration: BoxDecoration(
+                color: tema.accent1,
+                borderRadius: BorderRadius.circular(999.0),
+              ),
+              child: Text(
+                '$total ${total == 1 ? 'exercício' : 'exercícios'}',
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  color: tema.primary,
+                  fontSize: 11.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Spacer(),
+            Text(
+              'Ver treino',
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                color: tema.primary,
+                fontSize: 12.5,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Icon(Icons.arrow_forward_rounded, color: tema.primary, size: 16.0),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// A folha do bloco: os grupos e, dentro deles, os exercicios.
+  ///
+  /// A folha rola por dentro e chega ate 88% da tela. Um bloco com muitos
+  /// grupos nao cabe em altura fixa, e cortar a lista aqui devolveria o
+  /// problema que o baralho resolveu.
+  Future<void> _detalhesDoBloco(GruposStruct bloco) async {
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (contexto) => WebViewAware(
+        child: StatefulBuilder(
+          builder: (contexto, refazer) {
+            final tema = FlutterFlowTheme.of(contexto);
+
+            // Relido do estado a cada quadro: editar ou incluir um exercicio
+            // recarrega o perfil, e a folha precisa mostrar o resultado sem
+            // pedir para fechar e abrir de novo.
+            final atual = FFAppState()
+                    .alunotemp
+                    .grupoTreino
+                    .subagrupamentos
+                    .where((b) => b.treinoExecucaoId == bloco.treinoExecucaoId)
+                    .firstOrNull ??
+                bloco;
+
+            final total = atual.grupos
+                .fold<int>(0, (soma, g) => soma + g.exercicios.length);
+
+            return FolhaPadrao(
+              // Sem visto: cada edicao ja grava na propria folha. Aqui so se
+              // le e se navega.
+              fixos: [
+                CabecaFolha(
+                  titulo: atual.nome.isEmpty ? 'Treino' : atual.nome,
+                  apoio: '$total ${total == 1 ? 'exercício' : 'exercícios'} '
+                      'em ${atual.grupos.length} '
+                      '${atual.grupos.length == 1 ? 'grupo' : 'grupos'}',
+                  icone: FFIcons.kproperty1FiRrGym,
+                ),
+              ],
+              filhos: [
+                for (final grupo in atual.grupos)
+                  _secaoDeGrupo(tema, atual, grupo,
+                      aoMudar: () => refazer(() {})),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+    if (mounted) safeSetState(() {});
+  }
+
+  /// Um grupo muscular na folha: titulo azul com o "+" e o cartao da lista.
+  Widget _secaoDeGrupo(
+    FlutterFlowTheme tema,
+    GruposStruct bloco,
+    GrupossubcategoriasStruct grupo, {
+    required VoidCallback aoMudar,
+  }) {
+    final exercicios = grupo.exercicios.toList()
+      ..sort((a, b) => a.ordem.compareTo(b.ordem));
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+          MedidasFolha.lado, 0.0, MedidasFolha.lado, 18.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(3.0, 0.0, 0.0, 10.0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    grupo.subcategoria,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.bodyMedium.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                      color: tema.primary,
+                      fontSize: 16.0,
+                      letterSpacing: -0.2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                  child: Material(
+                    color: tema.primary,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () async {
+                        await _novoExercicio(bloco, grupo);
+                        aoMudar();
+                      },
+                      child: const SizedBox(
+                        width: 24.0,
+                        height: 24.0,
+                        child: Icon(Icons.add_rounded,
+                            color: Colors.white, size: 16.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (exercicios.isEmpty)
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(3.0, 0.0, 0.0, 0.0),
+              child: Text(
+                'Nenhum exercício neste grupo.',
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                  color: tema.secondaryText,
+                  fontSize: 12.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: tema.primaryBackground,
+                borderRadius: BorderRadius.circular(16.0),
+                boxShadow: [tema.designToken.shadow.lg],
+              ),
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(14.0, 4.0, 14.0, 4.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var k = 0; k < exercicios.length; k++)
+                    _linhaExercicio(tema, exercicios[k],
+                        k == exercicios.length - 1, aoMudar),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _linhaExercicio(FlutterFlowTheme tema, ExerciciosStruct ex,
+      bool ultimo, VoidCallback aoMudar) {
+    // Serie, repeticao e descanso numa linha de apoio, e nao em dois chips: os
+    // chips tinham o mesmo peso do nome e brigavam entre si.
+    final apoio = '${ex.series} × ${ex.repeticoes}'
+        '${ex.tempoDescansoSeg > 0 ? ' · ${ex.tempoDescansoSeg}s descanso' : ''}';
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () async {
+            await _editarExercicio(ex);
+            aoMudar();
+          },
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 11.0, 0.0, 11.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ex.nome.isEmpty ? '-' : ex.nome,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                          color: tema.primaryText,
+                          fontSize: 13.5,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2.0),
+                      Text(
+                        apoio,
+                        style: tema.bodyMedium.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                          color: tema.secondaryText,
+                          fontSize: 11.5,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(FFIcons.kproperty1FiRrEdit,
+                    color: tema.primary, size: 15.0),
+              ],
+            ),
+          ),
+        ),
+        if (!ultimo)
+          Divider(height: 1.0, thickness: 1.0, color: tema.alternate),
+      ],
+    );
+  }
+
+  Future<void> _editarExercicio(ExerciciosStruct ex) async {
+    final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) => WebViewAware(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Padding(
+            padding: MediaQuery.viewInsetsOf(context),
+            child: AlunosEditExercicioWidget(exercicio: ex),
+          ),
+        ),
+      ),
+    );
+    if (ok == true && mounted) {
+      await action_blocks.getPerfilAluno(context, alunoId: widget.alunoId);
+    }
+    if (mounted) safeSetState(() {});
+  }
+
+  Future<void> _novoExercicio(
+      GruposStruct bloco, GrupossubcategoriasStruct grupo) async {
+    final ok = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) => WebViewAware(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Padding(
+            padding: MediaQuery.viewInsetsOf(context),
+            child: AlunosNovoExercicioWidget(
+              grupo: grupo.subcategoriaId,
+              treinoExecucaoId: bloco.treinoExecucaoId,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (ok == true && mounted) {
+      await action_blocks.getPerfilAluno(context, alunoId: widget.alunoId);
+    }
+    if (mounted) safeSetState(() {});
+  }
+
+  /// A aba Pagamento, no mesmo desenho da ficha que o aluno ve do personal.
+  ///
+  /// Eram duas listas diferentes para o mesmo assunto: o aluno via cobrancas
+  /// com selo colorido e valor a direita, o personal via um bloco proprio com
+  /// etiqueta de status no meio do texto. Quem sustenta as duas telas e a
+  /// mesma pessoa, e ela reaprendia a ler a cada troca de lado.
+  Widget _abaPagamento(FlutterFlowTheme tema) {
+    final pgtos = FFAppState().alunotemp.pagamentos.toList()
+      ..sort((a, b) => (DateTime.tryParse(b.dataVencimento) ?? DateTime(1900))
+          .compareTo(DateTime.tryParse(a.dataVencimento) ?? DateTime(1900)));
+
+    if (pgtos.isEmpty) {
+      return _avisoPgto(
+        tema,
+        FFIcons.kproperty1FiRrDollar,
+        'Nenhuma cobrança ainda',
+        'Quando você registrar uma cobrança para este aluno, ela aparece aqui.',
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const CabecaSecao(titulo: 'Histórico de cobranças'),
+        const SizedBox(height: 10.0),
+        CartaoPerfil(
+          divisoriaNoTexto: true,
+          filhos: [for (final pg in pgtos) _linhaPagamento(tema, pg)],
+        ),
+      ],
+    );
+  }
+
+  Widget _linhaPagamento(FlutterFlowTheme tema, PagamentosStruct pg) {
+    final ({IconData icone, Color cor, Color fundo, String texto}) visual =
+        switch (pg.status) {
+      'pago' => (
+          icone: Icons.check_rounded,
+          cor: tema.success,
+          fundo: tema.success.withValues(alpha: 0.13),
+          texto: 'Pago',
+        ),
+      'atrasado' => (
+          icone: Icons.priority_high_rounded,
+          cor: tema.secondary,
+          fundo: tema.secondary.withValues(alpha: 0.14),
+          texto: 'Venceu ${_dataPgto(pg.dataVencimento)}',
+        ),
+      'aguardando' => (
+          icone: Icons.hourglass_empty_rounded,
+          cor: tema.primary,
+          fundo: tema.accent1,
+          texto: 'Aguardando confirmação',
+        ),
+      _ => (
+          icone: Icons.schedule_rounded,
+          cor: tema.secondaryText,
+          fundo: tema.alternate.withValues(alpha: 0.4),
+          texto: 'Vence ${_dataPgto(pg.dataVencimento)}',
+        ),
+    };
+
+    // Do outro lado do vinculo a acao e informar que pagou; aqui e dar baixa.
+    // Uma cobranca quitada nao tem o que registrar, e um alvo que abre folha
+    // para nada ensina a nao tocar.
+    final podeBaixar = pg.status != 'pago';
+
+    return LinhaPerfil(
+      icone: visual.icone,
+      corIcone: visual.cor,
+      fundoIcone: visual.fundo,
+      titulo: pg.descricao.isEmpty ? 'Cobrança' : pg.descricao,
+      subtitulo: visual.texto,
+      valor: 'R\$ ${_valorPgto(pg.valor)}',
+      mostraSeta: podeBaixar,
+      aoTocar: podeBaixar ? () => _registrarRecebimento(pg) : null,
+    );
+  }
+
+  Widget _avisoPgto(
+      FlutterFlowTheme tema, IconData icone, String titulo, String texto) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tema.primaryBackground,
+        borderRadius: BorderRadius.circular(16.0),
+        boxShadow: [tema.designToken.shadow.lg],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+      child: Column(
+        children: [
+          Container(
+            width: 52.0,
+            height: 52.0,
+            alignment: Alignment.center,
+            decoration:
+                BoxDecoration(color: tema.accent1, shape: BoxShape.circle),
+            child: Icon(icone, color: tema.primary, size: 24.0),
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 14.0, 0.0, 4.0),
+            child: Text(
+              titulo,
+              textAlign: TextAlign.center,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                color: tema.primaryText,
+                fontSize: 14.0,
+                letterSpacing: -0.2,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: tema.bodyMedium.override(
+              font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+              color: tema.secondaryText,
+              fontSize: 12.0,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w400,
+              lineHeight: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// "1.234,50" — virgula decimal e ponto de milhar, como se le em portugues.
+  String _valorPgto(double v) {
+    final partes = v.toStringAsFixed(2).split('.');
+    final inteiro = partes[0];
+    final buffer = StringBuffer();
+    for (var i = 0; i < inteiro.length; i++) {
+      if (i > 0 && (inteiro.length - i) % 3 == 0) buffer.write('.');
+      buffer.write(inteiro[i]);
+    }
+    return '$buffer,${partes[1]}';
+  }
+
+  String _dataPgto(String iso) {
+    final d = DateTime.tryParse(iso);
+    if (d == null) return '';
+    return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
+  }
 
   /// Registra o recebimento a partir da ficha do aluno.
   ///
@@ -350,31 +1020,13 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                         ),
                                         const SizedBox(width: 8.0),
                                       ],
-                                      if (a.email.isNotEmpty) ...[
+                                      if (a.email.isNotEmpty)
                                         AcaoIconePerfil(
-                                          icone: FFIcons.kproperty1FiRrEnvelope,
+                                          icone: FFIcons
+                                              .kproperty1FiRrEnvelopeOpen,
                                           aoTocar: () => launchUrl(Uri(
                                               scheme: 'mailto', path: a.email)),
                                         ),
-                                        const SizedBox(width: 8.0),
-                                      ],
-                                      // O estado do vinculo: era um botao com
-                                      // icone de flor, que nao sugeria nada.
-                                      AcaoIconePerfil(
-                                        icone: FFIcons.kproperty1FiRrSettings,
-                                        aoTocar: () async {
-                                          await showModalBottomSheet<void>(
-                                            useRootNavigator: true,
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) => WebViewAware(
-                                              child: PerfilAlunoStatusWidget(),
-                                            ),
-                                          );
-                                          if (mounted) safeSetState(() {});
-                                        },
-                                      ),
                                     ],
                                   );
                                 }),
@@ -470,1608 +1122,406 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryBackground,
-                                            boxShadow: [
-                                              FlutterFlowTheme.of(context)
-                                                  .designToken
-                                                  .shadow
-                                                  .lg
-                                            ],
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(12.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0,
-                                                                    8.0),
-                                                        child: Text(
-                                                          'Treino deste aluno',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryText,
-                                                                fontSize: 12.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                      Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          GestureDetector(
-                                                            onTap: () async {
-                                                              final trocou =
-                                                                  await showModalBottomSheet<
-                                                                      bool>(
-                                                                isScrollControlled:
-                                                                    true,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .transparent,
-                                                                enableDrag:
-                                                                    false,
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) =>
-                                                                        Padding(
-                                                                  padding: MediaQuery
-                                                                      .viewInsetsOf(
-                                                                          context),
-                                                                  child:
-                                                                      SelecionarTreinoAlunoWidget(
-                                                                    alunoUuid: FFAppState()
-                                                                        .alunotemp
-                                                                        .alunoUuid,
-                                                                    grupoTreinoIdAtual: FFAppState()
-                                                                        .alunotemp
-                                                                        .grupoTreino
-                                                                        .grupoTreinoId,
-                                                                    dataValidadeAtual: FFAppState()
-                                                                        .alunotemp
-                                                                        .grupoTreino
-                                                                        .dataValidade,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                              if (trocou ==
-                                                                      true &&
-                                                                  mounted) {
-                                                                await action_blocks
-                                                                    .getPerfilAluno(
-                                                                        context,
-                                                                        alunoId:
-                                                                            widget.alunoId);
-                                                                safeSetState(
-                                                                    () {});
-                                                              }
-                                                            },
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                Text(
-                                                                  valueOrDefault<
-                                                                      String>(
-                                                                    FFAppState()
-                                                                        .alunotemp
-                                                                        .grupoTreino
-                                                                        .nome,
-                                                                    'Adicionar',
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        font: GoogleFonts
-                                                                            .inter(
-                                                                          fontWeight:
-                                                                              FontWeight.w600,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .bodyMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryText,
-                                                                        fontSize:
-                                                                            18.0,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w600,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                ),
-                                                                Icon(
-                                                                  Icons
-                                                                      .unfold_more,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primary,
-                                                                  size: 16.0,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          GestureDetector(
-                                                            onTap: () async {
-                                                              final picked =
-                                                                  await custom_widgets
-                                                                      .showCustomDatePicker(
-                                                                context,
-                                                                initialDate:
-                                                                    () {
-                                                                  final d = functions.formataData(FFAppState()
-                                                                      .alunotemp
-                                                                      .grupoTreino
-                                                                      .dataValidade);
-                                                                  final now =
-                                                                      DateTime
-                                                                          .now();
-                                                                  return d.isBefore(
-                                                                          now)
-                                                                      ? now
-                                                                      : d;
-                                                                }(),
-                                                                firstDate:
-                                                                    DateTime
-                                                                        .now(),
-                                                                lastDate:
-                                                                    DateTime(
-                                                                        2099),
-                                                              );
-                                                              if (picked ==
-                                                                  null) return;
-                                                              final dateStr =
-                                                                  '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                                                              await SupaFlow
-                                                                  .client
-                                                                  .from(
-                                                                      'TreinosExecucao')
-                                                                  .update({
-                                                                    'DataValidade':
-                                                                        dateStr,
-                                                                  })
-                                                                  .eq(
-                                                                      'ExecutorPerfisId',
-                                                                      FFAppState()
-                                                                          .alunotemp
-                                                                          .alunoUuid)
-                                                                  .eq('Status',
-                                                                      'pendente')
-                                                                  .or('IsDeleted.is.null,IsDeleted.eq.false');
-                                                              if (!mounted)
-                                                                return;
-                                                              FFAppState()
-                                                                      .alunotemp
-                                                                      .grupoTreino
-                                                                      .dataValidade =
-                                                                  dateStr;
-                                                              safeSetState(
-                                                                  () {});
-                                                            },
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                Icon(
-                                                                  FFIcons
-                                                                      .kproperty1FiRrCalendar,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryText,
-                                                                  size: 12.0,
-                                                                ),
-                                                                Text(
-                                                                  'Válido até ${valueOrDefault<String>(
-                                                                    dateTimeFormat(
-                                                                      "dd/MM/yy",
-                                                                      functions.formataData(FFAppState()
-                                                                          .alunotemp
-                                                                          .grupoTreino
-                                                                          .dataValidade),
-                                                                      locale: FFLocalizations.of(
-                                                                              context)
-                                                                          .languageCode,
-                                                                    ),
-                                                                    '-',
-                                                                  )}',
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        font: GoogleFonts
-                                                                            .inter(
-                                                                          fontWeight:
-                                                                              FontWeight.w500,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .bodyMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .secondaryText,
-                                                                        fontSize:
-                                                                            12.0,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                ),
-                                                              ].divide(SizedBox(
-                                                                  width: 4.0)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ].divide(
-                                                        SizedBox(height: 4.0)),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Builder(
-                                          builder: (context) {
-                                            final subagrupamentos = FFAppState()
-                                                .alunotemp
-                                                .grupoTreino
-                                                .subagrupamentos
-                                                .toList();
-
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: List.generate(
-                                                  subagrupamentos.length,
-                                                  (subagrupamentosIndex) {
-                                                final subagrupamentosItem =
-                                                    subagrupamentos[
-                                                        subagrupamentosIndex];
-                                                return Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 16.0, 0.0, 0.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .primaryBackground,
-                                                      boxShadow: [
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .designToken
-                                                            .shadow
-                                                            .lg
-                                                      ],
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                16.0),
-                                                        topRight:
-                                                            Radius.circular(
-                                                                16.0),
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                16.0),
-                                                        bottomRight:
-                                                            Radius.circular(
-                                                                16.0),
-                                                      ),
-                                                    ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(),
-                                                          child: Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        0.0,
-                                                                        16.0,
-                                                                        0.0,
-                                                                        8.0),
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          16.0,
-                                                                          0.0,
-                                                                          40.0,
-                                                                          0.0),
-                                                                  child: Text(
-                                                                    subagrupamentosItem
-                                                                        .nome,
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.inter(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryText,
-                                                                          fontSize:
-                                                                              14.0,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .bodyMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topRight: Radius
-                                                                  .circular(
-                                                                      16.0),
-                                                              bottomLeft: Radius
-                                                                  .circular(
-                                                                      16.0),
-                                                              bottomRight:
-                                                                  Radius
-                                                                      .circular(
-                                                                          16.0),
-                                                            ),
-                                                          ),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Builder(
-                                                                builder:
-                                                                    (context) {
-                                                                  final exercicio =
-                                                                      subagrupamentosItem
-                                                                          .grupos
-                                                                          .map((e) =>
-                                                                              e)
-                                                                          .toList();
-
-                                                                  return ListView
-                                                                      .separated(
-                                                                    padding:
-                                                                        EdgeInsets
-                                                                            .zero,
-                                                                    primary:
-                                                                        false,
-                                                                    shrinkWrap:
-                                                                        true,
-                                                                    scrollDirection:
-                                                                        Axis.vertical,
-                                                                    itemCount:
-                                                                        exercicio
-                                                                            .length,
-                                                                    separatorBuilder: (_,
-                                                                            __) =>
-                                                                        SizedBox(
-                                                                            height:
-                                                                                4.0),
-                                                                    itemBuilder:
-                                                                        (context,
-                                                                            exercicioIndex) {
-                                                                      final exercicioItem =
-                                                                          exercicio[
-                                                                              exercicioIndex];
-                                                                      return Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          InkWell(
-                                                                            splashColor:
-                                                                                Colors.transparent,
-                                                                            focusColor:
-                                                                                Colors.transparent,
-                                                                            hoverColor:
-                                                                                Colors.transparent,
-                                                                            highlightColor:
-                                                                                Colors.transparent,
-                                                                            onTap:
-                                                                                () async {
-                                                                              final _key = '$subagrupamentosIndex-$exercicioIndex';
-                                                                              if (_key == _model.indexexercicios) {
-                                                                                _model.indexexercicios = null;
-                                                                                safeSetState(() {});
-                                                                              } else {
-                                                                                _model.indexexercicios = _key;
-                                                                                safeSetState(() {});
-                                                                              }
-                                                                            },
-                                                                            child:
-                                                                                Container(
-                                                                              width: MediaQuery.sizeOf(context).width * 1.0,
-                                                                              decoration: BoxDecoration(
-                                                                                color: FlutterFlowTheme.of(context).primaryBackground,
-                                                                                borderRadius: BorderRadius.circular(16.0),
-                                                                              ),
-                                                                              child: Padding(
-                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 16.0),
-                                                                                child: Column(
-                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    Row(
-                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                      children: [
-                                                                                        Padding(
-                                                                                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 16.0, 0.0),
-                                                                                          child: Container(
-                                                                                            width: 32.0,
-                                                                                            height: 32.0,
-                                                                                            decoration: BoxDecoration(
-                                                                                              color: FlutterFlowTheme.of(context).accent1,
-                                                                                              shape: BoxShape.circle,
-                                                                                            ),
-                                                                                            child: Align(
-                                                                                              alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                              child: Text(
-                                                                                                valueOrDefault<String>(
-                                                                                                  exercicioItem.exercicios.length.toString(),
-                                                                                                  '0',
-                                                                                                ),
-                                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                      font: GoogleFonts.inter(
-                                                                                                        fontWeight: FontWeight.w500,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
-                                                                                                      color: FlutterFlowTheme.of(context).primary,
-                                                                                                      fontSize: 12.0,
-                                                                                                      letterSpacing: 0.0,
-                                                                                                      fontWeight: FontWeight.w500,
-                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                    ),
-                                                                                              ),
-                                                                                            ),
-                                                                                          ),
-                                                                                        ),
-                                                                                        Expanded(
-                                                                                          child: Text(
-                                                                                            exercicioItem.subcategoria,
-                                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                  font: GoogleFonts.inter(
-                                                                                                    fontWeight: FontWeight.w600,
-                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                  ),
-                                                                                                  color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                  letterSpacing: 0.0,
-                                                                                                  fontWeight: FontWeight.w600,
-                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                ),
-                                                                                          ),
-                                                                                        ),
-                                                                                        if ('$subagrupamentosIndex-$exercicioIndex' == _model.indexexercicios)
-                                                                                          Icon(
-                                                                                            Icons.keyboard_arrow_down_rounded,
-                                                                                            color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                            size: 24.0,
-                                                                                          ),
-                                                                                        if ('$subagrupamentosIndex-$exercicioIndex' != _model.indexexercicios)
-                                                                                          Icon(
-                                                                                            Icons.keyboard_arrow_right_rounded,
-                                                                                            color: FlutterFlowTheme.of(context).primary,
-                                                                                            size: 24.0,
-                                                                                          ),
-                                                                                      ].addToStart(SizedBox(width: 16.0)).addToEnd(SizedBox(width: 10.0)),
-                                                                                    ),
-                                                                                    if ('$subagrupamentosIndex-$exercicioIndex' == _model.indexexercicios)
-                                                                                      SingleChildScrollView(
-                                                                                        primary: false,
-                                                                                        controller: _model.columnController2,
-                                                                                        child: Column(
-                                                                                          mainAxisSize: MainAxisSize.max,
-                                                                                          children: [
-                                                                                            Builder(
-                                                                                              builder: (context) {
-                                                                                                final subexercicios = exercicioItem.exercicios.map((e) => e).toList().sortedList(keyOf: (e) => e.ordem, desc: false).toList();
-
-                                                                                                return ListView.separated(
-                                                                                                  padding: EdgeInsets.zero,
-                                                                                                  primary: false,
-                                                                                                  shrinkWrap: true,
-                                                                                                  scrollDirection: Axis.vertical,
-                                                                                                  itemCount: subexercicios.length,
-                                                                                                  separatorBuilder: (_, __) => SizedBox(height: 4.0),
-                                                                                                  itemBuilder: (context, subexerciciosIndex) {
-                                                                                                    final subexerciciosItem = subexercicios[subexerciciosIndex];
-                                                                                                    return Column(
-                                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                                      children: [
-                                                                                                        Container(
-                                                                                                          decoration: BoxDecoration(),
-                                                                                                          child: Padding(
-                                                                                                            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                                                            child: Container(
-                                                                                                              decoration: BoxDecoration(
-                                                                                                                color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                                                borderRadius: BorderRadius.circular(14.0),
-                                                                                                              ),
-                                                                                                              child: Padding(
-                                                                                                                padding: EdgeInsets.all(16.0),
-                                                                                                                child: Row(
-                                                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                                                  children: [
-                                                                                                                    Column(
-                                                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                                                      children: [
-                                                                                                                        Row(
-                                                                                                                          mainAxisSize: MainAxisSize.max,
-                                                                                                                          children: [
-                                                                                                                            RichText(
-                                                                                                                              textScaler: MediaQuery.of(context).textScaler,
-                                                                                                                              text: TextSpan(
-                                                                                                                                children: [
-                                                                                                                                  TextSpan(
-                                                                                                                                    text: valueOrDefault<String>(
-                                                                                                                                      subexerciciosItem.nome,
-                                                                                                                                      '-',
-                                                                                                                                    ),
-                                                                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                                          font: GoogleFonts.inter(
-                                                                                                                                            fontWeight: FontWeight.bold,
-                                                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                          ),
-                                                                                                                                          fontSize: 13.0,
-                                                                                                                                          letterSpacing: 0.0,
-                                                                                                                                          fontWeight: FontWeight.bold,
-                                                                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                        ),
-                                                                                                                                  )
-                                                                                                                                ],
-                                                                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                                      font: GoogleFonts.inter(
-                                                                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                      ),
-                                                                                                                                      letterSpacing: 0.0,
-                                                                                                                                      fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                    ),
-                                                                                                                              ),
-                                                                                                                            ),
-                                                                                                                          ],
-                                                                                                                        ),
-                                                                                                                        Row(
-                                                                                                                          mainAxisSize: MainAxisSize.max,
-                                                                                                                          children: [
-                                                                                                                            Container(
-                                                                                                                              decoration: BoxDecoration(
-                                                                                                                                color: FlutterFlowTheme.of(context).accent2,
-                                                                                                                                borderRadius: BorderRadius.circular(8.0),
-                                                                                                                              ),
-                                                                                                                              child: Padding(
-                                                                                                                                padding: EdgeInsetsDirectional.fromSTEB(6.0, 2.0, 6.0, 2.0),
-                                                                                                                                child: Row(
-                                                                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                                                                  children: [
-                                                                                                                                    Text(
-                                                                                                                                      '${subexerciciosItem.series.toString()} x ${subexerciciosItem.repeticoes.toString()}',
-                                                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                                            font: GoogleFonts.inter(
-                                                                                                                                              fontWeight: FontWeight.normal,
-                                                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                            ),
-                                                                                                                                            color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                                                            fontSize: 12.0,
-                                                                                                                                            letterSpacing: 0.0,
-                                                                                                                                            fontWeight: FontWeight.normal,
-                                                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                          ),
-                                                                                                                                    ),
-                                                                                                                                  ],
-                                                                                                                                ),
-                                                                                                                              ),
-                                                                                                                            ),
-                                                                                                                            Container(
-                                                                                                                              decoration: BoxDecoration(
-                                                                                                                                color: FlutterFlowTheme.of(context).accent2,
-                                                                                                                                borderRadius: BorderRadius.circular(60.0),
-                                                                                                                              ),
-                                                                                                                              child: Padding(
-                                                                                                                                padding: EdgeInsetsDirectional.fromSTEB(4.0, 2.0, 6.0, 2.0),
-                                                                                                                                child: Row(
-                                                                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                                                                  children: [
-                                                                                                                                    Padding(
-                                                                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
-                                                                                                                                      child: Icon(
-                                                                                                                                        FFIcons.kproperty1FiRrTimeQuarterPast,
-                                                                                                                                        color: FlutterFlowTheme.of(context).secondary,
-                                                                                                                                        size: 12.0,
-                                                                                                                                      ),
-                                                                                                                                    ),
-                                                                                                                                    Text(
-                                                                                                                                      '${subexerciciosItem.tempoDescansoSeg.toString()}s descanso',
-                                                                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                                                            font: GoogleFonts.inter(
-                                                                                                                                              fontWeight: FontWeight.normal,
-                                                                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                            ),
-                                                                                                                                            color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                                                            fontSize: 12.0,
-                                                                                                                                            letterSpacing: 0.0,
-                                                                                                                                            fontWeight: FontWeight.normal,
-                                                                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                                                          ),
-                                                                                                                                    ),
-                                                                                                                                  ],
-                                                                                                                                ),
-                                                                                                                              ),
-                                                                                                                            ),
-                                                                                                                          ].divide(SizedBox(width: 6.0)),
-                                                                                                                        ),
-                                                                                                                      ].divide(SizedBox(height: 8.0)),
-                                                                                                                    ),
-                                                                                                                    Expanded(
-                                                                                                                      child: Align(
-                                                                                                                        alignment: AlignmentDirectional(1.0, 0.0),
-                                                                                                                        child: Container(
-                                                                                                                          width: 26.7,
-                                                                                                                          height: 26.7,
-                                                                                                                          decoration: BoxDecoration(
-                                                                                                                            borderRadius: BorderRadius.circular(100.0),
-                                                                                                                            shape: BoxShape.rectangle,
-                                                                                                                          ),
-                                                                                                                          child: Align(
-                                                                                                                            alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                                                            child: InkWell(
-                                                                                                                              splashColor: Colors.transparent,
-                                                                                                                              focusColor: Colors.transparent,
-                                                                                                                              hoverColor: Colors.transparent,
-                                                                                                                              highlightColor: Colors.transparent,
-                                                                                                                              onTap: () async {
-                                                                                                                                await showModalBottomSheet(
-                                                                                                                                  useRootNavigator: true,
-                                                                                                                                  isScrollControlled: true,
-                                                                                                                                  backgroundColor: Colors.transparent,
-                                                                                                                                  enableDrag: false,
-                                                                                                                                  context: context,
-                                                                                                                                  builder: (context) {
-                                                                                                                                    return WebViewAware(
-                                                                                                                                      child: GestureDetector(
-                                                                                                                                        onTap: () {
-                                                                                                                                          FocusScope.of(context).unfocus();
-                                                                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                                                        },
-                                                                                                                                        child: Padding(
-                                                                                                                                          padding: MediaQuery.viewInsetsOf(context),
-                                                                                                                                          child: AlunosEditExercicioWidget(
-                                                                                                                                            exercicio: subexerciciosItem,
-                                                                                                                                          ),
-                                                                                                                                        ),
-                                                                                                                                      ),
-                                                                                                                                    );
-                                                                                                                                  },
-                                                                                                                                ).then((value) => safeSetState(() => _model.editou = value));
-
-                                                                                                                                if (_model.editou == true) {
-                                                                                                                                  await action_blocks.getPerfilAluno(
-                                                                                                                                    context,
-                                                                                                                                    alunoId: widget!.alunoId,
-                                                                                                                                  );
-                                                                                                                                  safeSetState(() {});
-                                                                                                                                }
-
-                                                                                                                                safeSetState(() {});
-                                                                                                                              },
-                                                                                                                              child: Icon(
-                                                                                                                                FFIcons.kproperty1FiRrEdit,
-                                                                                                                                color: FlutterFlowTheme.of(context).primary,
-                                                                                                                                size: 16.0,
-                                                                                                                              ),
-                                                                                                                            ),
-                                                                                                                          ),
-                                                                                                                        ),
-                                                                                                                      ),
-                                                                                                                    ),
-                                                                                                                  ].divide(SizedBox(width: 12.0)),
-                                                                                                                ),
-                                                                                                              ),
-                                                                                                            ),
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ],
-                                                                                                    );
-                                                                                                  },
-                                                                                                );
-                                                                                              },
-                                                                                            ),
-                                                                                            Padding(
-                                                                                              padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
-                                                                                              child: Container(
-                                                                                                width: MediaQuery.sizeOf(context).width * 1.0,
-                                                                                                height: 38.0,
-                                                                                                child: custom_widgets.DashedButton(
-                                                                                                  width: MediaQuery.sizeOf(context).width * 1.0,
-                                                                                                  height: 38.0,
-                                                                                                  label: 'Adicionar exercícios',
-                                                                                                  labelSize: 14.0,
-                                                                                                  labelColor: FlutterFlowTheme.of(context).primary,
-                                                                                                  icon: Icon(
-                                                                                                    Icons.add,
-                                                                                                    color: FlutterFlowTheme.of(context).primary,
-                                                                                                    size: 18.0,
-                                                                                                  ),
-                                                                                                  iconColor: FlutterFlowTheme.of(context).primary,
-                                                                                                  iconGap: 4.0,
-                                                                                                  borderColor: FlutterFlowTheme.of(context).primary,
-                                                                                                  borderRadius: 10.0,
-                                                                                                  borderWidth: 1.0,
-                                                                                                  dashWidth: 4.0,
-                                                                                                  dashGap: 4.0,
-                                                                                                  onPressed: () async {
-                                                                                                    await showModalBottomSheet(
-                                                                                                      useRootNavigator: true,
-                                                                                                      isScrollControlled: true,
-                                                                                                      backgroundColor: Colors.transparent,
-                                                                                                      enableDrag: false,
-                                                                                                      context: context,
-                                                                                                      builder: (context) {
-                                                                                                        return WebViewAware(
-                                                                                                          child: GestureDetector(
-                                                                                                            onTap: () {
-                                                                                                              FocusScope.of(context).unfocus();
-                                                                                                              FocusManager.instance.primaryFocus?.unfocus();
-                                                                                                            },
-                                                                                                            child: Padding(
-                                                                                                              padding: MediaQuery.viewInsetsOf(context),
-                                                                                                              child: AlunosNovoExercicioWidget(
-                                                                                                                grupo: exercicioItem.subcategoriaId,
-                                                                                                                treinoExecucaoId: subagrupamentosItem.treinoExecucaoId,
-                                                                                                              ),
-                                                                                                            ),
-                                                                                                          ),
-                                                                                                        );
-                                                                                                      },
-                                                                                                    ).then((value) => safeSetState(() => _model.editou1 = value));
-
-                                                                                                    if (_model.editou1 == true) {
-                                                                                                      await action_blocks.getPerfilAluno(
-                                                                                                        context,
-                                                                                                        alunoId: widget!.alunoId,
-                                                                                                      );
-                                                                                                      safeSetState(() {});
-                                                                                                    }
-
-                                                                                                    safeSetState(() {});
-                                                                                                  },
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
-                                                                                          ].addToStart(SizedBox(height: 16.0)),
-                                                                                        ),
-                                                                                      ),
-                                                                                  ],
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          Divider(
-                                                                            height:
-                                                                                1.0,
-                                                                            thickness:
-                                                                                1.0,
-                                                                            indent:
-                                                                                68.0,
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).alternate,
-                                                                          ),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              }),
-                                            );
-                                          },
-                                        ),
+                                        _blocosDeTreino(
+                                            FlutterFlowTheme.of(context)),
+                                        _atalhosDoTreino(
+                                            FlutterFlowTheme.of(context)),
                                       ],
                                     ),
                                   ),
                                 if (_model.menu == 2)
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            valueOrDefault<double>(
-                                              () {
-                                                if (MediaQuery.sizeOf(context)
-                                                        .width <
-                                                    kBreakpointSmall) {
-                                                  return 16.0;
-                                                } else if (MediaQuery.sizeOf(
-                                                            context)
-                                                        .width <
-                                                    kBreakpointMedium) {
-                                                  return 16.0;
-                                                } else if (MediaQuery.sizeOf(
-                                                            context)
-                                                        .width <
-                                                    kBreakpointLarge) {
-                                                  return 32.0;
-                                                } else {
-                                                  return 32.0;
-                                                }
-                                              }(),
-                                              0.0,
+                                  Padding(
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 16.0, 16.0, 0.0),
+                                    child: _abaPagamento(
+                                        FlutterFlowTheme.of(context)),
+                                  ),
+                                // O cartao inteiro so existe na aba Metas.
+                                //
+                                // Antes so o conteudo era escondido por
+                                // `Visibility`: o cartao branco continuava
+                                // sendo construido, e nas outras abas sobrava
+                                // um bloco vazio empurrando tudo para baixo.
+                                if (_model.menu == 3) ...[
+                                  // Titulo, apoio e o "+" no mesmo desenho da
+                                  // tela de Metas que o aluno ve.
+                                  //
+                                  // O botao morava tracejado dentro do cartao,
+                                  // acima da lista: quem chegava na aba lia
+                                  // primeiro um convite a criar, e so depois
+                                  // descobria o que ja existia. Subindo para o
+                                  // lado do titulo, ele volta a ser o que e —
+                                  // uma acao sobre a lista, nao o assunto dela.
+                                  Padding(
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            19.0, 26.0, 16.0, 22.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                'Onde ele quer chegar',
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                      fontSize: 16.0,
+                                                      letterSpacing: -0.2,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                              ),
                                             ),
-                                            16.0,
-                                            valueOrDefault<double>(
-                                              () {
-                                                if (MediaQuery.sizeOf(context)
-                                                        .width <
-                                                    kBreakpointSmall) {
-                                                  return 16.0;
-                                                } else if (MediaQuery.sizeOf(
-                                                            context)
-                                                        .width <
-                                                    kBreakpointMedium) {
-                                                  return 16.0;
-                                                } else if (MediaQuery.sizeOf(
-                                                            context)
-                                                        .width <
-                                                    kBreakpointLarge) {
-                                                  return 32.0;
-                                                } else {
-                                                  return 32.0;
-                                                }
-                                              }(),
-                                              0.0,
-                                            ),
-                                            0.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryBackground,
-                                            boxShadow: [
-                                              FlutterFlowTheme.of(context)
-                                                  .designToken
-                                                  .shadow
-                                                  .lg
-                                            ],
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                          ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              if (_model.menu == 2)
-                                                Builder(
-                                                  builder: (context) {
-                                                    final pgtos = FFAppState()
-                                                        .alunotemp
-                                                        .pagamentos
-                                                        .sortedList(
-                                                            keyOf: (e) => functions
-                                                                .formataData(e
-                                                                    .dataVencimento),
-                                                            desc: true)
-                                                        .toList();
-
-                                                    if (pgtos.isEmpty) {
-                                                      return Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(24.0),
-                                                        child: Center(
-                                                          child: Text(
-                                                            'Nenhum registro ainda.',
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  font:
-                                                                      GoogleFonts
-                                                                          .inter(
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryText,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }
-                                                    return Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      children: List.generate(
-                                                          pgtos.length,
-                                                          (pgtosIndex) {
-                                                        final pgtosItem =
-                                                            pgtos[pgtosIndex];
-                                                        return Container(
-                                                          decoration:
-                                                              BoxDecoration(),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                      8.0, 0.0, 0.0, 0.0),
+                                              // Laranja so aqui: nesta ficha o
+                                              // azul ja e a cor das abas e dos
+                                              // seletores, e mais um circulo
+                                              // azul no meio do conteudo lia
+                                              // como navegacao.
+                                              child: Material(
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondary,
+                                                shape: const CircleBorder(),
+                                                child: InkWell(
+                                                  customBorder:
+                                                      const CircleBorder(),
+                                                  onTap: () async {
+                                                    await showModalBottomSheet(
+                                                      useRootNavigator: true,
+                                                      isScrollControlled: true,
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      enableDrag: false,
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return WebViewAware(
                                                           child:
-                                                              SingleChildScrollView(
-                                                            primary: false,
-                                                            controller: _model
-                                                                .columnController3,
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                ListView(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .zero,
-                                                                  shrinkWrap:
-                                                                      true,
-                                                                  scrollDirection:
-                                                                      Axis.vertical,
-                                                                  children: [
-                                                                    Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .max,
-                                                                      children: [
-                                                                        Padding(
-                                                                          padding: EdgeInsetsDirectional.fromSTEB(
-                                                                              0.0,
-                                                                              16.0,
-                                                                              0.0,
-                                                                              16.0),
-                                                                          // Toque so no que ainda nao foi pago: numa
-                                                                          // cobranca quitada nao ha o que registrar, e um
-                                                                          // alvo que abre folha para nada ensina a nao
-                                                                          // tocar.
-                                                                          child:
-                                                                              InkWell(
-                                                                            onTap: pgtosItem.status == 'pago'
-                                                                                ? null
-                                                                                : () => _registrarRecebimento(pgtosItem),
-                                                                            child:
-                                                                                Container(
-                                                                              width: MediaQuery.sizeOf(context).width * 1.0,
-                                                                              decoration: BoxDecoration(),
-                                                                              child: Padding(
-                                                                                padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                                child: Row(
-                                                                                  mainAxisSize: MainAxisSize.max,
-                                                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                                                  children: [
-                                                                                    Container(
-                                                                                      width: 38.0,
-                                                                                      height: 38.0,
-                                                                                      decoration: BoxDecoration(
-                                                                                        color: () {
-                                                                                          if (pgtosItem.status == 'pago') {
-                                                                                            return Color(0x2F009663);
-                                                                                          } else if (pgtosItem.status == 'atrasado') {
-                                                                                            return Color(0x2FFF1D29);
-                                                                                          } else {
-                                                                                            return FlutterFlowTheme.of(context).accent3;
-                                                                                          }
-                                                                                        }(),
-                                                                                        borderRadius: BorderRadius.circular(100.0),
-                                                                                      ),
-                                                                                      child: Align(
-                                                                                        alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                        child: Icon(
-                                                                                          Icons.add_card_rounded,
-                                                                                          color: () {
-                                                                                            if (pgtosItem.status == 'pago') {
-                                                                                              return FlutterFlowTheme.of(context).success;
-                                                                                            } else if (pgtosItem.status == 'atrasado') {
-                                                                                              return FlutterFlowTheme.of(context).error;
-                                                                                            } else {
-                                                                                              return FlutterFlowTheme.of(context).warning;
-                                                                                            }
-                                                                                          }(),
-                                                                                          size: 18.0,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                    Expanded(
-                                                                                      child: Column(
-                                                                                        mainAxisSize: MainAxisSize.max,
-                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                        children: [
-                                                                                          Row(
-                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                            children: [
-                                                                                              Text(
-                                                                                                (String var1) {
-                                                                                                  return var1.isNotEmpty ? var1[0].toUpperCase() + var1.substring(1).toLowerCase() : '';
-                                                                                                }(valueOrDefault<String>(
-                                                                                                  pgtosItem.tipoPagamento,
-                                                                                                  '-',
-                                                                                                )),
-                                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                      font: GoogleFonts.inter(
-                                                                                                        fontWeight: FontWeight.w500,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
-                                                                                                      color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                      fontSize: 14.0,
-                                                                                                      letterSpacing: 0.0,
-                                                                                                      fontWeight: FontWeight.w500,
-                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                    ),
-                                                                                              ),
-                                                                                              // Status como flag, e nao texto cru.
-                                                                                              //
-                                                                                              // "pago" e "atrasado" em cinza, do lado do
-                                                                                              // tipo de pagamento, se liam como mais um
-                                                                                              // pedaco da mesma frase. Numa pilula
-                                                                                              // colorida o estado e visto antes de ser
-                                                                                              // lido — que e o unico jeito de varrer uma
-                                                                                              // lista de cobrancas.
-                                                                                              Builder(builder: (context) {
-                                                                                                final tema = FlutterFlowTheme.of(context);
-                                                                                                final cor = pgtosItem.status == 'pago'
-                                                                                                    ? tema.success
-                                                                                                    : pgtosItem.status == 'atrasado'
-                                                                                                        ? tema.error
-                                                                                                        : pgtosItem.status == 'aguardando'
-                                                                                                            ? tema.primary
-                                                                                                            : tema.secondaryText;
-                                                                                                final rotulo = pgtosItem.status == 'aguardando'
-                                                                                                    ? 'Aguardando'
-                                                                                                    : pgtosItem.status.isEmpty
-                                                                                                        ? '-'
-                                                                                                        : pgtosItem.status[0].toUpperCase() + pgtosItem.status.substring(1);
-                                                                                                return Container(
-                                                                                                  padding: const EdgeInsetsDirectional.fromSTEB(8.0, 2.0, 8.0, 3.0),
-                                                                                                  decoration: BoxDecoration(
-                                                                                                    color: cor.withValues(alpha: 0.12),
-                                                                                                    borderRadius: BorderRadius.circular(999.0),
-                                                                                                  ),
-                                                                                                  child: Text(
-                                                                                                    rotulo,
-                                                                                                    style: tema.bodyMedium.override(
-                                                                                                      font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                                                                                                      color: cor,
-                                                                                                      fontSize: 10.5,
-                                                                                                      letterSpacing: 0.0,
-                                                                                                      fontWeight: FontWeight.w600,
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                );
-                                                                                              }),
-                                                                                            ].divide(SizedBox(width: 6.0)),
-                                                                                          ),
-                                                                                          Row(
-                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                            children: [
-                                                                                              Expanded(
-                                                                                                child: Text(
-                                                                                                  valueOrDefault<String>(
-                                                                                                    pgtosItem.descricao,
-                                                                                                    'desc',
-                                                                                                  ),
-                                                                                                  maxLines: 2,
-                                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                        font: GoogleFonts.inter(
-                                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                        ),
-                                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                        fontSize: 12.0,
-                                                                                                        letterSpacing: 0.0,
-                                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ],
-                                                                                          ),
-                                                                                        ].divide(SizedBox(height: 4.0)),
-                                                                                      ),
-                                                                                    ),
-                                                                                    Column(
-                                                                                      mainAxisSize: MainAxisSize.max,
-                                                                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                                                                      children: [
-                                                                                        RichText(
-                                                                                          textScaler: MediaQuery.of(context).textScaler,
-                                                                                          text: TextSpan(
-                                                                                            children: [
-                                                                                              TextSpan(
-                                                                                                text: 'R\$ ',
-                                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                      font: GoogleFonts.inter(
-                                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                      ),
-                                                                                                      color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                      fontSize: 10.0,
-                                                                                                      letterSpacing: 0.0,
-                                                                                                      fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                    ),
-                                                                                              ),
-                                                                                              TextSpan(
-                                                                                                text: valueOrDefault<String>(
-                                                                                                  formatNumber(
-                                                                                                    pgtosItem.valor,
-                                                                                                    formatType: FormatType.decimal,
-                                                                                                    decimalType: DecimalType.commaDecimal,
-                                                                                                  ),
-                                                                                                  '0,00',
-                                                                                                ),
-                                                                                                style: GoogleFonts.inter(
-                                                                                                  color: FlutterFlowTheme.of(context).primaryText,
-                                                                                                  fontWeight: FontWeight.w600,
-                                                                                                ),
-                                                                                              )
-                                                                                            ],
-                                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                  font: GoogleFonts.inter(
-                                                                                                    fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                  ),
-                                                                                                  letterSpacing: 0.0,
-                                                                                                  fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                ),
-                                                                                          ),
-                                                                                          textAlign: TextAlign.end,
-                                                                                        ),
-                                                                                        Text(
-                                                                                          valueOrDefault<String>(
-                                                                                            dateTimeFormat(
-                                                                                              "dd/MM/yyyy",
-                                                                                              functions.formataData(pgtosItem.dataVencimento),
-                                                                                              locale: FFLocalizations.of(context).languageCode,
-                                                                                            ),
-                                                                                            '-',
-                                                                                          ),
-                                                                                          textAlign: TextAlign.end,
-                                                                                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                                font: GoogleFonts.inter(
-                                                                                                  fontWeight: FontWeight.normal,
-                                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                                ),
-                                                                                                color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                                fontSize: 12.0,
-                                                                                                letterSpacing: 0.0,
-                                                                                                fontWeight: FontWeight.normal,
-                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                              ),
-                                                                                        ),
-                                                                                      ].divide(SizedBox(height: 4.0)),
-                                                                                    ),
-                                                                                  ].divide(SizedBox(width: 16.0)),
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        Divider(
-                                                                          height:
-                                                                              1.0,
-                                                                          thickness:
-                                                                              1.0,
-                                                                          indent:
-                                                                              68.0,
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).alternate,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ].divide(SizedBox(
-                                                                      height:
-                                                                          40.0)),
-                                                                ),
-                                                              ],
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .unfocus();
+                                                              FocusManager
+                                                                  .instance
+                                                                  .primaryFocus
+                                                                  ?.unfocus();
+                                                            },
+                                                            child: Padding(
+                                                              padding: MediaQuery
+                                                                  .viewInsetsOf(
+                                                                      context),
+                                                              child:
+                                                                  AlunosNovoObjetivoWidget(),
                                                             ),
                                                           ),
                                                         );
-                                                      }),
-                                                    );
-                                                  },
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      valueOrDefault<double>(
-                                        () {
-                                          if (MediaQuery.sizeOf(context).width <
-                                              kBreakpointSmall) {
-                                            return 16.0;
-                                          } else if (MediaQuery.sizeOf(context)
-                                                  .width <
-                                              kBreakpointMedium) {
-                                            return 16.0;
-                                          } else if (MediaQuery.sizeOf(context)
-                                                  .width <
-                                              kBreakpointLarge) {
-                                            return 32.0;
-                                          } else {
-                                            return 32.0;
-                                          }
-                                        }(),
-                                        0.0,
-                                      ),
-                                      16.0,
-                                      valueOrDefault<double>(
-                                        () {
-                                          if (MediaQuery.sizeOf(context).width <
-                                              kBreakpointSmall) {
-                                            return 16.0;
-                                          } else if (MediaQuery.sizeOf(context)
-                                                  .width <
-                                              kBreakpointMedium) {
-                                            return 16.0;
-                                          } else if (MediaQuery.sizeOf(context)
-                                                  .width <
-                                              kBreakpointLarge) {
-                                            return 32.0;
-                                          } else {
-                                            return 32.0;
-                                          }
-                                        }(),
-                                        0.0,
-                                      ),
-                                      16.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryBackground,
-                                      boxShadow: [
-                                        FlutterFlowTheme.of(context)
-                                            .designToken
-                                            .shadow
-                                            .lg
-                                      ],
-                                      borderRadius: BorderRadius.circular(16.0),
-                                    ),
-                                    child: Visibility(
-                                      visible: _model.menu == 3,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(16.0),
-                                                  child: Container(
-                                                    width: MediaQuery.sizeOf(
-                                                                context)
-                                                            .width *
-                                                        1.0,
-                                                    height: 38.0,
-                                                    child: custom_widgets
-                                                        .DashedButton(
-                                                      width: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width *
-                                                          1.0,
-                                                      height: 38.0,
-                                                      label:
-                                                          'Adicionar objetivo',
-                                                      labelSize: 14.0,
-                                                      labelColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondary,
-                                                      icon: Icon(
-                                                        Icons.add,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                        size: 18.0,
-                                                      ),
-                                                      iconColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondary,
-                                                      iconGap: 4.0,
-                                                      borderColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondary,
-                                                      borderRadius: 10.0,
-                                                      borderWidth: 1.0,
-                                                      dashWidth: 4.0,
-                                                      dashGap: 4.0,
-                                                      onPressed: () async {
-                                                        await showModalBottomSheet(
-                                                          useRootNavigator:
-                                                              true,
-                                                          isScrollControlled:
-                                                              true,
-                                                          backgroundColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          enableDrag: false,
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return WebViewAware(
-                                                              child:
-                                                                  GestureDetector(
-                                                                onTap: () {
-                                                                  FocusScope.of(
-                                                                          context)
-                                                                      .unfocus();
-                                                                  FocusManager
-                                                                      .instance
-                                                                      .primaryFocus
-                                                                      ?.unfocus();
-                                                                },
-                                                                child: Padding(
-                                                                  padding: MediaQuery
-                                                                      .viewInsetsOf(
-                                                                          context),
-                                                                  child:
-                                                                      AlunosNovoObjetivoWidget(),
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                        ).then((value) =>
-                                                            safeSetState(() =>
-                                                                _model.cadastroumeta =
-                                                                    value));
-
-                                                        if (_model
-                                                                .cadastroumeta ==
-                                                            true) {
-                                                          await action_blocks
-                                                              .getPerfilAluno(
-                                                            context,
-                                                            alunoId:
-                                                                widget!.alunoId,
-                                                          );
-                                                          safeSetState(() {});
-                                                        }
-
-                                                        safeSetState(() {});
                                                       },
+                                                    ).then((value) =>
+                                                        safeSetState(() => _model
+                                                                .cadastroumeta =
+                                                            value));
+
+                                                    if (_model.cadastroumeta ==
+                                                        true) {
+                                                      await action_blocks
+                                                          .getPerfilAluno(
+                                                        context,
+                                                        alunoId:
+                                                            widget!.alunoId,
+                                                      );
+                                                      safeSetState(() {});
+                                                    }
+
+                                                    safeSetState(() {});
+                                                  },
+                                                  child: const SizedBox(
+                                                    width: 24.0,
+                                                    height: 24.0,
+                                                    child: Icon(
+                                                      Icons.add_rounded,
+                                                      color: Colors.white,
+                                                      size: 16.0,
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ]
-                                                .addToStart(
-                                                    SizedBox(width: 1.0))
-                                                .addToEnd(SizedBox(width: 1.0)),
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(0.0, 5.0, 0.0, 0.0),
+                                          child: Text(
+                                            'As metas deste aluno. Use o + para '
+                                            'definir uma nova.',
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  font: GoogleFonts.inter(
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  fontSize: 12.0,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.w400,
+                                                  lineHeight: 1.35,
+                                                ),
                                           ),
-                                          Container(
-                                            width: MediaQuery.sizeOf(context)
-                                                    .width *
-                                                1.0,
-                                            decoration: BoxDecoration(),
-                                            child: Builder(
-                                              builder: (context) {
-                                                final metas = FFAppState()
-                                                    .alunotemp
-                                                    .metas
-                                                    .map((e) => e)
-                                                    .toList();
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 0.0, 16.0, 16.0),
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryBackground,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                        boxShadow: [
+                                          FlutterFlowTheme.of(context)
+                                              .designToken
+                                              .shadow
+                                              .lg
+                                        ],
+                                      ),
+                                      child: Builder(
+                                        builder: (context) {
+                                          final metas = FFAppState()
+                                              .alunotemp
+                                              .metas
+                                              .map((e) => e)
+                                              .toList();
 
-                                                return ListView.separated(
-                                                  padding: EdgeInsets.zero,
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  itemCount: metas.length,
-                                                  separatorBuilder: (_, __) =>
-                                                      SizedBox(height: 6.0),
-                                                  itemBuilder:
-                                                      (context, metasIndex) {
-                                                    final metasItem =
-                                                        metas[metasIndex];
-                                                    return InkWell(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      onTap: () async {
-                                                        await showModalBottomSheet(
-                                                          useRootNavigator:
-                                                              true,
-                                                          isScrollControlled:
-                                                              true,
-                                                          backgroundColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          enableDrag: false,
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return WebViewAware(
-                                                              child:
-                                                                  GestureDetector(
-                                                                onTap: () {
-                                                                  FocusScope.of(
-                                                                          context)
-                                                                      .unfocus();
-                                                                  FocusManager
-                                                                      .instance
-                                                                      .primaryFocus
-                                                                      ?.unfocus();
-                                                                },
-                                                                child: Padding(
-                                                                  padding: MediaQuery
-                                                                      .viewInsetsOf(
-                                                                          context),
-                                                                  child:
-                                                                      AlunosEditarObjetivoWidget(
-                                                                    metas:
-                                                                        metasItem,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            );
+                                          if (metas.isEmpty) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(20.0),
+                                              child: Text(
+                                                'Nenhuma meta definida ainda.',
+                                                textAlign: TextAlign.center,
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondaryText,
+                                                      fontSize: 12.5,
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    ),
+                                              ),
+                                            );
+                                          }
+
+                                          return ListView.separated(
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            // Sem rolagem propria: o cartao ja
+                                            // vive dentro da rolagem da ficha,
+                                            // e duas areas roláveis empilhadas
+                                            // roubavam o gesto uma da outra.
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            scrollDirection: Axis.vertical,
+                                            itemCount: metas.length,
+                                            separatorBuilder: (_, __) =>
+                                                SizedBox(height: 6.0),
+                                            itemBuilder: (context, metasIndex) {
+                                              final metasItem =
+                                                  metas[metasIndex];
+                                              return InkWell(
+                                                splashColor: Colors.transparent,
+                                                focusColor: Colors.transparent,
+                                                hoverColor: Colors.transparent,
+                                                highlightColor:
+                                                    Colors.transparent,
+                                                onTap: () async {
+                                                  await showModalBottomSheet(
+                                                    useRootNavigator: true,
+                                                    isScrollControlled: true,
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    enableDrag: false,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return WebViewAware(
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            FocusScope.of(
+                                                                    context)
+                                                                .unfocus();
+                                                            FocusManager
+                                                                .instance
+                                                                .primaryFocus
+                                                                ?.unfocus();
                                                           },
-                                                        ).then((value) =>
-                                                            safeSetState(() =>
-                                                                _model.editoumetas =
-                                                                    value));
+                                                          child: Padding(
+                                                            padding: MediaQuery
+                                                                .viewInsetsOf(
+                                                                    context),
+                                                            child:
+                                                                AlunosEditarObjetivoWidget(
+                                                              metas: metasItem,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ).then((value) =>
+                                                      safeSetState(() =>
+                                                          _model.editoumetas =
+                                                              value));
 
-                                                        if (_model
-                                                                .editoumetas ==
-                                                            true) {
-                                                          await action_blocks
-                                                              .getPerfilAluno(
-                                                            context,
-                                                            alunoId:
-                                                                widget!.alunoId,
-                                                          );
-                                                          safeSetState(() {});
-                                                        }
+                                                  if (_model.editoumetas ==
+                                                      true) {
+                                                    await action_blocks
+                                                        .getPerfilAluno(
+                                                      context,
+                                                      alunoId: widget!.alunoId,
+                                                    );
+                                                    safeSetState(() {});
+                                                  }
 
-                                                        safeSetState(() {});
-                                                      },
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        0.0,
-                                                                        16.0,
-                                                                        0.0,
-                                                                        16.0),
-                                                            child: Container(
-                                                              width: MediaQuery
-                                                                          .sizeOf(
-                                                                              context)
-                                                                      .width *
-                                                                  1.0,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: FlutterFlowTheme.of(
+                                                  safeSetState(() {});
+                                                },
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  16.0,
+                                                                  0.0,
+                                                                  16.0),
+                                                      child: Container(
+                                                        width:
+                                                            MediaQuery.sizeOf(
                                                                         context)
-                                                                    .primaryBackground,
-                                                              ),
-                                                              child: Column(
+                                                                    .width *
+                                                                1.0,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryBackground,
+                                                        ),
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          16.0,
+                                                                          0.0,
+                                                                          16.0,
+                                                                          0.0),
+                                                              child: Row(
                                                                 mainAxisSize:
                                                                     MainAxisSize
                                                                         .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
                                                                 children: [
-                                                                  Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            16.0,
-                                                                            0.0,
-                                                                            16.0,
-                                                                            0.0),
-                                                                    child: Row(
+                                                                  Container(
+                                                                    width: 44.0,
+                                                                    height:
+                                                                        44.0,
+                                                                    child:
+                                                                        Stack(
+                                                                      children: [
+                                                                        Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              CircularPercentIndicator(
+                                                                            percent:
+                                                                                metasItem.progresso.toDouble() / 100,
+                                                                            radius:
+                                                                                20.0,
+                                                                            lineWidth:
+                                                                                4.0,
+                                                                            animation:
+                                                                                true,
+                                                                            animateFromLastPercent:
+                                                                                true,
+                                                                            progressColor:
+                                                                                FlutterFlowTheme.of(context).secondary,
+                                                                            backgroundColor:
+                                                                                FlutterFlowTheme.of(context).secondaryBackground,
+                                                                          ),
+                                                                        ),
+                                                                        Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                30.0,
+                                                                            height:
+                                                                                30.0,
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: FlutterFlowTheme.of(context).accent2,
+                                                                              shape: BoxShape.circle,
+                                                                            ),
+                                                                            child:
+                                                                                Align(
+                                                                              alignment: AlignmentDirectional(0.0, 0.0),
+                                                                              child: Icon(
+                                                                                Icons.emoji_flags,
+                                                                                color: FlutterFlowTheme.of(context).secondary,
+                                                                                size: 20.0,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        Column(
                                                                       mainAxisSize:
                                                                           MainAxisSize
                                                                               .max,
@@ -2081,254 +1531,244 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
                                                                               .start,
-                                                                      children:
-                                                                          [
-                                                                        Container(
-                                                                          width:
-                                                                              44.0,
-                                                                          height:
-                                                                              44.0,
-                                                                          child:
-                                                                              Stack(
-                                                                            children: [
-                                                                              Align(
-                                                                                alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                child: CircularPercentIndicator(
-                                                                                  percent: metasItem.progresso.toDouble() / 100,
-                                                                                  radius: 20.0,
-                                                                                  lineWidth: 4.0,
-                                                                                  animation: true,
-                                                                                  animateFromLastPercent: true,
-                                                                                  progressColor: FlutterFlowTheme.of(context).secondary,
-                                                                                  backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                              ),
-                                                                              Align(
-                                                                                alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                child: Container(
-                                                                                  width: 30.0,
-                                                                                  height: 30.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).accent2,
-                                                                                    shape: BoxShape.circle,
-                                                                                  ),
-                                                                                  child: Align(
-                                                                                    alignment: AlignmentDirectional(0.0, 0.0),
-                                                                                    child: Icon(
-                                                                                      Icons.emoji_flags,
-                                                                                      color: FlutterFlowTheme.of(context).secondary,
-                                                                                      size: 20.0,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                        Expanded(
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.max,
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.spaceBetween,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children: [
-                                                                              Row(
-                                                                                mainAxisSize: MainAxisSize.max,
-                                                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                children: [
-                                                                                  Expanded(
-                                                                                    child: Padding(
-                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 12.0, 0.0),
-                                                                                      child: Text(
-                                                                                        metasItem.titulo,
-                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                              font: GoogleFonts.inter(
-                                                                                                fontWeight: FontWeight.bold,
-                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                              ),
-                                                                                              letterSpacing: 0.0,
-                                                                                              fontWeight: FontWeight.bold,
-                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                            ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  Align(
-                                                                                    alignment: AlignmentDirectional(1.0, 0.0),
-                                                                                    child: Text(
-                                                                                      '${metasItem.progresso.toString()}%',
-                                                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                            font: GoogleFonts.inter(
-                                                                                              fontWeight: FontWeight.bold,
-                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                            ),
-                                                                                            color: FlutterFlowTheme.of(context).secondary,
-                                                                                            fontSize: 12.0,
-                                                                                            letterSpacing: 0.0,
-                                                                                            fontWeight: FontWeight.bold,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                              Row(
-                                                                                mainAxisSize: MainAxisSize.max,
-                                                                                children: [
-                                                                                  Expanded(
-                                                                                    child: Padding(
-                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 6.0),
-                                                                                      child: Text(
-                                                                                        valueOrDefault<String>(
-                                                                                          metasItem.descricao,
-                                                                                          '-',
+                                                                      children: [
+                                                                        Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.center,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Padding(
+                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 12.0, 0.0),
+                                                                                child: Text(
+                                                                                  metasItem.titulo,
+                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                        font: GoogleFonts.inter(
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        maxLines: 2,
-                                                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                              font: GoogleFonts.inter(
-                                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                              ),
-                                                                                              color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                              fontSize: 12.0,
-                                                                                              letterSpacing: 0.0,
-                                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                            ),
-                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                        letterSpacing: 0.0,
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                       ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
+                                                                                ),
                                                                               ),
-                                                                            ],
-                                                                          ),
+                                                                            ),
+                                                                            Align(
+                                                                              alignment: AlignmentDirectional(1.0, 0.0),
+                                                                              child: Text(
+                                                                                '${metasItem.progresso.toString()}%',
+                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                      font: GoogleFonts.inter(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                      ),
+                                                                                      color: FlutterFlowTheme.of(context).secondary,
+                                                                                      fontSize: 12.0,
+                                                                                      letterSpacing: 0.0,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
                                                                         ),
-                                                                      ].divide(SizedBox(
-                                                                              width: 8.0)),
+                                                                        Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Padding(
+                                                                                padding: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 6.0),
+                                                                                child: Text(
+                                                                                  valueOrDefault<String>(
+                                                                                    metasItem.descricao,
+                                                                                    '-',
+                                                                                  ),
+                                                                                  maxLines: 2,
+                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                        font: GoogleFonts.inter(
+                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                        ),
+                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
+                                                                                        fontSize: 12.0,
+                                                                                        letterSpacing: 0.0,
+                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                      ),
+                                                                                  overflow: TextOverflow.ellipsis,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ],
                                                                     ),
                                                                   ),
-                                                                ],
+                                                                ].divide(SizedBox(
+                                                                    width:
+                                                                        8.0)),
                                                               ),
                                                             ),
-                                                          ),
-                                                          Divider(
-                                                            height: 1.0,
-                                                            thickness: 1.0,
-                                                            indent: 68.0,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .alternate,
-                                                          ),
-                                                        ],
+                                                          ],
+                                                        ),
                                                       ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
+                                                    ),
+                                                    // A ultima meta nao leva
+                                                    // divisoria: dentro do
+                                                    // cartao ela virava um
+                                                    // risco solto antes da
+                                                    // borda.
+                                                    if (metasIndex <
+                                                        metas.length - 1)
+                                                      Divider(
+                                                        height: 1.0,
+                                                        thickness: 1.0,
+                                                        indent: 68.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .alternate,
+                                                      ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                                 if (_model.menu == 1) ...[
                                   // ── METRICAS ──────────────────────────
                                   // A RPC sempre aceitou qualquer aluno; faltava a
                                   // tela do personal pedir as do aluno aberto.
+                                  // Rotulo e seletor no mesmo cartao branco.
+                                  //
+                                  // Soltos sobre o cinza, os dois pareciam
+                                  // sobras entre a barra de abas e os graficos.
+                                  // Juntos num cartao, viram o controle do que
+                                  // vem abaixo — que e o que eles sao.
                                   Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 24.0, 16.0, 8.0),
-                                    child: Align(
-                                      alignment:
-                                          AlignmentDirectional(-1.0, 0.0),
-                                      child: Text(
-                                        'Evolução',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.bold),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              fontSize: 16.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 0.0, 16.0, 4.0),
-                                    child: Align(
-                                      alignment:
-                                          AlignmentDirectional(-1.0, 0.0),
-                                      child: Text(
-                                        'Tempo em análise:',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.bold),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              fontSize: 13.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 0.0, 16.0, 12.0),
-                                    child: FlutterFlowDropDown<String>(
-                                      controller: _periodoController,
-                                      options: _periodos,
-                                      onChanged: (val) async {
-                                        if (val == null) return;
-                                        safeSetState(() => _periodo = val);
-                                        await _carregarMetricas();
-                                        if (mounted) safeSetState(() {});
-                                      },
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 14.0, 16.0, 10.0),
+                                    child: Container(
                                       width: double.infinity,
-                                      height: 40.0,
-                                      maxHeight: 200.0,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w500),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                      hintText: 'Selecione...',
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              12.0, 10.0, 12.0, 10.0),
+                                      decoration: BoxDecoration(
                                         color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        size: 24.0,
+                                            .primaryBackground,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                        boxShadow: [
+                                          FlutterFlowTheme.of(context)
+                                              .designToken
+                                              .shadow
+                                              .lg
+                                        ],
                                       ),
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .primaryBackground,
-                                      elevation: 2.0,
-                                      borderColor: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      borderWidth: 1.0,
-                                      borderRadius: 12.0,
-                                      margin: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 0.0, 12.0, 0.0),
-                                      hidesUnderline: true,
-                                      isOverButton: false,
-                                      isSearchable: false,
-                                      isMultiSelect: false,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    4.0, 0.0, 4.0, 6.0),
+                                            child: Text(
+                                              'Tempo em análise',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    fontSize: 13.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                          ),
+                                          // O risco primary sob o campo, e nao
+                                          // uma caixa em volta: o cartao ja e a
+                                          // moldura, o campo so precisa marcar
+                                          // onde se toca.
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                            ),
+                                            child: FlutterFlowDropDown<String>(
+                                              controller: _periodoController,
+                                              options: _periodos,
+                                              onChanged: (val) async {
+                                                if (val == null) return;
+                                                safeSetState(
+                                                    () => _periodo = val);
+                                                await _carregarMetricas();
+                                                if (mounted)
+                                                  safeSetState(() {});
+                                              },
+                                              width: double.infinity,
+                                              height: 40.0,
+                                              maxHeight: 200.0,
+                                              textStyle: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    font: GoogleFonts.inter(
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                              hintText: 'Selecione...',
+                                              icon: Icon(
+                                                Icons
+                                                    .keyboard_arrow_down_rounded,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary,
+                                                size: 24.0,
+                                              ),
+                                              fillColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryBackground,
+                                              elevation: 0.0,
+                                              // Sem borda e sem elevacao propria: o
+                                              // cartao em volta ja separa o bloco do
+                                              // fundo, e o contorno virava uma segunda
+                                              // moldura dentro da primeira.
+                                              borderColor: Colors.transparent,
+                                              borderWidth: 0.0,
+                                              borderRadius: 0.0,
+                                              margin: EdgeInsetsDirectional
+                                                  .fromSTEB(4.0, 0.0, 0.0, 0.0),
+                                              hidesUnderline: true,
+                                              isOverButton: false,
+                                              isSearchable: false,
+                                              isMultiSelect: false,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   // Os mesmos chips da tela de metricas, menos
@@ -2370,19 +1810,203 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                         periodoLabel: _periodo,
                                       ),
                                     ),
-                                  // O grafico de peso vive sob "Corpo".
+                                  // Composicao corporal acima do grafico.
+                                  //
+                                  // O grafico conta a trajetoria; estes contam
+                                  // onde a pessoa esta hoje. Sem eles, "Corpo"
+                                  // respondia so a segunda pergunta — e a
+                                  // primeira e a que o personal faz antes.
+                                  //
+                                  // Peso e altura ja aparecem no topo da ficha,
+                                  // mas aqui eles vem com a data da medicao e
+                                  // ao lado do IMC, que e o que os torna
+                                  // leitura clinica em vez de cadastro.
+                                  if (_subAba == 2)
+                                    Builder(builder: (context) {
+                                      final c =
+                                          FFAppState().metricasTemp.dsCabecalho;
+                                      final tema = FlutterFlowTheme.of(context);
+
+                                      String n(double v, int casas) => v
+                                          .toStringAsFixed(casas)
+                                          .replaceAll('.', ',');
+
+                                      final itens = <({String r, String v})>[
+                                        // Sem peso e altura: ja sao fixos no topo
+                                        // da ficha, e repetir aqui gasta a
+                                        // atencao que o IMC e a gordura pedem.
+                                        if (c.imc > 0)
+                                          (r: 'IMC', v: n(c.imc, 1)),
+                                        if (c.gordura > 0)
+                                          (
+                                            r: 'Gordura',
+                                            v: '${n(c.gordura, 1)}%'
+                                          ),
+                                      ];
+
+                                      if (itens.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      final data =
+                                          DateTime.tryParse(c.dataRegistro);
+
+                                      return Padding(
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(16.0, 0.0, 16.0, 10.0),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(12.0, 10.0, 12.0, 10.0),
+                                          decoration: BoxDecoration(
+                                            color: tema.primaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(16.0),
+                                            boxShadow: [
+                                              tema.designToken.shadow.lg
+                                            ],
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        4.0, 0.0, 4.0, 6.0),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Composição corporal',
+                                                        style: tema.bodyMedium
+                                                            .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                          color:
+                                                              tema.primaryText,
+                                                          fontSize: 13.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    // A data da medicao: um peso
+                                                    // sem data envelhece sem
+                                                    // avisar.
+                                                    if (data != null)
+                                                      Text(
+                                                        '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}',
+                                                        style: tema.bodyMedium
+                                                            .override(
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400),
+                                                          color: tema
+                                                              .secondaryText,
+                                                          fontSize: 11.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        4.0, 0.0, 4.0, 0.0),
+                                                child: Wrap(
+                                                  spacing: 18.0,
+                                                  runSpacing: 10.0,
+                                                  children: [
+                                                    for (final i in itens)
+                                                      Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            i.v,
+                                                            style: tema
+                                                                .bodyMedium
+                                                                .override(
+                                                              font: GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                              color: tema
+                                                                  .primaryText,
+                                                              fontSize: 16.0,
+                                                              letterSpacing:
+                                                                  -0.3,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            i.r,
+                                                            style: tema
+                                                                .bodyMedium
+                                                                .override(
+                                                              font: GoogleFonts.inter(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400),
+                                                              color: tema
+                                                                  .secondaryText,
+                                                              fontSize: 10.5,
+                                                              letterSpacing:
+                                                                  0.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }),
                                   if (_subAba == 2)
                                     Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 8.0),
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              16.0, 0.0, 16.0, 10.0),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .primaryBackground,
                                           borderRadius:
                                               BorderRadius.circular(16.0),
+                                          boxShadow: [
+                                            FlutterFlowTheme.of(context)
+                                                .designToken
+                                                .shadow
+                                                .lg
+                                          ],
                                         ),
-                                        padding: EdgeInsets.all(12.0),
+                                        // Sem recuo proprio: o grafico ja
+                                        // abre com 16 em volta do conteudo, e
+                                        // somar o do cartao dobrava a folga.
                                         child:
                                             custom_widgets.GraficoEvolucaoPeso(
                                           width: double.infinity,
@@ -2394,30 +2018,175 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                                         ),
                                       ),
                                     ),
+                                  // O seletor de exercicio: sem ele o grafico
+                                  // mostrava sempre o primeiro da lista, e a
+                                  // aba nao tinha como responder "e o supino?".
                                   if (_subAba == 1 &&
                                       functions
                                           .listarExercicios(
                                               FFAppState().metricasTemp)
                                           .isNotEmpty)
                                     Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 0.0, 16.0, 8.0),
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              16.0, 0.0, 16.0, 10.0),
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(12.0, 10.0, 12.0, 10.0),
+                                        decoration: BoxDecoration(
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryBackground,
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
+                                          boxShadow: [
+                                            FlutterFlowTheme.of(context)
+                                                .designToken
+                                                .shadow
+                                                .lg
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                      4.0, 0.0, 4.0, 6.0),
+                                              child: Text(
+                                                'Exercício',
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                      fontSize: 13.0,
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                              ),
+                                            ),
+                                            // O mesmo risco primary do campo
+                                            // de periodo.
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primary,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                              ),
+                                              child:
+                                                  FlutterFlowDropDown<String>(
+                                                // Ordenado: a lista vem na ordem
+                                                // do banco, e procurar um nome
+                                                // numa lista sem ordem e pior
+                                                // que rolar a lista inteira.
+                                                options: (functions
+                                                    .listarExercicios(
+                                                        FFAppState()
+                                                            .metricasTemp)
+                                                    .toList()
+                                                  ..sort((a, b) => a
+                                                      .toLowerCase()
+                                                      .compareTo(
+                                                          b.toLowerCase()))),
+                                                // `controller` com o valor da
+                                                // vez: este dropdown nao aceita
+                                                // valor inicial solto.
+                                                controller:
+                                                    FormFieldController<String>(
+                                                        _exercicioDaVez()),
+                                                onChanged: (val) =>
+                                                    safeSetState(() =>
+                                                        _exercicioCarga = val),
+                                                width: double.infinity,
+                                                height: 40.0,
+                                                maxHeight: 260.0,
+                                                textStyle: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                icon: Icon(
+                                                  Icons
+                                                      .keyboard_arrow_down_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 24.0,
+                                                ),
+                                                fillColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryBackground,
+                                                elevation: 0.0,
+                                                borderColor: Colors.transparent,
+                                                borderWidth: 0.0,
+                                                borderRadius: 0.0,
+                                                margin:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        4.0, 0.0, 0.0, 0.0),
+                                                hidesUnderline: true,
+                                                isOverButton: false,
+                                                isSearchable: false,
+                                                isMultiSelect: false,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  if (_subAba == 1 &&
+                                      functions
+                                          .listarExercicios(
+                                              FFAppState().metricasTemp)
+                                          .isNotEmpty)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                              16.0, 0.0, 16.0, 10.0),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .primaryBackground,
                                           borderRadius:
                                               BorderRadius.circular(16.0),
+                                          boxShadow: [
+                                            FlutterFlowTheme.of(context)
+                                                .designToken
+                                                .shadow
+                                                .lg
+                                          ],
                                         ),
-                                        padding: EdgeInsets.all(12.0),
+                                        // Sem recuo proprio: o grafico ja
+                                        // abre com 16 em volta do conteudo, e
+                                        // somar o do cartao dobrava a folga.
                                         child:
                                             custom_widgets.GraficoEvolucaoCarga(
                                           width: double.infinity,
                                           height: 280.0,
-                                          exercicioSelecionado: functions
-                                              .listarExercicios(
-                                                  FFAppState().metricasTemp)
-                                              .first,
+                                          exercicioSelecionado:
+                                              _exercicioDaVez(),
                                           periodoLabel: _periodo,
                                           corPrimaria:
                                               FlutterFlowTheme.of(context)
@@ -2475,23 +2244,19 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                               child: Container(
                                 width: 36.0,
                                 height: 36.0,
+                                // Preto translucido, como nas outras fichas: a
+                                // barra fica sobre a capa azul, e branco a 22%
+                                // quase nao aparecia — o caminho de volta sumia
+                                // junto com o botao.
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
+                                  color: Colors.black.withValues(alpha: 0.28),
                                   shape: BoxShape.circle,
-                                  boxShadow: [
-                                    FlutterFlowTheme.of(context)
-                                        .designToken
-                                        .shadow
-                                        .sm
-                                  ],
                                 ),
                                 child: Align(
                                   alignment: AlignmentDirectional(0.0, 0.0),
                                   child: Icon(
                                     FFIcons.kproperty1FiRrArrowSmallLeft,
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
+                                    color: Colors.white,
                                     size: 20.0,
                                   ),
                                 ),
@@ -2508,6 +2273,44 @@ class _PerfilalunoWidgetState extends State<PerfilalunoWidget> {
                             // o titulo centralizado. Sem titulo e com a barra
                             // sobre a capa azul, ele deixou de ser invisivel e
                             // virou uma maca no canto.
+                            //
+                            // No lugar dele, o ajuste do vinculo: mesmo circulo
+                            // preto translucido do voltar, na outra ponta da
+                            // mesma barra.
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                await showModalBottomSheet<void>(
+                                  useRootNavigator: true,
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => WebViewAware(
+                                    child: PerfilAlunoStatusWidget(),
+                                  ),
+                                );
+                                if (mounted) safeSetState(() {});
+                              },
+                              child: Container(
+                                width: 36.0,
+                                height: 36.0,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.28),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Align(
+                                  alignment: AlignmentDirectional(0.0, 0.0),
+                                  child: Icon(
+                                    FFIcons.kproperty1FiRrSettings,
+                                    color: Colors.white,
+                                    size: 20.0,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

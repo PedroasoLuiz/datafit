@@ -50,8 +50,6 @@ class _PainelMetricasState extends State<PainelMetricas> {
   int get _seqAtual => metricas.sequenciaAtualDias;
   int get _seqMaxima => metricas.sequenciaMaxDias;
 
-  String get _janela => 'nos últimos ${periodoLabel.toLowerCase()}';
-
   /// Minutos viram horas quando passam de 90: "1912" não se lê, "31h" sim.
   String _tempo(int minutos) {
     if (minutos <= 0) return '0';
@@ -92,33 +90,6 @@ class _PainelMetricasState extends State<PainelMetricas> {
     return 'quase sempre encurtado';
   }
 
-  /// A frase do período: sempre a leitura mais forte que os dados permitem.
-  String _historia() {
-    final feitos = metricas.completos;
-    final antes = metricas.completosAnterior;
-
-    if (metricas.totalTreinos == 0) {
-      return 'Nenhum treino registrado $_janela. Assim que você treinar, os números aparecem aqui.';
-    }
-    if (feitos == 0) {
-      return 'Você começou ${metricas.totalTreinos} ${metricas.totalTreinos == 1 ? 'treino' : 'treinos'} $_janela, mas nenhum chegou ao fim.';
-    }
-
-    final plural = feitos == 1 ? 'treino' : 'treinos';
-    final diferenca = feitos - antes;
-
-    if (antes == 0) {
-      return 'Você fechou $feitos $plural $_janela. É o seu primeiro período com treino registrado.';
-    }
-    if (diferenca > 0) {
-      return 'Você fechou $feitos $plural $_janela, $diferenca a mais que nos ${periodoLabel.toLowerCase()} anteriores.';
-    }
-    if (diferenca < 0) {
-      return 'Você fechou $feitos $plural $_janela, ${-diferenca} a menos que nos ${periodoLabel.toLowerCase()} anteriores.';
-    }
-    return 'Você fechou $feitos $plural $_janela — o mesmo dos ${periodoLabel.toLowerCase()} anteriores.';
-  }
-
   @override
   Widget build(BuildContext context) {
     final descanso = metricas.descansoMedioSegundos;
@@ -127,8 +98,11 @@ class _PainelMetricasState extends State<PainelMetricas> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Narrativa(texto: _historia()),
-        const SizedBox(height: _kVao),
+        // A frase de abertura saiu.
+        //
+        // Ela contava em palavras o que os cartoes logo abaixo contam em
+        // numero — "voce fechou 18 treinos" com o 18 em corpo grande dois
+        // centimetros adiante. Dizer duas vezes nao reforca: adia o dado.
 
         // O mosaico: um cartão alto à esquerda, dois empilhados à direita.
         // A nota do período é a leitura mais importante e ganha o dobro de
@@ -268,62 +242,6 @@ class _PainelMetricasState extends State<PainelMetricas> {
           ),
         ],
       ],
-    );
-  }
-}
-
-/// A frase do período.
-class _Narrativa extends StatelessWidget {
-  const _Narrativa({required this.texto});
-
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = FlutterFlowTheme.of(context);
-
-    // Branco como todos os outros, com o simbolo num circulo azul. O bloco
-    // azul cheio destacava a frase do resto da tela — e destaque demais vira
-    // desencaixe: era o unico elemento com cor propria numa grade de cartoes
-    // brancos, e lia como banner, nao como parte do painel.
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14.0),
-      decoration: BoxDecoration(
-        color: tema.primaryBackground,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [tema.designToken.shadow.lg],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32.0,
-            height: 32.0,
-            decoration: BoxDecoration(
-              color: tema.accent1,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child:
-                Icon(Icons.insights_rounded, color: tema.primary, size: 17.0),
-          ),
-          const SizedBox(width: 10.0),
-          Expanded(
-            child: Text(
-              texto,
-              style: tema.bodyMedium.override(
-                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                color: tema.primaryText,
-                fontSize: 13.5,
-                letterSpacing: 0.0,
-                fontWeight: FontWeight.w600,
-                lineHeight: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

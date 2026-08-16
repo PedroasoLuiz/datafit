@@ -40,6 +40,7 @@ import '/components/avaliar_personal.dart';
 import '/components/foto_tela_cheia.dart';
 import '/components/mensagem_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '/components/folha_kit.dart';
 import '/components/perfil_kit.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/custom_code/functions/achatar_exercicios.dart';
@@ -429,7 +430,6 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
   /// Folha, e não uma segunda fileira de chips: duas fileiras empilhadas
   /// parecem as duas navegação, e ninguém descobre qual manda.
   Future<void> _escolherGrupo() async {
-    final tema = FlutterFlowTheme.of(context);
     final grupos = ['Todos', ...extrairSubcategorias(_p.treinos)];
 
     final escolhido = await showModalBottomSheet<String>(
@@ -437,68 +437,25 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (contexto) => Container(
-        decoration: BoxDecoration(
-          color: tema.secondaryBackground,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36.0,
-                    height: 4.0,
-                    decoration: BoxDecoration(
-                      color: tema.alternate,
-                      borderRadius: BorderRadius.circular(999.0),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                      2.0, 18.0, 2.0, 12.0),
-                  child: Text(
-                    'Filtrar por grupo',
-                    style: tema.bodyMedium.override(
-                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                      color: tema.primaryText,
-                      fontSize: 17.0,
-                      letterSpacing: -0.3,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: CartaoPerfil(
-                      filhos: [
-                        for (final g in grupos)
-                          LinhaPerfil(
-                            titulo: g,
-                            icone: g == _grupo
-                                ? Icons.check_circle_outline_rounded
-                                : Icons.circle_outlined,
-                            corIcone:
-                                g == _grupo ? tema.primary : tema.secondaryText,
-                            fundoIcone: g == _grupo
-                                ? tema.accent1
-                                : tema.alternate.withValues(alpha: 0.35),
-                            aoTocar: () => Navigator.of(contexto).pop(g),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      builder: (contexto) => WebViewAware(
+        child: FolhaPadrao(
+          // Sem visto: escolher o grupo ja e a resposta.
+          fixos: const [
+            CabecaFolha(
+              titulo: 'Filtrar por grupo',
+              apoio: 'Mostra só os vídeos daquele grupo muscular.',
+              icone: Icons.filter_list_rounded,
             ),
-          ),
+          ],
+          filhos: [
+            for (final g in grupos)
+              ItemFolha(
+                titulo: g,
+                icone: Icons.fitness_center_rounded,
+                selecionado: g == _grupo,
+                aoTocar: () => FolhaPadrao.fechar(contexto, g),
+              ),
+          ],
         ),
       ),
     );
@@ -592,7 +549,7 @@ class _PerfilpersonalWidgetState extends State<PerfilpersonalWidget> {
                               ],
                               if (_p.email.isNotEmpty) ...[
                                 AcaoIconePerfil(
-                                  icone: FFIcons.kproperty1FiRrEnvelope,
+                                  icone: FFIcons.kproperty1FiRrEnvelopeOpen,
                                   aoTocar: () => launchUrl(
                                       Uri(scheme: 'mailto', path: _p.email)),
                                 ),

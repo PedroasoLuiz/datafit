@@ -592,29 +592,26 @@ class _TreinosDetalhesWidgetState extends State<TreinosDetalhesWidget>
                                                     color: FlutterFlowTheme.of(
                                                             context)
                                                         .primaryBackground,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
+                                                    shape: BoxShape.circle,
                                                     boxShadow: [
                                                       FlutterFlowTheme.of(
                                                               context)
                                                           .designToken
                                                           .shadow
-                                                          .lg
+                                                          .sm
                                                     ],
-                                                    shape: BoxShape.rectangle,
                                                   ),
                                                   child: Align(
                                                     alignment:
                                                         AlignmentDirectional(
                                                             0.0, 0.0),
                                                     child: Icon(
-                                                      Icons
-                                                          .navigate_before_rounded,
+                                                      FFIcons
+                                                          .kproperty1FiRrArrowSmallLeft,
                                                       color:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .secondaryText,
+                                                              .primaryText,
                                                       size: 20.0,
                                                     ),
                                                   ),

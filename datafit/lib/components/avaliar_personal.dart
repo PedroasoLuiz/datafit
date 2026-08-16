@@ -1,25 +1,12 @@
-/// O aluno dá a nota ao personal.
-///
-/// Uma folha, não uma tela: avaliar é um ato curto, e tirar a pessoa da ficha
-/// para isso faria a nota parecer um formulário. Ao voltar, a ficha já mostra
-/// a nota nova.
-///
-/// Reavaliar é permitido de propósito. Uma nota dada no primeiro mês não vale
-/// para sempre, e travar a mudança só empurraria quem mudou de opinião para o
-/// silêncio. No banco é a mesma linha sendo atualizada — por isso a chave
-/// única por par, e não um histórico.
-library;
-
+import '/backend/supabase/supabase.dart';
+import '/components/folha_kit.dart';
+import '/components/perfil_kit.dart';
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 
-import '/components/perfil_kit.dart';
-
-import '/backend/supabase/supabase.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-
-/// Abre a folha. Devolve a nota gravada, ou nulo se a pessoa desistiu.
+/// Folha de avaliação do personal pelo aluno. Devolve a nota dada.
 Future<int?> avaliarPersonal(
   BuildContext context, {
   required String personalUuid,
@@ -31,10 +18,15 @@ Future<int?> avaliarPersonal(
     useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _FolhaAvaliar(
-      personalUuid: personalUuid,
-      personalNome: personalNome,
-      notaAtual: notaAtual,
+    builder: (folha) => WebViewAware(
+      child: Padding(
+        padding: MediaQuery.viewInsetsOf(folha),
+        child: _FolhaAvaliar(
+          personalUuid: personalUuid,
+          personalNome: personalNome,
+          notaAtual: notaAtual,
+        ),
+      ),
     ),
   );
 }
@@ -57,7 +49,6 @@ class _FolhaAvaliar extends StatefulWidget {
 class _FolhaAvaliarState extends State<_FolhaAvaliar> {
   late int _nota = widget.notaAtual;
   late final TextEditingController _comentario = TextEditingController();
-  bool _enviando = false;
   String? _erro;
 
   @override
@@ -69,17 +60,17 @@ class _FolhaAvaliarState extends State<_FolhaAvaliar> {
   /// Traz de volta o que a pessoa escreveu da última vez.
   ///
   /// Sem isto, reavaliar apagava o comentário anterior: o campo abria vazio e,
-  /// ao salvar, o texto antigo era substituído por nada — a pessoa perdia o
-  /// que escreveu sem ter pedido para apagar.
+  /// ao salvar, o texto antigo era substituído por nada. A pessoa perdia o que
+  /// escreveu sem ter pedido para apagar.
   ///
   /// Buscado aqui, e não trazido no payload da ficha: comentário é texto
   /// longo, só interessa a quem abre esta folha, e carregá-lo em toda abertura
   /// de perfil seria pagar por ele o tempo todo.
   Future<void> _carregarComentarioAnterior() async {
     try {
-      final r = await SupaFlow.client.rpc('minha_avaliacao_personal',
+      final resposta = await SupaFlow.client.rpc('minha_avaliacao_personal',
           params: {'p_personal_uuid': widget.personalUuid});
-      final mapa = (r as Map?)?.cast<String, dynamic>();
+      final mapa = (resposta as Map?)?.cast<String, dynamic>();
       final texto = mapa?['comentario'];
       if (!mounted || texto == null) return;
       // Só preenche se a pessoa ainda não começou a escrever: a busca pode
@@ -110,12 +101,12 @@ class _FolhaAvaliarState extends State<_FolhaAvaliar> {
     'Muito acima do que eu esperava',
   ];
 
-  Future<void> _enviar() async {
-    if (_nota < 1 || _enviando) return;
-    setState(() {
-      _enviando = true;
-      _erro = null;
-    });
+  Future<Object?> _enviar() async {
+    // Sem nota não há avaliação: o comentário sozinho não entra na média e
+    // não teria onde aparecer.
+    if (_nota < 1) return null;
+
+    setState(() => _erro = null);
 
     try {
       final resposta = await SupaFlow.client.rpc('avaliar_personal', params: {
@@ -125,28 +116,23 @@ class _FolhaAvaliarState extends State<_FolhaAvaliar> {
       });
 
       final mapa = (resposta as Map?)?.cast<String, dynamic>() ?? {};
-      if (mapa['sucesso'] != true) {
-        if (!mounted) return;
-        setState(() {
-          _enviando = false;
-          // Mensagens por causa, nao uma so generica: "sem vinculo" e um
-          // impedimento permanente e "falhou" e para tentar de novo — mandar
-          // as duas para o mesmo texto faria alguem tentar para sempre.
-          _erro = mapa['erro'] == 'SEM_VINCULO'
-              ? 'Só quem treina ou já treinou com este personal pode avaliar.'
-              : 'Não consegui enviar sua avaliação. Tente de novo.';
-        });
-        return;
-      }
+      if (mapa['sucesso'] == true) return _nota;
 
-      if (!mounted) return;
-      Navigator.of(context).pop(_nota);
-    } catch (_) {
-      if (!mounted) return;
+      if (!mounted) return null;
       setState(() {
-        _enviando = false;
-        _erro = 'Não consegui enviar sua avaliação. Tente de novo.';
+        // Mensagens por causa, não uma só genérica: "sem vínculo" é um
+        // impedimento permanente e "falhou" é para tentar de novo. Mandar as
+        // duas para o mesmo texto faria alguém tentar para sempre.
+        _erro = mapa['erro'] == 'SEM_VINCULO'
+            ? 'Só quem treina ou já treinou com este personal pode avaliar.'
+            : 'Não consegui enviar sua avaliação. Tente de novo.';
       });
+      return null;
+    } catch (_) {
+      if (!mounted) return null;
+      setState(
+          () => _erro = 'Não consegui enviar sua avaliação. Tente de novo.');
+      return null;
     }
   }
 
@@ -154,221 +140,97 @@ class _FolhaAvaliarState extends State<_FolhaAvaliar> {
   Widget build(BuildContext context) {
     final tema = FlutterFlowTheme.of(context);
 
-    return Padding(
-      // O teclado empurra a folha em vez de cobrir o campo de comentário.
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tema.secondaryBackground,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+    return FolhaPadrao(
+      aoConfirmar: _enviar,
+      filhos: [
+        CabecaFolha(
+          titulo:
+              widget.notaAtual > 0 ? 'Editar avaliação' : 'Avaliar personal',
+          apoio: widget.personalNome,
+          icone: Icons.star_rounded,
+          corIcone: corEstrela,
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36.0,
-                    height: 4.0,
-                    decoration: BoxDecoration(
-                      color: tema.alternate,
+        // As estrelas grandes e centralizadas: são a pergunta da folha, e o
+        // comentário é opcional. Alinhadas à esquerda como um campo comum,
+        // elas pesavam o mesmo que o texto de apoio.
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+              MedidasFolha.lado, 4.0, MedidasFolha.lado, 0.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 1; i <= 5; i++)
+                    InkWell(
+                      onTap: () => setState(() => _nota = i),
                       borderRadius: BorderRadius.circular(999.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.star_rounded,
+                          size: 38.0,
+                          color: i <= _nota ? corEstrela : tema.alternate,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 18.0, 0.0, 2.0),
-                  child: Text(
-                    widget.notaAtual > 0
-                        ? 'Mudar sua avaliação'
-                        : 'Avaliar ${widget.personalNome}',
-                    style: tema.bodyMedium.override(
-                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                      color: tema.primaryText,
-                      fontSize: 17.0,
-                      letterSpacing: -0.3,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Text(
-                  'Sua nota aparece no perfil dele, junto com as demais.',
+                ],
+              ),
+              const SizedBox(height: 6.0),
+              // Altura reservada: sem nota o texto some, e a folha inteira
+              // saltava para cima no primeiro toque.
+              SizedBox(
+                height: 18.0,
+                child: Text(
+                  _nota > 0 ? _leituras[_nota] : 'Toque nas estrelas',
+                  textAlign: TextAlign.center,
                   style: tema.bodyMedium.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                    color: tema.secondaryText,
+                    font: GoogleFonts.inter(
+                        fontWeight:
+                            _nota > 0 ? FontWeight.w600 : FontWeight.w400),
+                    color: _nota > 0 ? tema.primaryText : tema.secondaryText,
                     fontSize: 12.5,
                     letterSpacing: 0.0,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: _nota > 0 ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
-
-                // As estrelas grandes, centradas: é a única decisão da folha.
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 22.0, 0.0, 0.0),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var i = 1; i <= 5; i++)
-                          InkWell(
-                            onTap: () => setState(() => _nota = i),
-                            borderRadius: BorderRadius.circular(999.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Icon(
-                                // Contorno nas cinco: quem marca a nota e a
-                                // cor, como no resto do app.
-                                Icons.star_rounded,
-                                size: 38.0,
-                                color: i <= _nota ? corEstrela : tema.alternate,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 22.0,
-                  child: Center(
-                    child: Text(
-                      _leituras[_nota],
-                      style: tema.bodyMedium.override(
-                        font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                        color: tema.warning,
-                        fontSize: 12.5,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 14.0, 0.0, 0.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: tema.primaryBackground,
-                      borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [tema.designToken.shadow.lg],
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                    child: TextFormField(
-                      controller: _comentario,
-                      maxLines: 3,
-                      minLines: 2,
-                      maxLength: 300,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        hintText: 'Conte o que fez a diferença (opcional)',
-                        counterText: '',
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: const EdgeInsetsDirectional.fromSTEB(
-                            0.0, 14.0, 0.0, 14.0),
-                        hintStyle: tema.bodyMedium.override(
-                          font: GoogleFonts.inter(fontWeight: FontWeight.w400),
-                          color: tema.secondaryText,
-                          fontSize: 13.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      style: tema.bodyMedium.override(
-                        font: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                        color: tema.primaryText,
-                        fontSize: 13.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-
-                if (_erro != null)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                        2.0, 12.0, 2.0, 0.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.error_outline_rounded,
-                            color: tema.error, size: 16.0),
-                        const SizedBox(width: 7.0),
-                        Expanded(
-                          child: Text(
-                            _erro!,
-                            style: tema.bodyMedium.override(
-                              font: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w500),
-                              color: tema.error,
-                              fontSize: 12.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
-                  child: InkWell(
-                    onTap: _nota < 1 ? null : _enviar,
-                    borderRadius: BorderRadius.circular(13.0),
-                    child: Container(
-                      height: 46.0,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        // Apagado enquanto nao ha nota: o botao so promete
-                        // enviar quando existe algo para enviar.
-                        color: _nota < 1 ? tema.alternate : tema.primary,
-                        borderRadius: BorderRadius.circular(13.0),
-                      ),
-                      child: _enviando
-                          ? const SizedBox(
-                              width: 20.0,
-                              height: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(
-                              widget.notaAtual > 0
-                                  ? 'Salvar avaliação'
-                                  : 'Enviar avaliação',
-                              style: tema.bodyMedium.override(
-                                font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600),
-                                color: _nota < 1
-                                    ? tema.secondaryText
-                                    : Colors.white,
-                                fontSize: 14.0,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      ),
+        CampoFolha(
+          rotulo: 'Comentário (opcional)',
+          dica: 'O que funcionou, o que faltou...',
+          controlador: _comentario,
+          linhas: 3,
+        ),
+        if (_erro != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+                MedidasFolha.lado, 14.0, MedidasFolha.lado, 0.0),
+            child: Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsetsDirectional.fromSTEB(12.0, 10.0, 12.0, 10.0),
+              decoration: BoxDecoration(
+                color: tema.error.withValues(alpha: 0.09),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Text(
+                _erro!,
+                style: tema.bodyMedium.override(
+                  font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                  color: tema.error,
+                  fontSize: 12.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w500,
+                  lineHeight: 1.35,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

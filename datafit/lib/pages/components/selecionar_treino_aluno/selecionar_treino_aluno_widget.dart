@@ -2,16 +2,15 @@ import '/auth/supabase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
+import '/components/folha_kit.dart';
+import '/components/mensagem_widget.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
-import '/flutter_flow/flutter_flow_animations.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 import 'selecionar_treino_aluno_model.dart';
 export 'selecionar_treino_aluno_model.dart';
 
@@ -33,12 +32,8 @@ class SelecionarTreinoAlunoWidget extends StatefulWidget {
 }
 
 class _SelecionarTreinoAlunoWidgetState
-    extends State<SelecionarTreinoAlunoWidget> with TickerProviderStateMixin {
+    extends State<SelecionarTreinoAlunoWidget> {
   late SelecionarTreinoAlunoModel _model;
-
-  var hasCardTriggered = false;
-  var hasCloseTriggered = false;
-  final animationsMap = <String, AnimationInfo>{};
 
   @override
   void setState(VoidCallback callback) {
@@ -50,77 +45,7 @@ class _SelecionarTreinoAlunoWidgetState
   void initState() {
     super.initState();
     _model = createModel(context, () => SelecionarTreinoAlunoModel());
-
-    animationsMap.addAll({
-      'cardOnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          VisibilityEffect(duration: 1.ms),
-          MoveEffect(
-            curve: Curves.easeInOutQuint,
-            delay: 300.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(0.0, 100.0),
-            end: const Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.easeInOutQuint,
-            delay: 0.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(-5.0, -5.0),
-            end: const Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'closeButtonOnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          VisibilityEffect(duration: 650.ms),
-          MoveEffect(
-            curve: Curves.bounceOut,
-            delay: 650.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(0.0, 100.0),
-            end: const Offset(0.0, 0.0),
-          ),
-        ],
-      ),
-    });
-
-    setupAnimations(
-      animationsMap.values.where((anim) =>
-          anim.trigger == AnimationTrigger.onActionTrigger ||
-          !anim.applyInitialState),
-      this,
-    );
-
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await Future.wait([
-        Future(() async {
-          if (animationsMap['cardOnActionTriggerAnimation'] != null) {
-            safeSetState(() => hasCardTriggered = true);
-            SchedulerBinding.instance.addPostFrameCallback((_) async =>
-                await animationsMap['cardOnActionTriggerAnimation']!
-                    .controller
-                    .forward(from: 0.0));
-          }
-        }),
-        Future(() async {
-          if (animationsMap['closeButtonOnActionTriggerAnimation'] != null) {
-            safeSetState(() => hasCloseTriggered = true);
-            SchedulerBinding.instance.addPostFrameCallback((_) async =>
-                await animationsMap['closeButtonOnActionTriggerAnimation']!
-                    .controller
-                    .forward(from: 0.0));
-          }
-        }),
-      ]);
-      await _carregar();
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    SchedulerBinding.instance.addPostFrameCallback((_) async => _carregar());
   }
 
   @override
@@ -129,30 +54,12 @@ class _SelecionarTreinoAlunoWidgetState
     super.dispose();
   }
 
-  Future<void> _fechar([bool result = false]) async {
-    await Future.wait([
-      Future(() async {
-        if (animationsMap['cardOnActionTriggerAnimation'] != null) {
-          await animationsMap['cardOnActionTriggerAnimation']!
-              .controller
-              .reverse();
-        }
-      }),
-      Future(() async {
-        if (animationsMap['closeButtonOnActionTriggerAnimation'] != null) {
-          await animationsMap['closeButtonOnActionTriggerAnimation']!
-              .controller
-              .reverse();
-        }
-      }),
-    ]);
-    if (mounted) Navigator.pop(context, result);
-  }
-
   Future<void> _carregar() async {
     safeSetState(() => _model.isLoading = true);
 
-    final execPendente = await SupaFlow.client
+    // Treino em execucao trava a troca: puxar a ficha debaixo de quem esta
+    // no meio da serie apaga o que ele acabou de marcar.
+    final pendente = await SupaFlow.client
         .from('TreinosExecucao')
         .select('Id')
         .eq('ExecutorPerfisId', widget.alunoUuid)
@@ -162,18 +69,17 @@ class _SelecionarTreinoAlunoWidgetState
 
     if (!mounted) return;
 
-    if ((execPendente as List).isNotEmpty) {
-      final execId = execPendente.first['Id'];
-      final sessaoAtiva = await SupaFlow.client
+    if ((pendente as List).isNotEmpty) {
+      final sessao = await SupaFlow.client
           .from('TreinosConclusao')
           .select('Id')
-          .eq('TreinosExecucaoId', execId)
+          .eq('TreinosExecucaoId', pendente.first['Id'])
           .eq('IsTreinoConcluido', false)
           .limit(1);
 
       if (!mounted) return;
 
-      if ((sessaoAtiva as List).isNotEmpty) {
+      if ((sessao as List).isNotEmpty) {
         safeSetState(() {
           _model.emExecucao = true;
           _model.isLoading = false;
@@ -182,17 +88,16 @@ class _SelecionarTreinoAlunoWidgetState
       }
     }
 
-    final result = await PersonalGroup.getTreinosPersonalCall.call(
+    final resposta = await PersonalGroup.getTreinosPersonalCall.call(
       pPersonalUuid: currentUserUid,
     );
 
     if (!mounted) return;
 
-    if (result.succeeded) {
+    if (resposta.succeeded) {
       try {
-        final raw = result.jsonBody;
-        final list = raw is List ? raw : [raw];
-        _model.treinos = list
+        final cru = resposta.jsonBody;
+        _model.treinos = (cru is List ? cru : [cru])
             .map((e) => GrupostreinosStruct.maybeFromMap(e))
             .whereType<GrupostreinosStruct>()
             .where((t) => t.ativo)
@@ -206,428 +111,192 @@ class _SelecionarTreinoAlunoWidgetState
     safeSetState(() => _model.isLoading = false);
   }
 
+  /// Escolher o treino pede a validade antes de gravar.
+  ///
+  /// A data vem primeiro porque atribuir sem prazo cria um treino que nunca
+  /// vence — e ninguem volta aqui so para preencher o que ja parece pronto.
   Future<void> _selecionar(GrupostreinosStruct treino) async {
-    DateTime defaultDate = DateTime.now().add(const Duration(days: 30));
-    final dv = widget.dataValidadeAtual;
-    if (dv != null && dv.isNotEmpty) {
-      try {
-        final parsed = DateTime.parse(dv);
-        if (parsed.isAfter(DateTime.now())) defaultDate = parsed;
-      } catch (_) {}
+    var sugerida = DateTime.now().add(const Duration(days: 30));
+    final atual = widget.dataValidadeAtual;
+    if (atual != null && atual.isNotEmpty) {
+      final lida = DateTime.tryParse(atual);
+      if (lida != null && lida.isAfter(DateTime.now())) sugerida = lida;
     }
 
-    final pickedDate = await custom_widgets.showCustomDatePicker(
+    final escolhida = await custom_widgets.showCustomDatePicker(
       context,
-      initialDate: defaultDate,
+      initialDate: sugerida,
       firstDate: DateTime.now(),
       lastDate: DateTime(2099),
     );
-    if (!mounted || pickedDate == null) return;
+    if (!mounted || escolhida == null) return;
 
     safeSetState(() => _model.isLoading = true);
-    final dateStr =
-        '${pickedDate.year.toString().padLeft(4, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}';
+
+    final texto = '${escolhida.year.toString().padLeft(4, '0')}'
+        '-${escolhida.month.toString().padLeft(2, '0')}'
+        '-${escolhida.day.toString().padLeft(2, '0')}';
+
+    String? erro;
     try {
-      final raw =
+      final cru =
           await SupaFlow.client.rpc('atribuir_grupo_treino_aluno', params: {
         'p_personal_uuid': currentUserUid,
         'p_aluno_uuid': widget.alunoUuid,
         'p_grupo_treino_id': treino.grupoTreinoId,
-        'p_data_validade': dateStr,
+        'p_data_validade': texto,
       });
       if (!mounted) return;
-      final resultData = (raw is List && raw.isNotEmpty) ? raw.first : raw;
+
+      final dados = (cru is List && cru.isNotEmpty) ? cru.first : cru;
+
       // Zero treinos criados nao e sucesso: a funcao chegou a devolver
-      // `sucesso: true` com nenhuma execucao criada, e a folha fechava como se
-      // o aluno tivesse recebido o treino.
-      final criados = resultData is Map
-          ? ((resultData['treinosCriados'] as num?)?.toInt() ?? 0)
-          : 0;
-      final sucesso =
-          resultData is Map && resultData['sucesso'] == true && criados > 0;
-      if (sucesso) {
-        Navigator.pop(context, true);
-      } else {
-        final msg = resultData is Map
-            ? (resultData['mensagem'] ?? 'Erro ao atribuir treino.')
-            : 'Erro ao atribuir treino.';
-        safeSetState(() => _model.isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(msg.toString()),
-          backgroundColor: FlutterFlowTheme.of(context).error,
-        ));
+      // `sucesso: true` com nenhuma execucao criada, e a folha fechava como
+      // se o aluno tivesse recebido o treino.
+      final criados =
+          dados is Map ? ((dados['treinosCriados'] as num?)?.toInt() ?? 0) : 0;
+      final ok = dados is Map && dados['sucesso'] == true && criados > 0;
+
+      if (ok) {
+        await FolhaPadrao.fechar(context, true);
+        return;
       }
+      erro = dados is Map
+          ? (dados['mensagem']?.toString() ?? 'Erro ao atribuir treino.')
+          : 'Erro ao atribuir treino.';
     } catch (_) {
-      if (!mounted) return;
-      safeSetState(() => _model.isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Erro ao atribuir treino.'),
-        backgroundColor: FlutterFlowTheme.of(context).error,
-      ));
+      erro = 'Erro ao atribuir treino.';
     }
+
+    if (!mounted) return;
+    safeSetState(() => _model.isLoading = false);
+
+    // O componente de mensagem do app, e nao um SnackBar: o aviso nasce no
+    // mesmo lugar de todos os outros do Datafit.
+    await showModalBottomSheet<void>(
+      useRootNavigator: true,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (folha) => WebViewAware(
+        child: MensagemWidget(
+          texto: erro!,
+          tipo: '2',
+          fechasozinho: false,
+          mostrabotoes: false,
+          action: () async {},
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    context.watch<FFAppState>();
-    final theme = FlutterFlowTheme.of(context);
     final filtrados = _model.treinosFiltrados;
-    final visiveis = filtrados.length.clamp(0, _model.itemsVisiveis);
-    final temMais = filtrados.length > _model.itemsVisiveis;
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.secondaryBackground,
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // ── Header ──────────────────────────────────────
-                    Container(
-                      decoration: BoxDecoration(
-                        color: theme.accent1,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10.0),
-                          topRight: Radius.circular(10.0),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Selecionar Treino',
-                                style: theme.bodyMedium.override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: theme.bodyMedium.fontStyle,
-                                  ),
-                                  color: theme.primaryText,
-                                  fontSize: 18.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Icon(
-                              FFIcons.kproperty1FiRrGym,
-                              color: theme.primary,
-                              size: 18.0,
-                            ),
-                          ].divide(const SizedBox(width: 8.0)),
-                        ),
-                      ),
-                    ),
+    return FolhaPadrao(
+      fixos: [
+        const CabecaFolha(
+          titulo: 'Treino do aluno',
+          apoio: 'Escolha o plano e a data de validade.',
+          icone: FFIcons.kproperty1FiRrGym,
+        ),
+        // A busca some enquanto nao ha o que buscar: um campo sobre uma
+        // lista vazia so ocupa a folha.
+        if (!_model.emExecucao &&
+            !_model.isLoading &&
+            _model.treinos.isNotEmpty)
+          BuscaFolha(
+            controlador: _model.buscaController,
+            foco: _model.buscaFocusNode,
+            dica: 'Buscar treino...',
+            aoMudar: (texto) => safeSetState(() {
+              _model.buscaTexto = texto;
+              _model.itemsVisiveis = 10;
+            }),
+          ),
+      ],
+      filhos: [
+        if (_model.emExecucao)
+          _travado(context)
+        else
+          ListaFolha<GrupostreinosStruct>(
+            itens: filtrados,
+            carregando: _model.isLoading,
+            visiveis: _model.itemsVisiveis,
+            aoVerMais: () => safeSetState(() => _model.itemsVisiveis += 10),
+            textoVazio: _model.buscaTexto.isEmpty
+                ? 'Nenhum treino criado ainda.'
+                : 'Nenhum resultado para "${_model.buscaTexto}".',
+            construir: (contexto, treino) {
+              final atual = treino.grupoTreinoId == widget.grupoTreinoIdAtual;
+              final quantos = treino.subagrupamentos.length;
 
-                    // ── Campo de busca ───────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
-                      child: TextFormField(
-                        controller: _model.buscaController,
-                        focusNode: _model.buscaFocusNode,
-                        onChanged: (v) => safeSetState(() {
-                          _model.buscaTexto = v;
-                          _model.itemsVisiveis = 10;
-                        }),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'Buscar treino...',
-                          hintStyle: theme.labelMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FontWeight.normal,
-                              fontStyle: theme.labelMedium.fontStyle,
-                            ),
-                            color: theme.secondaryText,
-                            fontSize: 14.0,
-                            letterSpacing: 0.0,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search_rounded,
-                            color: theme.secondaryText,
-                            size: 18.0,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: theme.alternate, width: 1.0),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: theme.primary, width: 1.0),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: theme.primaryBackground,
-                          contentPadding: const EdgeInsetsDirectional.fromSTEB(
-                              12.0, 10.0, 12.0, 10.0),
-                        ),
-                        style: theme.bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FontWeight.w500,
-                            fontStyle: theme.bodyMedium.fontStyle,
-                          ),
-                          fontSize: 14.0,
-                          letterSpacing: 0.0,
-                        ),
-                      ),
-                    ),
+              return ItemFolha(
+                titulo:
+                    treino.nome.isNotEmpty ? treino.nome : 'Treino sem nome',
+                apoio: atual
+                    ? 'Em uso por este aluno'
+                    : (quantos > 0
+                        ? '$quantos ${quantos == 1 ? 'treino' : 'treinos'}'
+                        : null),
+                icone: FFIcons.kproperty1FiRrGym,
+                selecionado: atual,
+                // O que ja esta em uso nao responde ao toque: reatribuir o
+                // mesmo plano refaria o ciclo do zero.
+                aoTocar: atual ? null : () => _selecionar(treino),
+              );
+            },
+          ),
+      ],
+    );
+  }
 
-                    // ── Conteúdo ─────────────────────────────────────
-                    if (_model.isLoading)
-                      Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: CircularProgressIndicator(color: theme.primary),
-                      )
-                    else if (_model.emExecucao)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 28.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.lock_clock_outlined,
-                                color: theme.warning, size: 36.0),
-                            const SizedBox(height: 12.0),
-                            Text(
-                              'O aluno está executando um treino.',
-                              textAlign: TextAlign.center,
-                              style: theme.bodyMedium.override(
-                                font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: theme.bodyMedium.fontStyle),
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              'Aguarde ele concluir para trocar.',
-                              textAlign: TextAlign.center,
-                              style: theme.bodyMedium.override(
-                                font: GoogleFonts.inter(
-                                    fontWeight: theme.bodyMedium.fontWeight,
-                                    fontStyle: theme.bodyMedium.fontStyle),
-                                color: theme.secondaryText,
-                                fontSize: 13.0,
-                                letterSpacing: 0.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (filtrados.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(28.0),
-                        child: Text(
-                          _model.buscaTexto.isEmpty
-                              ? 'Nenhum treino criado ainda.'
-                              : 'Nenhum treino encontrado.',
-                          style: theme.bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: theme.bodyMedium.fontWeight,
-                              fontStyle: theme.bodyMedium.fontStyle,
-                            ),
-                            color: theme.secondaryText,
-                            letterSpacing: 0.0,
-                          ),
-                        ),
-                      )
-                    else
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.45,
-                        ),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListView.separated(
-                                shrinkWrap: true,
-                                primary: false,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.zero,
-                                itemCount: visiveis,
-                                separatorBuilder: (_, __) => Divider(
-                                  height: 1.0,
-                                  thickness: 1.0,
-                                  indent: 68.0,
-                                  endIndent: 16.0,
-                                  color: theme.alternate,
-                                ),
-                                itemBuilder: (_, index) {
-                                  final treino = filtrados[index];
-                                  final selecionado = treino.grupoTreinoId ==
-                                      widget.grupoTreinoIdAtual;
-                                  final count = treino.subagrupamentos.length;
-                                  final displayName = treino.nome.isNotEmpty
-                                      ? treino.nome
-                                      : 'Treino sem nome';
+  /// Aviso de treino em andamento, no lugar da lista.
+  Widget _travado(BuildContext context) {
+    final tema = FlutterFlowTheme.of(context);
 
-                                  return InkWell(
-                                    onTap: selecionado
-                                        ? null
-                                        : () => _selecionar(treino),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0, vertical: 14.0),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 40.0,
-                                            height: 40.0,
-                                            decoration: BoxDecoration(
-                                              color: selecionado
-                                                  ? theme.primary
-                                                  : theme.accent1,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Align(
-                                              alignment:
-                                                  const AlignmentDirectional(
-                                                      0.0, 0.0),
-                                              child: Icon(
-                                                selecionado
-                                                    ? Icons.check_rounded
-                                                    : FFIcons.kproperty1FiRrGym,
-                                                color: selecionado
-                                                    ? Colors.white
-                                                    : theme.primary,
-                                                size: 20.0,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12.0),
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  displayName,
-                                                  style:
-                                                      theme.bodyMedium.override(
-                                                    font: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontStyle: theme
-                                                          .bodyMedium.fontStyle,
-                                                    ),
-                                                    color: selecionado
-                                                        ? theme.primary
-                                                        : theme.primaryText,
-                                                    fontSize: 14.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                if (count > 0)
-                                                  Text(
-                                                    '$count sub-treino${count > 1 ? 's' : ''}',
-                                                    style: theme.bodyMedium
-                                                        .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight: theme
-                                                            .bodyMedium
-                                                            .fontWeight,
-                                                        fontStyle: theme
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                      ),
-                                                      color:
-                                                          theme.secondaryText,
-                                                      fontSize: 12.0,
-                                                      letterSpacing: 0.0,
-                                                    ),
-                                                  ),
-                                              ].divide(
-                                                  const SizedBox(height: 2.0)),
-                                            ),
-                                          ),
-                                          if (selecionado)
-                                            Icon(
-                                                Icons
-                                                    .radio_button_checked_rounded,
-                                                color: theme.primary,
-                                                size: 18.0)
-                                          else
-                                            Icon(Icons.radio_button_off_rounded,
-                                                color: theme.secondaryText,
-                                                size: 18.0),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              if (temMais)
-                                InkWell(
-                                  onTap: () => safeSetState(
-                                      () => _model.itemsVisiveis += 10),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14.0),
-                                    child: Text(
-                                      'Ver mais (${filtrados.length - _model.itemsVisiveis} restantes)',
-                                      style: theme.bodyMedium.override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle: theme.bodyMedium.fontStyle,
-                                        ),
-                                        color: theme.primary,
-                                        fontSize: 13.0,
-                                        letterSpacing: 0.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              const SizedBox(height: 8.0),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+          MedidasFolha.lado, 6.0, MedidasFolha.lado, 8.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 22.0),
+        decoration: BoxDecoration(
+          color: tema.warning.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14.0),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_clock_outlined, color: tema.warning, size: 26.0),
+            const SizedBox(height: 10.0),
+            Text(
+              'O aluno está executando um treino.',
+              textAlign: TextAlign.center,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                color: tema.primaryText,
+                fontSize: 13.5,
+                letterSpacing: -0.1,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ).animateOnActionTrigger(
-            animationsMap['cardOnActionTriggerAnimation']!,
-            hasBeenTriggered: hasCardTriggered,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 4.0, 0.0),
-          child: FlutterFlowIconButton(
-            borderRadius: 20.0,
-            buttonSize: 56.0,
-            fillColor: theme.secondaryBackground,
-            icon: Icon(
-              FFIcons.kproperty1FiRrCrossSmall,
-              color: theme.secondaryText,
-              size: 24.0,
+            const SizedBox(height: 4.0),
+            Text(
+              'Aguarde ele concluir para trocar.',
+              textAlign: TextAlign.center,
+              style: tema.bodyMedium.override(
+                font: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                color: tema.secondaryText,
+                fontSize: 12.0,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-            onPressed: _fechar,
-          ).animateOnActionTrigger(
-            animationsMap['closeButtonOnActionTriggerAnimation']!,
-            hasBeenTriggered: hasCloseTriggered,
-          ),
+          ],
         ),
-      ]
-          .divide(const SizedBox(height: 16.0))
-          .addToStart(const SizedBox(height: 40.0))
-          .addToEnd(const SizedBox(height: 40.0)),
+      ),
     );
   }
 }

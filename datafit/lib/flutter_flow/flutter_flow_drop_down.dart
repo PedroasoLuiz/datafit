@@ -20,6 +20,8 @@ class FlutterFlowDropDown<T> extends StatefulWidget {
     this.height,
     this.maxHeight,
     this.fillColor,
+    this.menuFillColor,
+    this.menuElevation,
     this.searchHintTextStyle,
     this.searchTextStyle,
     this.searchCursorColor,
@@ -64,6 +66,16 @@ class FlutterFlowDropDown<T> extends StatefulWidget {
   final double? height;
   final double? maxHeight;
   final Color? fillColor;
+
+  /// Cor do menu que abre, quando ela precisa ser diferente da do botao.
+  ///
+  /// Um campo sem caixa pede `fillColor` transparente, e sem esta separacao o
+  /// menu herdava a transparencia junto: a lista abria por cima do conteudo
+  /// da pagina, com os dois textos sobrepostos.
+  final Color? menuFillColor;
+
+  /// Elevacao so do menu. O botao continua com a sua.
+  final double? menuElevation;
   final TextStyle? searchHintTextStyle;
   final TextStyle? searchTextStyle;
   final Color? searchCursorColor;
@@ -320,10 +332,10 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
         overlayColor: menuItemOverlayColor,
       ),
       dropdownStyleData: DropdownStyleData(
-        elevation: widget.elevation.toInt(),
+        elevation: (widget.menuElevation ?? widget.elevation).toInt(),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4.0),
-          color: widget.fillColor,
+          color: widget.menuFillColor ?? widget.fillColor,
         ),
         isOverButton: widget.isOverButton,
         offset: widget.menuOffset ?? Offset.zero,

@@ -11,41 +11,45 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/flutter_flow/flutter_flow_animations.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/components/folha_kit.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 
+/// Abre o calendário do app e devolve a data escolhida, ou `null`.
 Future<DateTime?> showCustomDatePicker(
   BuildContext context, {
   DateTime? initialDate,
   DateTime? firstDate,
   DateTime? lastDate,
 }) {
-  final now = DateTime.now();
-  final effective = DateUtils.dateOnly(now);
-  final first = firstDate != null ? DateUtils.dateOnly(firstDate) : effective;
-  final last = lastDate ?? DateTime(2099, 12, 31);
-  DateTime? init = initialDate != null ? DateUtils.dateOnly(initialDate) : null;
-  if (init != null && init.isBefore(first)) init = first;
+  final hoje = DateUtils.dateOnly(DateTime.now());
+  final primeira = firstDate != null ? DateUtils.dateOnly(firstDate) : hoje;
+  final ultima = lastDate ?? DateTime(2099, 12, 31);
+
+  var inicial = initialDate != null ? DateUtils.dateOnly(initialDate) : null;
+  if (inicial != null && inicial.isBefore(primeira)) inicial = primeira;
 
   return showModalBottomSheet<DateTime>(
     context: context,
+    // No navegador raiz: este calendário quase sempre abre de dentro de outra
+    // folha, e nas duas pilhas separadas fechar um deixava o outro em pé.
+    useRootNavigator: true,
     isScrollControlled: true,
     enableDrag: false,
     backgroundColor: Colors.transparent,
-    builder: (ctx) => _CustomDatePickerSheet(
-      initialDate: init,
-      firstDate: first,
-      lastDate: last,
+    builder: (folha) => WebViewAware(
+      child: _FolhaCalendario(
+        initialDate: inicial,
+        firstDate: primeira,
+        lastDate: ultima,
+      ),
     ),
   );
 }
 
-class _CustomDatePickerSheet extends StatefulWidget {
-  const _CustomDatePickerSheet({
+class _FolhaCalendario extends StatefulWidget {
+  const _FolhaCalendario({
     this.initialDate,
     required this.firstDate,
     required this.lastDate,
@@ -56,178 +60,74 @@ class _CustomDatePickerSheet extends StatefulWidget {
   final DateTime lastDate;
 
   @override
-  State<_CustomDatePickerSheet> createState() => _CustomDatePickerSheetState();
+  State<_FolhaCalendario> createState() => _FolhaCalendarioState();
 }
 
-class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
-    with TickerProviderStateMixin {
-  DateTime? _selected;
-
-  var hasCardTriggered = false;
-  var hasBtn1Triggered = false;
-  var hasBtn2Triggered = false;
-  final animationsMap = <String, AnimationInfo>{};
+class _FolhaCalendarioState extends State<_FolhaCalendario> {
+  DateTime? _escolhida;
 
   @override
   void initState() {
     super.initState();
-    _selected = widget.initialDate;
-
-    animationsMap.addAll({
-      'cardOnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          VisibilityEffect(duration: 1.ms),
-          MoveEffect(
-            curve: Curves.easeInOutQuint,
-            delay: 300.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(0.0, 100.0),
-            end: const Offset(0.0, 0.0),
-          ),
-          ScaleEffect(
-            curve: Curves.easeInOutQuint,
-            delay: 0.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(-5.0, -5.0),
-            end: const Offset(1.0, 1.0),
-          ),
-        ],
-      ),
-      'btn1OnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          VisibilityEffect(duration: 650.ms),
-          MoveEffect(
-            curve: Curves.bounceOut,
-            delay: 650.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(0.0, 100.0),
-            end: const Offset(0.0, 0.0),
-          ),
-        ],
-      ),
-      'btn2OnActionTriggerAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onActionTrigger,
-        applyInitialState: true,
-        effectsBuilder: () => [
-          VisibilityEffect(duration: 650.ms),
-          MoveEffect(
-            curve: Curves.bounceOut,
-            delay: 650.0.ms,
-            duration: 600.0.ms,
-            begin: const Offset(0.0, 100.0),
-            end: const Offset(0.0, 0.0),
-          ),
-        ],
-      ),
-    });
-
-    setupAnimations(
-      animationsMap.values.where((anim) =>
-          anim.trigger == AnimationTrigger.onActionTrigger ||
-          !anim.applyInitialState),
-      this,
-    );
-
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await Future.wait([
-        Future(() async {
-          if (animationsMap['cardOnActionTriggerAnimation'] != null) {
-            setState(() => hasCardTriggered = true);
-            SchedulerBinding.instance.addPostFrameCallback((_) async =>
-                await animationsMap['cardOnActionTriggerAnimation']!
-                    .controller
-                    .forward(from: 0.0));
-          }
-        }),
-        Future(() async {
-          if (animationsMap['btn1OnActionTriggerAnimation'] != null) {
-            setState(() => hasBtn1Triggered = true);
-            SchedulerBinding.instance.addPostFrameCallback((_) async =>
-                await animationsMap['btn1OnActionTriggerAnimation']!
-                    .controller
-                    .forward(from: 0.0));
-          }
-        }),
-        Future(() async {
-          if (animationsMap['btn2OnActionTriggerAnimation'] != null) {
-            setState(() => hasBtn2Triggered = true);
-            SchedulerBinding.instance.addPostFrameCallback((_) async =>
-                await animationsMap['btn2OnActionTriggerAnimation']!
-                    .controller
-                    .forward(from: 0.0));
-          }
-        }),
-      ]);
-    });
+    _escolhida = widget.initialDate;
   }
 
-  Future<void> _fechar([DateTime? result]) async {
-    await Future.wait([
-      Future(() async {
-        if (animationsMap['cardOnActionTriggerAnimation'] != null) {
-          await animationsMap['cardOnActionTriggerAnimation']!
-              .controller
-              .reverse();
-        }
-      }),
-      Future(() async {
-        if (animationsMap['btn1OnActionTriggerAnimation'] != null) {
-          await animationsMap['btn1OnActionTriggerAnimation']!
-              .controller
-              .reverse();
-        }
-      }),
-      Future(() async {
-        if (animationsMap['btn2OnActionTriggerAnimation'] != null) {
-          await animationsMap['btn2OnActionTriggerAnimation']!
-              .controller
-              .reverse();
-        }
-      }),
-    ]);
-    if (mounted) Navigator.pop(context, result);
+  String _porExtenso(DateTime d) {
+    const meses = [
+      'janeiro',
+      'fevereiro',
+      'março',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro'
+    ];
+    return '${d.day} de ${meses[d.month - 1]} de ${d.year}';
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    final today = DateUtils.dateOnly(DateTime.now());
+    final tema = FlutterFlowTheme.of(context);
+    final hoje = DateUtils.dateOnly(DateTime.now());
+
+    final fonte = GoogleFonts.inter().fontFamily;
 
     final config = CalendarDatePicker2Config(
       calendarType: CalendarDatePicker2Type.single,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
       firstDayOfWeek: 0,
-      selectedDayHighlightColor: theme.primary,
+      selectedDayHighlightColor: tema.primary,
       selectedDayTextStyle: TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
-        fontFamily: GoogleFonts.inter().fontFamily,
+        fontFamily: fonte,
       ),
       dayTextStyle: TextStyle(
-        color: theme.primaryText,
+        color: tema.primaryText,
         fontWeight: FontWeight.w500,
-        fontFamily: GoogleFonts.inter().fontFamily,
+        fontFamily: fonte,
       ),
       disabledDayTextStyle: TextStyle(
-        color: theme.secondaryText.withOpacity(0.4),
-        fontFamily: GoogleFonts.inter().fontFamily,
+        color: tema.secondaryText.withValues(alpha: 0.4),
+        fontFamily: fonte,
       ),
       weekdayLabelTextStyle: TextStyle(
-        color: theme.secondaryText,
+        color: tema.secondaryText,
         fontWeight: FontWeight.w600,
-        fontSize: 12,
-        fontFamily: GoogleFonts.inter().fontFamily,
+        fontSize: 12.0,
+        fontFamily: fonte,
       ),
       controlsTextStyle: TextStyle(
-        color: theme.primaryText,
+        color: tema.primaryText,
         fontWeight: FontWeight.bold,
-        fontSize: 15,
-        fontFamily: GoogleFonts.inter().fontFamily,
+        fontSize: 15.0,
+        fontFamily: fonte,
       ),
       dayBuilder: ({
         required date,
@@ -237,38 +137,41 @@ class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
         isDisabled,
         isToday,
       }) {
-        final isSelectedDay =
-            _selected != null && DateUtils.isSameDay(date, _selected);
-        final isTodayDay = DateUtils.isSameDay(date, today);
+        final ehEscolhida =
+            _escolhida != null && DateUtils.isSameDay(date, _escolhida);
+        final ehHoje = DateUtils.isSameDay(date, hoje);
+        final bloqueada = isDisabled ?? false;
 
-        Color? bg;
-        Color textColor;
+        Color? fundo;
+        Color tinta;
 
-        if (isSelectedDay) {
-          bg = theme.primary;
-          textColor = Colors.white;
-        } else if (isTodayDay && !(isDisabled ?? false)) {
-          bg = theme.primary.withOpacity(0.12);
-          textColor = theme.primary;
+        if (ehEscolhida) {
+          fundo = tema.primary;
+          tinta = Colors.white;
+        } else if (ehHoje && !bloqueada) {
+          // Hoje marcado sem estar escolhido: é a referência que faz "daqui a
+          // uma semana" ser uma conta de olho em vez de uma de cabeça.
+          fundo = tema.primary.withValues(alpha: 0.12);
+          tinta = tema.primary;
         } else {
-          bg = null;
-          textColor = (isDisabled ?? false)
-              ? theme.secondaryText.withOpacity(0.35)
-              : theme.primaryText;
+          fundo = null;
+          tinta = bloqueada
+              ? tema.secondaryText.withValues(alpha: 0.35)
+              : tema.primaryText;
         }
 
         return Container(
-          decoration: bg != null
-              ? BoxDecoration(color: bg, shape: BoxShape.circle)
-              : null,
+          decoration: fundo == null
+              ? null
+              : BoxDecoration(color: fundo, shape: BoxShape.circle),
           child: Center(
             child: Text(
               date.day.toString(),
               style: TextStyle(
-                color: textColor,
-                fontWeight: isSelectedDay ? FontWeight.bold : FontWeight.w500,
-                fontSize: 14,
-                fontFamily: GoogleFonts.inter().fontFamily,
+                color: tinta,
+                fontWeight: ehEscolhida ? FontWeight.bold : FontWeight.w500,
+                fontSize: 14.0,
+                fontFamily: fonte,
               ),
             ),
           ),
@@ -276,120 +179,31 @@ class _CustomDatePickerSheetState extends State<_CustomDatePickerSheet>
       },
     );
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.secondaryBackground,
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: theme.accent1,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10.0),
-                          topRight: Radius.circular(10.0),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Selecionar data',
-                                style: TextStyle(
-                                  color: theme.primaryText,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  fontFamily: GoogleFonts.inter().fontFamily,
-                                ),
-                              ),
-                            ),
-                            Icon(
-                              Icons.calendar_month_rounded,
-                              color: theme.primary,
-                              size: 18.0,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    CalendarDatePicker2(
-                      config: config,
-                      value: _selected != null ? [_selected] : [],
-                      onValueChanged: (values) {
-                        if (values.isNotEmpty && values[0] != null) {
-                          setState(() => _selected = values[0]);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8.0),
-                  ],
-                ),
-              ),
-            ),
-          ).animateOnActionTrigger(
-            animationsMap['cardOnActionTriggerAnimation']!,
-            hasBeenTriggered: hasCardTriggered,
+    return FolhaPadrao(
+      // Devolve a data escolhida; sem escolha o visto não fecha.
+      aoConfirmar: () async => _escolhida,
+      filhos: [
+        CabecaFolha(
+          titulo: 'Selecionar data',
+          // A data por extenso no apoio: o número no calendário diz o dia, e
+          // o texto confirma o mês e o ano sem obrigar a conferir o topo.
+          apoio: _escolhida == null
+              ? 'Toque no dia que você quer.'
+              : _porExtenso(_escolhida!),
+          icone: Icons.calendar_month_rounded,
+        ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
+          child: CalendarDatePicker2(
+            config: config,
+            value: _escolhida != null ? [_escolhida] : [],
+            onValueChanged: (valores) {
+              if (valores.isEmpty || valores[0] == null) return;
+              setState(() => _escolhida = valores[0]);
+            },
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 4.0, 0.0),
-              child: FlutterFlowIconButton(
-                borderRadius: 20.0,
-                buttonSize: 56.0,
-                fillColor: _selected != null
-                    ? theme.primary
-                    : theme.primary.withOpacity(0.35),
-                icon: const Icon(
-                  Icons.check_rounded,
-                  color: Colors.white,
-                  size: 24.0,
-                ),
-                onPressed: _selected == null ? null : () => _fechar(_selected),
-              ).animateOnActionTrigger(
-                animationsMap['btn1OnActionTriggerAnimation']!,
-                hasBeenTriggered: hasBtn1Triggered,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
-              child: FlutterFlowIconButton(
-                borderRadius: 20.0,
-                buttonSize: 56.0,
-                fillColor: theme.secondaryBackground,
-                icon: Icon(
-                  FFIcons.kproperty1FiRrCrossSmall,
-                  color: theme.secondaryText,
-                  size: 24.0,
-                ),
-                onPressed: () => _fechar(),
-              ).animateOnActionTrigger(
-                animationsMap['btn2OnActionTriggerAnimation']!,
-                hasBeenTriggered: hasBtn2Triggered,
-              ),
-            ),
-          ],
-        ),
-      ]
-          .divide(const SizedBox(height: 16.0))
-          .addToStart(const SizedBox(height: 40.0))
-          .addToEnd(const SizedBox(height: 40.0)),
+      ],
     );
   }
 }
