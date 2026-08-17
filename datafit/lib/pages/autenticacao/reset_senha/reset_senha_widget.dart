@@ -1,6 +1,10 @@
+import '/auth/recuperacao_senha.dart';
 import '/auth/supabase_auth/auth_util.dart';
+import '/backend/supabase/supabase.dart';
+import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 import 'dart:ui';
 import '/index.dart';
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
@@ -50,6 +54,39 @@ class _ResetSenhaWidgetState extends State<ResetSenhaWidget> {
     _model.dispose();
 
     super.dispose();
+  }
+
+  /// Aviso padrão do app, o mesmo do login e do cadastro.
+  Future<void> _mostrarMensagem(String texto) async {
+    await showModalBottomSheet(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) {
+        return WebViewAware(
+          child: GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: Padding(
+              padding: MediaQuery.viewInsetsOf(context),
+              child: MensagemWidget(
+                texto: texto,
+                tipo: '3',
+                fechasozinho: true,
+                mostrabotoes: false,
+                action: () async {
+                  safeSetState(() {});
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((value) => safeSetState(() {}));
   }
 
   @override
@@ -598,12 +635,48 @@ class _ResetSenhaWidgetState extends State<ResetSenhaWidget> {
                             0.0),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            await authManager.updatePassword(
-                              newPassword: _model.senhaTextController.text,
-                              context: context,
-                            );
+                            final senha = _model.senhaTextController.text;
+                            final confirmacao =
+                                _model.confirmarTextController.text;
+
+                            if (senha.isEmpty || confirmacao.isEmpty) {
+                              await _mostrarMensagem(
+                                  'Digite a nova senha nos dois campos.');
+                              return;
+                            }
+                            if (senha != confirmacao) {
+                              await _mostrarMensagem(
+                                  'As senhas não conferem. Digite a mesma senha nos dois campos.');
+                              return;
+                            }
+
+                            // A gravacao vai direto no `updateUser`, e nao pelo
+                            // `authManager.updatePassword`, porque aquele engole
+                            // a falha num SnackBar e devolve void: o app seguia
+                            // para dentro mesmo com a senha nao gravada, e o
+                            // erro aparecia como aviso do sistema em vez de
+                            // MensagemWidget.
+                            try {
+                              await SupaFlow.client.auth.updateUser(
+                                UserAttributes(password: senha),
+                              );
+                            } on AuthException catch (e) {
+                              await _mostrarMensagem(
+                                  'Não foi possível salvar a senha: ${e.message}');
+                              return;
+                            } catch (e) {
+                              await _mostrarMensagem(
+                                  'Não foi possível salvar a senha. Tente de novo.');
+                              return;
+                            }
+
+                            // Senha gravada: agora sim a sessao pode entrar.
+                            encerrarRecuperacaoDeSenha();
                             safeSetState(() {});
 
+                            if (!context.mounted) {
+                              return;
+                            }
                             context.goNamedAuth(
                                 LoadingWidget.routeName, context.mounted);
                           },

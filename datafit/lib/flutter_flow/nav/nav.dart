@@ -10,6 +10,7 @@ import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 
 import '/auth/base_auth_user_provider.dart';
+import '/auth/recuperacao_senha.dart';
 
 import '/main.dart';
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
@@ -587,6 +588,26 @@ class FFRoute {
         path: path,
         parentNavigatorKey: parentNavigatorKey,
         redirect: (context, state) {
+          // O portao da recuperacao de senha vem antes de tudo.
+          //
+          // A sessao criada pelo link do e-mail e uma sessao valida, entao
+          // `loggedIn` fica true e o app inteiro se abre para quem ainda nao
+          // escolheu senha. Enquanto o portao esta ligado, todo destino que nao
+          // seja a tela de nova senha volta para ela. Ver `auth/recuperacao_senha.dart`.
+          // A sessao entra na condicao para o portao nao virar armadilha: se ela
+          // expirar antes da troca, `updateUser` nao tem mais como gravar, e
+          // segurar a pessoa numa tela que nao funciona e pior que solta-la no
+          // login.
+          if (emRecuperacaoDeSenha &&
+              SupaFlow.client.auth.currentSession != null &&
+              state.uri.path != ResetSenhaWidget.routePath) {
+            final email = SupaFlow.client.auth.currentUser?.email ?? '';
+            return Uri(
+              path: ResetSenhaWidget.routePath,
+              queryParameters: {'email': email},
+            ).toString();
+          }
+
           if (appStateNotifier.shouldRedirect) {
             final redirectLocation = appStateNotifier.getRedirectLocation();
             appStateNotifier.clearRedirectLocation();

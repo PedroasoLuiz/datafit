@@ -9,6 +9,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'auth/supabase_auth/supabase_user_provider.dart';
 import 'auth/supabase_auth/auth_util.dart';
+import 'auth/recuperacao_senha.dart';
 
 import '/backend/supabase/supabase.dart';
 import '/backend/push/servico_push.dart';
@@ -112,8 +113,16 @@ class _MyAppState extends State<MyApp> {
 
     SupaFlow.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.passwordRecovery) {
+        // Liga o portao antes de navegar.
+        //
+        // Era `pushNamed`, e a tela de nova senha ficava empilhada por cima de
+        // um app que o roteador ja tinha aberto por baixo: bastava fechar ela
+        // para estar logado sem ter trocado senha. Com o portao ligado o
+        // roteador nao tem para onde levar a pessoa, e o `goNamed` nao deixa
+        // nada embaixo. Ver `auth/recuperacao_senha.dart`.
+        iniciarRecuperacaoDeSenha();
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _router.pushNamed(
+          _router.goNamed(
             ResetSenhaWidget.routeName,
             queryParameters: {
               'email': data.session?.user.email ?? '',
