@@ -122,7 +122,7 @@ Future<String> cadastrarAluno(
       try {
         await supabase.auth.resetPasswordForEmail(
           email,
-          redirectTo: destinoDefinirSenha(),
+          redirectTo: destinoDefinirSenha,
         );
       } catch (e) {
         emailErro = e.toString();

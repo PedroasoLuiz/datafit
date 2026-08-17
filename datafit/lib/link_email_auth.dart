@@ -1,15 +1,11 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 /// Para onde o link do e-mail de senha traz a pessoa de volta.
 ///
-/// No app o destino e o deep link. Na web ele nao serve: o navegador recebe
-/// `com.virtus.datafit://reset-password` e nao sabe abrir, entao o aluno
-/// recebia o e-mail e travava no clique. Quem esta em godata.fit precisa de
-/// uma rota http de verdade, e ela existe: `/resetSenha`, a do
-/// `ResetSenhaWidget`.
+/// O app so existe em Android e iOS, entao o destino e sempre o deep link.
+/// Nao ha ramo para web de proposito: `godata.fit` e a landing, nao tem rota
+/// de app nenhuma.
 ///
-/// Os dois enderecos precisam estar em Authentication > URL Configuration >
-/// Redirect URLs no Supabase, senao o link cai na Site URL do projeto.
-String destinoDefinirSenha() => kIsWeb
-    ? 'https://godata.fit/resetSenha'
-    : 'com.virtus.datafit://reset-password';
+/// Este endereco precisa estar em Authentication > URL Configuration >
+/// Redirect URLs no Supabase. Fora da lista o GoTrue ignora o que foi pedido e
+/// manda a pessoa para a Site URL do projeto, que e a landing: e por isso que o
+/// link de redefinir senha caia no site em vez de abrir o app.
+const String destinoDefinirSenha = 'com.virtus.datafit://reset-password';

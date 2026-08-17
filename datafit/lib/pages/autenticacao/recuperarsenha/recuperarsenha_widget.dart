@@ -216,7 +216,7 @@ class _RecuperarsenhaWidgetState extends State<RecuperarsenhaWidget> {
                                 await authManager.resetPassword(
                                   email: widget!.email!,
                                   context: context,
-                                  redirectTo: destinoDefinirSenha(),
+                                  redirectTo: destinoDefinirSenha,
                                 );
                                 _model.enviou = true;
                                 safeSetState(() {});

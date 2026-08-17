@@ -1024,7 +1024,7 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                         // a Site URL do projeto em vez de
                                         // abrir o app. O mesmo destino usado
                                         // em recuperarsenha_widget.
-                                        redirectTo: destinoDefinirSenha(),
+                                        redirectTo: destinoDefinirSenha,
                                       );
                                       await _mostrarMensagem(
                                           'Este e-mail já tem cadastro. Enviamos um link para você definir sua senha e entrar.');
