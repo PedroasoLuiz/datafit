@@ -77,6 +77,8 @@ Container / Row / Stack / Positioned
 | `resposta.succeeded ?? true` | Resposta nula passa por sucesso e a falha some | `resposta.succeeded != true` |
 | `FlutterFlowDropDown.fillColor` | Pinta o botão **e** o menu que abre; campo sem caixa abre lista transparente | Usar `menuFillColor` e `menuElevation` (adicionados em 16/08/2026) |
 | `formataData('')` | Devolve `DateTime.now()`, não nulo | Guardar `if (cru.trim().isEmpty) return null;` antes de chamar |
+| Sessão da recuperação de senha | O link do e-mail cria **sessão de verdade** (é ela que autoriza o `updateUser`). O roteador vê `loggedIn` e abre o app para quem não escolheu senha nenhuma | Portão de `auth/recuperacao_senha.dart`: enquanto ligado, `FFRoute` devolve todo destino para a tela de nova senha. Navegar com `goNamed`, nunca `pushNamed` |
+| `authManager.updatePassword` | Engole a falha num `SnackBar` e devolve `void`: o app seguia adiante com a senha não gravada | Chamar `SupaFlow.client.auth.updateUser(UserAttributes(password: ...))` em `try/catch` e avisar com `MensagemWidget` |
 
 ### Tabelas específicas
 
