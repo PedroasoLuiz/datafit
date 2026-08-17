@@ -12,13 +12,21 @@ import 'package:flutter/material.dart';
 
 import 'dart:convert';
 
-// A RPC criar_ou_vincular_aluno agora cria o usuário na auth internamente
-// se alunoUuid vier vazio — não precisa mais de edge function.
+import '/link_email_auth.dart';
+
+// Quem cria o usuario no Auth e a Edge Function `criar-usuario-auth`.
+//
+// A RPC ja fez isso com um INSERT cru em auth.users, e o resultado era um
+// usuario fantasma: sem linha em auth.identities, que e a tabela onde o GoTrue
+// guarda "como esta pessoa entra". Sem ela nao havia login por senha, nem
+// vinculo com Apple ou Google, e o resetPasswordForEmail respondia sucesso sem
+// enviar nada. O aluno existia para a checagem de e-mail e nao existia para o
+// Auth. A Edge Function usa `auth.admin.createUser`, que monta a identidade.
 //
 // Parâmetros:
 //   personalUuid → UUID do personal logado
-//   alunoUuid    → userId retornado pela verificar_usuario_por_email
-//                  (pode ser null/vazio se usuário não existe — a RPC cria)
+//   alunoUuid    → userId retornado pela verificar_usuario_por_email;
+//                  vindo vazio, a Edge Function cria a conta e devolve o id
 //   ...demais dados do formulário
 
 Future<String> cadastrarAluno(
@@ -47,11 +55,44 @@ Future<String> cadastrarAluno(
       nascimentoNormalizado = '${p[2]}-${p[1]}-${p[0]}';
     }
 
+    // Garante o usuario no Auth antes de vincular.
+    //
+    // A funcao devolve o id de quem ja existe, entao reenviar convite para o
+    // mesmo e-mail nao cria uma segunda conta.
+    var uuidDoAluno = alunoUuid;
+    if (uuidDoAluno == null || uuidDoAluno.isEmpty || uuidDoAluno == 'null') {
+      try {
+        final criacao = await supabase.functions.invoke(
+          'criar-usuario-auth',
+          body: {'email': email},
+        );
+        final dados = criacao.data;
+        final mapa = dados is Map
+            ? dados
+            : (dados is String ? jsonDecode(dados) as Map : const {});
+        uuidDoAluno = mapa['userId']?.toString();
+        if (uuidDoAluno == null || uuidDoAluno.isEmpty) {
+          return jsonEncode({
+            'sucesso': false,
+            'codigo': 'SEM_USUARIO_AUTH',
+            'mensagem': mapa['error']?.toString() ??
+                'Nao consegui criar o acesso deste aluno. Tente de novo.',
+          });
+        }
+      } catch (e) {
+        return jsonEncode({
+          'sucesso': false,
+          'codigo': 'SEM_USUARIO_AUTH',
+          'mensagem': 'Nao consegui criar o acesso deste aluno: $e',
+        });
+      }
+    }
+
     final resultado = await supabase.rpc(
       'criar_ou_vincular_aluno',
       params: {
         'p_personal_uuid': personalUuid,
-        'p_aluno_uuid': alunoUuid ?? '',
+        'p_aluno_uuid': uuidDoAluno,
         'p_nome': nome,
         'p_email': email,
         'p_forcar_vinculo': forcarVinculo,
@@ -67,10 +108,12 @@ Future<String> cadastrarAluno(
       },
     );
 
-    // Se o cadastro foi bem-sucedido e o aluno era novo (não tinha conta),
-    // envia e-mail de redefinição de senha para que ele possa definir sua senha e entrar.
-    // A RPC cria o usuário no auth.users diretamente (sem acionar o sistema de e-mail do Supabase),
-    // então precisamos chamar resetPasswordForEmail aqui para que o aluno receba o e-mail.
+    // O convite: um e-mail de definir senha.
+    //
+    // A Edge Function cria a conta sem senha e sem mandar nada, entao e este
+    // `resetPasswordForEmail` que leva o aluno ao app. So funciona porque a
+    // conta agora tem identidade `email`: sem ela o GoTrue respondia sucesso e
+    // nao enviava (e o comportamento anti-enumeracao dele).
     final resultMap = resultado is Map ? resultado : null;
     // Envia email sempre que o convite foi criado/reenviado com sucesso
     final deveEnviarEmail = resultMap != null && resultMap['sucesso'] == true;
@@ -79,7 +122,7 @@ Future<String> cadastrarAluno(
       try {
         await supabase.auth.resetPasswordForEmail(
           email,
-          redirectTo: 'com.virtus.datafit://reset-password',
+          redirectTo: destinoDefinirSenha(),
         );
       } catch (e) {
         emailErro = e.toString();

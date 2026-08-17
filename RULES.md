@@ -59,6 +59,7 @@ Container / Row / Stack / Positioned
 | Trigger em coluna dropada | Causa falha silenciosa com erro cryptic `record "new" has no field "X"` | Verificar `information_schema.triggers` quando remoção de coluna causa falha |
 | `TO_CHAR` com `TM` | Não respeita locale PT no Supabase | Array hardcoded: `ARRAY['Janeiro','Fevereiro',...]` |
 | `PGRST203` | Múltiplos overloads sem diferenciação de parâmetros | Checar overloads com `pg_proc` |
+| **`INSERT` cru em `auth.users`** | Nasce um usuário fantasma: existe para `verificar_usuario_por_email` e não existe para o Auth. Sem linha em `auth.identities` o GoTrue não acha a pessoa por e-mail, então `/recover` responde **200 sem enviar nada** (anti-enumeração). E as colunas de token ficam `NULL` onde o GoTrue espera `''`, e a leitura da linha estoura antes de tudo: `error finding user: converting NULL to string is unsupported`, 500 `unexpected_failure` | **Nunca** criar usuário em SQL. Use a Edge Function `criar-usuario-auth` (`auth.admin.createUser`), que monta identidade e metadata |
 
 ### FlutterFlow
 

@@ -1,6 +1,7 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/link_email_auth.dart';
 import 'dart:ui';
 import '/index.dart';
 import 'package:ff_theme/flutter_flow/flutter_flow_theme.dart';
@@ -215,8 +216,7 @@ class _RecuperarsenhaWidgetState extends State<RecuperarsenhaWidget> {
                                 await authManager.resetPassword(
                                   email: widget!.email!,
                                   context: context,
-                                  redirectTo:
-                                      'com.virtus.datafit://reset-password',
+                                  redirectTo: destinoDefinirSenha(),
                                 );
                                 _model.enviou = true;
                                 safeSetState(() {});

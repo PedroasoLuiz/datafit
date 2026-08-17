@@ -330,7 +330,7 @@ Status calculado por comparação entre `DataPagamento` e `DataVencimento` — *
 | `marcar_notificacao_lida` | Marca notificação como lida |
 | `criar_notificacao` | Cria notificação genérica (aceita `p_tag`) |
 | `verificar_usuario_por_email` | Verifica se email existe na auth; retorna `existeNaAuth`, `userId`, `perfilCompleto`, `outrosPersonais` |
-| `criar_ou_vincular_aluno` | Cria usuário na auth se não existe, cria Perfis, cria PersonalAlunos (pendente), dispara notif `convite`; retorna `ALUNO_JA_VINCULADO` se conflito sem forcarVinculo |
+| `criar_ou_vincular_aluno` | Recebe o UUID já criado pela Edge Function `criar-usuario-auth`, cria Perfis, cria PersonalAlunos (pendente), dispara notif `convite`; retorna `ALUNO_JA_VINCULADO` se conflito sem forcarVinculo, e `SEM_USUARIO_AUTH` se vier sem UUID. **Não cria usuário na auth** |
 
 ### Convite / Vínculo
 | RPC | Descrição |

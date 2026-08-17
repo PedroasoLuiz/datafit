@@ -6,6 +6,7 @@ import '/components/google_g_icon.dart';
 import '/components/mensagem_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/link_email_auth.dart';
 import 'dart:convert';
 import 'dart:ui';
 import '/index.dart';
@@ -1023,8 +1024,7 @@ class _CadastroWidgetState extends State<CadastroWidget> {
                                         // a Site URL do projeto em vez de
                                         // abrir o app. O mesmo destino usado
                                         // em recuperarsenha_widget.
-                                        redirectTo:
-                                            'com.virtus.datafit://reset-password',
+                                        redirectTo: destinoDefinirSenha(),
                                       );
                                       await _mostrarMensagem(
                                           'Este e-mail já tem cadastro. Enviamos um link para você definir sua senha e entrar.');

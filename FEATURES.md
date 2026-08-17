@@ -114,9 +114,10 @@
 ### ✅ Cadastro e Convite de Alunos (Personal)
 - `novo_aluno_widget.dart`: formulário Nome + Email com debounce de verificação
 - `verificar_usuario_por_email` → retorna se email existe na auth, se perfil está completo, e outros personais vinculados
-- `criar_ou_vincular_aluno` → cria usuário na auth se não existe, cria Perfis, cria PersonalAlunos com StatusConvite='pendente', dispara notificação `convite` pro aluno (apaga duplicatas antes)
+- Edge Function `criar-usuario-auth` → cria a conta no Auth pela Admin API e devolve `userId` (idempotente: e-mail que já existe volta com `criado: false`). **A RPC não cria mais usuário**, ver a armadilha do INSERT cru em `RULES.md`
+- `criar_ou_vincular_aluno` → recebe o UUID pronto, cria Perfis, cria PersonalAlunos com StatusConvite='pendente', dispara notificação `convite` pro aluno (apaga duplicatas antes). Sem UUID devolve `SEM_USUARIO_AUTH`
 - Se aluno já vinculado a outro personal → retorna `ALUNO_JA_VINCULADO` com lista; UI pede confirmação com `forcarVinculo=true`
-- Após sucesso → `supabase.auth.resetPasswordForEmail` envia e-mail pro aluno definir senha
+- Após sucesso → `supabase.auth.resetPasswordForEmail` envia e-mail pro aluno definir senha, com destino de `lib/link_email_auth.dart` (deep link no app, `https://godata.fit/resetSenha` na web)
 - `responder_convite_personal` → ao aceitar: desativa personal antigo, remove treinos do antigo, ativa novo vínculo, marca notif como lida; ao recusar: marca recusado e notif como lida
 
 ### 🔧 Atribuição de Treinos a Alunos

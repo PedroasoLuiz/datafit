@@ -59,6 +59,7 @@ Deep link scheme: `com.virtus.datafit://`
 - Convite: botões Aceitar/Recusar usam `notisItem.remetenteId` (UUID) — nunca buscar por nome em `convitesPendentes`
 - `TreinosExecucao`: ciclo 1 é o **plano**, ciclos > 1 são as repetições. `DataValidade` pertence ao plano
 - `ExerciciosTreinos` **não tem** `IsDeleted`
+- **Nunca** criar usuário com `INSERT` em `auth.users`: usuário sem `auth.identities` não entra por método nenhum e o `/recover` responde sucesso sem enviar. Use a Edge Function `criar-usuario-auth`
 
 ---
 
