@@ -56,6 +56,24 @@ class _ResetSenhaWidgetState extends State<ResetSenhaWidget> {
     super.dispose();
   }
 
+  /// Desiste da troca de senha.
+  ///
+  /// A sessão do link precisa ir embora junto: ela é o que dá acesso à conta,
+  /// e quem sai daqui não escolheu senha nenhuma.
+  Future<void> _sairDaRecuperacao() async {
+    await encerrarRecuperacaoDeSenha();
+    if (!mounted) {
+      return;
+    }
+    GoRouter.of(context).prepareAuthEvent();
+    await authManager.signOut();
+    if (!mounted) {
+      return;
+    }
+    GoRouter.of(context).clearRedirectLocation();
+    context.goNamedAuth(LoginWidget.routeName, context.mounted);
+  }
+
   /// Aviso padrão do app, o mesmo do login e do cadastro.
   Future<void> _mostrarMensagem(String texto) async {
     await showModalBottomSheet(
@@ -671,7 +689,7 @@ class _ResetSenhaWidgetState extends State<ResetSenhaWidget> {
                             }
 
                             // Senha gravada: agora sim a sessao pode entrar.
-                            encerrarRecuperacaoDeSenha();
+                            await encerrarRecuperacaoDeSenha();
                             safeSetState(() {});
 
                             if (!context.mounted) {
@@ -717,6 +735,47 @@ class _ResetSenhaWidgetState extends State<ResetSenhaWidget> {
                                 ),
                             elevation: 0.0,
                             borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                      ),
+                      // A porta da frente.
+                      //
+                      // Enquanto a troca esta pendente o app nao abre para
+                      // ninguem, e sem esta saida a tela viraria cela: quem
+                      // clicou no link sem querer nao teria como voltar ao
+                      // login. Sair aqui encerra a sessao do link.
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            16.0, 16.0, 16.0, 0.0),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: _sairDaRecuperacao,
+                          child: Align(
+                            alignment: AlignmentDirectional(0.0, 0.0),
+                            child: Text(
+                              'Sair e voltar ao login',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    fontSize: 13.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
+                            ),
                           ),
                         ),
                       ),

@@ -120,7 +120,7 @@ class _MyAppState extends State<MyApp> {
         // para estar logado sem ter trocado senha. Com o portao ligado o
         // roteador nao tem para onde levar a pessoa, e o `goNamed` nao deixa
         // nada embaixo. Ver `auth/recuperacao_senha.dart`.
-        iniciarRecuperacaoDeSenha();
+        iniciarRecuperacaoDeSenha(data.session?.user.id);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _router.goNamed(
             ResetSenhaWidget.routeName,
@@ -130,6 +130,26 @@ class _MyAppState extends State<MyApp> {
           );
         });
       }
+    });
+
+    // Troca de senha interrompida na vez anterior.
+    //
+    // A sessao do link fica gravada no aparelho, entao matar o app no meio do
+    // caminho deixava a pessoa dentro da conta sem ter escolhido senha. A
+    // pendencia tambem e gravada, e aqui ela volta a valer.
+    restaurarRecuperacaoPendente(SupaFlow.client.auth.currentUser?.id)
+        .then((pendente) {
+      if (!pendente) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _router.goNamed(
+          ResetSenhaWidget.routeName,
+          queryParameters: {
+            'email': SupaFlow.client.auth.currentUser?.email ?? '',
+          },
+        );
+      });
     });
     Future.delayed(
       Duration(milliseconds: 1000),
