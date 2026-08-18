@@ -191,7 +191,7 @@ Convertidos: `novo_aluno`, `selecionar_treino_aluno`, `selecionar_exercicio`,
 `alunos_edit_exercicio`, `alunos_novo_objetivo`, `alunos_editar_objetivo`,
 `informar_pagamento`, `pagamentos_novo`, `pagamentos_edit`,
 `perfil_aluno_status`, `confirmar_recebimento`, `avaliar_personal`,
-`folha_feedback_treino`, `preferencias_app`, `convite_personal`,
+`folha_feedback_treino`, `preferencias_app`, `feedback_app`, `convite_personal`,
 `custom_date_picker`, `metas_fotos`, os dois de cárdio e os filtros de grupo.
 
 **Fora do kit de propósito:** `mensagem_widget` (aviso, desenho próprio),
@@ -223,6 +223,27 @@ mostra a última medida de cada perímetro, a data e a variação desde a primei
 - Busca sob demanda com o `CacheCurto`: quem abre a ficha para ver o treino
   nunca dispara a chamada
 
+### ✅ Feedback do app — 18/08/2026
+Item "Enviar feedback" no grupo Geral do menu do usuário, logo depois da Ajuda.
+Folha `components/feedback_app.dart` no padrão do `folha_kit`.
+
+- Assunto (Sugestão / Problema / Elogio / Outro), nota opcional de 1 a 5,
+  mensagem com teto de 1000 caracteres e e-mail de resposta já preenchido
+- Plataforma e versão (`package_info_plus`) vão junto sem serem digitadas: sem
+  elas um "trava ao salvar" não diz em qual build travou
+- A folha mostra os envios anteriores da pessoa com o status de cada um
+- Grava por `enviar_feedback_app`, com teto de 5 envios por dia
+- Leitura: `SELECT * FROM public.vw_feedbacks_app WHERE status = 'novo';`
+- Não se confunde com `avaliar_personal`: aquele é a nota pública ao personal,
+  este é privado e fala do app
+- Ícone da família `FiRr` (`FFIcons.kproperty1FiRrComment`), como os vizinhos
+  Segurança, Termos e Ajuda: os ícones do menu são todos de linha
+
+### 🗑️ "Meu plano" no drawer do perfil — removido em 18/08/2026
+A tabela com free / standard / partner e os preços saiu do drawer. Já vivia
+oculta no iOS (Guideline 3.1.1) e o gate `tipoPerfilId == 1` a mostrava para
+alunos, não para personais. Planos continuam sendo vendidos pelo site.
+
 ---
 
 ## Correções de 16/08/2026
@@ -240,9 +261,35 @@ mostra a última medida de cada perímetro, a data e a variação desde a primei
 
 ---
 
+## Correções de 16/08 e 17/08/2026: Auth e convite
+
+Uma causa só explicava quatro sintomas: "o aluno já existe" para quem nunca se
+cadastrou, login com Apple recusado, e-mail de convite e de redefinição que não
+chegavam. Detalhe em `RULES.md`, seções do INSERT cru e dos e-mails do Auth.
+
+| O quê | Causa |
+|---|---|
+| Aluno existia para a checagem de e-mail e não existia para o Auth | A RPC criava o aluno com `INSERT` cru em `auth.users`. Sem linha em `auth.identities` o GoTrue não acha a pessoa por e-mail: `/recover` responde **200 sem enviar nada**. 14 usuários reparados; a criação agora é sempre pela Edge Function `criar-usuario-auth` |
+| Depois do reparo, `/recover` passou a dar 500 | As colunas de token estavam `NULL` onde o GoTrue espera `''`: `error finding user: converting NULL to string is unsupported`. Normalizadas, junto com `instance_id` e `raw_app_meta_data` |
+| Link do e-mail caía na landing | Template apontava para `{{ .SiteURL }}/auth/callback`, rota que não existe. Trocado por `{{ .ConfirmationURL }}`; deep links adicionados em Redirect URLs |
+| Sessão do link de recuperação entrava no app sem trocar a senha | A tela subia com `pushNamed` por cima de um app já aberto por baixo. Portão em `auth/recuperacao_senha.dart`, `goNamed`, pendência gravada em disco e saída explícita na tela |
+| App seguia adiante mesmo sem gravar a senha | `authManager.updatePassword` engole a falha num `SnackBar` e devolve `void`. Agora `updateUser` em `try/catch`, com `MensagemWidget` |
+
+Testado de ponta a ponta em 17/08 com contas descartáveis (`+` no Gmail), lendo
+o link de dentro dos e-mails: criar conta, convite (Edge Function, RPC, e-mail) e
+redefinir senha. Os três passam, e o `verify` devolve **303** para o deep link.
+Base conferida depois: 23 usuários, nenhum sem identidade, nenhum token nulo.
+
+---
+
 ## Issues abertas
 
-Nenhuma no momento. As duas issues anteriores foram revisadas em 2026-07-01:
+- **Lista de alunos ficava "pendente" após o aceite** (corrigido, **ainda não publicado**): a lista só vinha do `Loading`. A tela `/aluno` agora pinta o cache e busca de novo, com validade de 60s. Ver `RULES.md`, "Cache de lista com validade". Mexe em `actions.dart`, `aluno_widget.dart`, `criaraluno_widget.dart` e `perfil_aluno_status_widget.dart`
+- Template **Confirm signup** ainda tem `© 2026 Sua Empresa` no rodapé, texto de exemplo
+- Template **Magic Link** segue o padrão em inglês do Supabase (não usado hoje)
+- `get_alunos_do_personal` calcula o mesmo join duas vezes por aluno (ver `DATABASE.md`)
+
+As duas issues anteriores foram revisadas em 2026-07-01: As duas issues anteriores foram revisadas em 2026-07-01:
 - 404 em `get_perfil_personal_publico` → **corrigido** (barra duplicada na URL, ver módulo "Perfil do Personal" acima)
 - `FlutterFlowYoutubePlayer` com `url:` inválido em `alunos_edit_exercicio_widget.dart` → **não reproduz mais**: o arquivo atual não contém nenhum `FlutterFlowYoutubePlayer` nem referência a "youtube" além de um hint text de input. Nota estava desatualizada (provavelmente já resolvida antes e não documentada).
 

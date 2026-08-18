@@ -61,6 +61,21 @@ class _AlunoWidgetState extends State<AlunoWidget> {
       _model.alunospersonal =
           FFAppState().alunosdopersonal.toList().cast<PersonalalunosStruct>();
       safeSetState(() {});
+      // Pinta o cache e busca de novo.
+      //
+      // A lista so era carregada no Loading, entao convite aceito depois disso
+      // seguia aparecendo como pendente ate o app ser reaberto: quem aceita e o
+      // aluno, do outro lado, e nao tem como avisar este cache. Vale para o
+      // personal que se convida tambem, onde os dois lados sao a mesma pessoa e
+      // a defasagem aparece na hora.
+      await action_blocks.alunosdopersonal(
+        context,
+        uuidpersonal: currentUserUid,
+      );
+      if (!mounted) return;
+      _model.alunospersonal =
+          FFAppState().alunosdopersonal.toList().cast<PersonalalunosStruct>();
+      safeSetState(() {});
       await action_blocks.loadingNotifica(context);
       safeSetState(() {});
       // A folha das nao lidas so aparece depois de a lista chegar do
@@ -471,6 +486,7 @@ class _AlunoWidgetState extends State<AlunoWidget> {
                                                     .alunosdopersonal(
                                                   context,
                                                   uuidpersonal: currentUserUid,
+                                                  forcar: true,
                                                 );
                                                 safeSetState(() {});
                                                 _model.alunospersonal = FFAppState()

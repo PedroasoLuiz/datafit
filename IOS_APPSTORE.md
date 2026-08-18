@@ -81,7 +81,7 @@ Restam 6 itens abertos.
 | Permissões | Strings de câmera/fotos específicas em PT-BR no lugar do texto genérico do template |
 | Privacy manifest | `PrivacyInfo.xcprivacy` estava `<dict/>` vazio. Agora declara dados coletados (e-mail, nome, telefone, user ID, fitness, fotos) e Required Reason APIs (UserDefaults `CA92.1`, FileTimestamp `C617.1`) |
 | iPad | `TARGETED_DEVICE_FAMILY` `1,2` → `1` e remoção de `UISupportedInterfaceOrientations~ipad`. **Não precisa de screenshots de iPad** |
-| Guideline 3.1.1 | Tabela de preços dos planos (R$ 47 / R$ 97) oculta no iOS via `!isiOS` em `perfil_widget.dart`. Planos são vendidos só pelo site |
+| Guideline 3.1.1 | Tabela de preços dos planos (R$ 47 / R$ 97) **removida do app** em 18/08/2026. Antes ficava só oculta no iOS via `!isiOS` em `perfil_widget.dart`; agora não existe em plataforma nenhuma. Planos são vendidos só pelo site |
 | Guideline 5.1.1(v) | Exclusão de conta implementada: `lib/components/excluir_conta.dart` + item no menu do perfil |
 | Política de privacidade | Extraída do widget para `privacidade.html` (29 mil caracteres, 16 seções, LGPD), com links reativados |
 
@@ -138,10 +138,9 @@ App Store Connect. Usar um Personal com alunos, treinos e métricas populados.
 
 ## 📌 Observações levantadas mas fora do escopo
 
-- **`tipoPerfilId == 1` no card "Meu plano"** (`perfil_widget.dart:785`): o `1` é
-  Aluno (confirmado pelo `navbar_widget.dart`, onde `== 2` gateia o que é do
-  Personal). A tabela de preços de planos de *Personal* está sendo exibida para
-  *alunos*. Parece bug pré-existente — não foi alterado, só ocultado no iOS.
+- ~~**`tipoPerfilId == 1` no card "Meu plano"**: a tabela de preços de planos de
+  *Personal* aparecia para *alunos*.~~ Sem objeto: a seção inteira saiu do drawer
+  em 18/08/2026.
 - **`sign_in_with_apple` 7.0.1** está no `pubspec.yaml` e há um mixin
   `AppleSignInManager` em `auth_manager.dart`, mas não há uso real. Como não há
   login social, a Guideline 4.8 não se aplica. Remover é opcional.

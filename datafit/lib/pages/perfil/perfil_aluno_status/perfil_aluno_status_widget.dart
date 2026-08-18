@@ -82,7 +82,8 @@ class _PerfilAlunoStatusWidgetState extends State<PerfilAlunoStatusWidget> {
     );
     if (!mounted) return;
 
-    await action_blocks.alunosdopersonal(context, uuidpersonal: currentUserUid);
+    await action_blocks.alunosdopersonal(context,
+        uuidpersonal: currentUserUid, forcar: true);
     if (!mounted) return;
 
     safeSetState(() {

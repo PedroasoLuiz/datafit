@@ -1788,6 +1788,7 @@ class _CriaralunoWidgetState extends State<CriaralunoWidget> {
                                           await action_blocks.alunosdopersonal(
                                             context,
                                             uuidpersonal: currentUserUid,
+                                            forcar: true,
                                           );
                                           safeSetState(() {});
                                           context.safePop();

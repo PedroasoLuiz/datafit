@@ -26,10 +26,32 @@ Future perfil(BuildContext context) async {
   }
 }
 
+/// Quando a lista de alunos foi buscada do servidor pela ultima vez.
+///
+/// `/aluno` e aba do shell, e trocar de aba desmonta e remonta a pagina: sem
+/// validade, cada toque na aba gastaria uma viagem de rede para trazer a mesma
+/// lista. No banco a consulta e barata (8ms quentes), o desperdicio e no
+/// aparelho e no 4G do personal.
+DateTime? _ultimaBuscaDeAlunos;
+
+/// Por quanto tempo a lista em cache e considerada boa.
+const Duration _validadeDaListaDeAlunos = Duration(seconds: 60);
+
 Future alunosdopersonal(
   BuildContext context, {
   required String? uuidpersonal,
+
+  /// `true` quando a mudanca acabou de sair daqui (aluno criado, status trocado)
+  /// e o cache com certeza esta velho.
+  bool forcar = false,
 }) async {
+  final agora = DateTime.now();
+  if (!forcar &&
+      _ultimaBuscaDeAlunos != null &&
+      agora.difference(_ultimaBuscaDeAlunos!) < _validadeDaListaDeAlunos) {
+    return;
+  }
+
   ApiCallResponse? apiResultvz1;
 
   apiResultvz1 = await PersonalGroup.alunosCall.call(
@@ -44,6 +66,7 @@ Future alunosdopersonal(
         .withoutNulls
         .toList()
         .cast<PersonalalunosStruct>();
+    _ultimaBuscaDeAlunos = agora;
     FFAppState().update(() {});
   }
 }

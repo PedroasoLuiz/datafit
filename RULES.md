@@ -103,6 +103,53 @@ Container / Row / Stack / Positioned
 
 ---
 
+## E-mails do Auth (o que quebra em silêncio)
+
+Três lugares diferentes precisam estar certos, e nenhum deles avisa quando está
+errado. Diagnóstico de 16/08/2026, quando nenhum e-mail funcionava.
+
+1. **O template**, em Authentication > Emails. O botão tem que apontar para
+   `{{ .ConfirmationURL }}`, que já vem montado com token, tipo e `redirect_to`.
+   O template do reset apontava para `{{ .SiteURL }}/auth/callback?token_hash=...`,
+   receita de app web com servidor: `godata.fit` é só a landing e não tem essa
+   rota, então o clique morria no site sem nem passar pelo Supabase.
+2. **A lista de Redirect URLs**, em Authentication > URL Configuration. Fora dela
+   o GoTrue **descarta** o `redirectTo` pedido e manda a pessoa para a Site URL,
+   que é a landing. Precisa conter `com.virtus.datafit://reset-password` e
+   `com.virtus.datafit://login-callback`.
+3. **O SMTP**. Hoje é próprio, remetente `no-reply@godata.fit`, e entrega em
+   Gmail. Com o SMTP padrão do Supabase seriam 2 a 4 e-mails por hora, só para
+   e-mails da equipe do projeto.
+
+Como conferir sem adivinhar: **leia o `href` de dentro de um e-mail real.** E
+antes de concluir que o template não pegou, procure
+`reloading api with new configuration` no `auth_logs`: é o GoTrue recarregando a
+config, e e-mail gerado antes dessa linha ainda usa o template anterior.
+
+Limite do envio: `/recover` para o mesmo e-mail tem espera crescente
+(`over_email_send_rate_limit`, chega a pedir 57 segundos). Testar em rajada dá
+429 e nenhum e-mail sai, o que parece falha do conserto.
+
+---
+
+## Cache de lista com validade
+
+`alunosdopersonal` (em `actions/actions.dart`) guarda quando buscou pela última
+vez e ignora chamadas dentro de 60 segundos. Quem acabou de mudar a lista passa
+`forcar: true` (criar aluno, trocar status).
+
+Por que existe: `/aluno` está em `_rotasDeAba`, dentro do `ShellRoute`, e trocar
+de aba **desmonta e remonta** a página. Sem validade, cada toque na aba gastaria
+uma viagem de rede para trazer a mesma lista. No banco a consulta é barata
+(8ms quentes), o desperdício é no 4G do personal.
+
+E por que a tela busca em vez de só ler o cache: a lista só vinha do `Loading`,
+então convite aceito depois disso seguia aparecendo como **pendente** até o app
+ser reaberto. Quem aceita é o aluno, do outro lado, e não tem como avisar este
+cache.
+
+---
+
 ## Folhas do rodapé — use o `folha_kit`
 
 Todo formulário e listagem que sobe do rodapé usa `lib/components/folha_kit.dart`.

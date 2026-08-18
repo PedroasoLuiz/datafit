@@ -127,6 +127,31 @@ Notificações geradas automaticamente (pagamento, convite, treino, meta, etc.).
 | `meta` | `flag_rounded` | `accent2` | — |
 | default | bell | `#F3E5F5` | — |
 
+#### `FeedbacksApp`
+Feedback sobre **o app**. Não confundir com `AvaliacoesPersonal`, que é a nota
+do aluno ao seu personal e aparece no perfil dele. O que chega aqui é privado:
+só volta para quem escreveu e para a triagem por SQL.
+
+| Coluna | Tipo | Obs |
+|---|---|---|
+| `Id` | `bigint` PK identity | |
+| `PerfisId` | `uuid` FK | → `Perfis."idUser"`, `ON DELETE CASCADE` |
+| `Tipo` | `varchar` | `sugestao` / `problema` / `elogio` / `outro` (CHECK) |
+| `Nota` | `smallint` nullable | 1 a 5, opcional |
+| `Mensagem` | `text` | obrigatória, não vazia (CHECK) |
+| `Contato` | `varchar` nullable | e-mail para resposta |
+| `Plataforma` | `varchar` nullable | `android` / `ios` / `web` |
+| `VersaoApp` | `varchar` nullable | `1.0.45+39`, vinda do `package_info_plus` |
+| `Status` | `varchar` | `novo` / `lido` / `respondido` / `arquivado` (CHECK) |
+| `NotaInterna` | `text` nullable | anotação da triagem |
+| `IsDeleted` | `bool` | default `false` |
+| `created_at` / `updated_at` | `timestamptz` | |
+
+**RLS:** leitura e escrita só do próprio (`"PerfisId" = auth.uid()`).
+**Como ler a caixa:** `SELECT * FROM public.vw_feedbacks_app WHERE status = 'novo';`
+A view junta nome e papel de quem escreveu e **não tem GRANT** para `anon` /
+`authenticated` — roda com os direitos do dono e passaria por cima do RLS.
+
 ---
 
 ### 🏋️ Treinos
@@ -330,6 +355,7 @@ Status calculado por comparação entre `DataPagamento` e `DataVencimento` — *
 | `marcar_notificacao_lida` | Marca notificação como lida |
 | `criar_notificacao` | Cria notificação genérica (aceita `p_tag`) |
 | `verificar_usuario_por_email` | Verifica se email existe na auth; retorna `existeNaAuth`, `userId`, `perfilCompleto`, `outrosPersonais` |
+| `get_alunos_do_personal` | Lista do personal. 8ms quentes, 3391 buffers (todos em memória), `SECURITY DEFINER`. **Gordura conhecida:** `ultimoTreino` e `diasSemTreinar` fazem o mesmo join de `TreinosConclusao` com `TreinosExecucao` duas vezes por aluno; juntar num `LATERAL` corta perto da metade |
 | `criar_ou_vincular_aluno` | Recebe o UUID já criado pela Edge Function `criar-usuario-auth`, cria Perfis, cria PersonalAlunos (pendente), dispara notif `convite`; retorna `ALUNO_JA_VINCULADO` se conflito sem forcarVinculo, e `SEM_USUARIO_AUTH` se vier sem UUID. **Não cria usuário na auth** |
 
 ### Convite / Vínculo
@@ -337,6 +363,12 @@ Status calculado por comparação entre `DataPagamento` e `DataVencimento` — *
 |---|---|
 | `responder_convite_personal` | Aluno aceita/recusa convite; ao aceitar: desativa personal antigo + treinos; ao recusar: marca recusado. Marca notif como lida em ambos os casos |
 | `get_convites_pendentes` | Lista convites pendentes do aluno (PersonalAlunos com StatusConvite='pendente') |
+
+### Feedback do app
+| RPC | Descrição |
+|---|---|
+| `enviar_feedback_app` | Grava em `FeedbacksApp`. Params: `p_tipo`, `p_mensagem`, `p_nota`, `p_contato`, `p_plataforma`, `p_versao`. Erros: `SEM_SESSAO`, `TIPO_INVALIDO`, `MENSAGEM_VAZIA`, `NOTA_INVALIDA`, `LIMITE_DIARIO` (teto de **5 por dia** por pessoa, contados em `America/Sao_Paulo`) |
+| `meus_feedbacks_app` | Envios da própria pessoa com `status`, do mais novo para o mais antigo |
 
 ### Pagamentos
 | RPC | Descrição |

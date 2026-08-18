@@ -60,6 +60,9 @@ Deep link scheme: `com.virtus.datafit://`
 - `TreinosExecucao`: ciclo 1 é o **plano**, ciclos > 1 são as repetições. `DataValidade` pertence ao plano
 - `ExerciciosTreinos` **não tem** `IsDeleted`
 - **Nunca** criar usuário com `INSERT` em `auth.users`: usuário sem `auth.identities` não entra por método nenhum e o `/recover` responde sucesso sem enviar. Use a Edge Function `criar-usuario-auth`
+- E-mail do Auth: template usa `{{ .ConfirmationURL }}`, e o deep link precisa estar em Redirect URLs, senão o link cai na landing. Ver `RULES.md`
+- Sessão vinda do link de recuperação é sessão real: o portão de `auth/recuperacao_senha.dart` segura o app até a senha ser trocada
+- Dois feedbacks diferentes: `AvaliacoesPersonal` é a nota **pública** do aluno ao personal; `FeedbacksApp` é o recado **privado** sobre o app, lido por `vw_feedbacks_app`
 
 ---
 

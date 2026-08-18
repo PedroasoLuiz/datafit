@@ -66,14 +66,24 @@
 1. Abre `NovoAlunoWidget` (bottom sheet animado) e digita email
 2. Debounce 2s → `verificar_usuario_por_email` → exibe se já tem cadastro, perfil completo, e personal atual
 3. Preenche nome (obrigatório) e confirma
-4. `criar_ou_vincular_aluno`:
-   - Se aluno não tem conta → cria em `auth.users` + `Perfis`, envia e-mail de redefinição de senha
-   - Se aluno tem conta → reaproveita UUID existente
+4. Edge Function `criar-usuario-auth` cria a conta no Auth (Admin API) e devolve o `userId`. É idempotente: e-mail que já existe volta com `criado: false`. **A RPC não cria mais usuário** (ver a armadilha do INSERT cru em `RULES.md`)
+5. `criar_ou_vincular_aluno`, já com o UUID em mão:
+   - Cria `Perfis` **se ainda não existir**, e envia e-mail para o aluno definir senha
+   - Sem UUID devolve `SEM_USUARIO_AUTH`
    - Se já vinculado a outro personal → retorna `ALUNO_JA_VINCULADO`; UI pede confirmação; reenvio com `forcarVinculo=true`
    - Cria `PersonalAlunos` com `StatusConvite='pendente'` e dispara notificação `convite` pro aluno
-5. Aluno aparece como pendente até aceitar o convite
-6. Pode ativar/desativar aluno (`toggle_aluno_ativo`)
-7. Visualiza dashboard individual de cada aluno
+6. Aluno aparece como pendente até aceitar o convite
+7. Pode ativar/desativar aluno (`toggle_aluno_ativo`)
+8. Visualiza dashboard individual de cada aluno
+
+**Personal como aluno de si mesmo.** Nada impede um personal de convidar o
+próprio e-mail: o vínculo nasce com o mesmo UUID nas duas pontas de
+`PersonalAlunos`. Como o `Perfis` dele já existe, a RPC não cria perfil de aluno
+e o `TiposPerfilId` continua **1, Personal**. Na prática ele aparece na própria
+lista de alunos e pode receber treino, pagamento e ficha, tudo pelo lado do
+personal, mas **nunca vê o app do lado do aluno**, porque o app escolhe o lado
+pelo `TiposPerfilId`. Serve para testar o lado do personal, não a experiência do
+aluno. Para essa, conta separada.
 
 ### Criação de treinos
 1. Cria template de treino (`upsert_treino`)
