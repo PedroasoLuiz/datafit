@@ -62,6 +62,20 @@ Restam 6 itens abertos.
 
 ### Armadilhas para não reaprender
 
+- **Rejeição da 1.0.2: ATT sem o app rastrear.** A mensagem dizia que o
+  formulário **App Privacy** do App Store Connect declarava coleta de dados
+  "used to track", e que sem o AppTrackingTransparency a revisão não seguia.
+  O binário sempre esteve certo: `PrivacyInfo.xcprivacy` traz
+  `NSPrivacyTracking = false`, domínios vazios e `Tracking = false` em todos os
+  tipos; não há ATT, `AdSupport` nem IDFA no projeto; e o `pubspec.yaml` só tem
+  `firebase_core` e `firebase_messaging` (push), sem Firebase **Analytics**,
+  AdMob, Facebook, AppsFlyer, Mixpanel ou Sentry. O erro estava na resposta do
+  formulário, não no código. Conserto: App Privacy (fora da versão, no nível do
+  app) > Edit > responder **No** em "Is this data used to track you?" em cada
+  tipo de dado > **Publish** > responder no Resolution Center. O Device ID
+  existe (token do FCM) e vai como coletado, vinculado, App Functionality, sem
+  tracking.
+
 - As calls do FlutterFlow (`api_calls.dart`) mandam a **anon key** no
   `Authorization`, não o JWT — `auth.uid()` chega NULL. RPC que depende do usuário
   logado tem que ir por `SupaFlow.client.rpc(...)`.
